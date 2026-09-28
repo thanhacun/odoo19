@@ -1,0 +1,8 @@
+config
+db
+odoodata
+sshkeys
+temp
+.env
+docker-compose*
+odoo.config
