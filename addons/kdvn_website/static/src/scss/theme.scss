@@ -1295,10 +1295,13 @@ $kdvn-hero-height: 900px;
         display: flex;
         gap: 8px;
     }
-    .kdvn-hero-arrow {
-        // reset Bootstrap / Odoo carousel control styles
-        position: static;
-        width: 56px;
+    // Reset Bootstrap + Odoo's carousel control styles: Odoo's old carousel
+    // CSS (.s_carousel_wrapper:not([data-vcss]) …) makes them absolute, 8%
+    // wide and hides them on mobile, which put the arrows in the wrong place
+    // and order.
+    .s_carousel .kdvn-hero-arrow {
+        position: static !important;
+        width: 56px !important;
         opacity: 1;
         &.d-none { display: none !important; }   // single slide: Odoo hides them
     }
@@ -1365,11 +1368,15 @@ $kdvn-hero-height: 900px;
     object-fit: cover;
 }
 
+// Wider than 1440: the text column lines up with the 1440px header/content
+// (extra space added on its left), the photo keeps going to the right edge.
+$kdvn-hero-gutter: unquote("max(0px, (100% - 1440px) / 2)");
+
 @include media-breakpoint-up(xl) {
     .s_kdvn_hero .kdvn-hero-controls {
         // right edge 24px before the photo
         right: auto;
-        left: $kdvn-hero-text-width - 24px - 2 * 56px - 8px;
+        left: calc(#{$kdvn-hero-gutter} + #{$kdvn-hero-text-width - 24px - 2 * 56px - 8px});
     }
 
     .kdvn-hero-slide {
@@ -1378,8 +1385,8 @@ $kdvn-hero-height: 900px;
     }
 
     .kdvn-hero-text {
-        flex: 0 0 $kdvn-hero-text-width;
-        padding: 136px 24px $spacing-gap-2x-large 40px;
+        flex: 0 0 calc(#{$kdvn-hero-gutter} + #{$kdvn-hero-text-width});
+        padding: 136px 24px $spacing-gap-2x-large calc(#{$kdvn-hero-gutter} + 40px);
     }
 
     .kdvn-hero-title {
