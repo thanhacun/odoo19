@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ===================================================================== -->
+    <!-- Shared inner-page parts (Figma: frames/president-message-desktop.png) -->
+    <!--                                                                       -->
+    <!-- Usage in a page: t-call kdvn_website.page_header at the top and      -->
+    <!-- kdvn_website.page_footer_nav at the bottom of #wrap.                  -->
+    <!-- Optional values (t-set before the t-call):                            -->
+    <!--   kdvn_page_title    title text (default: the menu item's name)       -->
+    <!--   kdvn_page_url      URL to look up in the menu (default: this page)  -->
+    <!--   kdvn_parent_url    for pages not in the menu: menu item they belong -->
+    <!--                      under (e.g. '/jobs' for one job)                 -->
+    <!--   kdvn_extra_crumbs  list of (name, url) after the menu trail         -->
+    <!-- ===================================================================== -->
+
+    <!-- Kinden > trail > title. Expects kdvn_bc. -->
+    <template id="breadcrumb" name="KDVN Breadcrumb">
+        <nav aria-label="breadcrumb" class="kdvn-breadcrumb">
+            <ol class="kdvn-breadcrumb-list">
+                <li class="kdvn-breadcrumb-item"><a href="/">Kinden</a></li>
+                <li t-foreach="kdvn_bc['trail']" t-as="crumb" class="kdvn-breadcrumb-item">
+                    <i class="ri-arrow-right-s-line" aria-hidden="true"/>
+                    <a t-if="crumb[1] and crumb[1] != '#'" t-att-href="crumb[1]" t-out="crumb[0]"/>
+                    <span t-else="" t-out="crumb[0]"/>
+                </li>
+                <li class="kdvn-breadcrumb-item" aria-current="page">
+                    <i class="ri-arrow-right-s-line" aria-hidden="true"/>
+                    <span t-out="kdvn_bc['title']"/>
+                </li>
+            </ol>
+        </nav>
+    </template>
+
+    <!-- Top of an inner page: breadcrumb, big title, divider (+ breadcrumb data for Google) -->
+    <template id="page_header" name="KDVN Page Header">
+        <t t-set="kdvn_bc" t-value="request.env['website.menu']._kdvn_breadcrumb(website,
+            url=kdvn_page_url or (main_object.url if main_object and main_object._name == 'website.page' else request.httprequest.path),
+            parent_url=kdvn_parent_url, title=kdvn_page_title, extra=kdvn_extra_crumbs)"/>
+        <section class="kdvn-page-header">
+            <script type="application/ld+json" t-out="request.env['website.menu']._kdvn_breadcrumb_json_ld(website, kdvn_bc)"/>
+            <div class="kdvn-container">
+                <t t-call="kdvn_website.breadcrumb"/>
+                <h1 class="kdvn-page-title" t-out="kdvn_bc['title']"/>
+                <div class="kdvn-divider"/>
+            </div>
+        </section>
+    </template>
+
+    <!-- Bottom of an inner page: divider + breadcrumb again -->
+    <template id="page_footer_nav" name="KDVN Page Footer Nav">
+        <t t-set="kdvn_bc" t-value="request.env['website.menu']._kdvn_breadcrumb(website,
+            url=kdvn_page_url or (main_object.url if main_object and main_object._name == 'website.page' else request.httprequest.path),
+            parent_url=kdvn_parent_url, title=kdvn_page_title, extra=kdvn_extra_crumbs)"/>
+        <section class="kdvn-page-footer-nav">
+            <div class="kdvn-container">
+                <div class="kdvn-divider"/>
+                <t t-call="kdvn_website.breadcrumb"/>
+            </div>
+        </section>
+    </template>
+</odoo>

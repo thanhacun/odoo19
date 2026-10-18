@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Starting images (illustrations). noupdate: images replaced in the backend are kept on module update. -->
+    <data noupdate="1">
+        <record id="media_general_director_photo" model="kdvn.website.media">
+            <field name="name">General Director Message - photo</field>
+            <field name="key">general_director_photo</field>
+            <field name="sequence">10</field>
+            <field name="note">Board of Directors group photo. Landscape works best (about 1536 x 1024).</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/general-director-bod.jpg"/>
+        </record>
+        <record id="media_company_history_intro" model="kdvn.website.media">
+            <field name="name">Company History - intro photo</field>
+            <field name="key">company_history_intro</field>
+            <field name="sequence">20</field>
+            <field name="note">Shown centred, up to 620 px wide. The caption is page text (translatable), not part of the image.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/company-history-first-president.jpg"/>
+        </record>
+        <record id="media_logo_white" model="kdvn.website.media">
+            <field name="name">Footer - white logo</field>
+            <field name="key">logo_white</field>
+            <field name="sequence">90</field>
+            <field name="note">White logo on transparent background (PNG), about 192 px wide on screen.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/kinden-logo-white.png"/>
+        </record>
+        <record id="media_footer_background" model="kdvn.website.media">
+            <field name="name">Footer - background photo</field>
+            <field name="key">footer_background</field>
+            <field name="sequence">91</field>
+            <field name="note">Building photo behind the footer (a dark overlay is added on top). Landscape, at least 1920 px wide.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/footer-background-placeholder.jpg"/>
+        </record>
+        <record id="media_group_companies_hero" model="kdvn.website.media">
+            <field name="name">Group Companies - intro photo</field>
+            <field name="key">group_companies_hero</field>
+            <field name="sequence">30</field>
+            <field name="note">Portrait building photo next to the intro text (about 435 x 560 on screen).</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/group-companies-hero.jpg"/>
+        </record>
+        <record id="media_management_creed" model="kdvn.website.media">
+            <field name="name">Group Companies - management creed calligraphy</field>
+            <field name="key">management_creed</field>
+            <field name="sequence">31</field>
+            <field name="note">Calligraphy image, white background, about 390 px wide on screen. Use the original high-resolution scan.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/management-creed.jpg"/>
+        </record>
+        <record id="media_kinden_vietnam_site" model="kdvn.website.media">
+            <field name="name">Group Companies - site work photo</field>
+            <field name="key">kinden_vietnam_site</field>
+            <field name="sequence">32</field>
+            <field name="note">Landscape photo between the two paragraphs (about 650 x 300).</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/kinden-vietnam-site.jpg"/>
+        </record>
+        <record id="media_kinden_vietnam_building" model="kdvn.website.media">
+            <field name="name">Group Companies - office building photo</field>
+            <field name="key">kinden_vietnam_building</field>
+            <field name="sequence">33</field>
+            <field name="note">Portrait photo on the right of the Kinden Vietnam section (about 555 x 710).</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/kinden-vietnam-building.jpg"/>
+        </record>
+        <record id="media_kinden_vietnam_gallery_1" model="kdvn.website.media">
+            <field name="name">Group Companies - gallery photo 1</field>
+            <field name="key">kinden_vietnam_gallery_1</field>
+            <field name="sequence">34</field>
+            <field name="note">Gallery strip photo, landscape (about 320 x 200).</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/kinden-vietnam-gallery-1.jpg"/>
+        </record>
+        <record id="media_kinden_vietnam_gallery_2" model="kdvn.website.media">
+            <field name="name">Group Companies - gallery photo 2</field>
+            <field name="key">kinden_vietnam_gallery_2</field>
+            <field name="sequence">35</field>
+            <field name="note">Gallery strip photo, landscape (about 320 x 200).</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/kinden-vietnam-gallery-2.jpg"/>
+        </record>
+        <record id="media_kinden_vietnam_gallery_3" model="kdvn.website.media">
+            <field name="name">Group Companies - gallery photo 3</field>
+            <field name="key">kinden_vietnam_gallery_3</field>
+            <field name="sequence">36</field>
+            <field name="note">Gallery strip photo, landscape (about 320 x 200).</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/kinden-vietnam-gallery-3.jpg"/>
+        </record>
+        <record id="media_kinden_vietnam_gallery_4" model="kdvn.website.media">
+            <field name="name">Group Companies - gallery photo 4</field>
+            <field name="key">kinden_vietnam_gallery_4</field>
+            <field name="sequence">37</field>
+            <field name="note">Gallery strip photo, landscape (about 320 x 200).</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/kinden-vietnam-gallery-4.jpg"/>
+        </record>
+        <record id="media_business_electrical_system" model="kdvn.website.media">
+            <field name="name">Home - Business Information - Electrical Systems</field>
+            <field name="key">business_electrical_system</field>
+            <field name="sequence">30</field>
+            <field name="note">Shown 511 x 733 px on desktop (portrait, about 1022 x 1466), full width on mobile. Starting image is the same illustration for all items: replace it.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/home-business-electrical.jpg"/>
+        </record>
+        <record id="media_business_instrumentation_systems" model="kdvn.website.media">
+            <field name="name">Home - Business Information - Instrumentation Systems</field>
+            <field name="key">business_instrumentation_systems</field>
+            <field name="sequence">31</field>
+            <field name="note">Shown 511 x 733 px on desktop (portrait, about 1022 x 1466), full width on mobile. Starting image is the same illustration for all items: replace it.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/home-business-electrical.jpg"/>
+        </record>
+        <record id="media_business_ict_systems" model="kdvn.website.media">
+            <field name="name">Home - Business Information - Information &amp; Communication Systems</field>
+            <field name="key">business_ict_systems</field>
+            <field name="sequence">32</field>
+            <field name="note">Shown 511 x 733 px on desktop (portrait, about 1022 x 1466), full width on mobile. Starting image is the same illustration for all items: replace it.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/home-business-electrical.jpg"/>
+        </record>
+        <record id="media_business_hvac_sanitary_systems" model="kdvn.website.media">
+            <field name="name">Home - Business Information - Air Conditioning &amp; Sanitary Systems</field>
+            <field name="key">business_hvac_sanitary_systems</field>
+            <field name="sequence">33</field>
+            <field name="note">Shown 511 x 733 px on desktop (portrait, about 1022 x 1466), full width on mobile. Starting image is the same illustration for all items: replace it.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/home-business-electrical.jpg"/>
+        </record>
+        <record id="media_business_interior_systems" model="kdvn.website.media">
+            <field name="name">Home - Business Information - Interior Systems</field>
+            <field name="key">business_interior_systems</field>
+            <field name="sequence">34</field>
+            <field name="note">Shown 511 x 733 px on desktop (portrait, about 1022 x 1466), full width on mobile. Starting image is the same illustration for all items: replace it.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/home-business-electrical.jpg"/>
+        </record>
+        <record id="media_business_energy_saving_renewal" model="kdvn.website.media">
+            <field name="name">Home - Business Information - Energy Saving &amp; Renewal</field>
+            <field name="key">business_energy_saving_renewal</field>
+            <field name="sequence">35</field>
+            <field name="note">Shown 511 x 733 px on desktop (portrait, about 1022 x 1466), full width on mobile. Starting image is the same illustration for all items: replace it.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/home-business-electrical.jpg"/>
+        </record>
+        <record id="media_business_maintenance_services" model="kdvn.website.media">
+            <field name="name">Home - Business Information - Maintenance Services</field>
+            <field name="key">business_maintenance_services</field>
+            <field name="sequence">36</field>
+            <field name="note">Shown 511 x 733 px on desktop (portrait, about 1022 x 1466), full width on mobile. Starting image is the same illustration for all items: replace it.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/home-business-electrical.jpg"/>
+        </record>
+    </data>
+</odoo>

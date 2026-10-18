@@ -5,4 +5,14 @@ sshkeys
 temp
 .env
 docker-compose*
-odoo.config
+odoo.conf
+bash_history
+odoo
+*.pyc
+design/kdvn_website/specs
+claude
+configvsweb
+__pycache__/
+
+# Figma PNG exports (large, kept on disk only)
+design/kdvn_website/frames/

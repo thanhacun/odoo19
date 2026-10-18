@@ -1,0 +1,1549 @@
+// ============================================================================
+// RESPONSIVE UTILITY BREAKPOINTS (BOOTSTRAP 5 COMPLIANT)
+// ============================================================================
+
+.text-neutral-strong {
+    color: $color-content-neutral-strongest !important;
+}
+
+// --- HEADER CONTAINER STRUCTURAL SPACING BINDINGS
+.kdvn-header-container {
+    padding-top: $spacing-gap-2x-large !important;
+    padding-bottom: $spacing-gap-2x-large !important;
+    padding-left: $spacing-gap-medium !important;
+    padding-right: $spacing-gap-medium !important;
+}
+
+// ============================================================================
+// HEADER BAR (Figma: Navigation bar — desktop & mobile frames, 2026-10-15)
+// ============================================================================
+
+// Background blur: Figma "Background blur" = 80 → CSS blur(40px) (CSS ≈ Figma / 2).
+// Fill opacity not confirmed yet: white 80% is a placeholder.
+$kdvn-header-bg: rgba(255, 255, 255, 0.8);
+$kdvn-header-blur: 40px;
+
+// The blur sits on a pseudo-element: a backdrop-filter on the header itself
+// would stop the mega menu panel (a child) from blurring the page behind it.
+@mixin kdvn-glass {
+    background-color: $kdvn-header-bg;
+    -webkit-backdrop-filter: blur($kdvn-header-blur);
+    backdrop-filter: blur($kdvn-header-blur);
+}
+
+.kdvn-header {
+    background-color: transparent;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        @include kdvn-glass;
+    }
+}
+
+// Bar padding — mobile: 20px / 24px
+.kdvn-navbar-main-content {
+    padding: $spacing-padding-large $spacing-padding-x-large !important;
+    width: 100%;
+}
+// desktop: 20px top/right/bottom, 40px left (as measured in Figma)
+@include media-breakpoint-up(xl) {
+    .kdvn-navbar-main-content {
+        padding: $spacing-padding-large $spacing-padding-large $spacing-padding-large $spacing-padding-3x-large !important;
+    }
+}
+
+.kdvn-header-logo {
+    display: block;
+    width: 104px;
+    height: auto;
+}
+
+// Mobile menu button: 40×40 grey square
+.kdvn-menu-toggle {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid $color-border-neutral-subtle-default;
+    border-radius: 0;
+    background-color: $color-background-neutral-ghost-default;
+    color: $color-content-neutral-strongest;
+    font-size: 20px;
+    line-height: 1;
+
+    &:focus {
+        box-shadow: none;
+    }
+    &:focus-visible {
+        outline: 2px solid $color-focus-accent-solid;
+        outline-offset: 2px;
+    }
+}
+
+// ============================================================================
+// DESIGN SYSTEM: ACTION BUTTON COMPONENT CONFIGURATION PROFILE
+// ============================================================================
+
+.kdvn-action-btn {
+    // 1. DIMENSION MATRIX CONFIGURATIONS
+    width: 56px !important;
+    height: 56px !important;
+    min-width: 56px !important;
+    border-radius: 0 !important;
+    
+    // Flex center alignments for perfect inner icon placement
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease-in-out !important;
+
+    // 2. FIGMA TOKEN SPECIFICATION PADDINGS
+    padding-top: $spacing-padding-medium !important;
+    padding-bottom: $spacing-padding-medium !important;
+    padding-left: $spacing-padding-medium !important;
+    padding-right: $spacing-padding-medium !important;
+
+    // 3. COLOR PALETTE MAP BINDINGS
+    border: 1px solid $color-border-neutral-subtle-default !important;
+    background-color: $color-background-neutral-ghost-default !important;
+    color: $color-content-neutral-strongest !important;
+
+    // 4. INNER ICON SIZE MATRICES (Enforces strict 20x20 sizing)
+    i, .ri {
+        font-size: 20px !important;
+        width: 20px !important;
+        height: 20px !important;
+        line-height: 20px !important;
+        display: inline-block !important;
+        text-align: center !important;
+    }
+
+    // Hover interactive state behaviors
+    &:hover {
+        opacity: 0.85;
+        border-color: $color-content-neutral-strongest !important;
+        background-color: rgba(0, 0, 0, 0.03) !important;
+    }
+}
+
+// ============================================================================
+// MEGA MENU (Figma prototype: frames/megamenu-company-profile-prototype.png)
+// Hover on a top item = thin underline; click = open this panel.
+// ============================================================================
+
+// Top bar while a panel is open: open item bold black, the others grey, no underline
+@include media-breakpoint-up(xl) {
+    .kdvn-centered-menu-group:has(.dropdown-toggle.show) > .nav-item > .kdvn-nav-link:not(.show) {
+        color: $color-content-neutral-base !important;
+    }
+}
+.kdvn-nav-link.dropdown-toggle {
+    &.show {
+        font-weight: $emphasis-font-weight-bold;
+        &::after {
+            opacity: 0 !important;
+        }
+    }
+}
+
+.kdvn-mega-menu-panel {
+    margin: 0 !important;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+}
+
+@include media-breakpoint-up(xl) {
+    .kdvn-mega-menu-panel.show {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+        border-top: 1px solid $color-border-neutral-subtle-default;
+        @include kdvn-glass;
+    }
+}
+
+.kdvn-mega-menu-inner {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-gap-large;
+    padding: $spacing-padding-large $spacing-padding-x-large;
+
+    @include media-breakpoint-up(xl) {
+        flex-direction: row;
+        align-items: stretch;
+        gap: 0;
+        padding: $spacing-padding-x-large $spacing-padding-large $spacing-padding-x-large $spacing-padding-3x-large;
+    }
+}
+
+// Left column: title + View details
+.kdvn-mega-menu-intro {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: $spacing-gap-x-large;
+
+    @include media-breakpoint-up(xl) {
+        flex: 0 0 290px;
+        padding-right: $spacing-padding-x-large;
+    }
+}
+
+.kdvn-mega-menu-title {
+    // Mobile menu: the open item already names the section (mobile design pending)
+    @include media-breakpoint-down(xl) {
+        display: none;
+    }
+    margin: 0;
+    font-family: $typography-font-family-display, sans-serif;
+    font-size: $typography-font-size-display-5;
+    line-height: 52px;
+    letter-spacing: -1px;
+    font-weight: 700;
+    color: $color-content-neutral-strongest;
+}
+
+.kdvn-mega-menu-description {
+    margin: 0;
+    font-size: $typography-font-size-body-base;
+    color: $color-content-neutral-base;
+}
+
+// Secondary button on the glass background (View details)
+.kdvn-btn-ghost {
+    padding: $spacing-padding-x-small $spacing-padding-medium;
+    font-size: $typography-font-size-body-small;
+    font-weight: $emphasis-font-weight-medium;
+    color: $color-content-neutral-strongest;
+    background-color: $color-background-neutral-ghost-default;
+    border: 1px solid $color-border-neutral-subtle-default;
+    border-radius: 0;
+
+    &:hover {
+        color: $color-content-neutral-strongest;
+        background-color: $color-background-neutral-ghost-hover;
+        border-color: $color-border-neutral-subtle-hover;
+    }
+}
+
+// Right column: links, 5 per column, then a new column
+.kdvn-mega-menu-links {
+    @include media-breakpoint-up(xl) {
+        display: grid;
+        grid-auto-flow: column;
+        grid-template-rows: repeat(5, auto);
+        grid-auto-columns: 395px;
+        column-gap: $spacing-gap-large;
+        align-content: start;
+    }
+}
+
+.kdvn-mega-menu-link {
+    display: block;
+    padding: $spacing-padding-medium $spacing-padding-small;
+    font-size: $typography-font-size-body-large;
+    font-weight: $emphasis-font-weight-regular;
+    color: $color-content-neutral-base;
+    text-decoration: none;
+    border-bottom: 1px solid $color-border-neutral-subtle-default;
+
+    &:hover, &:focus-visible {
+        font-weight: $emphasis-font-weight-bold;
+        color: $color-content-neutral-strongest;
+        border-bottom-color: $color-focus-accent-solid;
+        text-decoration: none;
+    }
+}
+
+// ============================================================================
+// INNER PAGES (Figma: frames/president-message-desktop.png, 1440px frame)
+// Vertical spacing measured from the frame; mobile values are our own (no frame yet).
+// ============================================================================
+
+// Content width: 40px side margins like the header bar, max 1440px wide
+.kdvn-container {
+    width: 100%;
+    max-width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: $spacing-padding-x-large;
+    padding-right: $spacing-padding-x-large;
+
+    @include media-breakpoint-up(xl) {
+        padding-left: $spacing-padding-3x-large;
+        padding-right: $spacing-padding-3x-large;
+    }
+}
+
+.kdvn-divider {
+    height: 0;
+    border-top: 1px solid $black-8;
+}
+
+// --- Breadcrumb
+.kdvn-breadcrumb-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $spacing-gap-x-small;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: $typography-font-size-body-base;   // 16px on mobile (frames)
+    line-height: 24px;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-body-small;
+        line-height: 20px;
+    }
+}
+.kdvn-breadcrumb-item {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-gap-x-small;
+
+    i {
+        font-size: 16px;
+        line-height: 1;
+    }
+    a {
+        padding: 0 $spacing-padding-x-small;
+        color: inherit;
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+            text-decoration-color: $color-focus-accent-solid;
+            text-underline-offset: 4px;
+        }
+    }
+    span {
+        padding: 0 $spacing-padding-x-small;
+    }
+    &:first-child a {
+        padding-left: $spacing-padding-x-small;
+    }
+}
+
+// --- Page header: breadcrumb, title, divider
+.kdvn-page-header {
+    padding-top: $spacing-gap-3x-large;
+
+    @include media-breakpoint-up(xl) {
+        padding-top: 6rem;
+    }
+}
+.kdvn-page-title {
+    margin: $spacing-gap-x-large 0;
+    font-family: $typography-font-family-display, sans-serif;
+    font-size: $typography-font-size-display-5;   // 48px on mobile (frames)
+    line-height: 52px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(xl) {
+        margin: $spacing-gap-3x-large 0 $spacing-gap-giant;
+        font-size: $typography-font-size-display-3;
+        line-height: 72px;
+        letter-spacing: -1.5px;
+    }
+}
+
+// --- Page footer nav: divider + breadcrumb
+.kdvn-page-footer-nav {
+    padding-top: $spacing-gap-3x-large;
+    padding-bottom: $spacing-gap-3x-large;
+
+    @include media-breakpoint-up(xl) {
+        padding-top: 6.5rem;
+    }
+
+    .kdvn-breadcrumb {
+        margin-top: $spacing-gap-3x-large;
+    }
+}
+
+// --- Centred quote with name and role
+.kdvn-quote-section {
+    padding-top: $spacing-gap-3x-large;
+
+    @include media-breakpoint-up(xl) {
+        padding-top: $spacing-gap-giant;
+    }
+}
+.kdvn-quote {
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
+}
+.kdvn-quote-text {
+    margin: 0;
+
+    p {
+        margin: 0;
+        font-size: 1.5rem;
+        line-height: 32px;
+        font-weight: $emphasis-font-weight-bold;
+        letter-spacing: -0.5px;
+        color: $color-content-neutral-strongest;
+        text-wrap: balance;
+
+        @include media-breakpoint-up(xl) {
+            font-size: $typography-font-size-heading-2;
+            line-height: 44px;
+            letter-spacing: -0.8px;
+        }
+    }
+}
+.kdvn-quote figcaption {
+    margin-top: $spacing-gap-large;
+}
+.kdvn-quote-name {
+    display: block;
+    font-size: $typography-font-size-body-large;
+    line-height: 28px;
+    font-weight: $emphasis-font-weight-bold;
+    color: $color-content-neutral-strongest;
+}
+.kdvn-quote-role {
+    display: block;
+    font-size: $typography-font-size-body-small;
+    line-height: 20px;
+    color: $color-content-neutral-strongest;
+}
+
+// --- Photo + text (photo left 5/12, text right from the middle)
+.kdvn-media-text {
+    padding-top: $spacing-gap-3x-large;
+
+    @include media-breakpoint-up(xl) {
+        padding-top: $spacing-gap-giant;
+    }
+
+    .row {
+        row-gap: $spacing-gap-large;
+    }
+}
+.kdvn-media-text-image {
+    display: block;
+    object-fit: cover;
+}
+.kdvn-media-text-body {
+    font-size: $typography-font-size-body-small;
+    line-height: 24px;
+    color: $color-content-neutral-strongest;
+
+    p {
+        margin: 0 0 $spacing-gap-large;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
+
+// ============================================================================
+// CONTENT BLOCKS (Figma: frames/company-history-desktop.png)
+// Reusable on any inner page: intro, year card, section title, stats, timeline.
+// ============================================================================
+
+// Big gap between sections (~120px on desktop)
+.kdvn-section {
+    padding-top: $spacing-gap-x-giant;
+
+    @include media-breakpoint-up(xl) {
+        padding-top: $spacing-gap-2x-giant;
+    }
+}
+
+// Green solid button (Figma: "Explore KINDEN CORPORATION History")
+.kdvn-btn-primary {
+    padding: $spacing-padding-small $spacing-padding-medium;
+    font-size: $typography-font-size-body-small;
+    font-weight: $emphasis-font-weight-medium;
+    line-height: 16px;
+    color: #fff;
+    background-color: $color-background-accent-solid-default;
+    border: 0;
+    border-radius: 0;
+
+    &:hover, &:focus-visible {
+        color: #fff;
+        background-color: $color-background-accent-solid-hover;
+    }
+    &:active {
+        color: #fff;
+        background-color: $color-background-accent-solid-pressed;
+    }
+}
+
+// --- Intro: tagline, paragraph, centred image
+.kdvn-intro-section {
+    padding-top: $spacing-gap-3x-large;
+
+    @include media-breakpoint-up(xl) {
+        padding-top: $spacing-gap-giant;
+    }
+}
+.kdvn-intro-tagline,
+.kdvn-intro-text {
+    font-size: $typography-font-size-body-small;
+    line-height: 24px;
+    color: $color-content-neutral-strongest;
+}
+.kdvn-intro-tagline {
+    margin-bottom: $spacing-gap-large;
+}
+.kdvn-intro-text {
+    margin-bottom: $spacing-gap-2x-large;
+}
+.kdvn-intro-image {
+    width: 100%;
+    max-width: 620px;
+}
+
+// --- Year highlight card: year left, title/text/button right
+.kdvn-year-card-section {
+    padding-top: $spacing-gap-2x-large;
+}
+.kdvn-year-card {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-gap-medium;
+    padding: $spacing-padding-x-large;
+    background-color: $color-background-canvas-default;
+
+    @include media-breakpoint-up(lg) {
+        flex-direction: row;
+        gap: 0;
+        padding: $spacing-padding-2x-large $spacing-padding-x-large;
+    }
+}
+.kdvn-year-card-year {
+    flex: 0 0 200px;
+    font-size: $typography-font-size-heading-1;
+    line-height: 40px;
+    font-weight: $emphasis-font-weight-medium;
+    color: $color-content-neutral-strongest;
+}
+.kdvn-year-card-body {
+    font-size: $typography-font-size-body-small;
+    line-height: 24px;
+    color: $color-content-neutral-strongest;
+
+    p {
+        margin-bottom: $spacing-gap-medium;
+    }
+}
+.kdvn-year-card-title {
+    margin: 0 0 $spacing-gap-x-small;
+    font-family: inherit;
+    font-size: $typography-font-size-body-large;
+    line-height: 28px;
+    font-weight: $emphasis-font-weight-bold;
+    color: $color-content-neutral-strongest;
+}
+
+// --- Section title + subtitle / lead / kicker
+.kdvn-section-title {
+    margin: 0;
+    font-family: $font-family-base;
+    font-size: $typography-font-size-heading-3;
+    line-height: 1.2;
+    font-weight: $emphasis-font-weight-medium;
+    letter-spacing: -0.8px;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(xl) {
+        font-size: $typography-font-size-heading-1;
+        line-height: 44px;
+    }
+}
+.kdvn-section-subtitle {
+    margin: $spacing-gap-large 0 0;
+    font-size: $typography-font-size-body-small;
+    line-height: 20px;
+    color: $color-content-neutral-strongest;
+}
+.kdvn-section-lead {
+    margin: $spacing-gap-x-large 0 0;
+    font-size: $typography-font-size-body-base;
+    line-height: 24px;
+    color: $color-content-neutral-strongest;
+}
+.kdvn-section-kicker {
+    margin: $spacing-gap-medium 0 0;
+    font-size: $typography-font-size-body-base;
+    line-height: 24px;
+    font-weight: $emphasis-font-weight-bold;
+    text-transform: uppercase;
+    color: $color-content-accent-light;
+}
+
+// --- Key figures: 4 columns with thin dividers (1 column on mobile)
+.kdvn-stats {
+    display: grid;
+    grid-template-columns: 1fr;
+    row-gap: $spacing-gap-x-large;
+    margin-top: $spacing-gap-x-giant;
+    text-align: center;
+
+    @include media-breakpoint-up(md) {
+        grid-template-columns: repeat(4, 1fr);
+        margin-top: $spacing-gap-2x-giant;
+    }
+}
+.kdvn-stat {
+    @include media-breakpoint-up(md) {
+        padding: $spacing-padding-2x-large $spacing-padding-medium;
+
+        & + & {
+            border-left: 1px solid $black-6;
+        }
+    }
+}
+.kdvn-stat-number {
+    font-family: $typography-font-family-display, sans-serif;
+    font-size: $typography-font-size-display-5;
+    line-height: 1.1;
+    font-weight: 700;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(xl) {
+        font-size: $typography-font-size-display-3;
+        line-height: 72px;
+        letter-spacing: -1.5px;
+    }
+}
+.kdvn-stat-label {
+    margin-top: $spacing-gap-x-small;
+    font-size: $typography-font-size-body-small;
+    line-height: 20px;
+    color: $color-content-neutral-strongest;
+}
+
+// --- Timeline: year left (200px), events right, divider under each row
+.kdvn-timeline {
+    margin-top: $spacing-gap-x-large;
+
+    @include media-breakpoint-up(xl) {
+        margin-top: $spacing-gap-3x-large;
+    }
+}
+.kdvn-timeline-row {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    column-gap: $spacing-gap-medium;
+    align-items: center;
+    padding: $spacing-padding-x-large 0;
+    border-bottom: 1px solid $black-6;
+
+    @include media-breakpoint-up(lg) {
+        grid-template-columns: 200px 1fr;
+        column-gap: 0;
+        padding: $spacing-padding-2x-large 0;
+    }
+}
+.kdvn-timeline-year {
+    font-size: $typography-font-size-body-large;
+    line-height: 28px;
+    font-weight: $emphasis-font-weight-medium;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-heading-3;
+        line-height: 36px;
+    }
+}
+.kdvn-timeline-events {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-gap-medium;
+
+    p {
+        margin: 0;
+        font-size: $typography-font-size-body-small;
+        line-height: 20px;
+        font-weight: $emphasis-font-weight-medium;
+        color: $color-content-neutral-strongest;
+
+        @include media-breakpoint-up(lg) {
+            font-size: $typography-font-size-body-base;
+            line-height: 24px;
+        }
+    }
+}
+
+// --- Image with caption over its bottom edge (caption is page text, so it can be translated)
+.kdvn-media-figure {
+    position: relative;
+    margin: 0 auto;
+}
+.kdvn-media-caption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: $spacing-padding-x-small $spacing-padding-medium;
+    font-size: $typography-font-size-caption;
+    line-height: 16px;
+    font-weight: $emphasis-font-weight-bold;
+    text-align: center;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+// ============================================================================
+// MOBILE MENU (below 1200px) — interim until the mobile menu is designed
+// ============================================================================
+@include media-breakpoint-down(xl) {
+    // Solid white while the menu is open: the glass blur over the page looked smudged
+    .kdvn-header:has(.navbar-collapse.show, .navbar-collapse.collapsing)::before {
+        background-color: #fff;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+
+    // A long open menu scrolls inside the screen instead of running off it
+    .kdvn-navbar-collapse-wrapper.show {
+        max-height: calc(100vh - 96px);
+        overflow-y: auto;
+    }
+
+    // Sub-items: smaller than the top items and slightly indented
+    .kdvn-mega-menu-inner {
+        gap: $spacing-gap-small;
+        padding: 0 0 $spacing-padding-medium $spacing-padding-medium;
+    }
+    .kdvn-mega-menu-link {
+        padding: $spacing-padding-small $spacing-padding-small;
+        font-size: $typography-font-size-body-base;
+        line-height: 24px;
+    }
+    // "View details" after the links
+    .kdvn-mega-menu-intro {
+        order: 2;
+    }
+}
+
+// ============================================================================
+// WIDE SCREENS (> 1440px): header and mega menu content line up with the
+// 1440px page content (.kdvn-container); backgrounds stay full width.
+// ============================================================================
+.kdvn-navbar-main-content,
+.kdvn-mega-menu-inner {
+    max-width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+// ============================================================================
+// FOOTER (Figma: frames/company-history-desktop.png, bottom)
+// ============================================================================
+.kdvn-footer {
+    position: relative;
+    isolation: isolate;
+    color: #fff;
+    background-color: #2f2d2f;
+    background-size: cover;
+    background-position: center;
+
+    // dark overlay over the photo
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background-color: rgba(13, 13, 13, 0.7);
+    }
+
+    a {
+        color: #fff;
+        text-decoration: none;
+
+        &:hover {
+            color: #fff;
+            text-decoration: underline;
+            text-decoration-color: $color-focus-accent-solid;
+            text-underline-offset: 4px;
+        }
+    }
+}
+.kdvn-footer-inner {
+    padding-top: $spacing-gap-2x-large;
+    padding-bottom: $spacing-gap-2x-large;
+}
+
+// Black box with white logo + tagline
+.kdvn-footer-brand {
+    padding: $spacing-padding-2x-large $spacing-padding-x-large;
+    background-color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(lg) {
+        padding: 34px 30px $spacing-padding-2x-large;
+    }
+}
+.kdvn-footer-logo {
+    display: block;
+    width: 140px;
+    height: auto;
+
+    @include media-breakpoint-up(lg) {
+        width: 192px;
+    }
+}
+.kdvn-footer-tagline {
+    margin: $spacing-gap-x-large 0 0;
+    font-size: $typography-font-size-body-base;
+    line-height: 24px;
+    font-weight: $emphasis-font-weight-medium;
+    letter-spacing: -0.4px;
+
+    @include media-breakpoint-up(lg) {
+        margin-top: 84px;
+        font-size: $typography-font-size-body-large;
+        line-height: 28px;
+    }
+}
+
+// Link lists
+.kdvn-footer-links {
+    margin-top: $spacing-gap-giant;
+
+    @include media-breakpoint-up(lg) {
+        margin-top: 9rem;
+    }
+
+    li + li {
+        margin-top: $spacing-gap-medium;
+    }
+    .col-12 + .col-12 {
+        margin-top: $spacing-gap-medium;
+
+        @include media-breakpoint-up(lg) {
+            margin-top: 0;
+        }
+    }
+    a {
+        font-size: $typography-font-size-body-base;
+        line-height: 24px;
+        font-weight: $emphasis-font-weight-medium;
+    }
+}
+
+// Offices + copyright
+.kdvn-footer-bottom {
+    margin-top: $spacing-gap-giant;
+    row-gap: $spacing-gap-x-large;
+
+    @include media-breakpoint-up(lg) {
+        margin-top: 9.5rem;
+    }
+}
+.kdvn-footer-office {
+    & + & {
+        margin-top: $spacing-gap-x-large;
+    }
+    h3 {
+        margin: 0 0 $spacing-gap-medium;
+        font-family: $font-family-base;
+        font-size: $typography-font-size-body-large;
+        line-height: 28px;
+        font-weight: $emphasis-font-weight-bold;
+        letter-spacing: -0.4px;
+        color: #fff;
+    }
+    p {
+        margin: 0;
+        font-size: $typography-font-size-body-small;
+        line-height: 24px;
+    }
+}
+.kdvn-footer-copyright {
+    margin: 0;
+    font-size: $typography-font-size-body-small;
+    line-height: 24px;
+}
+
+// ============================================================================
+// GROUP COMPANIES blocks — reusable
+// Measured from frames/group-companies-{desktop 1440, tablet 1280, mobile 390}.png
+// ============================================================================
+
+// Large intro sentence next to an image (28/44 desktop, 24/36 mobile)
+.kdvn-lead {
+    margin: 0 0 $spacing-gap-x-large;
+    font-size: 1.5rem;
+    line-height: 36px;
+    font-weight: $emphasis-font-weight-bold;
+    letter-spacing: -0.4px;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-heading-3;
+        line-height: 44px;
+        letter-spacing: -0.8px;
+    }
+}
+
+// Section title in the display font (MANAGEMENT CREED, PROFILE…): 48px
+.kdvn-section-title-display {
+    font-family: $typography-font-family-display, sans-serif;
+    font-size: $typography-font-size-display-5;
+    line-height: 52px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0;
+
+    @include media-breakpoint-up(xl) {
+        font-size: $typography-font-size-display-5;
+        line-height: 52px;
+        letter-spacing: 0;
+    }
+}
+
+// Management creed: calligraphy + three values
+.kdvn-creed-image {
+    width: 100%;
+    max-width: 394px;
+    margin-top: $spacing-gap-x-large;
+
+    @include media-breakpoint-up(lg) {
+        margin-top: $spacing-gap-x-giant;
+    }
+}
+.kdvn-creed {
+    display: grid;
+    grid-template-columns: 1fr;
+    row-gap: $spacing-gap-x-large;
+    margin-top: $spacing-gap-x-large;
+    text-align: center;
+
+    @include media-breakpoint-up(md) {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    @include media-breakpoint-up(lg) {
+        margin-top: 9rem;
+    }
+}
+.kdvn-creed-jp {
+    margin: 0;
+    font-size: $typography-font-size-heading-3;
+    line-height: 36px;
+    font-weight: $emphasis-font-weight-bold;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-heading-2;
+        line-height: 40px;
+    }
+}
+.kdvn-creed-en {
+    margin: $spacing-gap-x-small 0 0;
+    font-size: $typography-font-size-body-base;
+    line-height: 24px;
+    color: $color-content-neutral-strongest;
+}
+
+// Text column + tall image (body 16/24 mobile, 16/32 desktop)
+.kdvn-split {
+    row-gap: $spacing-gap-x-large;
+    margin-top: $spacing-gap-x-large;
+
+    @include media-breakpoint-up(lg) {
+        margin-top: $spacing-gap-giant;
+    }
+}
+.kdvn-split-text {
+    font-size: $typography-font-size-body-base;
+    line-height: 24px;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(lg) {
+        line-height: 32px;
+    }
+
+    p {
+        margin: 0;
+    }
+    img {
+        margin: $spacing-gap-2x-large 0;
+
+        @include media-breakpoint-up(lg) {
+            margin: 4.5rem 0;
+        }
+    }
+}
+
+// Photo strip: fixed tiles (192x120 mobile, 320x200 desktop), 16px apart,
+// running to the right edge of the screen and scrolling sideways
+.kdvn-gallery {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 192px;
+    gap: $spacing-gap-medium;
+    margin-top: $spacing-gap-2x-large;
+    margin-right: -$spacing-padding-x-large;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+
+    @include media-breakpoint-up(lg) {
+        grid-auto-columns: 320px;
+        margin-top: 4.5rem;
+    }
+    @include media-breakpoint-up(xl) {
+        margin-right: -$spacing-padding-3x-large;
+    }
+
+    img {
+        width: 100%;
+        aspect-ratio: 8 / 5;
+        object-fit: cover;
+        scroll-snap-align: start;
+    }
+}
+
+// Profile: map (575) + table (664), 121px apart on desktop; stacked on mobile
+.kdvn-profile {
+    display: grid;
+    grid-template-columns: 1fr;
+    row-gap: $spacing-gap-2x-large;
+    margin-top: $spacing-gap-x-large;
+
+    @include media-breakpoint-up(lg) {
+        grid-template-columns: minmax(0, 575fr) minmax(0, 664fr);
+        column-gap: 121px;
+        margin-top: $spacing-gap-giant;
+        align-items: start;
+    }
+}
+.kdvn-map {
+    position: relative;
+    aspect-ratio: 575 / 404;
+    background-color: $color-background-canvas-default;
+
+    iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+}
+.kdvn-map-title {
+    margin: $spacing-gap-large 0 $spacing-gap-small;
+    font-size: $typography-font-size-body-large;
+    line-height: 28px;
+    font-weight: $emphasis-font-weight-bold;
+    color: $color-content-neutral-strongest;
+}
+.kdvn-map-address {
+    margin: 0;
+    font-size: $typography-font-size-body-base;
+    line-height: 24px;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-body-small;
+    }
+
+    a {
+        display: inline-block;
+        color: $color-background-info-solid-default;
+        text-decoration: underline;
+
+        @include media-breakpoint-up(lg) {
+            margin-left: $spacing-gap-x-small;
+        }
+    }
+}
+// Label / value table, 50/50, line above and under each row
+.kdvn-profile-table {
+    margin: 0;
+    border-top: 1px solid $black-6;
+}
+.kdvn-profile-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: $spacing-gap-small;
+    padding: $spacing-padding-x-large 0;
+    border-bottom: 1px solid $black-6;
+    font-size: $typography-font-size-body-base;
+    line-height: 24px;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-body-small;
+    }
+
+    dt {
+        font-weight: $emphasis-font-weight-bold;
+    }
+    dd {
+        margin: 0;
+    }
+}
+
+// ============================================================================
+// OFFICE LOCATOR — frames/office-locations-{desktop, tablet, mobile}.png
+// Desktop/tablet: search + scrolling cards (437px) beside the map (800 tall).
+// Mobile: search, scrolling cards, then the map (310 x 400).
+// ============================================================================
+.kdvn-office-locator {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-gap-2x-large;
+
+    @include media-breakpoint-up(lg) {
+        flex-direction: row;
+        align-items: stretch;
+        gap: $spacing-gap-large;
+        height: 800px;
+    }
+}
+.kdvn-office-locator-side {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-gap-large;
+    min-height: 0;
+
+    @include media-breakpoint-up(lg) {
+        flex: 0 0 437px;
+    }
+}
+.kdvn-office-search {
+    height: 48px;
+    padding: 0 $spacing-padding-small;
+    font-size: $typography-font-size-body-base;
+    border: 1px solid #cccccc;
+    border-radius: 0;
+
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-caption;
+    }
+
+    &::placeholder {
+        color: $black-9;
+    }
+    &:focus {
+        border-color: $color-focus-accent-solid;
+        box-shadow: none;
+    }
+}
+// The card list scrolls inside its own area on every screen size
+.kdvn-office-list {
+    max-height: 728px;
+    overflow-y: auto;
+    padding-right: $spacing-padding-small;
+
+    @include media-breakpoint-up(lg) {
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: none;
+    }
+}
+.kdvn-office-card {
+    padding: $spacing-padding-small;
+    border-bottom: 1px solid $black-5;
+
+    & + & {
+        margin-top: $spacing-gap-large;
+    }
+    &.active {
+        background-color: $black-3;
+        border-bottom-color: transparent;
+
+        .kdvn-icon-box {
+            background-color: $color-background-canvas-default;
+        }
+    }
+}
+.kdvn-office-card-title {
+    margin: $spacing-gap-small 0 $spacing-gap-medium;
+    font-family: $font-family-base;
+    font-size: $typography-font-size-heading-4;
+    line-height: 36px;
+    font-weight: $emphasis-font-weight-bold;
+    letter-spacing: -0.4px;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-body-large;
+        line-height: 28px;
+    }
+}
+.kdvn-office-card-row {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-gap-medium;
+    margin-bottom: $spacing-gap-small;
+    font-size: $typography-font-size-body-small;
+    line-height: 20px;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-caption;
+    }
+
+    > span:last-child,
+    > a {
+        padding-top: $spacing-padding-small;
+    }
+    a {
+        color: inherit;
+        text-decoration: none;
+    }
+}
+.kdvn-icon-box {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: $black-3;
+    font-size: 18px;
+}
+.kdvn-btn-dark {
+    margin-top: $spacing-gap-small;
+    padding: $spacing-padding-small $spacing-padding-medium;
+    font-size: $typography-font-size-body-small;
+    font-weight: $emphasis-font-weight-bold;
+    line-height: 16px;
+    color: #fff;
+    background-color: $color-content-neutral-strongest;
+    border: 0;
+    border-radius: 0;
+
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-caption;
+    }
+
+    &:hover, &:focus-visible {
+        color: #fff;
+        background-color: $black-11;
+    }
+}
+.kdvn-office-empty {
+    margin: 0;
+    font-size: $typography-font-size-body-small;
+    color: $color-content-neutral-base;
+}
+.kdvn-office-locator-map {
+    position: relative;
+    aspect-ratio: 310 / 400;
+    background-color: $color-background-canvas-default;
+
+    @include media-breakpoint-up(lg) {
+        flex: 1 1 auto;
+        aspect-ratio: auto;
+    }
+
+    iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+}
+// Profile table alone (no office with a map yet): use the full width
+.kdvn-profile-full {
+    grid-column: 1 / -1;
+}
+
+// ============================================================================
+// HOME — HERO SLIDER (frames/home-desktop|tablet|mobile.png; snippet s_kdvn_hero)
+// Desktop + tablet (xl): text column 615px, photo fills the rest, 900px high;
+//   arrows 56px at 40px from the top, 24px from the photo; button + title at the
+//   bottom (40px), title Oswald 90/100 uppercase.
+// Mobile: arrows (top right) > button > title 56/64 > photo 390:400.
+// ============================================================================
+$kdvn-hero-text-width: 615px;
+$kdvn-hero-height: 900px;
+
+.s_kdvn_hero {
+    position: relative;
+    background-color: $color-background-canvas-alt;
+
+    .carousel-item {
+        transition-duration: .6s;
+    }
+
+    // One pair of arrows for the whole slider (not per slide)
+    .kdvn-hero-controls {
+        position: absolute;
+        z-index: 3;
+        top: $spacing-gap-2x-large;     // 40px
+        right: 24px;
+        display: flex;
+        gap: 8px;
+    }
+    .kdvn-hero-arrow {
+        // reset Bootstrap / Odoo carousel control styles
+        position: static;
+        width: 56px;
+        opacity: 1;
+        &.d-none { display: none !important; }   // single slide: Odoo hides them
+    }
+    // Needed by the builder (add / remove slide), not shown in the design
+    .kdvn-hero-indicators {
+        display: none !important;
+    }
+}
+
+.kdvn-hero-slide {
+    display: flex;
+    flex-direction: column;
+}
+
+.kdvn-hero-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    // arrows (40 + 56) + 40 above the button
+    padding: 136px 24px $spacing-gap-2x-large;
+}
+
+.kdvn-hero-link-wrap {
+    margin: 0 0 24px;
+}
+
+.kdvn-hero-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    height: 56px;
+    padding: 0 20px;
+    font-size: $typography-font-size-body-base;
+
+    i {
+        font-size: 20px;
+        line-height: 1;
+    }
+}
+
+.kdvn-hero-title {
+    margin: 0;
+    font-family: $typography-font-family-display, sans-serif;
+    font-size: $typography-font-size-display-4;   // 56px
+    line-height: 64px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    text-transform: uppercase;
+    color: $color-content-neutral-strongest;
+    overflow-wrap: break-word;
+}
+
+.kdvn-hero-media {
+    position: relative;
+    aspect-ratio: 390 / 400;
+    max-height: 640px;
+    overflow: hidden;
+}
+
+.kdvn-hero-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@include media-breakpoint-up(xl) {
+    .s_kdvn_hero .kdvn-hero-controls {
+        // right edge 24px before the photo
+        right: auto;
+        left: $kdvn-hero-text-width - 24px - 2 * 56px - 8px;
+    }
+
+    .kdvn-hero-slide {
+        flex-direction: row;
+        height: $kdvn-hero-height;
+    }
+
+    .kdvn-hero-text {
+        flex: 0 0 $kdvn-hero-text-width;
+        padding: 136px 24px $spacing-gap-2x-large 40px;
+    }
+
+    .kdvn-hero-title {
+        font-size: $typography-font-size-display-1;   // 90px
+        line-height: 100px;
+        letter-spacing: -2px;
+    }
+
+    .kdvn-hero-media {
+        flex: 1 1 auto;
+        aspect-ratio: auto;
+        max-height: none;
+        height: 100%;
+    }
+}
+
+// ============================================================================
+// HOME — SECTION HEAD + BUSINESS INFORMATION (frames/home-*.png)
+// Desktop/tablet (xl): grey band, padding 160; title Oswald 64/72; lead 16/24;
+//   list (rest of the width) + photo 511x733, gap 64. Rows: 32/40 Inter Tight,
+//   24px padding, 1px line; active row = black text + 56px arrow button.
+// Mobile: padding 80; title 48/52; lead 16/32; accordion, photo under the
+//   active item (full width, 310:400).
+// ============================================================================
+$kdvn-biz-muted: #747474;            // inactive items + lines (frames)
+$kdvn-biz-figure-width: 511px;
+$kdvn-biz-figure-height: 733px;
+
+.kdvn-home-business {
+    padding: 80px 0;
+    background-color: $light-neutral-4;   // #eaeaea
+
+    @include media-breakpoint-up(xl) {
+        padding: 160px 0;
+    }
+}
+
+.kdvn-home-head {
+    margin-bottom: 56px;
+
+    @include media-breakpoint-up(xl) {
+        margin-bottom: 80px;
+    }
+}
+
+.kdvn-home-title {
+    margin: 0;
+    font-family: $typography-font-family-display, sans-serif;
+    font-size: $typography-font-size-display-5;   // 48px
+    line-height: 52px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(xl) {
+        font-size: $typography-font-size-display-3;   // 64px
+        line-height: 72px;
+    }
+}
+
+.kdvn-home-lead {
+    margin: $spacing-gap-large 0 0;   // 24px
+    font-size: $typography-font-size-body-base;
+    line-height: 32px;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(xl) {
+        line-height: 24px;
+    }
+}
+
+.kdvn-biz {
+    @include media-breakpoint-up(xl) {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) $kdvn-biz-figure-width;
+        column-gap: 64px;
+        align-items: start;
+    }
+}
+
+.kdvn-biz-list {
+    margin: 0;
+    padding: 0;
+}
+
+.kdvn-biz-item {
+    border-bottom: 1px solid $kdvn-biz-muted;
+
+    &:last-child {
+        border-bottom: 0;
+    }
+}
+
+.kdvn-biz-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-gap-large;
+    padding: 24px 0;
+}
+
+.kdvn-biz-name {
+    font-family: $font-family-base;
+    font-size: $typography-font-size-heading-2;   // 32px
+    line-height: 40px;
+    font-weight: $emphasis-font-weight-medium;
+    letter-spacing: -0.8px;
+    color: $kdvn-biz-muted;
+    text-decoration: none;
+    transition: color .2s ease-in-out;
+
+    &:hover,
+    &:focus {
+        color: $color-content-neutral-strongest;
+        text-decoration: none;
+    }
+}
+
+.kdvn-biz-go {
+    display: none !important;   // only on the active item
+    flex: 0 0 auto;
+}
+
+.kdvn-biz-media {
+    display: none;
+    margin: 0 0 24px;
+    aspect-ratio: 310 / 400;
+    max-height: 640px;
+    overflow: hidden;
+}
+
+.kdvn-biz-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.kdvn-biz-item.active {
+    .kdvn-biz-name {
+        color: $color-content-neutral-strongest;
+    }
+    .kdvn-biz-go {
+        display: inline-flex !important;
+    }
+    .kdvn-biz-media {
+        display: block;
+    }
+}
+
+.kdvn-biz-figure {
+    display: none;
+    margin: 0;
+}
+
+@include media-breakpoint-up(xl) {
+    // desktop: one photo on the right instead of the accordion photos
+    .kdvn-biz-item.active .kdvn-biz-media {
+        display: none;
+    }
+    .kdvn-biz-figure {
+        display: block;
+        width: $kdvn-biz-figure-width;
+        height: $kdvn-biz-figure-height;
+        overflow: hidden;
+    }
+}

@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ======================================================================== -->
+    <!-- AUTOMATED SYSTEM MENUS CLEANUP                                           -->
+    <!-- ======================================================================== -->
+    <!-- Clear default system menu: Home -->
+    <delete model="website.menu" search="[('url', '=', '/'), ('website_id', '=', ref('website.default_website'))]"/>
+    <!-- Clear default system menu: Contact us -->
+    <delete model="website.menu" search="[('url', '=', '/contactus'), ('website_id', '=', ref('website.default_website'))]"/>
+
+    <!-- ======================================================================== -->
+    <!-- CUSTOM DESIGN NAVIGATION MATRIX                                          -->
+    <!-- ======================================================================== -->
+    <!-- noupdate="0" during development: every module update resets the menus to
+         menus.csv (menu edits made in the website are overwritten).
+         Switch to noupdate="1" before go-live so editors' menu changes are kept. -->
+    <data noupdate="0">
+        <!-- Menu: KDVN Menu Root -->
+        <record id="menu_kdvn_master_root" model="website.menu">
+            <field name="name">KDVN Menu Root</field>
+            <field name="url">/default-main-menu</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="sequence" type="int">1</field>
+        </record>
+
+        <!-- Menu: Company profile -->
+        <record id="menu_kdvn_company_profile" model="website.menu">
+            <field name="name">Company profile</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_master_root"/>
+            <field name="sequence" type="int">10</field>
+            <field name="overview_url">/company-profile</field>
+        </record>
+
+        <!-- Menu: General Director Message -->
+        <record id="menu_kdvn_general_director_message" model="website.menu">
+            <field name="name">General Director Message</field>
+            <field name="url">/company-profile/general-director-message</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_company_profile"/>
+            <field name="sequence" type="int">10</field>
+        </record>
+
+        <!-- Menu: Licenses &amp; Certifications -->
+        <record id="menu_kdvn_licenses_certifications" model="website.menu">
+            <field name="name">Licenses &amp; Certifications</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_company_profile"/>
+            <field name="sequence" type="int">20</field>
+        </record>
+
+        <!-- Menu: Company History -->
+        <record id="menu_kdvn_company_history" model="website.menu">
+            <field name="name">Company History</field>
+            <field name="url">/company-profile/company-history</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_company_profile"/>
+            <field name="sequence" type="int">30</field>
+        </record>
+
+        <!-- Menu: Kinden Business Areas -->
+        <record id="menu_kdvn_business_areas" model="website.menu">
+            <field name="name">Kinden Business Areas</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_company_profile"/>
+            <field name="sequence" type="int">40</field>
+        </record>
+
+        <!-- Menu: Group Companies -->
+        <record id="menu_kdvn_group_companies" model="website.menu">
+            <field name="name">Group Companies</field>
+            <field name="url">/company-profile/group-companies</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_company_profile"/>
+            <field name="sequence" type="int">50</field>
+        </record>
+
+        <!-- Menu: Human Resource Development -->
+        <record id="menu_kdvn_hr_development" model="website.menu">
+            <field name="name">Human Resource Development</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_company_profile"/>
+            <field name="sequence" type="int">60</field>
+        </record>
+
+        <!-- Menu: Business Information -->
+        <record id="menu_kdvn_business_information" model="website.menu">
+            <field name="name">Business Information</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_master_root"/>
+            <field name="sequence" type="int">20</field>
+            <field name="overview_url">/business-information</field>
+        </record>
+
+        <!-- Menu: Electrical Systems -->
+        <record id="menu_kdvn_electrical_system" model="website.menu">
+            <field name="name">Electrical Systems</field>
+            <field name="url">/business/electrical-system</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_business_information"/>
+            <field name="sequence" type="int">10</field>
+        </record>
+
+        <!-- Menu: Instrumentation Systems -->
+        <record id="menu_kdvn_instrumentation_systems" model="website.menu">
+            <field name="name">Instrumentation Systems</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_business_information"/>
+            <field name="sequence" type="int">20</field>
+        </record>
+
+        <!-- Menu: Information &amp; Communication Systems -->
+        <record id="menu_kdvn_ict_systems" model="website.menu">
+            <field name="name">Information &amp; Communication Systems</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_business_information"/>
+            <field name="sequence" type="int">30</field>
+        </record>
+
+        <!-- Menu: Air Conditioning &amp; Sanitary Systems -->
+        <record id="menu_kdvn_hvac_sanitary_systems" model="website.menu">
+            <field name="name">Air Conditioning &amp; Sanitary Systems</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_business_information"/>
+            <field name="sequence" type="int">40</field>
+        </record>
+
+        <!-- Menu: Interior Systems -->
+        <record id="menu_kdvn_interior_systems" model="website.menu">
+            <field name="name">Interior Systems</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_business_information"/>
+            <field name="sequence" type="int">50</field>
+        </record>
+
+        <!-- Menu: Energy Saving &amp; Renewal -->
+        <record id="menu_kdvn_energy_saving_renewal" model="website.menu">
+            <field name="name">Energy Saving &amp; Renewal</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_business_information"/>
+            <field name="sequence" type="int">60</field>
+        </record>
+
+        <!-- Menu: Maintenance Services -->
+        <record id="menu_kdvn_maintenance_services" model="website.menu">
+            <field name="name">Maintenance Services</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_business_information"/>
+            <field name="sequence" type="int">70</field>
+        </record>
+
+        <!-- Menu: Past Prominent Projects -->
+        <record id="menu_kdvn_past_prominent_projects" model="website.menu">
+            <field name="name">Past Prominent Projects</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_master_root"/>
+            <field name="sequence" type="int">30</field>
+            <field name="overview_url">/prominent-projects</field>
+        </record>
+
+        <!-- Menu: Projects Overview -->
+        <record id="menu_kdvn_projects_overview" model="website.menu">
+            <field name="name">Projects Overview</field>
+            <field name="url">/prominent-projects</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_past_prominent_projects"/>
+            <field name="sequence" type="int">10</field>
+        </record>
+
+        <!-- Menu: Factories -->
+        <record id="menu_kdvn_factories" model="website.menu">
+            <field name="name">Factories</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_past_prominent_projects"/>
+            <field name="sequence" type="int">20</field>
+        </record>
+
+        <!-- Menu: Data Center -->
+        <record id="menu_kdvn_data_center" model="website.menu">
+            <field name="name">Data Center</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_past_prominent_projects"/>
+            <field name="sequence" type="int">30</field>
+        </record>
+
+        <!-- Menu: Buildings -->
+        <record id="menu_kdvn_building" model="website.menu">
+            <field name="name">Buildings</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_past_prominent_projects"/>
+            <field name="sequence" type="int">40</field>
+        </record>
+
+        <!-- Menu: Logistics Facilities -->
+        <record id="menu_kdvn_logistics_facilities" model="website.menu">
+            <field name="name">Logistics Facilities</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_past_prominent_projects"/>
+            <field name="sequence" type="int">50</field>
+        </record>
+
+        <!-- Menu: Educational Facilities -->
+        <record id="menu_kdvn_educational_facilities" model="website.menu">
+            <field name="name">Educational Facilities</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_past_prominent_projects"/>
+            <field name="sequence" type="int">60</field>
+        </record>
+
+        <!-- Menu: Hotels -->
+        <record id="menu_kdvn_hotels" model="website.menu">
+            <field name="name">Hotels</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_past_prominent_projects"/>
+            <field name="sequence" type="int">70</field>
+        </record>
+
+        <!-- Menu: Recruitment -->
+        <record id="menu_kdvn_recruitment" model="website.menu">
+            <field name="name">Recruitment</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_master_root"/>
+            <field name="sequence" type="int">40</field>
+        </record>
+
+        <!-- Menu: Why Join Kinden Vietnam -->
+        <record id="menu_kdvn_why_join_kdvn" model="website.menu">
+            <field name="name">Why Join Kinden Vietnam</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_recruitment"/>
+            <field name="sequence" type="int">10</field>
+        </record>
+
+        <!-- Menu: Open Positions -->
+        <record id="menu_kdvn_open_positions" model="website.menu">
+            <field name="name">Open Positions</field>
+            <field name="url">/jobs</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_recruitment"/>
+            <field name="sequence" type="int">20</field>
+        </record>
+
+        <!-- Menu: LinkedIn Homepage of Kinden -->
+        <record id="menu_kdvn_linkedin" model="website.menu">
+            <field name="name">LinkedIn Homepage of Kinden</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_recruitment"/>
+            <field name="sequence" type="int">30</field>
+        </record>
+
+        <!-- Menu: Contact Us -->
+        <record id="menu_kdvn_contact_us" model="website.menu">
+            <field name="name">Contact Us</field>
+            <field name="url">#</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_master_root"/>
+            <field name="sequence" type="int">50</field>
+            <field name="overview_url">/contact-us</field>
+        </record>
+
+        <!-- Menu: Office Locations &amp; Map -->
+        <record id="menu_kdvn_office_locations" model="website.menu">
+            <field name="name">Office Locations &amp; Map</field>
+            <field name="url">/contact-us/office-locations</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_contact_us"/>
+            <field name="sequence" type="int">10</field>
+        </record>
+
+        <!-- Menu: Inquiry Form -->
+        <record id="menu_kdvn_contact_us_form" model="website.menu">
+            <field name="name">Inquiry Form</field>
+            <field name="url">/contactus</field>
+            <field name="website_id" ref="website.default_website"/>
+            <field name="is_mega_menu">False</field>
+            <field name="parent_id" ref="kdvn_website.menu_kdvn_contact_us"/>
+            <field name="sequence" type="int">20</field>
+        </record>
+
+    </data>
+</odoo>

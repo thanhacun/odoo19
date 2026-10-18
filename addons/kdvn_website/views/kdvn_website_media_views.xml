@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="kdvn_website_media_view_kanban" model="ir.ui.view">
+        <field name="name">kdvn.website.media.kanban</field>
+        <field name="model">kdvn.website.media</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <templates>
+                    <t t-name="card" class="flex-row">
+                        <aside>
+                            <field name="image" widget="image" options="{'size': [120, 80], 'img_class': 'object-fit-cover'}"/>
+                        </aside>
+                        <main class="ms-2">
+                            <field name="name" class="fw-bold"/>
+                            <field name="key" class="text-muted small"/>
+                        </main>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="kdvn_website_media_view_list" model="ir.ui.view">
+        <field name="name">kdvn.website.media.list</field>
+        <field name="model">kdvn.website.media</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="image" widget="image" options="{'size': [64, 40]}"/>
+                <field name="name"/>
+                <field name="key"/>
+                <field name="url" widget="url"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="kdvn_website_media_view_form" model="ir.ui.view">
+        <field name="name">kdvn.website.media.form</field>
+        <field name="model">kdvn.website.media</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <field name="image" widget="image" class="oe_avatar" options="{'size': [320, 0]}"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. Company History - intro photo"/></h1>
+                    </div>
+                    <group>
+                        <field name="key"/>
+                        <field name="url" widget="url"/>
+                        <field name="note"/>
+                        <field name="active" invisible="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="kdvn_website_media_view_search" model="ir.ui.view">
+        <field name="name">kdvn.website.media.search</field>
+        <field name="model">kdvn.website.media</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="key"/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="kdvn_website_media_action" model="ir.actions.act_window">
+        <field name="name">Site Media</field>
+        <field name="res_model">kdvn.website.media</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Images used on the website</p>
+            <p>Replace an image here and every page using its key shows the new one.</p>
+        </field>
+    </record>
+
+    <menuitem id="kdvn_website_media_menu"
+              name="Site Media"
+              parent="website.menu_content"
+              action="kdvn_website_media_action"
+              sequence="90"
+              groups="website.group_website_designer"/>
+</odoo>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ISOLATED ASSET INJECTOR: Targets the global document head container directly -->
+    <template id="kdvn_external_cdn_assets" inherit_id="website.layout" name="KDVN Core External Assets Pack">
+        <!-- FIXED: Replaced conflicting tables thead locator flag with the authentic header metadata node -->
+        <xpath expr="//head" position="inside">
+            <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css" rel="stylesheet"/>
+        </xpath>
+    </template>
+</odoo>

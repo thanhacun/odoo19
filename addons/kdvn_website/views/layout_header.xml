@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="kdvn_custom_header" inherit_id="website.layout" name="KDVN Production Header Blueprint">
+        <xpath expr="//header" position="replace">
+            <!-- Full-width structural background layer -->
+            <header id="top" data-anchor="true" 
+                    class="navbar navbar-expand-xl sticky-top oe_unremovable p-0 m-0 kdvn-header">
+                
+                <!-- FIGMA MAIN CONTENT SECTION WRAPPER: Handles your horizontal/vertical padding precisely -->
+                <div class="d-flex flex-wrap align-items-center justify-content-between w-100 mx-auto kdvn-navbar-main-content">
+                    
+                    <!-- 1. Logo Segment Component -->
+                    <a href="/" class="navbar-brand d-flex align-items-center m-0 p-0">
+                        <img src="/kdvn_website/static/src/img/content/kinden-logo.png" 
+                             alt="Kinden Vietnam"
+                             class="m-0 p-0 kdvn-header-logo"
+                             loading="eager"/>
+                    </a>
+
+                    <!-- Mobile Toggler Option -->
+                    <button class="navbar-toggler kdvn-menu-toggle" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#kdvnTopHeaderNav"
+                            aria-controls="kdvnTopHeaderNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <i class="ri-menu-line" aria-hidden="true"/>
+                    </button>
+
+                    <!-- Responsive Collapse Wrapper -->
+                    <div class="collapse navbar-collapse kdvn-navbar-collapse-wrapper" id="kdvnTopHeaderNav">
+                        
+                        <!-- 2. MAIN MENU BLOCK (Centered across the navigation track) -->
+                        <ul class="navbar-nav align-items-xl-center gap-2 mb-3 mb-xl-0 kdvn-centered-menu-group" t-if="website.menu_id">
+                            <t t-foreach="website.menu_id.child_id" t-as="submenu">
+                                
+                                <!-- Standard Menu Item Anchor Target Link -->
+                                <li t-if="not submenu.child_id" class="nav-item m-0 p-0">
+                                    <a t-att-href="submenu.url" 
+                                       t-attf-class="nav-link kdvn-nav-link px-2 py-2 #{'active' if request.httprequest.path == submenu.url else ''}">
+                                        <span t-field="submenu.name"/>
+                                    </a>
+                                </li>
+                                
+                                <!-- Dropdown menu: hover = underline, click = open mega panel (Figma prototype) -->
+                                <li t-else="" class="nav-item dropdown position-static m-0 p-0 kdvn-mega-dropdown">
+                                    <a class="nav-link dropdown-toggle kdvn-nav-link px-2 py-2"
+                                       href="#" t-att-id="'menu_%s' % submenu.id" role="button"
+                                       data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
+                                        <span t-field="submenu.name"/>
+                                    </a>
+
+                                    <div class="dropdown-menu kdvn-mega-menu-panel" t-att-aria-labelledby="'menu_%s' % submenu.id">
+                                        <div class="kdvn-mega-menu-inner">
+                                            <!-- Left: section title, optional description, View details -->
+                                            <div class="kdvn-mega-menu-intro">
+                                                <h3 class="kdvn-mega-menu-title" t-field="submenu.name"/>
+                                                <p t-if="submenu.description" class="kdvn-mega-menu-description" t-field="submenu.description"/>
+                                                <a t-if="submenu.overview_url" t-att-href="submenu.overview_url" class="btn kdvn-btn-ghost">View details</a>
+                                            </div>
+                                            <!-- Right: links, max 5 per column -->
+                                            <ul class="list-unstyled m-0 kdvn-mega-menu-links">
+                                                <li t-foreach="submenu.child_id" t-as="childmenu">
+                                                    <a t-att-href="childmenu.url" class="kdvn-mega-menu-link"
+                                                       t-att-target="'_blank' if childmenu.new_window else None">
+                                                        <span t-field="childmenu.name"/>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </li>
+                            </t>
+                        </ul>
+
+                        <!-- 3. Corporate Action Items Segment Component -->
+                        <div class="d-flex align-items-center gap-3 ms-xl-auto mt-1 mt-xl-0 o_not_editable kdvn-actions-right-block" contenteditable="false">
+                            <a href="/website/search" class="btn kdvn-action-btn" title="Search Site">
+                                <i class="ri-search-line" aria-hidden="true"/>
+                            </a>
+                            <div class="dropdown" style="font-family: 'Inter Tight', sans-serif;">
+                                <button class="btn kdvn-action-btn" type="button" id="kdvnLanguageDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Change Language">
+                                    <i class="ri-global-line" aria-hidden="true"/>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-2 p-2 rounded-3" aria-labelledby="kdvnLanguageDropdown">
+                                    <li><a class="dropdown-item px-3 py-2 rounded fw-semibold" style="font-size: 0.875rem;" href="#">English</a></li>
+                                    <li><a class="dropdown-item px-3 py-2 rounded fw-semibold" style="font-size: 0.875rem;" href="#">Tiếng Việt</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </header>
+        </xpath>
+    </template>
+</odoo>

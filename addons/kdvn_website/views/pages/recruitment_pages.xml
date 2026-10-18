@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ===================================================================== -->
+    <!-- Odoo job pages (website_hr_recruitment) with the KDVN page header     -->
+    <!-- Kinden > Recruitment > Open Positions > ...                           -->
+    <!-- ===================================================================== -->
+
+    <!-- /jobs : job list -->
+    <template id="jobs_index_page_header" inherit_id="website_hr_recruitment.index" name="KDVN: jobs list header">
+        <xpath expr="//div[@id='oe_structure_hr_recruitment_index_top']" position="before">
+            <t t-set="kdvn_page_url" t-value="'/jobs'"/>
+            <t t-call="kdvn_website.page_header"/>
+        </xpath>
+        <!-- Title now comes from the page header -->
+        <xpath expr="//section[hasclass('o_wevent_index_topbar_filters')]/h1" position="replace"/>
+        <xpath expr="//div[@id='oe_structure_hr_recruitment_index_bottom']" position="after">
+            <t t-call="kdvn_website.page_footer_nav"/>
+        </xpath>
+    </template>
+
+    <!-- /jobs/detail/<job> : one job -->
+    <template id="jobs_detail_page_header" inherit_id="website_hr_recruitment.detail" name="KDVN: job detail header">
+        <!-- "All Jobs" bar replaced by the breadcrumb -->
+        <xpath expr="//nav[hasclass('navbar')]" position="replace"/>
+        <xpath expr="//div[@id='wrap']/div[1]" position="before">
+            <t t-set="kdvn_parent_url" t-value="'/jobs'"/>
+            <t t-set="kdvn_page_title" t-value="job.name"/>
+            <t t-call="kdvn_website.page_header"/>
+        </xpath>
+        <xpath expr="//h1[@t-field='job.name']" position="replace"/>
+        <xpath expr="//div[@id='wrap']" position="inside">
+            <t t-set="kdvn_parent_url" t-value="'/jobs'"/>
+            <t t-set="kdvn_page_title" t-value="job.name"/>
+            <t t-call="kdvn_website.page_footer_nav"/>
+        </xpath>
+    </template>
+
+    <!-- /jobs/apply/<job> : application form -->
+    <template id="jobs_apply_page_header" inherit_id="website_hr_recruitment.apply" name="KDVN: job application header">
+        <!-- full-width wrap: the page header has its own container -->
+        <xpath expr="//div[@id='wrap']" position="attributes">
+            <attribute name="class"/>
+        </xpath>
+        <xpath expr="//div[@id='wrap']/nav" position="replace">
+            <t t-set="kdvn_parent_url" t-value="'/jobs'"/>
+            <t t-set="kdvn_extra_crumbs" t-value="[(job.name, '/jobs/detail/%s' % slug(job))] if job else []"/>
+            <t t-set="kdvn_page_title">Job Application Form</t>
+            <t t-call="kdvn_website.page_header"/>
+        </xpath>
+        <xpath expr="//div[@id='wrap']/h1" position="replace"/>
+    </template>
+</odoo>

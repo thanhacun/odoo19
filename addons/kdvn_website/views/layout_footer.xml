@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ===================================================================== -->
+    <!-- Site footer (Figma: frames/company-history-desktop.png, bottom;       -->
+    <!-- frames/navigation-footer-overview.png for mobile)                     -->
+    <!-- Images come from Site Media: logo_white, footer_background.           -->
+    <!-- ===================================================================== -->
+    <template id="kdvn_custom_footer" inherit_id="website.layout" name="KDVN Footer">
+        <xpath expr="//footer" position="replace">
+            <footer id="bottom" data-anchor="true" class="kdvn-footer"
+                    style="background-image: url('/kdvn/media/footer_background?width=1920');">
+                <div class="kdvn-container kdvn-footer-inner">
+                    <!-- Brand box -->
+                    <div class="kdvn-footer-brand">
+                        <a href="/" class="d-inline-block">
+                            <img src="/kdvn/media/logo_white" alt="Kinden Vietnam" class="kdvn-footer-logo" loading="lazy"/>
+                        </a>
+                        <p class="kdvn-footer-tagline">Kinden comprehensively supports people&#8217;s good lives.</p>
+                    </div>
+
+                    <!-- Links (two columns on desktop, one list on mobile) -->
+                    <div class="row kdvn-footer-links">
+                        <div class="col-12 col-lg-6">
+                            <ul class="list-unstyled m-0">
+                                <li><a href="/company-profile">Company profile</a></li>
+                                <li><a href="/business-information">Business Information</a></li>
+                                <li><a href="/prominent-projects">Past Prominent Projects</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <ul class="list-unstyled m-0">
+                                <li><a href="/contact-us">Contact Us</a></li>
+                                <li><a href="/jobs">Recruitment</a></li>
+                                <li><a href="/contact-us/office-locations">Office Network</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Offices + copyright -->
+                    <div class="row kdvn-footer-bottom">
+                        <div class="col-12 col-lg-6">
+                            <t t-call="kdvn_website.footer_offices"/>
+                        </div>
+                        <div class="col-12 col-lg-6 d-flex align-items-end">
+                            <p class="kdvn-footer-copyright">Copyright&#169; Kinden Corporation. All rights reserved</p>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </xpath>
+    </template>
+</odoo>

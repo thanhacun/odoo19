@@ -1,0 +1,112 @@
+// ============================================================================
+// AUTOMATED COMPILATION TARGET: DESIGN SYSTEM SEMANTIC CLASSES (DO NOT EDIT)
+// ============================================================================
+
+// --- 1. TEXT TRANSLATION HOOKS
+.kdvn-text-strong {
+    color: #0d0d0d !important;
+    font-family: $font-family-base;
+}
+.kdvn-brand-heading {
+    font-family: $headings-font-family;
+    text-transform: uppercase;
+}
+
+// --- 2. THEME COMPONENT SURFACE CLASSES
+.kdvn-surface-brand {
+    background-color: #009942 !important;
+    color: #ffffff !important;
+    
+    &:hover {
+        background-color: #008439 !important;
+    }
+}
+
+.kdvn-surface-canvas {
+    background-color: #f7f7f7 !important;
+}
+
+// ============================================================================
+// DESIGN SYSTEM: NAVIGATION & MEGA DROPDOWN HOVER MATRIX CONFIGURATIONS
+// ============================================================================
+
+// .kdvn-navbar-main-content padding: see theme.scss
+
+
+.kdvn-header-container {
+    // 1. CLEAR DEFAULT BOOTSTRAP VERTICAL OVERRIDES
+    // Let your newly added mega-menu hover elements calculate spatial lines naturally
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    
+    // 2. FIGMA TOKEN SPECIFICATION BOUNDARIES
+    // Maintain your designer's strict 16px structural padding layout grid metric
+    padding-left: $spacing-gap-medium !important;
+    padding-right: $spacing-gap-medium !important;
+    
+    // 3. FLUIDITY CONTROLS
+    width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+// 1. MENU ITEM STATES (Figma prototype: hover shows a thin green underline, no animation)
+.kdvn-nav-link {
+    position: relative !important;
+    color: $color-content-neutral-strongest !important;
+    font-size: $typography-font-size-body-large;
+    font-weight: 400;
+
+    // 1px green line under the whole item (text + side padding)
+    &::after {
+        content: '' !important;
+        position: absolute !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 1px !important;
+        margin: 0 !important;
+        border: 0 !important;
+        background-color: $color-focus-accent-solid !important;
+        opacity: 0;
+    }
+
+    &:hover, &:focus-visible, &.active {
+        &::after {
+            opacity: 1;
+        }
+    }
+
+    // Current page: bold + underline (Figma "Navigation item", selected)
+    &.active {
+        font-weight: 600;
+    }
+}
+
+// Mega menu panel: see theme.scss
+
+// 2. MIDDLE CENTERING LAYOUT ENGINE FOR LARGE DESKTOP VIEWPORTS
+@include media-breakpoint-up(xl) {
+    // Take the space left of the logo on the same row (100% width would
+    // push it onto a second row now that the bar wraps for mobile).
+    .kdvn-navbar-collapse-wrapper {
+        display: flex !important;
+        flex: 1 1 0% !important;
+        min-width: 0;
+        width: auto !important;
+    }
+    
+    // Forces the link track list to expand and absolute-center inside the nav area bounds
+    .kdvn-centered-menu-group {
+        margin-left: auto !important;
+        margin-right: auto !important;
+        justify-content: center !important;
+        flex: 1 !important;
+    }
+    
+    // Locks the right actions side block from collapsing inward
+    .kdvn-actions-right-block {
+        margin-left: auto !important;
+        flex-shrink: 0 !important;
+    }
+}

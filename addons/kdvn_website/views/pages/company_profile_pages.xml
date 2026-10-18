@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ===================================================================== -->
+    <!-- General Director Message  (/company-profile/general-director-message) -->
+    <!-- Figma: frames/president-message-desktop.png, adjusted per the Website -->
+    <!-- Rollout Plan (slide 2): new title, BOD group photo, GD quote (TBC).  -->
+    <!-- Content inside oe_structure is editable in the website builder.       -->
+    <!-- ===================================================================== -->
+    <template id="general_director_message_page" name="General Director Message">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <t t-call="kdvn_website.page_header"/>
+
+                <div class="oe_structure">
+                    <section class="kdvn-quote-section">
+                        <div class="kdvn-container">
+                            <figure class="kdvn-quote">
+                                <blockquote class="kdvn-quote-text">
+                                    <p>&#8220;[General Director message to be provided by Shinsha-san]&#8221;</p>
+                                </blockquote>
+                                <figcaption>
+                                    <span class="kdvn-quote-name">Shinsha</span>
+                                    <span class="kdvn-quote-role">General Director</span>
+                                </figcaption>
+                            </figure>
+                        </div>
+                    </section>
+
+                    <section class="kdvn-media-text">
+                        <div class="kdvn-container">
+                            <div class="row">
+                                <div class="col-12 col-lg-5">
+                                    <img src="/kdvn/media/general_director_photo"
+                                         class="img-fluid w-100 kdvn-media-text-image"
+                                         alt="Kinden Vietnam Board of Directors" loading="lazy"/>
+                                </div>
+                                <div class="col-12 col-lg-6 offset-lg-1 kdvn-media-text-body">
+                                    <p>We are truly grateful to our customers, shareholders, and business partners for their continued patronage of the Kinden Group and for their generous support.</p>
+                                    <p>In August 1944, in keeping with the public-interest nature of the electrical construction business, Kinden was founded through the merger of six construction companies. Ever since, we have devoted ourselves to societal advancement while boldly taking on the leading-edge projects of each new era, with a mission to help rebuild a homeland devastated by war, support economic growth, and develop social infrastructure.</p>
+                                    <p>Today, with the support of many customers, we contribute to power infrastructure while maintaining our community-based operations. At the same time, we are further strengthening our business in the Greater Tokyo area as we develop operations throughout Japan and internationally.</p>
+                                    <p>Going forward, as an integrated facility engineering company handling electrical, air-conditioning and sanitation, information and communications, and interior facilities, we will continue to value &#8220;human resources and heart&#8221; and to further strengthen our &#8220;on-site commitment and execution&#8221;&#8212;the power to see through to completion the work at the worksite, which is the foundation of our business.</p>
+                                    <p>Additionally, as a company that helps create a more environmentally friendly, sustainable, and better society, we will steadily move forward, together with all of you, toward sustainable growth and development.</p>
+                                    <p>Under our slogan &#8220;Diligent Work for Daily Lives,&#8221; we are committed to taking on new challenges to realize a bright, affluent future. We look forward to your continued support.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <t t-call="kdvn_website.page_footer_nav"/>
+            </div>
+        </t>
+    </template>
+
+    <record id="page_kdvn_general_director_message" model="website.page">
+        <field name="url">/company-profile/general-director-message</field>
+        <field name="view_id" ref="general_director_message_page"/>
+        <field name="is_published" eval="True"/>
+    </record>
+
+    <!-- ===================================================================== -->
+    <!-- Company History  (/company-profile/company-history)  — Phase 1        -->
+    <!-- Figma: design/kdvn_website/frames/company-history-desktop.png         -->
+    <!-- Content inside oe_structure is editable in the website builder.       -->
+    <!-- ===================================================================== -->
+    <template id="company_history_page" name="Company History">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <t t-call="kdvn_website.page_header"/>
+
+                <div class="oe_structure">
+                    <!-- Intro + historic photo -->
+                    <section class="kdvn-intro-section">
+                        <div class="kdvn-container">
+                            <p class="kdvn-intro-tagline">From Japan&#8217;s engineering heritage to Vietnam&#8217;s industrial development</p>
+                            <p class="kdvn-intro-text"><strong>KINDEN CORPORATION</strong> was established in Japan in <strong>1944</strong> and has since developed extensive engineering expertise worldwide. Building on this heritage, Kinden Vietnam has developed long-term engineering capabilities and experience in Vietnam.</p>
+                            <figure class="kdvn-media-figure kdvn-intro-image">
+                                <img src="/kdvn/media/company_history_intro" class="img-fluid d-block w-100"
+                                     alt="The First President Norishige Satake" loading="lazy"/>
+                                <figcaption class="kdvn-media-caption">The First President Norishige Satake</figcaption>
+                            </figure>
+                        </div>
+                    </section>
+
+                    <!-- Year highlight card -->
+                    <section class="kdvn-year-card-section">
+                        <div class="kdvn-container">
+                            <div class="kdvn-year-card">
+                                <div class="kdvn-year-card-year">1944</div>
+                                <div class="kdvn-year-card-body">
+                                    <h2 class="kdvn-year-card-title">80+ Years of Engineering Heritage</h2>
+                                    <p>KINDEN CORPORATION was established in Japan in 1944 and has since grown into one of Japan&#8217;s leading integrated facility engineering companies, with a global track record across electrical, mechanical and communication systems.</p>
+                                    <a href="https://www.kinden.co.jp/english/company/history/" target="_blank" rel="noopener" class="btn kdvn-btn-primary">Explore KINDEN CORPORATION History</a>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Key figures -->
+                    <section class="kdvn-section">
+                        <div class="kdvn-container">
+                            <h2 class="kdvn-section-title">Growing alongside Vietnam&#8217;s industrial development</h2>
+                            <p class="kdvn-section-subtitle">Kinden Vietnam - At a Glance</p>
+                            <div class="kdvn-stats">
+                            <div class="kdvn-stat">
+                                <div class="kdvn-stat-number">30+</div>
+                                <div class="kdvn-stat-label">Years in Vietnam</div>
+                            </div>
+                            <div class="kdvn-stat">
+                                <div class="kdvn-stat-number">100+</div>
+                                <div class="kdvn-stat-label">Projects</div>
+                            </div>
+                            <div class="kdvn-stat">
+                                <div class="kdvn-stat-number">400+</div>
+                                <div class="kdvn-stat-label">Engineers</div>
+                            </div>
+                            <div class="kdvn-stat">
+                                <div class="kdvn-stat-number">7</div>
+                                <div class="kdvn-stat-label">Locations</div>
+                            </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Timeline -->
+                    <section class="kdvn-section">
+                        <div class="kdvn-container">
+                            <h2 class="kdvn-section-title">Our Journey in Vietnam</h2>
+                            <p class="kdvn-section-lead">From technical training in the 1990s to integrated engineering partnership today, three decades of building alongside Vietnam&#8217;s industrial growth.</p>
+                            <p class="kdvn-section-kicker">HISTORICAL &#8594; DEVELOPMENT &#8594; INDUSTRIAL EXPANSION &#8594; MODERN ENGINEERING</p>
+                            <div class="kdvn-timeline">
+                            <div class="kdvn-timeline-row">
+                                <div class="kdvn-timeline-year">1994</div>
+                                <div class="kdvn-timeline-events">
+                                    <p>Began human resource development in Vietnam</p>
+                                </div>
+                            </div>
+                            <div class="kdvn-timeline-row">
+                                <div class="kdvn-timeline-year">1997</div>
+                                <div class="kdvn-timeline-events">
+                                    <p>Established the joint venture Vina-Kinden Corporation</p>
+                                </div>
+                            </div>
+                            <div class="kdvn-timeline-row">
+                                <div class="kdvn-timeline-year">Early 2000s</div>
+                                <div class="kdvn-timeline-events">
+                                    <p>Expanded into infrastructure projects (Hai Van Tunnel, Thang Long area power transmission system)</p>
+                                    <p>Expanded into Japanese factory construction projects (Canon, TOTO, Nitto Denko, etc.)</p>
+                                </div>
+                            </div>
+                            <div class="kdvn-timeline-row">
+                                <div class="kdvn-timeline-year">2002</div>
+                                <div class="kdvn-timeline-events">
+                                    <p>Established the Ho Chi Minh City Branch</p>
+                                </div>
+                            </div>
+                            <div class="kdvn-timeline-row">
+                                <div class="kdvn-timeline-year">2006</div>
+                                <div class="kdvn-timeline-events">
+                                    <p>Renamed the company to Kinden Vietnam Co., Ltd.</p>
+                                    <p>Became a wholly owned (100%) subsidiary of Kinden Corporation</p>
+                                </div>
+                            </div>
+                            <div class="kdvn-timeline-row">
+                                <div class="kdvn-timeline-year">2013</div>
+                                <div class="kdvn-timeline-events">
+                                    <p>Began hosting young trainees from Japan</p>
+                                </div>
+                            </div>
+                            <div class="kdvn-timeline-row">
+                                <div class="kdvn-timeline-year">2014</div>
+                                <div class="kdvn-timeline-events">
+                                    <p>Expanded into large-scale commercial facilities (AEON MALL Binh Duong)</p>
+                                </div>
+                            </div>
+                            <div class="kdvn-timeline-row">
+                                <div class="kdvn-timeline-year">2022</div>
+                                <div class="kdvn-timeline-events">
+                                    <p>Fully entered the data center sector (CMC, VNG)</p>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <t t-call="kdvn_website.page_footer_nav"/>
+            </div>
+        </t>
+    </template>
+
+    <record id="page_kdvn_company_history" model="website.page">
+        <field name="url">/company-profile/company-history</field>
+        <field name="view_id" ref="company_history_page"/>
+        <field name="is_published" eval="True"/>
+    </record>
+
+    <!-- ===================================================================== -->
+    <!-- Group Companies  (/company-profile/group-companies)                   -->
+    <!-- Figma: design/kdvn_website/frames/group-companies-*.jpg               -->
+    <!-- Images: Site Media keys group_companies_hero, management_creed,       -->
+    <!-- kinden_vietnam_site, kinden_vietnam_building, kinden_vietnam_gallery_1..4 -->
+    <!-- Profile table: static for now; later from company data (see pages.md) -->
+    <!-- ===================================================================== -->
+    <template id="group_companies_page" name="Group Companies">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <t t-call="kdvn_website.page_header"/>
+
+                <div class="oe_structure">
+                    <!-- Intro: lead text + building photo -->
+                    <section class="kdvn-intro-section">
+                        <div class="kdvn-container">
+                            <div class="row">
+                                <div class="col-12 col-lg-7">
+                                    <p class="kdvn-lead">Kinden Vietnam supports tomorrow&#8217;s lifestyles with innovations in integrated system engineering.</p>
+                                </div>
+                                <div class="col-12 col-lg-4 offset-lg-1">
+                                    <img src="/kdvn/media/group_companies_hero" class="img-fluid w-100" alt="Kinden building" loading="lazy"/>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Management creed -->
+                    <section class="kdvn-section">
+                        <div class="kdvn-container">
+                            <h2 class="kdvn-section-title kdvn-section-title-display">Management Creed</h2>
+                            <img src="/kdvn/media/management_creed" class="d-block mx-auto kdvn-creed-image" alt="Kinden management creed calligraphy" loading="lazy"/>
+                            <div class="kdvn-creed">
+                                <div class="kdvn-creed-item">
+                                    <p class="kdvn-creed-jp" lang="ja">誠実と奉仕</p>
+                                    <p class="kdvn-creed-en">Honesty and service</p>
+                                </div>
+                                <div class="kdvn-creed-item">
+                                    <p class="kdvn-creed-jp" lang="ja">研究と努力</p>
+                                    <p class="kdvn-creed-en">Pursuit and effort</p>
+                                </div>
+                                <div class="kdvn-creed-item">
+                                    <p class="kdvn-creed-jp" lang="ja">和と明朗</p>
+                                    <p class="kdvn-creed-en">Harmony and cheerfulness</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Kinden Vietnam -->
+                    <section class="kdvn-section">
+                        <div class="kdvn-container">
+                            <h2 class="kdvn-section-title kdvn-section-title-display">Kinden Vietnam</h2>
+                            <div class="row kdvn-split">
+                                <div class="col-12 col-lg-6 kdvn-split-text">
+                                    <p>Kinden Vietnam Co., Ltd. is an equipment and facilities provider working to fulfil customers&#8217; energy, environmental and communication needs. Since our foundation, we have been serving many companies coming to Vietnam from Japan as well as many other countries.</p>
+                                    <img src="/kdvn/media/kinden_vietnam_site" class="img-fluid w-100" alt="Kinden Vietnam engineers on site" loading="lazy"/>
+                                    <p>Kinden Vietnam assigns excellent and highly experienced personnel appropriate for each project, meeting customer needs from constructing power, electric, instrumentation, information, communication, air-conditioning, plumbing and utility systems to developing energy-saving programs. Our broad range of service covers design, construction and maintenance of such systems under a reliable management system.</p>
+                                </div>
+                                <div class="col-12 col-lg-5 offset-lg-1">
+                                    <img src="/kdvn/media/kinden_vietnam_building" class="img-fluid w-100" alt="Kinden Vietnam office building" loading="lazy"/>
+                                </div>
+                            </div>
+                            <div class="kdvn-gallery">
+                                <img src="/kdvn/media/kinden_vietnam_gallery_1?width=640" alt="Kinden Vietnam team" loading="lazy"/>
+                                <img src="/kdvn/media/kinden_vietnam_gallery_2?width=640" alt="Kinden Vietnam team" loading="lazy"/>
+                                <img src="/kdvn/media/kinden_vietnam_gallery_3?width=640" alt="Kinden Vietnam team" loading="lazy"/>
+                                <img src="/kdvn/media/kinden_vietnam_gallery_4?width=640" alt="Kinden Vietnam team" loading="lazy"/>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+
+                <!-- Profile: company data (not editable on the page) -->
+                <section class="kdvn-section">
+                    <div class="kdvn-container">
+                        <h2 class="kdvn-section-title kdvn-section-title-display">Profile</h2>
+                        <div class="kdvn-profile">
+                            <t t-set="office" t-value="website.company_id._kdvn_website_offices(main_only=True)[:1]"/>
+                            <div t-if="office">
+                                <t t-call="kdvn_website.office_map"/>
+                            </div>
+                            <div t-attf-class="#{'' if office else 'kdvn-profile-full'}">
+                                <t t-call="kdvn_website.company_profile_table"/>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <t t-call="kdvn_website.page_footer_nav"/>
+            </div>
+        </t>
+    </template>
+
+    <record id="page_kdvn_group_companies" model="website.page">
+        <field name="url">/company-profile/group-companies</field>
+        <field name="view_id" ref="group_companies_page"/>
+        <field name="is_published" eval="True"/>
+    </record>
+</odoo>

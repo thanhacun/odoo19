@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Website > Configuration > Menus: show the KDVN fields -->
+    <record id="kdvn_website_menu_view_list" model="ir.ui.view">
+        <field name="name">website.menu.list.kdvn</field>
+        <field name="model">website.menu</field>
+        <field name="inherit_id" ref="website.menu_tree"/>
+        <field name="arch" type="xml">
+            <field name="url" position="after">
+                <field name="overview_url" optional="show"/>
+                <field name="description" optional="hide"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="kdvn_website_menu_view_form" model="ir.ui.view">
+        <field name="name">website.menu.form.kdvn</field>
+        <field name="model">website.menu</field>
+        <field name="inherit_id" ref="website.website_menus_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="(//field[@name='url'])[1]" position="after">
+                <field name="overview_url" invisible="not child_id" placeholder="/company-profile"/>
+                <field name="description" invisible="not child_id"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

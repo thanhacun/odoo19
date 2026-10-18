@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Homepage (Figma: frames/home-*.png; spec: design/kdvn_website/specs/home.md).
+        Editable areas (oe_structure) for text and the hero slider; data blocks (t-call)
+        stay outside them so saving in the builder never freezes them.
+        Once the homepage is saved in the builder, Odoo keeps a website copy of this view
+        and later changes to this file no longer apply; deleting that copy in developer
+        mode brings back the code version.
+    -->
+    <template id="kdvn_homepage_blueprint" inherit_id="website.homepage" name="KDVN Homepage">
+        <xpath expr="//div[@id='wrap']" position="replace">
+            <div id="wrap" class="kdvn-home">
+                <h1 class="visually-hidden">Kinden Vietnam</h1>
+
+                <!-- 1. Hero slider -->
+                <div id="oe_structure_kdvn_home_hero" class="oe_structure">
+                    <t t-call="kdvn_website.s_kdvn_hero"/>
+                </div>
+
+                <!-- 2. Business Information -->
+                <section class="kdvn-home-business">
+                    <div class="kdvn-container">
+                        <div id="oe_structure_kdvn_home_business" class="oe_structure">
+                            <section class="s_text_block kdvn-home-head" data-snippet="s_text_block" data-name="Section title">
+                                <h2 class="kdvn-home-title">Business Information</h2>
+                                <p class="kdvn-home-lead">Kinden supports peoples&#8217; livelihoods in the fields of energy, environment and information.</p>
+                            </section>
+                        </div>
+                        <t t-call="kdvn_website.home_business_list"/>
+                    </div>
+                </section>
+
+                <!-- 3. Past Prominent Projects: next round -->
+                <div id="oe_structure_kdvn_home_bottom" class="oe_structure"/>
+            </div>
+        </xpath>
+    </template>
+</odoo>

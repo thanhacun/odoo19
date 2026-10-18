@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ===================================================================== -->
+    <!-- Office Location & Map  (/contact-us/office-locations)                 -->
+    <!-- Figma: design/kdvn_website/frames/office-locations-desktop.png        -->
+    <!-- Offices come from Website > Site > Content > Offices.                 -->
+    <!-- Behaviour (static/src/js/office_locator.js): search filters the list; -->
+    <!-- "Location" shows that office on the map.                              -->
+    <!-- ===================================================================== -->
+    <template id="office_locations_page" name="Office Location &amp; Map">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <t t-call="kdvn_website.page_header"/>
+
+                <!-- Optional intro text, editable in the website builder -->
+                <div class="oe_structure"/>
+
+                <section class="kdvn-intro-section">
+                    <div class="kdvn-container">
+                        <t t-set="offices" t-value="website.company_id._kdvn_website_offices()"/>
+                        <p t-if="not offices" class="kdvn-intro-text">No offices yet.</p>
+                        <div t-else="" class="kdvn-office-locator">
+                            <!-- Search + office cards -->
+                            <div class="kdvn-office-locator-side">
+                                <input type="search" class="form-control kdvn-office-search"
+                                       placeholder="Ex: Capital Crest Vietnam" aria-label="Search offices"/>
+                                <ul class="list-unstyled m-0 kdvn-office-list">
+                                    <li t-foreach="offices" t-as="office"
+                                        t-attf-class="kdvn-office-card #{'active' if office_first else ''}"
+                                        t-att-data-embed-url="office._kdvn_map_embed_url()"
+                                        t-att-data-name="office._kdvn_office_label()"
+                                        t-att-data-search="('%s %s' % (office._kdvn_office_label(), office._kdvn_address_line())).lower()">
+                                        <h2 class="kdvn-office-card-title" t-out="office._kdvn_office_label()"/>
+                                        <div class="kdvn-office-card-row">
+                                            <span class="kdvn-icon-box"><i class="ri-map-pin-2-fill" aria-hidden="true"/></span>
+                                            <span t-out="office._kdvn_address_line()"/>
+                                        </div>
+                                        <div t-if="office.phone" class="kdvn-office-card-row">
+                                            <span class="kdvn-icon-box"><i class="ri-phone-fill" aria-hidden="true"/></span>
+                                            <a t-att-href="'tel:%s' % office.phone" t-out="office.phone"/>
+                                        </div>
+                                        <div t-if="office.kdvn_fax" class="kdvn-office-card-row">
+                                            <span class="kdvn-icon-box"><i class="ri-printer-fill" aria-hidden="true"/></span>
+                                            <span t-out="office.kdvn_fax"/>
+                                        </div>
+                                        <button type="button" class="btn kdvn-btn-dark w-100 kdvn-office-locate">Location</button>
+                                    </li>
+                                </ul>
+                                <p class="kdvn-office-empty d-none">No office found.</p>
+                            </div>
+                            <!-- Map of the selected office -->
+                            <div class="kdvn-office-locator-map">
+                                <iframe class="kdvn-office-map-frame"
+                                        t-att-src="offices[:1]._kdvn_map_embed_url()"
+                                        t-att-title="'Map: %s' % offices[:1]._kdvn_office_label()"
+                                        loading="lazy" allowfullscreen="allowfullscreen"/>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <t t-call="kdvn_website.page_footer_nav"/>
+            </div>
+        </t>
+    </template>
+
+    <record id="page_kdvn_office_locations" model="website.page">
+        <field name="url">/contact-us/office-locations</field>
+        <field name="view_id" ref="office_locations_page"/>
+        <field name="is_published" eval="True"/>
+    </record>
+</odoo>

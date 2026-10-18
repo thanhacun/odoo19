@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 🟢 OFFICIAL ODOO 19 HOMEPAGE OVERRIDE ENGINE -->
+    <!-- Instead of creating a new page, we inherit and inject your content 
+         directly into Odoo's native homepage drop zone -->
+    <template id="kdvn_homepage_inheritance" inherit_id="website.homepage" name="KDVN Custom Homepage">
+        
+        <!-- Target the core system's empty oe_structure container -->
+        <xpath expr="//div[@id='wrap']" position="inside">
+            
+            <!-- Your Figma placeholder content layout block goes here -->
+            <section class="s_text_image pt72 pb72 o_cc o_cc1" data-name="Image - Text">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6">
+                            <h1 class="display-3 fw-bold text-primary">Figma Layout Staging Container</h1>
+                            <p class="lead text-muted">This page framework uses official Odoo 19 Drop Zone rules. Your visual builder can begin design work safely right here.</p>
+                            <a href="#" class="btn btn-primary rounded-pill px-4 py-2">Figma Main Action</a>
+                        </div>
+                        <div class="col-lg-6">
+                            <!-- Standard static asset linking syntax -->
+                            <img src="/kdvn_website/static/src/img/content/placeholder.svg" class="img-fluid d-block mx-auto" alt="Staging Illustration"/>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </xpath>
+    </template>
+</odoo>

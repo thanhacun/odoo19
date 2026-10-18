@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 1. The structural code canvas layout template -->
+    <template id="electrical_system_template" name="KDVN Electrical System Layout View">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <section class="kdvn-margin-comfortable bg-white">
+                    <div class="container-fluid">
+                        <h1 class="kdvn-h1 text-neutral-strong mb-3">Electrical System Solutions</h1>
+                        <p class="kdvn-body-large text-muted mb-4">
+                            High-voltage substation development, plant power infrastructure overhauls, and complete electronic engineering integration systems for manufacturing enterprises.
+                        </p>
+                        <div class="card border-0 kdvn-card-medium bg-light">
+                            <h3 class="kdvn-h3 text-neutral-strong mb-2">Industrial Substation Infrastructure</h3>
+                            <p class="kdvn-body-medium text-muted">
+                                Safe, scalable, and ISO 9001:2015 certified transformer operations center implementation.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+
+    <!-- 2. MANDATORY: The official routing manager that binds it to the public URL -->
+    <record id="page_kdvn_electrical_system" model="website.page">
+        <field name="name">Electrical System</field>
+        <field name="url">/business/electrical-system</field>
+        <field name="view_id" ref="electrical_system_template"/>
+        <field name="type">qweb</field>
+        <field name="key">kdvn_website.electrical_system_page</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

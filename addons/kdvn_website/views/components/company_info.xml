@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ===================================================================== -->
+    <!-- Company data blocks: read from the company record and its office      -->
+    <!-- contacts on every page view. Not editable on the page; change the     -->
+    <!-- data in Settings > Companies (Website Profile) and                    -->
+    <!-- Website > Site > Content > Offices.                                   -->
+    <!-- ===================================================================== -->
+
+    <!-- Main offices for the footer -->
+    <template id="footer_offices" name="KDVN Footer Offices">
+        <t t-foreach="website.company_id._kdvn_website_offices(main_only=True)" t-as="office">
+            <div class="kdvn-footer-office">
+                <h3 t-out="office._kdvn_office_label()"/>
+                <p>
+                    <t t-out="office._kdvn_address_line()"/>
+                    <t t-if="office.phone"><br/>Tel <t t-out="office.phone"/></t>
+                </p>
+            </div>
+        </t>
+    </template>
+
+    <!-- Map + name + address of one office. Expects: office -->
+    <template id="office_map" name="KDVN Office Map">
+        <div class="kdvn-map">
+            <iframe t-att-src="office._kdvn_map_embed_url()"
+                    t-att-title="'Map: %s' % office._kdvn_office_label()"
+                    loading="lazy" allowfullscreen="allowfullscreen"/>
+        </div>
+        <p class="kdvn-map-title" t-out="office._kdvn_office_label()"/>
+        <p class="kdvn-map-address">
+            <t t-out="office._kdvn_address_line()"/>
+            <a t-att-href="office._kdvn_map_link()" target="_blank" rel="noopener">Google Maps</a>
+        </p>
+    </template>
+
+    <!-- Address, phone and fax of one office (table cell). Expects: office -->
+    <template id="office_details" name="KDVN Office Details">
+        <t t-out="office._kdvn_address_line()"/>
+        <t t-if="office.phone"><br/>Tel: <t t-out="office.phone"/></t>
+        <t t-if="office.kdvn_fax"><br/>Fax: <t t-out="office.kdvn_fax"/></t>
+    </template>
+
+    <!-- Company profile table (Group Companies page) -->
+    <template id="company_profile_table" name="KDVN Company Profile Table">
+        <t t-set="company" t-value="website.company_id.sudo()"/>
+        <dl class="kdvn-profile-table">
+            <div class="kdvn-profile-row">
+                <dt>Corporate name</dt>
+                <dd t-out="company.name"/>
+            </div>
+            <div t-if="company.kdvn_founding_date" class="kdvn-profile-row">
+                <dt>Date of establishment</dt>
+                <dd t-out="company.kdvn_founding_date" t-options="{'widget': 'date', 'format': 'MMMM d, y'}"/>
+            </div>
+            <div t-if="company.kdvn_capital" class="kdvn-profile-row">
+                <dt>Capital</dt>
+                <dd t-out="company.kdvn_capital"/>
+            </div>
+            <div t-if="company.kdvn_employee_count" class="kdvn-profile-row">
+                <dt>Employees</dt>
+                <dd>
+                    <t t-out="company.kdvn_employee_count"/>
+                    <t t-if="company.kdvn_employee_count_date">(as of <t t-out="company.kdvn_employee_count_date" t-options="{'widget': 'date', 'format': 'MMMM y'}"/>)</t>
+                </dd>
+            </div>
+            <div t-foreach="company._kdvn_website_offices(main_only=True)" t-as="office" class="kdvn-profile-row">
+                <dt t-out="office._kdvn_office_label()"/>
+                <dd><t t-call="kdvn_website.office_details"/></dd>
+            </div>
+        </dl>
+    </template>
+</odoo>

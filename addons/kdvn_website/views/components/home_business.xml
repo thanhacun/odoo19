@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Homepage > Business Information list (code-owned, not editable in the builder).
+        Items = sub-items of the "Business Information" menu (menus.csv): names, links and
+        translations come from the menu. Photo per item = Site Media key business_<item>
+        (Website > Site > Content > Site Media).
+        Desktop: list left, one photo right that follows the active item (hover / focus).
+        Mobile: accordion, the photo opens under the active item.
+        JS: static/src/js/home_business.js
+    -->
+    <template id="home_business_list" name="KDVN Home: Business Information list">
+        <t t-set="areas" t-value="request.env['website.menu']._kdvn_children_of('kdvn_website.menu_kdvn_business_information')"/>
+        <div t-if="areas" class="kdvn-biz">
+            <ul class="kdvn-biz-list list-unstyled">
+                <t t-foreach="areas" t-as="area">
+                    <t t-set="area_link" t-value="area._kdvn_link() or '#'"/>
+                    <t t-set="area_img" t-value="'/kdvn/media/%s?width=1024' % area._kdvn_media_key('business_')"/>
+                    <li t-attf-class="kdvn-biz-item #{'active' if area_first else ''}" t-att-data-img="area_img">
+                        <div class="kdvn-biz-row">
+                            <a class="kdvn-biz-name" t-att-href="area_link" t-out="area.name"/>
+                            <a class="btn kdvn-action-btn kdvn-biz-go" t-att-href="area_link"
+                               t-att-aria-label="area.name" t-att-title="area.name" tabindex="-1">
+                                <i class="ri-arrow-right-up-line" aria-hidden="true"/>
+                            </a>
+                        </div>
+                        <div class="kdvn-biz-media">
+                            <img t-att-src="area_img" t-att-alt="area.name" loading="lazy" class="kdvn-biz-img"/>
+                        </div>
+                    </li>
+                </t>
+            </ul>
+            <figure class="kdvn-biz-figure">
+                <img t-att-src="'/kdvn/media/%s?width=1024' % areas[0]._kdvn_media_key('business_')"
+                     t-att-alt="areas[0].name" loading="lazy" class="kdvn-biz-img"/>
+            </figure>
+        </div>
+    </template>
+</odoo>

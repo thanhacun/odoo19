@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- COHESIVE OVERRIDE: Targets and completely updates the default system layout code structure -->
+    <template id="contactus" inherit_id="website.contactus" name="Contact Us Custom Figma Override">
+        <!-- Using a primary xpath hook to replace the default layout wrap completely -->
+        <xpath expr="//div[@id='wrap']" position="replace">
+            <div id="wrap" class="oe_structure oe_empty">
+                <section class="kdvn-margin-comfortable bg-light" id="locations">
+                    <div class="container-fluid">
+                        <!-- Custom Figma Fluid Typography Scaling Hooks -->
+                        <h1 class="kdvn-h1 text-neutral-strong mb-3">Submit an Inquiry</h1>
+                        <p class="kdvn-body-large text-muted mb-5">
+                            Contact our regional headquarters in Hanoi or branch operations across major provinces.
+                        </p>
+                        
+                        <!-- Responsive Two-Column Branch Grid layout element -->
+                        <div class="d-flex flex-column flex-md-row kdvn-gutter mb-5">
+                            <div class="card border-0 kdvn-card-medium bg-white w-100 mb-3 mb-md-0 shadow-sm">
+                                <h3 class="kdvn-h3 text-neutral-strong mb-2">Hanoi Head Office</h3>
+                                <p class="kdvn-body-medium text-muted">Professional mechanical engineering division and administrative operations center.</p>
+                            </div>
+                            <div class="card border-0 kdvn-card-medium bg-white w-100 shadow-sm">
+                                <h3 class="kdvn-h3 text-neutral-strong mb-2">Haiphong Office</h3>
+                                <p class="kdvn-body-medium text-muted">Regional industrial support installation base at Minato Residence area center.</p>
+                            </div>
+                        </div>
+
+                        <!-- Custom Inquiry Form Content Block -->
+                        <div class="card border-0 kdvn-card-medium bg-white shadow-sm" style="max-width: 600px;">
+                            <form action="/website/form/" method="post" class="s_website_form" data-model_name="mail.mail">
+                                <div class="mb-3">
+                                    <label class="kdvn-body-medium fw-bold text-neutral-strong mb-1">Company Name</label>
+                                    <input type="text" class="form-control border-2" name="partner_name" required="1"/>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="kdvn-body-medium fw-bold text-neutral-strong mb-1">Email Address</label>
+                                    <input type="email" class="form-control border-2" name="email_from" required="1"/>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="kdvn-body-medium fw-bold text-neutral-strong mb-1">Project Technical Requirements</label>
+                                    <textarea class="form-control border-2" name="body_html" rows="4" required="1"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary px-4 py-2 fw-bold text-white">Send Inquiry</button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </xpath>
+    </template>
+</odoo>
