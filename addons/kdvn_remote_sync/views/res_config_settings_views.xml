@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.kdvn.remote.sync</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Remote Sync" string="Remote Sync" name="kdvn_remote_sync" groups="base.group_system">
+                    <block title="KDERP data from n8n" name="kdvn_remote_sync_receive">
+                        <setting id="kdvn_remote_sync_api_key" string="Sync API Key"
+                                 help="n8n sends this key in the X-API-Key header when it posts to /api/v1/sync_jobs. Without a key, all data is refused.">
+                            <field name="kdvn_remote_sync_api_key" widget="CopyClipboardChar" readonly="1" placeholder="No key yet: click Generate new key"/>
+                            <div class="mt8">
+                                <button name="action_kdvn_generate_api_key" type="object" string="Generate new key"
+                                        icon="fa-key" class="btn-link"
+                                        confirm="Create a new key? n8n stops working until it is updated with the new key."/>
+                            </div>
+                        </setting>
+                    </block>
+                    <block title="n8n automation" name="kdvn_remote_sync_n8n">
+                        <setting id="kdvn_n8n_server_url" string="n8n Server URL">
+                            <field name="kdvn_n8n_server_url" placeholder="http://192.168.1..."/>
+                        </setting>
+                        <setting id="kdvn_n8n_job_sync" string="Job Sync Trigger"
+                                 help="n8n webhook that starts the job / budget / customer sync.">
+                            <field name="kdvn_n8n_webhook_job_sync_url" placeholder="http://192.168.1.../webhook/..."/>
+                            <div class="mt8">
+                                <button name="action_kdvn_trigger_n8n_sync" type="object" string="Sync now"
+                                        icon="fa-refresh" class="btn-primary"
+                                        confirm="Ask n8n to send jobs, budgets and customers now?"/>
+                            </div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_kdvn_remote_sync_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'module': 'kdvn_remote_sync', 'bin_size': False}</field>
+    </record>
+</odoo>

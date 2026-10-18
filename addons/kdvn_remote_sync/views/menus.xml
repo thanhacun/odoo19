@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Settings > Technical > Remote Sync (KDERP) -->
+    <menuitem id="menu_kdvn_remote_sync_root" name="Remote Sync (KDERP)"
+              parent="base.menu_custom" sequence="90" groups="base.group_system"/>
+    <menuitem id="menu_kderp_job_lookup" name="Jobs" parent="menu_kdvn_remote_sync_root"
+              action="action_kderp_job_lookup" sequence="10"/>
+    <menuitem id="menu_kderp_customer_cache" name="Customers" parent="menu_kdvn_remote_sync_root"
+              action="action_kderp_customer_cache" sequence="20"/>
+    <menuitem id="menu_kdvn_remote_sync_settings" name="Settings" parent="menu_kdvn_remote_sync_root"
+              action="action_kdvn_remote_sync_settings" sequence="90"/>
+</odoo>

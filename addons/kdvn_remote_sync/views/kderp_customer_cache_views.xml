@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kderp_customer_cache_list" model="ir.ui.view">
+        <field name="name">kderp.customer.cache.list</field>
+        <field name="model">kderp.customer.cache</field>
+        <field name="arch" type="xml">
+            <list string="Customers" create="false" edit="false">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="email"/>
+                <field name="external_id" groups="base.group_no_one"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_kderp_customer_cache_search" model="ir.ui.view">
+        <field name="name">kderp.customer.cache.search</field>
+        <field name="model">kderp.customer.cache</field>
+        <field name="arch" type="xml">
+            <search string="Customers">
+                <field name="name" filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"/>
+                <field name="email"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_kderp_customer_cache" model="ir.actions.act_window">
+        <field name="name">Customers</field>
+        <field name="res_model">kderp.customer.cache</field>
+        <field name="view_mode">list</field>
+    </record>
+</odoo>
