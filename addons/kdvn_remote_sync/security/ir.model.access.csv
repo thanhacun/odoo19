@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_kderp_job_lookup_user,kderp.job.lookup.user,model_kderp_job_lookup,base.group_user,1,0,0,0
+access_kderp_job_lookup_admin,kderp.job.lookup.admin,model_kderp_job_lookup,base.group_system,1,1,1,1
+access_kderp_job_budget_cache_user,kderp.job.budget.cache.user,model_kderp_job_budget_cache,base.group_user,1,0,0,0
+access_kderp_job_budget_cache_admin,kderp.job.budget.cache.admin,model_kderp_job_budget_cache,base.group_system,1,1,1,1
+access_kderp_customer_cache_user,kderp.customer.cache.user,model_kderp_customer_cache,base.group_user,1,0,0,0
+access_kderp_customer_cache_admin,kderp.customer.cache.admin,model_kderp_customer_cache,base.group_system,1,1,1,1

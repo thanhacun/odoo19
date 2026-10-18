@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kderp_job_lookup_list" model="ir.ui.view">
+        <field name="name">kderp.job.lookup.list</field>
+        <field name="model">kderp.job.lookup</field>
+        <field name="arch" type="xml">
+            <list string="Jobs" create="false" edit="false">
+                <field name="job_no"/>
+                <field name="job_name"/>
+                <field name="owner_id"/>
+                <field name="partner_id"/>
+                <field name="date_start"/>
+                <field name="kickoff_meeting_date"/>
+                <field name="big_job" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'doing'" decoration-success="state == 'done'"
+                       decoration-muted="state in ('close', 'close_temp', 'cancel')"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_kderp_job_lookup_form" model="ir.ui.view">
+        <field name="name">kderp.job.lookup.form</field>
+        <field name="model">kderp.job.lookup</field>
+        <field name="arch" type="xml">
+            <form string="Job" create="false" edit="false">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="job_no"/></h1>
+                        <h2><field name="job_name"/></h2>
+                    </div>
+                    <group>
+                        <group string="General">
+                            <field name="is_general_expense"/>
+                            <field name="big_job"/>
+                            <field name="owner_id"/>
+                            <field name="partner_id"/>
+                            <field name="external_id" groups="base.group_no_one"/>
+                        </group>
+                        <group string="Dates">
+                            <field name="date_start"/>
+                            <field name="actual_completion_date"/>
+                            <field name="kickoff_meeting_date"/>
+                            <field name="kom_peak_from"/>
+                            <field name="kom_peak_to"/>
+                        </group>
+                        <group string="Project roles">
+                            <field name="general_project_manager_id" string="G.M."/>
+                            <field name="area_manager_id" string="A.M."/>
+                            <field name="user_id" string="P.M."/>
+                            <field name="manager_id" string="S.M."/>
+                            <field name="jp_advisor_id" string="Japanese Advisor"/>
+                            <field name="acting_project_manager_id" string="Acting P.M."/>
+                            <field name="project_manager_ref"/>
+                            <field name="view_user_ids" string="Viewers" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Expense Budget Balance" name="budgets">
+                            <field name="budget_ids">
+                                <list>
+                                    <field name="budget_code"/>
+                                    <field name="name"/>
+                                    <field name="balance_amt" sum="Total"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_kderp_job_lookup_search" model="ir.ui.view">
+        <field name="name">kderp.job.lookup.search</field>
+        <field name="model">kderp.job.lookup</field>
+        <field name="arch" type="xml">
+            <search string="Jobs">
+                <field name="job_no"/>
+                <field name="job_name"/>
+                <field name="partner_id"/>
+                <field name="owner_id"/>
+                <filter name="filter_doing" string="On-Going" domain="[('state', '=', 'doing')]"/>
+                <filter name="filter_done" string="Completed" domain="[('state', '=', 'done')]"/>
+                <separator/>
+                <filter name="filter_big_job" string="Big Jobs" domain="[('big_job', '=', True)]"/>
+                <filter name="filter_not_ge" string="Not General Expense" domain="[('is_general_expense', '=', False)]"/>
+                <group>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_partner" string="Client" context="{'group_by': 'partner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_kderp_job_lookup" model="ir.actions.act_window">
+        <field name="name">Jobs</field>
+        <field name="res_model">kderp.job.lookup</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">No jobs received yet</p>
+            <p>Jobs come from the KDERP server through n8n (Settings &gt; Remote Sync).</p>
+        </field>
+    </record>
+</odoo>
