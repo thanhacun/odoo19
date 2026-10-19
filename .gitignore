@@ -6,3 +6,6 @@ temp
 .env
 docker-compose*
 odoo.config
+# Python caches
+__pycache__/
+*.pyc
