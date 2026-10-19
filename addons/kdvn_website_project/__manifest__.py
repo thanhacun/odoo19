@@ -3,13 +3,13 @@
     'summary': 'Past Prominent Projects page, with projects imported from KDERP.',
     'description': """
 Website projects (name, photo, year, area, type, category, work scope tags).
-Finished big jobs are imported daily over XML-RPC from the KDERP/OpenERP
-servers (done/closed, job scale big job, grouped by name, >= 1,000,000 USD),
-as the Odoo 12 module kdvn_website_project (kdvn.publish.project) did; projects
-can also be added by hand. Published projects are shown at /prominent-projects
+Finished big jobs are pushed by n8n (which can reach the KDERP servers inside
+the company network) to /api/v1/website_projects; Odoo groups them by name and
+creates unpublished projects from 1,000,000 USD, as the Odoo 12 module
+kdvn_website_project (kdvn.publish.project) did. Projects can also be added by hand. Published projects are shown at /prominent-projects
 (grid by year or list, filters by year and category).
 """,
-    'version': '19.0.2.0.0',
+    'version': '19.0.3.0.0',
     'category': 'Website',
     'author': 'Kinden Vietnam',
     'license': 'LGPL-3',
@@ -18,8 +18,7 @@ can also be added by hand. Published projects are shown at /prominent-projects
         'security/ir.model.access.csv',
         'data/project_data.xml',
         'views/website_project_views.xml',
-        'data/ir_cron.xml',
-        'views/project_source_views.xml',
+        'views/res_config_settings_views.xml',
         'views/project_templates.xml',
     ],
     'assets': {

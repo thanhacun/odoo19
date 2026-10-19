@@ -1,0 +1,238 @@
+{
+  "name": "KDERP Closed Big Jobs -> Odoo 19 Website Projects",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 2
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -900,
+        0
+      ],
+      "id": "90a74062-677a-4929-8b96-5ebd65903695",
+      "name": "Every day 02:00"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -900,
+        -180
+      ],
+      "id": "4e3215b2-09e1-486f-a7bb-40c7d4e15b37",
+      "name": "When clicking 'Execute workflow'"
+    },
+    {
+      "parameters": {
+        "jsCode": "// One item per KDERP / OpenERP server to read (same servers as Odoo 12 servers_json).\n// Fill in the HCMC server; better: move the passwords to n8n credentials / env variables.\nreturn [\n  { json: { server: 'Hanoi', url: 'http://172.16.10.192:8169', db: 'odoo_hanoi', username: 'CHANGE_ME', password: 'CHANGE_ME' } },\n  // { json: { server: 'HCMC', url: 'http://<hcmc-host>:<port>', db: '<db>', username: 'CHANGE_ME', password: 'CHANGE_ME' } },\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -680,
+        -80
+      ],
+      "id": "7d3af83a-c526-45b6-bfef-d37c7c930ee6",
+      "name": "Servers"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.url }}/jsonrpc",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"call\",\n  \"params\": {\n    \"service\": \"common\",\n    \"method\": \"authenticate\",\n    \"args\": [\"{{ $json.db }}\", \"{{ $json.username }}\", \"{{ $json.password }}\", {}]\n  },\n  \"id\": 1\n}\n",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -460,
+        -80
+      ],
+      "id": "bddd0163-ffc5-4820-852e-6006ccc19906",
+      "name": "Authenticate"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Servers').item.json.url }}/jsonrpc",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"call\",\n  \"params\": {\n    \"service\": \"object\",\n    \"method\": \"execute_kw\",\n    \"args\": [\n      \"{{ $('Servers').item.json.db }}\",\n      {{ $json.result }},\n      \"{{ $('Servers').item.json.password }}\",\n      \"account.analytic.account\",\n      \"search_read\",\n      [[[\"state\", \"in\", [\"done\", \"closed\"]], [\"job_scale\", \"=\", \"00-big_job\"]]],\n      {\n        \"fields\": [\"name\", \"code\", \"state\", \"job_type\", \"date_start\", \"completion_date\",\n                   \"city_province_id\", \"contracted_amount_usd\"],\n        \"context\": {\"import_ge_nofilter\": true}\n      }\n    ]\n  },\n  \"id\": 2\n}\n",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -240,
+        -80
+      ],
+      "id": "80cbb60d-31ce-4f52-955a-f32b9ba7b37c",
+      "name": "Closed Big Jobs"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Collect the jobs of all servers into one payload for Odoo 19.\n// Stop with a clear error if a server refused the login or the search.\nconst jobs = [];\nconst servers = $('Servers').all();\n$input.all().forEach((item, i) => {\n  const server = servers[i] ? servers[i].json.server : `server ${i + 1}`;\n  if (item.json.error) {\n    throw new Error(`${server}: ${JSON.stringify(item.json.error.data ? item.json.error.data.message : item.json.error)}`);\n  }\n  for (const job of item.json.result || []) {\n    jobs.push({ ...job, server });\n  }\n});\nreturn [{ json: { jobs, count: jobs.length } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -20,
+        -80
+      ],
+      "id": "fad8815d-0dfa-44d5-8276-ed40bccf4438",
+      "name": "Collect jobs"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://beta.kinden.com.vn/api/v1/website_projects",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "CHANGE_ME (Settings > Website Projects)"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"jobs\": $json.jobs } }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        200,
+        -80
+      ],
+      "id": "22cca5eb-8fcb-480f-ae73-ce64cfc74b3d",
+      "name": "Send to Odoo 19",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Servers').item.json.url }}/jsonrpc",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"call\",\n  \"params\": {\n    \"service\": \"object\",\n    \"method\": \"execute_kw\",\n    \"args\": [\n      \"{{ $('Servers').item.json.db }}\",\n      {{ $json.result }},\n      \"{{ $('Servers').item.json.password }}\",\n      \"account.analytic.account\", \"fields_get\", [],\n      {\"allfields\": [\"state\", \"job_scale\", \"job_type\", \"completion_date\", \"actual_completion_date\", \"city_province_id\", \"contracted_amount_usd\"],\n       \"attributes\": [\"string\", \"type\", \"selection\"]}\n    ]\n  },\n  \"id\": 3\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -240,
+        140
+      ],
+      "id": "43f464d5-8d99-464e-912d-0ede733fe6ba",
+      "name": "Check fields (run once by hand)",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## KDERP closed big jobs -> Odoo 19 website projects\n1. **Servers**: fill in login/password (+ HCMC server).\n2. First run **Check fields** (enable it, connect after Authenticate) to confirm the field names on your server: `state` values (done/closed), `job_scale` ('00-big_job'), `completion_date` or `actual_completion_date`, `contracted_amount_usd`. Adjust **Closed Big Jobs** if a name differs.\n3. **Send to Odoo 19**: API key from Odoo 19 Settings > Website Projects. Add header `X-Odoo-Database` if the server has several databases.\n\nOdoo groups jobs by name, creates **unpublished** projects from the minimum amount (default 1,000,000 USD) and only refreshes the KDERP fields of existing ones.",
+        "height": 300,
+        "width": 520
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -940,
+        260
+      ],
+      "id": "e1a80f16-3fa1-41dc-98af-e5b6c621adaf",
+      "name": "Note"
+    }
+  ],
+  "connections": {
+    "Every day 02:00": {
+      "main": [
+        [
+          {
+            "node": "Servers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking 'Execute workflow'": {
+      "main": [
+        [
+          {
+            "node": "Servers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Servers": {
+      "main": [
+        [
+          {
+            "node": "Authenticate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Authenticate": {
+      "main": [
+        [
+          {
+            "node": "Closed Big Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Closed Big Jobs": {
+      "main": [
+        [
+          {
+            "node": "Collect jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect jobs": {
+      "main": [
+        [
+          {
+            "node": "Send to Odoo 19",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
