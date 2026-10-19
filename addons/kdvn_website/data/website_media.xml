@@ -135,5 +135,124 @@
             <field name="note">Shown 511 x 733 px on desktop (portrait, about 1022 x 1466), full width on mobile. Starting image is the same illustration for all items: replace it.</field>
             <field name="image" type="base64" file="kdvn_website/static/src/img/content/home-business-electrical.jpg"/>
         </record>
+        <record id="media_electrical_hero" model="kdvn.website.media">
+            <field name="name">Electrical System - intro photo</field>
+            <field name="key">electrical_hero</field>
+            <field name="sequence">40</field>
+            <field name="note">Wide photo under the intro text: 1360 x 440 on desktop (about 2720 x 880).</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/electrical-hero.jpg"/>
+        </record>
+        <record id="media_electrical_feature_1" model="kdvn.website.media">
+            <field name="name">Electrical System - feature 1</field>
+            <field name="key">electrical_feature_1</field>
+            <field name="sequence">41</field>
+            <field name="note">Feature column photo, about 445 x 320 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/electrical-feature-1.jpg"/>
+        </record>
+        <record id="media_electrical_feature_2" model="kdvn.website.media">
+            <field name="name">Electrical System - feature 2</field>
+            <field name="key">electrical_feature_2</field>
+            <field name="sequence">42</field>
+            <field name="note">Feature column photo, about 445 x 320 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/electrical-feature-2.jpg"/>
+        </record>
+        <record id="media_electrical_feature_3" model="kdvn.website.media">
+            <field name="name">Electrical System - feature 3</field>
+            <field name="key">electrical_feature_3</field>
+            <field name="sequence">43</field>
+            <field name="note">Feature column photo, about 445 x 320 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/electrical-feature-3.jpg"/>
+        </record>
+        <record id="media_electrical_item_1" model="kdvn.website.media">
+            <field name="name">Electrical System - (01) For people and the planet</field>
+            <field name="key">electrical_item_1</field>
+            <field name="sequence">44</field>
+            <field name="note">Business item photo, 668 x 320 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/electrical-item-1.jpg"/>
+        </record>
+        <record id="media_electrical_item_2" model="kdvn.website.media">
+            <field name="name">Electrical System - (02) Infrastructure on user's premises</field>
+            <field name="key">electrical_item_2</field>
+            <field name="sequence">45</field>
+            <field name="note">Business item photo, 668 x 320 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/electrical-item-2.jpg"/>
+        </record>
+        <record id="media_electrical_item_3" model="kdvn.website.media">
+            <field name="name">Electrical System - (03) Residential environmental improvement</field>
+            <field name="key">electrical_item_3</field>
+            <field name="sequence">46</field>
+            <field name="note">Business item photo, 668 x 320 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/electrical-item-3.jpg"/>
+        </record>
+        <record id="media_electrical_item_4" model="kdvn.website.media">
+            <field name="name">Electrical System - (04) Crime and disaster prevention on user's premises</field>
+            <field name="key">electrical_item_4</field>
+            <field name="sequence">47</field>
+            <field name="note">Business item photo, 668 x 320 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/electrical-item-4.jpg"/>
+        </record>
+        <record id="media_electrical_item_5" model="kdvn.website.media">
+            <field name="name">Electrical System - (05) Playing a major role in electrical power construction</field>
+            <field name="key">electrical_item_5</field>
+            <field name="sequence">48</field>
+            <field name="note">Business item photo, 668 x 320 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/electrical-item-5.jpg"/>
+        </record>
+        <record id="media_electrical_item_6" model="kdvn.website.media">
+            <field name="name">Electrical System - (06) Guaranteeing a reliable, high-quality electrical power supply</field>
+            <field name="key">electrical_item_6</field>
+            <field name="sequence">49</field>
+            <field name="note">Business item photo, 668 x 320 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/electrical-item-6.jpg"/>
+        </record>
+        <record id="media_ac_sanitary_hero" model="kdvn.website.media">
+            <field name="name">AC &amp; Sanitary - intro photo</field>
+            <field name="key">ac_sanitary_hero</field>
+            <field name="sequence">50</field>
+            <field name="note">Wide photo under the intro text: 1360 x 440 on desktop (about 2720 x 880).</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/ac-sanitary-hero.jpg"/>
+        </record>
+        <record id="media_ac_sanitary_feature_1" model="kdvn.website.media">
+            <field name="name">AC &amp; Sanitary - feature 1</field>
+            <field name="key">ac_sanitary_feature_1</field>
+            <field name="sequence">51</field>
+            <field name="note">Feature column photo, about 668 x 320 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/ac-sanitary-feature-1.jpg"/>
+        </record>
+        <record id="media_ac_sanitary_feature_2" model="kdvn.website.media">
+            <field name="name">AC &amp; Sanitary - feature 2</field>
+            <field name="key">ac_sanitary_feature_2</field>
+            <field name="sequence">52</field>
+            <field name="note">Feature column photo, about 668 x 320 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/ac-sanitary-feature-2.jpg"/>
+        </record>
+        <record id="media_ac_sanitary_item_1" model="kdvn.website.media">
+            <field name="name">AC &amp; Sanitary - (01) Living space improvements</field>
+            <field name="key">ac_sanitary_item_1</field>
+            <field name="sequence">53</field>
+            <field name="note">Business item photo, 668 x 320 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/ac-sanitary-item-1.jpg"/>
+        </record>
+        <record id="media_ac_sanitary_item_2" model="kdvn.website.media">
+            <field name="name">AC &amp; Sanitary - (02) Energy saving</field>
+            <field name="key">ac_sanitary_item_2</field>
+            <field name="sequence">54</field>
+            <field name="note">Business item photo, 668 x 320 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/ac-sanitary-item-2.jpg"/>
+        </record>
+        <record id="media_ac_sanitary_item_3" model="kdvn.website.media">
+            <field name="name">AC &amp; Sanitary - (03) Environmental conservation</field>
+            <field name="key">ac_sanitary_item_3</field>
+            <field name="sequence">55</field>
+            <field name="note">Business item photo, 668 x 320 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/ac-sanitary-item-3.jpg"/>
+        </record>
+        <record id="media_ac_sanitary_item_4" model="kdvn.website.media">
+            <field name="name">AC &amp; Sanitary - (04) Industrial space consolidation</field>
+            <field name="key">ac_sanitary_item_4</field>
+            <field name="sequence">56</field>
+            <field name="note">Business item photo, 668 x 320 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/ac-sanitary-item-4.jpg"/>
+        </record>
     </data>
 </odoo>

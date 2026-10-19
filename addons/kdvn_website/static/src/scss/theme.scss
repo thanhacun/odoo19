@@ -1554,3 +1554,422 @@ $kdvn-biz-figure-height: 733px;
         overflow: hidden;
     }
 }
+
+// ============================================================================
+// BUSINESS AREA PAGES (Figma: frames/electrical-system-*, ac-sanitary-*)
+// Same blocks for every business area page: intro + wide photo, Feature
+// columns, numbered Business items (title sticky on the left on desktop).
+// Desktop values measured on the 1440 frame, mobile on the 390 frame.
+// ============================================================================
+
+$kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
+
+.kdvn-bizpage-intro {
+    padding-top: $spacing-gap-2x-large;
+
+    @include media-breakpoint-up(xl) {
+        padding-top: $spacing-gap-giant;
+    }
+}
+.kdvn-bizpage-lead {
+    margin: 0 0 $spacing-gap-x-large;
+    font-size: $typography-font-size-body-small;
+    line-height: 20px;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(lg) {
+        margin-bottom: $spacing-gap-2x-large;
+        font-size: $typography-font-size-body-large;
+        line-height: 32px;
+    }
+}
+.kdvn-bizpage-hero {
+    display: block;
+    width: 100%;
+    height: 270px;
+    object-fit: cover;
+
+    @include media-breakpoint-up(md) {
+        height: auto;
+        aspect-ratio: 1360 / 440;
+    }
+}
+
+// "Feature", "Business items": display font, mixed case (not uppercase)
+.kdvn-bizpage-title {
+    margin: 0;
+    font-family: $typography-font-family-display, sans-serif;
+    font-size: $typography-font-size-display-5;
+    line-height: 52px;
+    font-weight: 700;
+    color: $color-content-neutral-strongest;
+}
+
+// --- Feature: one column on mobile, equal columns (2 or 3) from md
+.kdvn-bizpage-feature-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    row-gap: $spacing-gap-2x-large;
+    margin-top: $spacing-gap-large;
+
+    @include media-breakpoint-up(md) {
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(0, 1fr);
+        column-gap: $spacing-gap-small;
+    }
+    @include media-breakpoint-up(xl) {
+        margin-top: $spacing-gap-3x-large;
+    }
+}
+.kdvn-bizpage-feature img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 342 / 320;
+    object-fit: cover;
+
+    @include media-breakpoint-up(md) {
+        aspect-ratio: auto;
+        height: 320px;
+    }
+}
+.kdvn-bizpage-feature-title {
+    margin: $spacing-gap-large 0 $spacing-gap-x-small;
+    font-size: $typography-font-size-body-large;
+    line-height: 28px;
+    font-weight: $emphasis-font-weight-bold;
+    letter-spacing: -0.5px;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(xl) {
+        font-size: $typography-font-size-heading-4;
+        line-height: 32px;
+    }
+}
+.kdvn-bizpage-feature-text {
+    margin: 0;
+    font-size: $typography-font-size-body-small;
+    line-height: 20px;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(xl) {
+        font-size: $typography-font-size-body-base;
+        line-height: 24px;
+    }
+}
+
+// --- Business items
+.kdvn-bizpage-items-title {
+    margin-bottom: $spacing-gap-large;
+
+    @include media-breakpoint-up(lg) {
+        position: sticky;
+        top: 8rem;   // below the sticky header bar
+        margin-bottom: 0;
+    }
+}
+.kdvn-bizpage-item {
+    padding: $spacing-gap-large 0 $spacing-gap-x-large;
+    border-top: 1px solid $kdvn-bizpage-grey;
+
+    @include media-breakpoint-up(lg) {
+        padding-top: $spacing-gap-x-large;
+    }
+}
+// mobile: number above the title; desktop: number left, title right
+.kdvn-bizpage-item-head {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-gap-medium;
+    margin-bottom: $spacing-gap-medium;
+
+    @include media-breakpoint-up(lg) {
+        flex-direction: row;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: $spacing-gap-x-large;
+        margin-bottom: 20px;
+    }
+}
+.kdvn-bizpage-item-no {
+    flex: none;
+    font-size: $typography-font-size-body-large;
+    line-height: 28px;
+    font-style: italic;
+    color: $kdvn-bizpage-grey;
+}
+.kdvn-bizpage-item-title {
+    margin: 0;
+    font-size: 1.125rem;
+    line-height: 32px;
+    font-weight: $emphasis-font-weight-bold;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-body-large;
+        line-height: 28px;
+        text-align: right;
+    }
+}
+.kdvn-bizpage-item-image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 668 / 320;
+    object-fit: cover;
+}
+.kdvn-bizpage-item-text {
+    margin: $spacing-gap-large 0 $spacing-gap-medium;
+    font-size: $typography-font-size-body-small;
+    line-height: 20px;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-body-large;
+        line-height: 32px;
+    }
+}
+// scope list: one column on mobile, two from md
+.kdvn-bizpage-scope {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-gap-x-small $spacing-gap-small;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: $typography-font-size-body-small;
+    line-height: 20px;
+    color: $kdvn-bizpage-grey;
+
+    @include media-breakpoint-up(md) {
+        grid-template-columns: 1fr 1fr;
+    }
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-body-base;
+        line-height: 24px;
+    }
+}
+
+// ============================================================================
+// INQUIRY FORM (Figma: frames/inquiry-form-01-* form, inquiry-form-02-* popup)
+// ============================================================================
+
+.kdvn-inquiry {
+    padding-top: $spacing-gap-2x-large;
+
+    @include media-breakpoint-up(xl) {
+        padding-top: $spacing-gap-giant;
+    }
+}
+.kdvn-inquiry-title {
+    margin: 0;
+    font-size: $typography-font-size-heading-3;
+    line-height: 36px;
+    font-weight: $emphasis-font-weight-bold;
+    letter-spacing: -0.8px;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-heading-2;
+        line-height: 48px;
+    }
+}
+.kdvn-inquiry-intro {
+    margin: $spacing-gap-x-small 0 $spacing-gap-x-large;
+    max-width: 22rem;
+    font-size: $typography-font-size-body-small;
+    line-height: 20px;
+    color: $color-content-neutral-strongest;
+}
+
+// --- Contact details: grey icon square + label + value
+.kdvn-inquiry-contacts {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-gap-large;
+    margin: $spacing-gap-x-large 0 $spacing-gap-giant;
+    padding: 0;
+    list-style: none;
+
+    @include media-breakpoint-up(lg) {
+        margin: $spacing-gap-2x-large 0 0;
+    }
+}
+.kdvn-inquiry-contact {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-gap-medium;
+}
+.kdvn-inquiry-icon {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    font-size: 1.5rem;
+    color: $color-content-neutral-strongest;
+    background-color: $black-3;
+}
+.kdvn-inquiry-contact-label {
+    margin: 0 0 $spacing-gap-x-small;
+    font-size: $typography-font-size-body-large;
+    line-height: 28px;
+    font-weight: $emphasis-font-weight-bold;
+    color: $color-content-neutral-strongest;
+}
+.kdvn-inquiry-contact-value {
+    display: block;
+    margin: 0;
+    font-size: $typography-font-size-body-base;
+    line-height: 24px;
+    color: $color-content-neutral-strongest;
+    text-decoration: none;
+}
+a.kdvn-inquiry-contact-value:hover {
+    text-decoration: underline;
+}
+
+// --- Form fields
+.kdvn-field {
+    margin-bottom: $spacing-gap-small;
+}
+.kdvn-label {
+    display: block;
+    margin-bottom: $spacing-gap-x-small;
+    font-size: $typography-font-size-body-base;
+    line-height: 24px;
+    font-weight: $emphasis-font-weight-medium;
+    color: $color-content-neutral-strongest;
+}
+.kdvn-input {
+    display: block;
+    width: 100%;
+    height: 48px;
+    padding: 0 $spacing-padding-small;
+    font-size: $typography-font-size-body-small;
+    color: $color-content-neutral-strongest;
+    background-color: #fff;
+    border: 1px solid $black-7;
+    border-radius: 0;
+    appearance: none;
+
+    &::placeholder {
+        color: $black-9;
+    }
+    &:focus {
+        outline: none;
+        border-color: $color-content-neutral-strongest;
+    }
+}
+// select: black triangle on the right (like the frame)
+.kdvn-select {
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3e%3cpath d='M0 0h10L5 6z' fill='%230d0d0d'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 8px 5px;
+
+}
+.kdvn-textarea {
+    height: auto;
+    min-height: 120px;
+    padding-top: $spacing-padding-small;
+    padding-bottom: $spacing-padding-small;
+    resize: vertical;
+}
+.kdvn-inquiry-submit {
+    display: block;
+    width: 100%;
+    height: 56px;
+    margin-top: $spacing-gap-2x-large;
+    font-size: $typography-font-size-body-base;
+    font-weight: $emphasis-font-weight-bold;
+}
+// spam trap: off screen (not display:none, some bots skip hidden fields)
+.kdvn-inquiry-hp {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+// ============================================================================
+// MODAL (Figma: frames/inquiry-form-02-*): "Got it!" after sending the form
+// ============================================================================
+
+body.kdvn-modal-open {
+    overflow: hidden;
+}
+.kdvn-modal {
+    position: fixed;
+    inset: 0;
+    z-index: $zindex-modal;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-padding-x-large;
+
+    &[hidden] {
+        display: none;
+    }
+}
+.kdvn-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+.kdvn-modal-dialog {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    padding: $spacing-padding-x-large;
+    @include kdvn-glass;   // frame: white 80% + blur, like the header
+}
+.kdvn-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-gap-large;
+}
+.kdvn-modal-title {
+    margin: 0;
+    font-size: $typography-font-size-heading-4;
+    line-height: 32px;
+    font-weight: $emphasis-font-weight-bold;
+    letter-spacing: -0.5px;
+    color: $color-content-neutral-strongest;
+}
+.kdvn-modal-x {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    font-size: 1.25rem;
+    color: $color-content-neutral-strongest;
+    background-color: transparent;
+    border: 1px solid $black-7;
+}
+.kdvn-modal-body p {
+    margin: 0 0 $spacing-gap-large;
+    font-size: $typography-font-size-body-small;
+    line-height: 20px;
+    color: $color-content-neutral-strongest;
+}
+.kdvn-modal-close {
+    display: block;
+    width: 100%;
+    height: 48px;
+    font-size: $typography-font-size-body-small;
+    font-weight: $emphasis-font-weight-bold;
+    color: #fff;
+    background-color: $color-content-neutral-strongest;
+    border: 0;
+    border-radius: 0;
+
+    &:hover, &:focus-visible {
+        color: #fff;
+        background-color: $black-11;
+    }
+}

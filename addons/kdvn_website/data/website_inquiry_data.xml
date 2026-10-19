@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Starting options of the 'Inquiry type' list (edit in Website > Configuration > Inquiry Types).
+         noupdate: options changed by users are kept on module update. -->
+    <data noupdate="1">
+        <record id="inquiry_type_quotation" model="kdvn.website.inquiry.type">
+            <field name="name">Request for quotation</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="inquiry_type_project" model="kdvn.website.inquiry.type">
+            <field name="name">Project consultation</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="inquiry_type_maintenance" model="kdvn.website.inquiry.type">
+            <field name="name">Maintenance and services</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="inquiry_type_partnership" model="kdvn.website.inquiry.type">
+            <field name="name">Partnership and suppliers</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="inquiry_type_other" model="kdvn.website.inquiry.type">
+            <field name="name">Other</field>
+            <field name="sequence">90</field>
+        </record>
+
+        <!-- Email to the inquiry recipients (Settings > Website > Inquiry Form Recipients) -->
+        <record id="mail_template_website_inquiry" model="mail.template">
+            <field name="name">Website: new inquiry</field>
+            <field name="model_id" ref="kdvn_website.model_kdvn_website_inquiry"/>
+            <field name="subject">Website inquiry: {{ object.inquiry_type_id.name or 'General' }} - {{ object.contact_name }}</field>
+            <field name="email_from">{{ (object.website_id.company_id or user.company_id).email_formatted or user.email_formatted }}</field>
+            <field name="email_to">{{ object._kdvn_notify_email() }}</field>
+            <field name="reply_to">{{ object.email }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; font-size: 14px;">
+    <p>A new message was sent with the website inquiry form.</p>
+    <table style="border-collapse: collapse;">
+        <tr><td style="padding: 4px 12px 4px 0; color: #7e7e7e;">Name</td><td style="padding: 4px 0;" t-out="object.contact_name"/></tr>
+        <tr><td style="padding: 4px 12px 4px 0; color: #7e7e7e;">Company</td><td style="padding: 4px 0;" t-out="object.company_name or ''"/></tr>
+        <tr><td style="padding: 4px 12px 4px 0; color: #7e7e7e;">Email</td><td style="padding: 4px 0;" t-out="object.email"/></tr>
+        <tr><td style="padding: 4px 12px 4px 0; color: #7e7e7e;">Phone</td><td style="padding: 4px 0;" t-out="object.phone or ''"/></tr>
+        <tr><td style="padding: 4px 12px 4px 0; color: #7e7e7e;">Inquiry type</td><td style="padding: 4px 0;" t-out="object.inquiry_type_id.name or ''"/></tr>
+        <tr><td style="padding: 4px 12px 4px 0; color: #7e7e7e;">Language</td><td style="padding: 4px 0;" t-out="object.lang or ''"/></tr>
+    </table>
+    <p style="margin-top: 16px; white-space: pre-wrap;" t-out="object.message or ''"/>
+    <p style="color: #7e7e7e;">Reply to this email to answer the sender. All inquiries: Website &gt; Inquiries.</p>
+</div>
+            </field>
+        </record>
+    </data>
+</odoo>
