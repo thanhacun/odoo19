@@ -203,38 +203,46 @@ class KderpJobLookup(models.Model):
 
     @api.model
     def _sync_budgets(self, budgets_data):
+        """Budgets are matched by (job, budget code), as in Odoo 12 since
+        12.0.1.2.0: they come from two remote models (budget data and fixed
+        cost data) whose ids can collide, and a job's budget codes are unique
+        while other jobs reuse them. external_id is kept for tracing only."""
         if not budgets_data:
             return 0
         Budget = self.env['kderp.job.budget.cache'].sudo()
         job_ext_ids = {_as_id(b.get('job_id')) for b in budgets_data} - {False}
         job_by_ext = {j.external_id: j.id for j in self.search([('external_id', 'in', list(job_ext_ids))])}
 
-        incoming = {}
+        incoming = {}   # (job id, code) -> vals; a later row with the same key wins (as in Odoo 12)
+        synced = 0
         for bgt in budgets_data:
             ext_id = _as_id(bgt.get('id'))
+            code = str(bgt.get('budget_code') or '').strip()
             job_id = job_by_ext.get(_as_id(bgt.get('job_id')))
-            if not ext_id or not bgt.get('budget_code') or not job_id:
+            if not ext_id or not code or not job_id:
                 continue
-            incoming[ext_id] = {
+            incoming[(job_id, code)] = {
                 'external_id': ext_id,
-                'budget_code': bgt['budget_code'],
-                'name': bgt.get('name') or bgt['budget_code'],
+                'budget_code': code,
+                'name': bgt.get('name') or code,
                 'balance_amt': bgt.get('balance_amt') or 0.0,
                 'job_id': job_id,
             }
-        existing = {b.external_id: b for b in Budget.search([('external_id', 'in', list(incoming))])}
+            synced += 1
+
+        existing_all = Budget.search([])
+        existing = {(b.job_id.id, b.budget_code): b for b in existing_all}
         to_create = []
-        for ext_id, vals in incoming.items():
-            if ext_id in existing:
-                existing[ext_id].write(vals)
+        for key, vals in incoming.items():
+            if key in existing:
+                existing[key].write(vals)
             else:
                 to_create.append(vals)
         Budget.create(to_create)
 
-        # Odoo 12 kept every budget id present in the payload, even lines it skipped
-        payload_ids = [i for i in (_as_id(b.get('id')) for b in budgets_data) if i]
-        self._purge(Budget.search([('external_id', 'not in', payload_ids)]), 'budget_code')
-        return len(incoming)
+        stale = existing_all.filtered(lambda b: (b.job_id.id, b.budget_code) not in incoming)
+        self._purge(stale, 'budget_code')
+        return synced
 
     @api.model
     def _purge(self, stale, label_field, keep=None):

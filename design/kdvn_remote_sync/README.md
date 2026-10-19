@@ -1,6 +1,6 @@
 # kdvn_remote_sync — notes
 
-Odoo 19 version of the Odoo 12 module `odoo12/addons/kderp_remote_sync` (**12.0.1.1.0**, read on 2026-10-18).
+Odoo 19 version of the Odoo 12 module `odoo12/addons/kderp_remote_sync` (**12.0.1.2.1**, read on 2026-10-19; first port from 12.0.1.1.0 on 2026-10-18).
 The Odoo 12 folder is reference only: never change it from here.
 
 ## What it does
@@ -36,7 +36,10 @@ Menu: Settings > Technical > Remote Sync (KDERP) > Jobs / Customers / Settings.
 - `big_job` no longer crashes on job numbers shorter than 9 characters.
 - Customer lookups for jobs done in one query instead of one per job.
 - Budget without a name gets its code as name (name is required).
-- Unique remote id per cache model.
+- Unique remote id per cache model (jobs, customers).
+
+## Changes mirrored from Odoo 12
+- **12.0.1.2.0 / 12.0.1.2.1 → 19.0.1.2.0:** budgets matched by (job, budget code) instead of remote id, because ids from the two remote budget models (budget data, fixed cost data) collide. Unique (job, code); `external_id` for tracing only; purge = rows whose (job, code) was not sent. Migration `19.0.1.2.0/pre-migrate.py` drops the old unique(external_id) constraint and removes duplicate rows. (Odoo 12's request repair script is not needed: no Odoo 19 module links to budgets yet.)
 
 ## n8n change needed
 In the HTTP Request node that posts to Odoo 19, add header `X-API-Key: <key from Settings > Remote Sync>`.
