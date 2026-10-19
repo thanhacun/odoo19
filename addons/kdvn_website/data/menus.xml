@@ -199,7 +199,7 @@
         <!-- Menu: Factories -->
         <record id="menu_kdvn_factories" model="website.menu">
             <field name="name">Factories</field>
-            <field name="url">#</field>
+            <field name="url">/prominent-projects?category=factory</field>
             <field name="website_id" ref="website.default_website"/>
             <field name="is_mega_menu">False</field>
             <field name="parent_id" ref="kdvn_website.menu_kdvn_past_prominent_projects"/>
@@ -209,7 +209,7 @@
         <!-- Menu: Data Center -->
         <record id="menu_kdvn_data_center" model="website.menu">
             <field name="name">Data Center</field>
-            <field name="url">#</field>
+            <field name="url">/prominent-projects?category=data-center</field>
             <field name="website_id" ref="website.default_website"/>
             <field name="is_mega_menu">False</field>
             <field name="parent_id" ref="kdvn_website.menu_kdvn_past_prominent_projects"/>
@@ -219,7 +219,7 @@
         <!-- Menu: Buildings -->
         <record id="menu_kdvn_building" model="website.menu">
             <field name="name">Buildings</field>
-            <field name="url">#</field>
+            <field name="url">/prominent-projects?category=building</field>
             <field name="website_id" ref="website.default_website"/>
             <field name="is_mega_menu">False</field>
             <field name="parent_id" ref="kdvn_website.menu_kdvn_past_prominent_projects"/>
@@ -229,7 +229,7 @@
         <!-- Menu: Logistics Facilities -->
         <record id="menu_kdvn_logistics_facilities" model="website.menu">
             <field name="name">Logistics Facilities</field>
-            <field name="url">#</field>
+            <field name="url">/prominent-projects?category=logistics</field>
             <field name="website_id" ref="website.default_website"/>
             <field name="is_mega_menu">False</field>
             <field name="parent_id" ref="kdvn_website.menu_kdvn_past_prominent_projects"/>
@@ -239,7 +239,7 @@
         <!-- Menu: Educational Facilities -->
         <record id="menu_kdvn_educational_facilities" model="website.menu">
             <field name="name">Educational Facilities</field>
-            <field name="url">#</field>
+            <field name="url">/prominent-projects?category=educational</field>
             <field name="website_id" ref="website.default_website"/>
             <field name="is_mega_menu">False</field>
             <field name="parent_id" ref="kdvn_website.menu_kdvn_past_prominent_projects"/>
@@ -249,7 +249,7 @@
         <!-- Menu: Hotels -->
         <record id="menu_kdvn_hotels" model="website.menu">
             <field name="name">Hotels</field>
-            <field name="url">#</field>
+            <field name="url">/prominent-projects?category=hotel</field>
             <field name="website_id" ref="website.default_website"/>
             <field name="is_mega_menu">False</field>
             <field name="parent_id" ref="kdvn_website.menu_kdvn_past_prominent_projects"/>
