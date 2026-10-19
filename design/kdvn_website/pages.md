@@ -29,8 +29,8 @@ Status: `todo` → `design` (frames + spec ready) → `build` → `review` → `
 | Company profile | Group Companies | 3 | `/company-profile/group-companies` | review | Aligned to full-size desktop/tablet/mobile PNG frames; photos = placeholders |
 | Company profile | HR Development | 4 | | todo | |
 | Business Information | Overview | 1 | `/business-information` | todo | |
-| Business Information | Electrical Systems | 1 | `/business/electrical-system` | todo | Old placeholder page exists |
-| Business Information | Air Conditioning & Sanitary Systems | 1 | | todo | |
+| Business Information | Electrical Systems | 1 | `/business/electrical-system` | review | Built from frames (desktop/tablet/mobile); shared `kdvn-bizpage-*` layout, images in Site Media `electrical_*` |
+| Business Information | Air Conditioning & Sanitary Systems | 1 | `/business/air-conditioning-sanitary-system` | review | Same layout as Electrical; images in Site Media `ac_sanitary_*` |
 | Business Information | Instrumentation Systems | 2 | | todo | Probably same layout as Electrical |
 | Business Information | Information & Communication Systems | 2 | | todo | |
 | Business Information | Interior Systems | 2 | | todo | |
@@ -43,4 +43,4 @@ Status: `todo` → `design` (frames + spec ready) → `build` → `review` → `
 | Recruitment | LinkedIn Homepage | 4 | external | todo | Need URL |
 | Contact Us | Overview | 1 | `/contact-us` | todo | |
 | Contact Us | Office Locations & Map | 1 | `/contact-us/office-locations` | review | Desktop/tablet/mobile frames applied (mobile: search, scrolling list, map below) |
-| Contact Us | Inquiry Form | 1 | `/contactus` | todo | Rebuild with Odoo form snippet |
+| Contact Us | Inquiry Form | 1 | `/contactus` | review | Custom form → `kdvn.website.inquiry` (Website > Inquiries), email to Settings > Website > Inquiry Form; "Got it!" popup on `?sent=1` |

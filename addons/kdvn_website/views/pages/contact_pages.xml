@@ -1,50 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- COHESIVE OVERRIDE: Targets and completely updates the default system layout code structure -->
-    <template id="contactus" inherit_id="website.contactus" name="Contact Us Custom Figma Override">
-        <!-- Using a primary xpath hook to replace the default layout wrap completely -->
+    <!-- ===================================================================== -->
+    <!-- Inquiry Form  (/contactus, Odoo's contact page)  — Phase 1            -->
+    <!-- Figma: design/kdvn_website/frames/inquiry-form-01-* (form) and        -->
+    <!-- inquiry-form-02-* ("Got it!" popup after sending).                    -->
+    <!-- Posts to /contactus/send (controllers/main.py): saved as              -->
+    <!-- kdvn.website.inquiry, emailed to Settings > Website > Inquiry Form    -->
+    <!-- Recipients, then back to /contactus?sent=1 which opens the popup.     -->
+    <!-- Contact details come from the company (head office) data.            -->
+    <!-- Texts are translatable (Translate mode); the form itself is code.     -->
+    <!-- ===================================================================== -->
+    <template id="contactus" inherit_id="website.contactus" name="KDVN Inquiry Form">
         <xpath expr="//div[@id='wrap']" position="replace">
-            <div id="wrap" class="oe_structure oe_empty">
-                <section class="kdvn-margin-comfortable bg-light" id="locations">
-                    <div class="container-fluid">
-                        <!-- Custom Figma Fluid Typography Scaling Hooks -->
-                        <h1 class="kdvn-h1 text-neutral-strong mb-3">Submit an Inquiry</h1>
-                        <p class="kdvn-body-large text-muted mb-5">
-                            Contact our regional headquarters in Hanoi or branch operations across major provinces.
-                        </p>
-                        
-                        <!-- Responsive Two-Column Branch Grid layout element -->
-                        <div class="d-flex flex-column flex-md-row kdvn-gutter mb-5">
-                            <div class="card border-0 kdvn-card-medium bg-white w-100 mb-3 mb-md-0 shadow-sm">
-                                <h3 class="kdvn-h3 text-neutral-strong mb-2">Hanoi Head Office</h3>
-                                <p class="kdvn-body-medium text-muted">Professional mechanical engineering division and administrative operations center.</p>
-                            </div>
-                            <div class="card border-0 kdvn-card-medium bg-white w-100 shadow-sm">
-                                <h3 class="kdvn-h3 text-neutral-strong mb-2">Haiphong Office</h3>
-                                <p class="kdvn-body-medium text-muted">Regional industrial support installation base at Minato Residence area center.</p>
-                            </div>
-                        </div>
+            <div id="wrap">
+                <t t-call="kdvn_website.page_header"/>
+                <t t-set="kdvn_company" t-value="website.company_id.sudo()"/>
+                <t t-set="kdvn_office" t-value="kdvn_company._kdvn_website_offices(main_only=True)[:1]"/>
+                <t t-set="kdvn_phone" t-value="kdvn_office.phone or kdvn_company.phone"/>
 
-                        <!-- Custom Inquiry Form Content Block -->
-                        <div class="card border-0 kdvn-card-medium bg-white shadow-sm" style="max-width: 600px;">
-                            <form action="/website/form/" method="post" class="s_website_form" data-model_name="mail.mail">
-                                <div class="mb-3">
-                                    <label class="kdvn-body-medium fw-bold text-neutral-strong mb-1">Company Name</label>
-                                    <input type="text" class="form-control border-2" name="partner_name" required="1"/>
+                <section class="kdvn-inquiry">
+                    <div class="kdvn-container">
+                        <div class="row">
+                            <!-- Left: contact details -->
+                            <div class="col-12 col-lg-6">
+                                <h2 class="kdvn-inquiry-title">Need more information?<br/>Get in touch with us</h2>
+                                <ul class="kdvn-inquiry-contacts">
+                                    <li t-if="kdvn_phone" class="kdvn-inquiry-contact">
+                                        <span class="kdvn-inquiry-icon"><i class="ri-phone-fill" aria-hidden="true"/></span>
+                                        <div>
+                                            <p class="kdvn-inquiry-contact-label">Phone number</p>
+                                            <a class="kdvn-inquiry-contact-value" t-att-href="'tel:%s' % kdvn_phone.replace(' ', '').replace('(', '').replace(')', '').replace('-', '').replace('.', '')" t-out="kdvn_phone"/>
+                                        </div>
+                                    </li>
+                                    <li t-if="kdvn_company.email" class="kdvn-inquiry-contact">
+                                        <span class="kdvn-inquiry-icon"><i class="ri-mail-fill" aria-hidden="true"/></span>
+                                        <div>
+                                            <p class="kdvn-inquiry-contact-label">Email</p>
+                                            <a class="kdvn-inquiry-contact-value" t-att-href="'mailto:%s' % kdvn_company.email" t-out="kdvn_company.email"/>
+                                        </div>
+                                    </li>
+                                    <li t-if="kdvn_office" class="kdvn-inquiry-contact">
+                                        <span class="kdvn-inquiry-icon"><i class="ri-map-pin-fill" aria-hidden="true"/></span>
+                                        <div>
+                                            <p class="kdvn-inquiry-contact-label">Address</p>
+                                            <p class="kdvn-inquiry-contact-value" t-out="kdvn_office._kdvn_address_line()"/>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Right: the form -->
+                            <div class="col-12 col-lg-6">
+                                <h2 class="kdvn-inquiry-title">Send Message</h2>
+                                <p class="kdvn-inquiry-intro">Please fill out the form below with your details and message to contact with us</p>
+                                <div t-if="request.params.get('error')" class="alert alert-danger" role="alert">
+                                    Please fill in your name, a valid email address and your message.
                                 </div>
-                                <div class="mb-3">
-                                    <label class="kdvn-body-medium fw-bold text-neutral-strong mb-1">Email Address</label>
-                                    <input type="email" class="form-control border-2" name="email_from" required="1"/>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="kdvn-body-medium fw-bold text-neutral-strong mb-1">Project Technical Requirements</label>
-                                    <textarea class="form-control border-2" name="body_html" rows="4" required="1"></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-primary px-4 py-2 fw-bold text-white">Send Inquiry</button>
-                            </form>
+                                <form t-att-action="url_for('/contactus/send')" method="post" class="kdvn-inquiry-form">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <!-- spam trap: hidden from people, left empty -->
+                                    <div class="kdvn-inquiry-hp" aria-hidden="true">
+                                        <label for="kdvn_website_url">Website</label>
+                                        <input type="text" id="kdvn_website_url" name="kdvn_website_url" tabindex="-1" autocomplete="off"/>
+                                    </div>
+                                    <div class="kdvn-field">
+                                        <label class="kdvn-label" for="kdvn_contact_name">Your full name</label>
+                                        <input type="text" class="kdvn-input" id="kdvn_contact_name" name="contact_name" required="required" maxlength="128" autocomplete="name" placeholder="Jason Marcus"/>
+                                    </div>
+                                    <div class="kdvn-field">
+                                        <label class="kdvn-label" for="kdvn_company_name">Company name</label>
+                                        <input type="text" class="kdvn-input" id="kdvn_company_name" name="company_name" maxlength="256" autocomplete="organization" placeholder="Ex: Capital Crest Vietnam"/>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-12 col-md-6 kdvn-field">
+                                            <label class="kdvn-label" for="kdvn_email">Company email</label>
+                                            <input type="email" class="kdvn-input" id="kdvn_email" name="email" required="required" maxlength="254" autocomplete="email" placeholder="Ex: jasonmarcus@company.com"/>
+                                        </div>
+                                        <div class="col-12 col-md-6 kdvn-field">
+                                            <label class="kdvn-label" for="kdvn_phone">Phone number</label>
+                                            <input type="tel" class="kdvn-input" id="kdvn_phone" name="phone" maxlength="64" autocomplete="tel" placeholder="Ex: 09123456789"/>
+                                        </div>
+                                    </div>
+                                    <div class="kdvn-field">
+                                        <label class="kdvn-label" for="kdvn_inquiry_type">Inquiry type</label>
+                                        <select class="kdvn-input kdvn-select" id="kdvn_inquiry_type" name="inquiry_type_id">
+                                            <option value="">Select an inquiry type</option>
+                                            <t t-foreach="request.env['kdvn.website.inquiry.type'].sudo().search([])" t-as="inquiry_type">
+                                                <option t-att-value="inquiry_type.id" t-out="inquiry_type.name"/>
+                                            </t>
+                                        </select>
+                                    </div>
+                                    <div class="kdvn-field">
+                                        <label class="kdvn-label" for="kdvn_message">Message</label>
+                                        <textarea class="kdvn-input kdvn-textarea" id="kdvn_message" name="message" rows="5" required="required" maxlength="5000" placeholder="How can we help you?"/>
+                                    </div>
+                                    <button type="submit" class="btn kdvn-btn-primary kdvn-inquiry-submit">Send message</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </section>
+
+                <!-- "Got it!" popup, opened by kdvn_website.inquiry_modal (js) on ?sent=1 -->
+                <div class="kdvn-modal" id="kdvn_inquiry_sent" role="dialog" aria-modal="true" aria-labelledby="kdvn_inquiry_sent_title" hidden="hidden">
+                    <div class="kdvn-modal-backdrop" data-kdvn-close=""/>
+                    <div class="kdvn-modal-dialog">
+                        <div class="kdvn-modal-head">
+                            <h2 class="kdvn-modal-title" id="kdvn_inquiry_sent_title">Got it!</h2>
+                            <button type="button" class="kdvn-modal-x" data-kdvn-close="" aria-label="Close"><i class="ri-close-line" aria-hidden="true"/></button>
+                        </div>
+                        <div class="kdvn-modal-body">
+                            <p>We have received your message and appreciate you taking the time to contact us. Our team will carefully review your request and respond within 2 business days.</p>
+                            <p t-if="kdvn_phone">Should you require immediate assistance, please contact us at <t t-out="kdvn_phone"/></p>
+                            <p>We appreciate your patience and look forward to assisting you.</p>
+                        </div>
+                        <button type="button" class="btn kdvn-modal-close" data-kdvn-close="">Close</button>
+                    </div>
+                </div>
+
+                <t t-call="kdvn_website.page_footer_nav"/>
             </div>
         </xpath>
     </template>

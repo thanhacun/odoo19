@@ -1,34 +1,282 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- 1. The structural code canvas layout template -->
-    <template id="electrical_system_template" name="KDVN Electrical System Layout View">
+    <!-- ===================================================================== -->
+    <!-- Electrical System  (/business/electrical-system)  — Phase 1 -->
+    <!-- Figma: design/kdvn_website/frames/electrical-system-{desktop,tablet,mobile}.png -->
+    <!-- Layout: shared kdvn-bizpage-* blocks (same for every business area). -->
+    <!-- Content inside oe_structure is editable in the website builder.       -->
+    <!-- Images: Site Media keys electrical_hero, electrical_feature_N, electrical_item_N -->
+    <!-- ===================================================================== -->
+    <template id="electrical_system_template" name="Electrical System">
         <t t-call="website.layout">
-            <div id="wrap" class="oe_structure oe_empty">
-                <section class="kdvn-margin-comfortable bg-white">
-                    <div class="container-fluid">
-                        <h1 class="kdvn-h1 text-neutral-strong mb-3">Electrical System Solutions</h1>
-                        <p class="kdvn-body-large text-muted mb-4">
-                            High-voltage substation development, plant power infrastructure overhauls, and complete electronic engineering integration systems for manufacturing enterprises.
-                        </p>
-                        <div class="card border-0 kdvn-card-medium bg-light">
-                            <h3 class="kdvn-h3 text-neutral-strong mb-2">Industrial Substation Infrastructure</h3>
-                            <p class="kdvn-body-medium text-muted">
-                                Safe, scalable, and ISO 9001:2015 certified transformer operations center implementation.
-                            </p>
+            <div id="wrap">
+                <t t-call="kdvn_website.page_header"/>
+
+                <div class="oe_structure">
+                    <!-- Intro: text + wide photo -->
+                    <section class="kdvn-bizpage-intro">
+                        <div class="kdvn-container">
+                            <p class="kdvn-bizpage-lead">Kinden engages in developing high quality and value-added electrical equipment within the enclosure including building, factories and commercial and public facilities, as well as developing and maintaining electrical infrastructure such as overhead and/or underground transmission lines, distribution lines from and between power station and substation.</p>
+                            <img src="/kdvn/media/electrical_hero" class="kdvn-bizpage-hero" alt="Electrical System" loading="lazy"/>
                         </div>
-                    </div>
-                </section>
+                    </section>
+
+                    <!-- Feature: 2 or 3 columns (photo, title, text) -->
+                    <section class="kdvn-section kdvn-bizpage-features">
+                        <div class="kdvn-container">
+                            <h2 class="kdvn-bizpage-title">Feature</h2>
+                            <div class="kdvn-bizpage-feature-grid">
+                                <div class="kdvn-bizpage-feature">
+                                    <img src="/kdvn/media/electrical_feature_1?width=960" alt="Equipment built into everyday life" loading="lazy"/>
+                                    <h3 class="kdvn-bizpage-feature-title">Equipment built into everyday life</h3>
+                                    <p class="kdvn-bizpage-feature-text">We develop and maintain the electrical equipment inside buildings, factories, and commercial and public facilities — infrastructure that has become part of daily life.</p>
+                                </div>
+                                <div class="kdvn-bizpage-feature">
+                                    <img src="/kdvn/media/electrical_feature_2?width=960" alt="Reliable power, added value" loading="lazy"/>
+                                    <h3 class="kdvn-bizpage-feature-title">Reliable power, added value</h3>
+                                    <p class="kdvn-bizpage-feature-text">We supply high-quality, stable power while developing facilities that add lasting value for our clients.</p>
+                                </div>
+                                <div class="kdvn-bizpage-feature">
+                                    <img src="/kdvn/media/electrical_feature_3?width=960" alt="Supporting local power infrastructure" loading="lazy"/>
+                                    <h3 class="kdvn-bizpage-feature-title">Supporting local power infrastructure</h3>
+                                    <p class="kdvn-bizpage-feature-text">We build and maintain the overhead and underground transmission and distribution lines connecting power stations, substations, and the community.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Business items: title on the left (sticky on desktop), numbered items on the right -->
+                    <section class="kdvn-section kdvn-bizpage-items">
+                        <div class="kdvn-container">
+                            <div class="row">
+                                <div class="col-12 col-lg-6">
+                                    <h2 class="kdvn-bizpage-title kdvn-bizpage-items-title">Business items</h2>
+                                </div>
+                                <div class="col-12 col-lg-6">
+                                    <article class="kdvn-bizpage-item">
+                                        <div class="kdvn-bizpage-item-head">
+                                            <span class="kdvn-bizpage-item-no">(01)</span>
+                                            <h3 class="kdvn-bizpage-item-title">For people and the planet</h3>
+                                        </div>
+                                        <img src="/kdvn/media/electrical_item_1?width=1336" class="kdvn-bizpage-item-image" alt="For people and the planet" loading="lazy"/>
+                                        <p class="kdvn-bizpage-item-text">Kinden is actively involved in the development and implementation of new energy technology, including solar power generation technology, and special electrical system technology to help build a richer, brighter future for people everywhere. We’re also undertaking new challenges in launching and developing optimal electrical systems.</p>
+                                        <ul class="kdvn-bizpage-scope">
+                                            <li>Solar power generation system</li>
+                                            <li>Water treatment plant electrical system</li>
+                                            <li>Cogeneration system</li>
+                                            <li>Wind farm power generation system</li>
+                                            <li>Incineration plant electrical system</li>
+                                        </ul>
+                                    </article>
+                                    <article class="kdvn-bizpage-item">
+                                        <div class="kdvn-bizpage-item-head">
+                                            <span class="kdvn-bizpage-item-no">(02)</span>
+                                            <h3 class="kdvn-bizpage-item-title">Infrastructure on user's premises</h3>
+                                        </div>
+                                        <img src="/kdvn/media/electrical_item_2?width=1336" class="kdvn-bizpage-item-image" alt="Infrastructure on user's premises" loading="lazy"/>
+                                        <p class="kdvn-bizpage-item-text">Kinden provides an integrated service lineup — from planning and design to implementation and management — for power receiving and transforming systems, as well as local power distribution system for a wide range of office buildings, commercial and facilities and production plants.</p>
+                                        <ul class="kdvn-bizpage-scope">
+                                            <li>Extra-high voltage power reception and transformer electrical system</li>
+                                            <li>Regular/emergency power generation system</li>
+                                            <li>Main feeder • Control panel</li>
+                                            <li>Battery (DC power supply) systems</li>
+                                            <li>CVCF &amp; UPS</li>
+                                        </ul>
+                                    </article>
+                                    <article class="kdvn-bizpage-item">
+                                        <div class="kdvn-bizpage-item-head">
+                                            <span class="kdvn-bizpage-item-no">(03)</span>
+                                            <h3 class="kdvn-bizpage-item-title">Residential environmental improvement</h3>
+                                        </div>
+                                        <img src="/kdvn/media/electrical_item_3?width=1336" class="kdvn-bizpage-item-image" alt="Residential environmental improvement" loading="lazy"/>
+                                        <p class="kdvn-bizpage-item-text">Kinden is actively involved in the optimal system assembly of advanced electrical equipment systems designed to ensure the safe, efficient operation of in-house lighting, air-conditioning, elevators and production lines and other load equipment.</p>
+                                        <ul class="kdvn-bizpage-scope">
+                                            <li>Lighting and receptacle installation</li>
+                                            <li>TV, telephone, intercom and public address installation</li>
+                                            <li>Audio-visual systems</li>
+                                        </ul>
+                                    </article>
+                                    <article class="kdvn-bizpage-item">
+                                        <div class="kdvn-bizpage-item-head">
+                                            <span class="kdvn-bizpage-item-no">(04)</span>
+                                            <h3 class="kdvn-bizpage-item-title">Crime and disaster prevention on user's premises</h3>
+                                        </div>
+                                        <img src="/kdvn/media/electrical_item_4?width=1336" class="kdvn-bizpage-item-image" alt="Crime and disaster prevention on user's premises" loading="lazy"/>
+                                        <p class="kdvn-bizpage-item-text">We build an environment where all people can take part in activities, regardless of whether indoor or outdoor, including disaster and crime prevention facilities, communication facilities and thunder protection facilities; utilizing electric energy and various signal-controlling technologies.</p>
+                                        <ul class="kdvn-bizpage-scope">
+                                            <li>Security systems</li>
+                                            <li>Fire damper and ventilation control system</li>
+                                            <li>Lightning protection system</li>
+                                            <li>Automatic fire alarm system</li>
+                                        </ul>
+                                    </article>
+                                    <article class="kdvn-bizpage-item">
+                                        <div class="kdvn-bizpage-item-head">
+                                            <span class="kdvn-bizpage-item-no">(05)</span>
+                                            <h3 class="kdvn-bizpage-item-title">Playing a major role in electrical power construction</h3>
+                                        </div>
+                                        <img src="/kdvn/media/electrical_item_5?width=1336" class="kdvn-bizpage-item-image" alt="Playing a major role in electrical power construction" loading="lazy"/>
+                                        <p class="kdvn-bizpage-item-text">Kinden plays a major role in the construction and ongoing maintenance of Power station and substation, as well as the construction of overhead and underground power transmission lines. In these ways and more, we’re working around the clock to guarantee safe, reliable power generation and efficient, economical supply to communities throughout Japan and around the world.</p>
+                                        <ul class="kdvn-bizpage-scope">
+                                            <li>Power station and substation</li>
+                                            <li>Overhead power transmission work</li>
+                                            <li>Underground power transmission work</li>
+                                        </ul>
+                                    </article>
+                                    <article class="kdvn-bizpage-item">
+                                        <div class="kdvn-bizpage-item-head">
+                                            <span class="kdvn-bizpage-item-no">(06)</span>
+                                            <h3 class="kdvn-bizpage-item-title">Guaranteeing a reliable, high-quality electrical power supply</h3>
+                                        </div>
+                                        <img src="/kdvn/media/electrical_item_6?width=1336" class="kdvn-bizpage-item-image" alt="Guaranteeing a reliable, high-quality electrical power supply" loading="lazy"/>
+                                        <p class="kdvn-bizpage-item-text">In the field of power distribution, Kinden’s line of business encompasses work from construction to maintenance for a diverse range of Kansai Electric Power Company power distribution equipment — from home meters power poles and high-voltage distribution lines, one of the infrastructure lifelines people depend on most in maintaining their livelihoods.</p>
+                                        <ul class="kdvn-bizpage-scope">
+                                            <li>Overhead distribution line work</li>
+                                            <li>CCBOX work (common trench for cables)</li>
+                                            <li>Power distribution automation work</li>
+                                            <li>Underground distribution line work</li>
+                                            <li>Watt-hour metering work</li>
+                                            <li>Overhead line incoming work</li>
+                                            <li>Underground line incoming work</li>
+                                        </ul>
+                                    </article>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <t t-call="kdvn_website.page_footer_nav"/>
             </div>
         </t>
     </template>
 
-    <!-- 2. MANDATORY: The official routing manager that binds it to the public URL -->
     <record id="page_kdvn_electrical_system" model="website.page">
         <field name="name">Electrical System</field>
         <field name="url">/business/electrical-system</field>
         <field name="view_id" ref="electrical_system_template"/>
         <field name="type">qweb</field>
         <field name="key">kdvn_website.electrical_system_page</field>
-        <field name="active" eval="True"/>
+        <field name="is_published" eval="True"/>
+    </record>
+
+    <!-- ===================================================================== -->
+    <!-- Air Conditioning and Sanitary System  (/business/air-conditioning-sanitary-system)  — Phase 1 -->
+    <!-- Figma: design/kdvn_website/frames/ac-sanitary-{desktop,tablet,mobile}.png -->
+    <!-- Layout: shared kdvn-bizpage-* blocks (same for every business area). -->
+    <!-- Content inside oe_structure is editable in the website builder.       -->
+    <!-- Images: Site Media keys ac_sanitary_hero, ac_sanitary_feature_N, ac_sanitary_item_N -->
+    <!-- ===================================================================== -->
+    <template id="ac_sanitary_system_page" name="Air Conditioning and Sanitary System">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <t t-call="kdvn_website.page_header"/>
+
+                <div class="oe_structure">
+                    <!-- Intro: text + wide photo -->
+                    <section class="kdvn-bizpage-intro">
+                        <div class="kdvn-container">
+                            <p class="kdvn-bizpage-lead">Kinden’s technological capability is designed to improve the comfort of the environment such as offices and factories during casual use of the same. We offer a range of advanced technologies, including comfortable air-conditioning systems, water-supply and drainage systems delivering a clean and wet area.</p>
+                            <img src="/kdvn/media/ac_sanitary_hero" class="kdvn-bizpage-hero" alt="Air Conditioning and Sanitary System" loading="lazy"/>
+                        </div>
+                    </section>
+
+                    <!-- Feature: 2 or 3 columns (photo, title, text) -->
+                    <section class="kdvn-section kdvn-bizpage-features">
+                        <div class="kdvn-container">
+                            <h2 class="kdvn-bizpage-title">Feature</h2>
+                            <div class="kdvn-bizpage-feature-grid">
+                                <div class="kdvn-bizpage-feature">
+                                    <img src="/kdvn/media/ac_sanitary_feature_1?width=960" alt="Making everyday life more comfortable" loading="lazy"/>
+                                    <h3 class="kdvn-bizpage-feature-title">Making everyday life more comfortable</h3>
+                                    <p class="kdvn-bizpage-feature-text">It is crucial to secure comfortable living and working environments, including offices, hospitals, factories and data centers. Kinden accommodates customers’ diversifying needs to create comfortable environments in a range of spaces by providing people-friendly air conditioning systems, water supply and sewerage systems in buildings and other systems.</p>
+                                </div>
+                                <div class="kdvn-bizpage-feature">
+                                    <img src="/kdvn/media/ac_sanitary_feature_2?width=960" alt="Subtly supporting comfort" loading="lazy"/>
+                                    <h3 class="kdvn-bizpage-feature-title">Subtly supporting comfort</h3>
+                                    <p class="kdvn-bizpage-feature-text">Kinden’s technologies are also leveraged in invisible places such as building roofs and basements. Ranging from high-efficiency heat-source systems to building air-conditioning systems in clean rooms utilizing proprietary know-how and technology, we support people’s lives with wide-ranging technologies to create livable and work-friendly environments for customers.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Business items: title on the left (sticky on desktop), numbered items on the right -->
+                    <section class="kdvn-section kdvn-bizpage-items">
+                        <div class="kdvn-container">
+                            <div class="row">
+                                <div class="col-12 col-lg-6">
+                                    <h2 class="kdvn-bizpage-title kdvn-bizpage-items-title">Business items</h2>
+                                </div>
+                                <div class="col-12 col-lg-6">
+                                    <article class="kdvn-bizpage-item">
+                                        <div class="kdvn-bizpage-item-head">
+                                            <span class="kdvn-bizpage-item-no">(01)</span>
+                                            <h3 class="kdvn-bizpage-item-title">Living space improvements</h3>
+                                        </div>
+                                        <img src="/kdvn/media/ac_sanitary_item_1?width=1336" class="kdvn-bizpage-item-image" alt="Living space improvements" loading="lazy"/>
+                                        <p class="kdvn-bizpage-item-text">When it comes to the environment we live in, Kinden residential technology experts are working to find just how efficient and economical we can make the systems that control the air we breathe and the water we drink — in short, two of the daily necessities we all too often take for granted. From air conditioning, air purification and ventilation systems to water supply and drainage systems, we never stop working to make life more livable.</p>
+                                        <ul class="kdvn-bizpage-scope">
+                                            <li>Air conditioning systems</li>
+                                            <li>Air purification systems</li>
+                                            <li>Ventilation systems</li>
+                                            <li>Supply and wastewater sanitation systems</li>
+                                        </ul>
+                                    </article>
+                                    <article class="kdvn-bizpage-item">
+                                        <div class="kdvn-bizpage-item-head">
+                                            <span class="kdvn-bizpage-item-no">(02)</span>
+                                            <h3 class="kdvn-bizpage-item-title">Energy saving</h3>
+                                        </div>
+                                        <img src="/kdvn/media/ac_sanitary_item_2?width=1336" class="kdvn-bizpage-item-image" alt="Energy saving" loading="lazy"/>
+                                        <p class="kdvn-bizpage-item-text">Thanks to renewable energy and various recycling and renewal technologies, we help achieve a recycling- and environment-oriented society by minimizing the environmental load.</p>
+                                        <ul class="kdvn-bizpage-scope">
+                                            <li>Cogeneration systems</li>
+                                            <li>Ground thermal energy system</li>
+                                            <li>Radiation air-conditioning system</li>
+                                            <li>Thermal storage air-conditioning systems</li>
+                                            <li>Exhaust heat recovery systems</li>
+                                        </ul>
+                                    </article>
+                                    <article class="kdvn-bizpage-item">
+                                        <div class="kdvn-bizpage-item-head">
+                                            <span class="kdvn-bizpage-item-no">(03)</span>
+                                            <h3 class="kdvn-bizpage-item-title">Environmental conservation</h3>
+                                        </div>
+                                        <img src="/kdvn/media/ac_sanitary_item_3?width=1336" class="kdvn-bizpage-item-image" alt="Environmental conservation" loading="lazy"/>
+                                        <p class="kdvn-bizpage-item-text">To help conserve the environment, we are proactively engaged in reducing CO2 and easing the heat island phenomenon by saving energy, while dealing with fluorocarbon recovery operations and various forms of water treatment.</p>
+                                        <ul class="kdvn-bizpage-scope">
+                                            <li>Waste water treatment systems</li>
+                                            <li>Emission Treatment Systems</li>
+                                        </ul>
+                                    </article>
+                                    <article class="kdvn-bizpage-item">
+                                        <div class="kdvn-bizpage-item-head">
+                                            <span class="kdvn-bizpage-item-no">(04)</span>
+                                            <h3 class="kdvn-bizpage-item-title">Industrial space consolidation</h3>
+                                        </div>
+                                        <img src="/kdvn/media/ac_sanitary_item_4?width=1336" class="kdvn-bizpage-item-image" alt="Industrial space consolidation" loading="lazy"/>
+                                        <p class="kdvn-bizpage-item-text">We create a production environment where accurate temperature and humidity control and stringent cleanliness control are required and support our customer’s production activities.</p>
+                                        <ul class="kdvn-bizpage-scope">
+                                            <li>Clean room systems</li>
+                                            <li>GMP (Good Manufacturing Practice)</li>
+                                            <li>A chamber of constant temperature and humidity</li>
+                                            <li>HACCP (Hazard Analysis Critical Control Point)</li>
+                                        </ul>
+                                    </article>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <t t-call="kdvn_website.page_footer_nav"/>
+            </div>
+        </t>
+    </template>
+
+    <record id="page_kdvn_ac_sanitary_system" model="website.page">
+        <field name="url">/business/air-conditioning-sanitary-system</field>
+        <field name="view_id" ref="ac_sanitary_system_page"/>
+        <field name="is_published" eval="True"/>
     </record>
 </odoo>

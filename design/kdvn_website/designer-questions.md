@@ -60,6 +60,19 @@ For every page, please send 3 frames: **desktop 1440, tablet 1280, mobile 390** 
 - [ ] What happens when a card is clicked? No project detail page is designed.
 - [ ] Tablet frame: card widths differ from card to card: intended?
 
+## 8b. Business area pages (Electrical, AC & Sanitary)
+- [ ] Page title: mobile frame shows "Electrical system" (mixed case), desktop "ELECTRICAL SYSTEM". Built uppercase on all sizes like the other inner pages. Title text comes from the menu ("Electrical Systems", "Air Conditioning & Sanitary Systems"): rename the menu items if the singular is wanted.
+- [ ] No breadcrumb at the bottom of these frames (other inner pages have it). Built with it, for consistency.
+- [ ] AC & Sanitary desktop frame: "Business items" title at x=80 and right column ending at 1360 (Electrical: 40 / 1400). Built the same as Electrical.
+- [ ] Section titles "Feature" / "Business items" are mixed case, other pages use uppercase (MANAGEMENT CREED). Built as in the frames (mixed case).
+- [ ] Other business areas (Instrumentation, ICT, Interior, Energy saving, Maintenance): same layout? Text and photos needed.
+
+## 8c. Inquiry form
+- [ ] The form has no message field. Built with a required "Message" box under "Inquiry type": OK?
+- [ ] "Inquiry type" options? Started with: Request for quotation, Project consultation, Maintenance and services, Partnership and suppliers, Other (editable in Website > Configuration > Inquiry Types).
+- [ ] Popup text "respond within [X] business days": built with **2** business days. Correct number?
+- [ ] Placeholder of Inquiry type in the frame is "Ex: Capital Crest Vietnam" (copied from Company name). Built "Select an inquiry type".
+
 ## 9. Small corrections already made (for the designer's information)
 - Company History: Vina-Kinden joint venture year is **1997** (Figma says 1944); locations = **7**.
 - Company History timeline: spacing between events made even (16px); the gaps in Figma were uneven.

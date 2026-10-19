@@ -138,7 +138,7 @@
         <!-- Menu: Air Conditioning &amp; Sanitary Systems -->
         <record id="menu_kdvn_hvac_sanitary_systems" model="website.menu">
             <field name="name">Air Conditioning &amp; Sanitary Systems</field>
-            <field name="url">#</field>
+            <field name="url">/business/air-conditioning-sanitary-system</field>
             <field name="website_id" ref="website.default_website"/>
             <field name="is_mega_menu">False</field>
             <field name="parent_id" ref="kdvn_website.menu_kdvn_business_information"/>

@@ -11,7 +11,7 @@ Business Information,#,menu_kdvn_business_information,kdvn_website.menu_kdvn_mas
 Electrical Systems,/business/electrical-system,menu_kdvn_electrical_system,kdvn_website.menu_kdvn_business_information,10,,
 Instrumentation Systems,#,menu_kdvn_instrumentation_systems,kdvn_website.menu_kdvn_business_information,20,,
 Information & Communication Systems,#,menu_kdvn_ict_systems,kdvn_website.menu_kdvn_business_information,30,,
-Air Conditioning & Sanitary Systems,#,menu_kdvn_hvac_sanitary_systems,kdvn_website.menu_kdvn_business_information,40,,
+Air Conditioning & Sanitary Systems,/business/air-conditioning-sanitary-system,menu_kdvn_hvac_sanitary_systems,kdvn_website.menu_kdvn_business_information,40,,
 Interior Systems,#,menu_kdvn_interior_systems,kdvn_website.menu_kdvn_business_information,50,,
 Energy Saving & Renewal,#,menu_kdvn_energy_saving_renewal,kdvn_website.menu_kdvn_business_information,60,,
 Maintenance Services,#,menu_kdvn_maintenance_services,kdvn_website.menu_kdvn_business_information,70,,
