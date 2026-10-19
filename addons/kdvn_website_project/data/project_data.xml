@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Starting categories (slugs match the website menu links in kdvn_website/menus.csv)
+         and work scopes. noupdate: changes made in Odoo are kept on module update. -->
+    <data noupdate="1">
+        <record id="category_factory" model="kdvn.website.project.category">
+            <field name="name">Factory</field><field name="slug">factory</field><field name="sequence">10</field>
+        </record>
+        <record id="category_data_center" model="kdvn.website.project.category">
+            <field name="name">Data Center</field><field name="slug">data-center</field><field name="sequence">20</field>
+        </record>
+        <record id="category_building" model="kdvn.website.project.category">
+            <field name="name">Building</field><field name="slug">building</field><field name="sequence">30</field>
+        </record>
+        <record id="category_logistics" model="kdvn.website.project.category">
+            <field name="name">Logistics Facility</field><field name="slug">logistics</field><field name="sequence">40</field>
+        </record>
+        <record id="category_educational" model="kdvn.website.project.category">
+            <field name="name">Educational Facility</field><field name="slug">educational</field><field name="sequence">50</field>
+        </record>
+        <record id="category_hotel" model="kdvn.website.project.category">
+            <field name="name">Hotel</field><field name="slug">hotel</field><field name="sequence">60</field>
+        </record>
+        <record id="category_shopping_mall" model="kdvn.website.project.category">
+            <field name="name">Shopping Mall</field><field name="slug">shopping-mall</field><field name="sequence">70</field>
+        </record>
+        <record id="category_other" model="kdvn.website.project.category">
+            <field name="name">Others</field><field name="slug">other</field><field name="sequence">90</field>
+        </record>
+
+        <record id="tag_electrical" model="kdvn.website.project.tag">
+            <field name="name">Electrical Work</field><field name="sequence">10</field>
+        </record>
+        <record id="tag_mechanical" model="kdvn.website.project.tag">
+            <field name="name">Mechanical Work</field><field name="sequence">20</field>
+        </record>
+        <record id="tag_communication" model="kdvn.website.project.tag">
+            <field name="name">Communication</field><field name="sequence">30</field>
+        </record>
+        <record id="tag_instrumentation" model="kdvn.website.project.tag">
+            <field name="name">Instrumentation</field><field name="sequence">40</field>
+        </record>
+    </data>
+</odoo>

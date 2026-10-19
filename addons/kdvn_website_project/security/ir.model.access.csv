@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_kdvn_website_project_user,kdvn.website.project.user,model_kdvn_website_project,base.group_user,1,0,0,0
+access_kdvn_website_project_designer,kdvn.website.project.designer,model_kdvn_website_project,website.group_website_designer,1,1,1,1
+access_kdvn_website_project_category_user,kdvn.website.project.category.user,model_kdvn_website_project_category,base.group_user,1,0,0,0
+access_kdvn_website_project_category_designer,kdvn.website.project.category.designer,model_kdvn_website_project_category,website.group_website_designer,1,1,1,1
+access_kdvn_website_project_tag_user,kdvn.website.project.tag.user,model_kdvn_website_project_tag,base.group_user,1,0,0,0
+access_kdvn_website_project_tag_designer,kdvn.website.project.tag.designer,model_kdvn_website_project_tag,website.group_website_designer,1,1,1,1

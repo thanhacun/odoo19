@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Past Prominent Projects (frames/projects-page-01|02, projects-tablet-*, projects-mobile-*).
+        Grid: one row per year (cards scroll sideways on desktop, stack on mobile).
+        List: table Project Name / Area / Type / Category / Year (mobile: name only).
+        Data: published kdvn.website.project records (Website > Site > Content > Projects).
+    -->
+    <template id="project_card" name="KDVN Project Card">
+        <article class="kdvn-proj-card">
+            <div class="kdvn-proj-card-head">
+                <span class="kdvn-proj-card-year" t-out="project.year or ''"/>
+                <ul t-if="project.tag_ids" class="kdvn-proj-tags list-unstyled">
+                    <li t-foreach="project.tag_ids" t-as="tag" class="kdvn-proj-tag" t-out="tag.name"/>
+                </ul>
+            </div>
+            <div class="kdvn-proj-card-media">
+                <t t-set="img_url" t-value="project._kdvn_image_url(512)"/>
+                <img t-if="img_url" t-att-src="img_url" t-att-alt="project.name" loading="lazy" class="kdvn-proj-card-img"/>
+                <span t-else="" class="kdvn-proj-card-img kdvn-proj-card-placeholder">
+                    <img src="/kdvn_website/static/src/img/content/kinden-logo.png" alt="" loading="lazy"/>
+                </span>
+            </div>
+            <h3 class="kdvn-proj-card-name" t-out="project.name"/>
+        </article>
+    </template>
+
+    <template id="projects_page" name="KDVN Past Prominent Projects">
+        <t t-call="website.layout">
+            <t t-set="pageName" t-value="'kdvn_prominent_projects'"/>
+            <div id="wrap" class="kdvn-projects-page">
+                <t t-call="kdvn_website.page_header"/>
+                <div id="oe_structure_kdvn_projects_intro" class="oe_structure"/>
+
+                <section class="kdvn-proj">
+                    <div class="kdvn-container">
+                        <div class="kdvn-proj-toolbar">
+                            <nav class="kdvn-proj-years" aria-label="Year">
+                                <a t-att-href="proj_url(year='all')"
+                                   t-attf-class="kdvn-proj-year-tab #{'active' if selected == 'all' else ''}"
+                                   t-att-aria-current="'page' if selected == 'all' else None">All</a>
+                                <a t-foreach="year_tabs" t-as="tab" t-att-href="proj_url(year=tab[1])"
+                                   t-attf-class="kdvn-proj-year-tab #{'active' if selected == tab[1] else ''}"
+                                   t-att-aria-current="'page' if selected == tab[1] else None" t-out="tab[0]"/>
+                            </nav>
+                            <div class="kdvn-proj-views">
+                                <a t-att-href="proj_url(view='grid')" title="Grid view" aria-label="Grid view"
+                                   t-attf-class="kdvn-proj-view-btn #{'active' if view == 'grid' else ''}">
+                                    <i class="ri-layout-grid-line" aria-hidden="true"/>
+                                </a>
+                                <a t-att-href="proj_url(view='list')" title="List view" aria-label="List view"
+                                   t-attf-class="kdvn-proj-view-btn #{'active' if view == 'list' else ''}">
+                                    <i class="ri-menu-line" aria-hidden="true"/>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="kdvn-divider"/>
+
+                        <p t-if="not projects" class="kdvn-proj-empty">No projects to show yet.</p>
+
+                        <!-- Grid: one row per year -->
+                        <t t-elif="view == 'grid'">
+                            <section t-foreach="groups" t-as="group" class="kdvn-proj-group">
+                                <h2 class="kdvn-proj-group-year" t-out="group[0]"/>
+                                <div class="kdvn-proj-row">
+                                    <t t-foreach="group[2]" t-as="project">
+                                        <t t-call="kdvn_website_project.project_card"/>
+                                    </t>
+                                </div>
+                            </section>
+                        </t>
+
+                        <!-- List -->
+                        <div t-else="" class="kdvn-proj-table-wrap">
+                            <table class="kdvn-proj-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Project Name</th>
+                                        <th scope="col" class="kdvn-proj-col-extra">Area</th>
+                                        <th scope="col" class="kdvn-proj-col-extra">Type</th>
+                                        <th scope="col" class="kdvn-proj-col-extra">Category</th>
+                                        <th scope="col" class="kdvn-proj-col-extra">Year</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="projects" t-as="project">
+                                        <td class="kdvn-proj-col-name" t-out="project.name"/>
+                                        <td class="kdvn-proj-col-extra" t-out="project.area or ''"/>
+                                        <td class="kdvn-proj-col-extra" t-out="project._kdvn_type_label()"/>
+                                        <td class="kdvn-proj-col-extra" t-out="project.category_id.name or ''"/>
+                                        <td class="kdvn-proj-col-extra" t-out="project.year or ''"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <div id="oe_structure_kdvn_projects_bottom" class="oe_structure"/>
+                <t t-call="kdvn_website.page_footer_nav"/>
+            </div>
+        </t>
+    </template>
+</odoo>
