@@ -327,5 +327,8 @@
             <field name="sequence" type="int">20</field>
         </record>
 
+        <!-- Remove Odoo's default top menu so the website shows the KDVN menu -->
+        <delete model="website.menu" search="[('website_id', '=', ref('website.default_website')), ('parent_id', '=', False), ('id', '!=', ref('kdvn_website.menu_kdvn_master_root'))]"/>
+
     </data>
 </odoo>

@@ -31,3 +31,8 @@ class TestKdvnHomepage(HttpCase):
         self.assertIn('kdvn-biz-item active', html)
         self.assertIn('/kdvn/media/business_electrical_system', html)
         self.assertIn('/business/electrical-system', html)
+
+    def test_website_uses_kdvn_menu(self):
+        """On a new database Odoo's own top menu must not win over ours."""
+        website = self.env.ref('website.default_website')
+        self.assertEqual(website.menu_id, self.env.ref('kdvn_website.menu_kdvn_master_root'))

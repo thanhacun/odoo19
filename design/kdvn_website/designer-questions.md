@@ -3,6 +3,12 @@
 Updated 2026-10-18. Tick each item when answered and copy the answer into the matching spec in `specs/`.
 For every page, please send 3 frames: **desktop 1440, tablet 1280, mobile 390** (PNG, 2x).
 
+## 0. Which design is final? (most important)
+- [ ] The prototype link and the design frames differ slightly. Which frames are final? Please mark them in Figma (e.g. a section "Final / Ready for development" or a status per frame).
+- [ ] Is the prototype kept up to date? If not, should we take only the interactions from it (clicks, hover, page links, animations), or nothing?
+- [ ] Where prototype and design differ, which differences are intentional?
+(Until answered: we build from the exported design frames.)
+
 ## 1. Missing frames
 - [ ] **Header / navigation**: tablet (1280) and mobile (390) frames.
 - [ ] **Mobile menu, open state**: what it looks like when the hamburger is tapped (layout, background, how sub-menus open, where the action buttons go).
