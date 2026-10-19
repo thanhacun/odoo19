@@ -48,6 +48,12 @@ For every page, please send 3 frames: **desktop 1440, tablet 1280, mobile 390** 
 - [ ] Project cards: hover effect? The projects tagline repeats the Business Information one: final text?
 - [ ] Mobile hero side margin: 40px left / 24px right in the frame (built with 24px, see section 3).
 
-## 8. Small corrections already made (for the designer's information)
+## 8. Past Prominent Projects
+- [ ] Mobile list frame shows category photo tiles (Buildings, Factories, Educational, Logistics, Hotels, Data Center) that the desktop frames don't have. Where do they belong (overview page only? all screen sizes?) and which photos?
+- [ ] Mobile frames have no grid/list buttons: hide them on mobile? (Built: shown.)
+- [ ] What happens when a card is clicked? No project detail page is designed.
+- [ ] Tablet frame: card widths differ from card to card: intended?
+
+## 9. Small corrections already made (for the designer's information)
 - Company History: Vina-Kinden joint venture year is **1997** (Figma says 1944); locations = **7**.
 - Company History timeline: spacing between events made even (16px); the gaps in Figma were uneven.

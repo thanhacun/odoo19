@@ -36,8 +36,8 @@ Status: `todo` → `design` (frames + spec ready) → `build` → `review` → `
 | Business Information | Interior Systems | 2 | | todo | |
 | Business Information | Energy Saving & Renewal | 2 | | todo | |
 | Business Information | Maintenance Services | 2 | | todo | |
-| Past Prominent Projects | Projects Overview | 1 | `/prominent-projects` | todo | Same URL as the section's "View details" |
-| Past Prominent Projects | Factories / Data Center / Buildings / Logistics / Educational / Hotels | 3 | | todo | Dynamic: custom project model, one list with categories |
+| Past Prominent Projects | Projects Overview | 1 | `/prominent-projects` | build | Module kdvn_website_project; spec specs/prominent-projects.md |
+| Past Prominent Projects | Factories / Data Center / Buildings / Logistics / Educational / Hotels | 3 | `/prominent-projects?category=…` | build | Same page filtered by category |
 | Recruitment | Why Join Kinden Vietnam | 4 | | todo | |
 | Recruitment | Open Positions | 4 | `/jobs` | build | KDVN page header on list, detail, apply |
 | Recruitment | LinkedIn Homepage | 4 | external | todo | Need URL |

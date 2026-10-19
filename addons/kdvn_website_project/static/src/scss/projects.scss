@@ -1,0 +1,302 @@
+// ============================================================================
+// PAST PROMINENT PROJECTS (frames/projects-page-01|02, -tablet-*, -mobile-*)
+// Toolbar: year tabs 20px (active black semibold, others #5c5c5c) + 40px
+//   grid/list buttons; 72px under the title divider, divider below (40px gap).
+// Grid (md+): year label column (32px semibold) + a row of cards 370x500,
+//   gap 8, scrolling sideways and running to the right screen edge.
+//   Mobile: label above, cards stacked full width.
+// Card: #efefef, padding 16; year 14px + work-scope chips (#e2e2e2, 24px);
+//   photo 197x160 centred with thin cross lines; name 18/24 semibold at the bottom.
+// List: 14px table, 36px rows, every other row #f7f7f7; mobile: name only.
+// ============================================================================
+$kdvn-proj-card-width: 370px;
+$kdvn-proj-card-height: 500px;
+$kdvn-proj-muted: $black-11;   // #5c5c5c
+
+.kdvn-projects-page {
+    overflow-x: hidden;   // the card rows run to the screen edge
+}
+
+.kdvn-proj {
+    padding-bottom: $spacing-gap-3x-large;
+}
+
+// --- Toolbar
+.kdvn-proj-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-gap-large;
+    padding: $spacing-gap-3x-large 0 $spacing-gap-large;
+
+    @include media-breakpoint-up(xl) {
+        padding: 72px 0 47px;
+    }
+}
+
+.kdvn-proj-years {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: -12px;
+}
+
+.kdvn-proj-year-tab {
+    padding: 4px 12px;
+    font-size: $typography-font-size-body-large;   // 20px
+    line-height: 28px;
+    color: $kdvn-proj-muted;
+    text-decoration: none;
+
+    &:hover,
+    &:focus {
+        color: $color-content-neutral-strongest;
+        text-decoration: none;
+    }
+
+    &.active {
+        color: $color-content-neutral-strongest;
+        font-weight: $emphasis-font-weight-bold;
+    }
+}
+
+.kdvn-proj-views {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 12px;
+}
+
+.kdvn-proj-view-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid $black-6;
+    background-color: $black-3;
+    color: $color-content-neutral-strongest;
+    font-size: 20px;
+    text-decoration: none;
+
+    &:hover {
+        border-color: $color-content-neutral-strongest;
+        color: $color-content-neutral-strongest;
+    }
+
+    &.active {
+        border-color: $color-content-neutral-strongest;
+        background-color: $color-content-neutral-strongest;
+        color: #ffffff;
+    }
+}
+
+.kdvn-proj-empty {
+    margin: $spacing-gap-3x-large 0;
+    color: $kdvn-proj-muted;
+}
+
+// --- Grid: one row per year
+.kdvn-proj-group {
+    margin-top: $spacing-gap-2x-large;   // 40px
+
+    @include media-breakpoint-up(md) {
+        display: grid;
+        grid-template-columns: 100px minmax(0, 1fr);
+        align-items: start;
+    }
+    @include media-breakpoint-up(xl) {
+        grid-template-columns: 155px minmax(0, 1fr);
+    }
+}
+
+.kdvn-proj-group-year {
+    margin: 0 0 $spacing-gap-large;
+    font-family: $font-family-base;
+    font-size: $typography-font-size-heading-2;   // 32px
+    line-height: 40px;
+    font-weight: $emphasis-font-weight-bold;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(md) {
+        margin: 0;
+    }
+}
+
+.kdvn-proj-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    @include media-breakpoint-up(md) {
+        flex-direction: row;
+        overflow-x: auto;
+        scroll-snap-type: x proximity;
+        // run to the right edge of the screen
+        margin-right: calc(50% - 50vw);
+        padding-right: 24px;
+        scrollbar-width: thin;
+    }
+}
+
+// --- Card
+.kdvn-proj-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: $kdvn-proj-card-height;
+    padding: 16px;
+    background-color: $black-3;   // #efefef
+
+    @include media-breakpoint-up(md) {
+        flex: 0 0 300px;
+        width: 300px;
+        scroll-snap-align: start;
+    }
+    @include media-breakpoint-up(xl) {
+        flex-basis: $kdvn-proj-card-width;
+        width: $kdvn-proj-card-width;
+    }
+}
+
+.kdvn-proj-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+}
+
+.kdvn-proj-card-year {
+    font-size: $typography-font-size-body-small;   // 14px
+    line-height: 24px;
+    color: $color-content-neutral-strongest;
+}
+
+.kdvn-proj-tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+}
+
+.kdvn-proj-tag {
+    padding: 0 8px;
+    font-size: $typography-font-size-body-small;
+    line-height: 24px;
+    letter-spacing: -0.3px;
+    color: $color-content-neutral-strongest;
+    background-color: $black-5;   // #e2e2e2
+    white-space: nowrap;
+}
+
+// Photo centred in the card, with thin cross lines through its centre
+.kdvn-proj-card-media {
+    position: relative;
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &::before,
+    &::after {
+        content: "";
+        position: absolute;
+        background-color: $black-5;
+    }
+    &::before {   // horizontal
+        left: 34px;
+        right: 34px;
+        top: 50%;
+        height: 1px;
+    }
+    &::after {    // vertical
+        top: 12%;
+        bottom: 12%;
+        left: 50%;
+        width: 1px;
+    }
+}
+
+.kdvn-proj-card-img {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 197px;
+    height: 160px;
+    object-fit: cover;
+}
+
+.kdvn-proj-card-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    border: 1px solid $black-5;
+
+    img {
+        width: 70%;
+        height: auto;
+    }
+}
+
+.kdvn-proj-card-name {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    font-family: $font-family-base;
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: $emphasis-font-weight-bold;
+    letter-spacing: -0.3px;
+    color: $color-content-neutral-strongest;
+}
+
+// --- List
+.kdvn-proj-table-wrap {
+    margin-top: $spacing-gap-2x-large;
+    overflow-x: auto;
+}
+
+.kdvn-proj-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: $typography-font-size-body-small;   // 14px
+    line-height: 20px;
+    color: $color-content-neutral-strongest;
+
+    th,
+    td {
+        padding: 8px;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    th {
+        font-weight: $emphasis-font-weight-bold;
+    }
+
+    tbody tr:nth-child(odd) {
+        background-color: $black-2;   // #f7f7f7
+    }
+
+    .kdvn-proj-col-name {
+        text-transform: uppercase;
+    }
+
+    .kdvn-proj-col-extra {
+        display: none;
+    }
+
+    @include media-breakpoint-up(md) {
+        .kdvn-proj-col-extra {
+            display: table-cell;
+            white-space: nowrap;
+        }
+        th:first-child,
+        td:first-child {
+            width: 50%;
+        }
+    }
+}
