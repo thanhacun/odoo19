@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Settings > Technical > Remote Sync (KDERP) -->
-    <menuitem id="menu_kdvn_remote_sync_root" name="Remote Sync (KDERP)"
-              parent="base.menu_custom" sequence="90" groups="base.group_system"/>
+    <!-- Top-level app "KDERP Jobs" (home screen). For now only Settings admins;
+         widen the groups when other users need it. -->
+    <menuitem id="menu_kdvn_remote_sync_root" name="KDERP Jobs"
+              web_icon="kdvn_remote_sync,static/description/icon.png"
+              sequence="60" groups="base.group_system"/>
     <menuitem id="menu_kderp_job_lookup" name="Jobs" parent="menu_kdvn_remote_sync_root"
               action="action_kderp_job_lookup" sequence="10"/>
     <menuitem id="menu_kderp_customer_cache" name="Customers" parent="menu_kdvn_remote_sync_root"
               action="action_kderp_customer_cache" sequence="20"/>
-    <menuitem id="menu_kdvn_remote_sync_settings" name="Settings" parent="menu_kdvn_remote_sync_root"
-              action="action_kdvn_remote_sync_settings" sequence="90"/>
+    <menuitem id="menu_kdvn_remote_sync_config" name="Configuration" parent="menu_kdvn_remote_sync_root"
+              sequence="90"/>
+    <menuitem id="menu_kdvn_remote_sync_settings" name="Settings" parent="menu_kdvn_remote_sync_config"
+              action="action_kdvn_remote_sync_settings" sequence="10"/>
 </odoo>
