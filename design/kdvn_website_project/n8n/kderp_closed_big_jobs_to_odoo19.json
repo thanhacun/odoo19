@@ -70,7 +70,7 @@
         "url": "={{ $('Servers').item.json.url }}/jsonrpc",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"call\",\n  \"params\": {\n    \"service\": \"object\",\n    \"method\": \"execute_kw\",\n    \"args\": [\n      \"{{ $('Servers').item.json.db }}\",\n      {{ $json.result }},\n      \"{{ $('Servers').item.json.password }}\",\n      \"account.analytic.account\",\n      \"search_read\",\n      [[[\"state\", \"in\", [\"done\", \"closed\"]], [\"job_scale\", \"=\", \"00-big_job\"]]],\n      {\n        \"fields\": [\"name\", \"code\", \"state\", \"job_type\", \"date_start\", \"completion_date\",\n                   \"city_province_id\", \"contracted_amount_usd\"],\n        \"context\": {\"import_ge_nofilter\": true}\n      }\n    ]\n  },\n  \"id\": 2\n}\n",
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"call\",\n  \"params\": {\n    \"service\": \"object\",\n    \"method\": \"execute_kw\",\n    \"args\": [\n      \"{{ $('Servers').item.json.db }}\",\n      {{ $json.result }},\n      \"{{ $('Servers').item.json.password }}\",\n      \"account.analytic.account\",\n      \"search_read\",\n      [[[\"state\", \"in\", [\"done\", \"closed\"]], [\"job_type\", \"=\", \"00-big_job\"]]],\n      {\n        \"fields\": [\"name\", \"code\", \"state\", \"job_type\", \"em\", \"date_start\", \"completion_date\",\n                   \"actual_completion_date\", \"city_province_id\", \"job_amount\", \"currency_id\"],\n        \"context\": {\"many2one_show_all\": true}\n      }\n    ]\n  },\n  \"id\": 2\n}\n",
         "options": {
           "timeout": 300000
         }

@@ -2,7 +2,7 @@ import json
 
 from odoo.tests import HttpCase, TransactionCase, tagged
 
-from odoo.addons.kdvn_website_project.models.project_import import _project_type
+from odoo.addons.kdvn_website_project.models.project_import import _job_amount_usd, _job_em, _project_type
 
 JOBS = [
     # one project made of two jobs (names differ only in case / spaces)
@@ -52,6 +52,34 @@ class TestProjectImport(TransactionCase):
     def test_min_amount_setting(self):
         self.env['ir.config_parameter'].sudo().set_param('kdvn_website_project.min_amount_usd', '10000')
         self.assertEqual(self.Project._kdvn_import_jobs(JOBS)['created'], 2)
+
+    def test_kderp_odoo12_jobs(self):
+        """KDERP (Odoo 12): job_amount without VAT in the job currency, E/M in `em`,
+        job_type = job scale."""
+        self.env['ir.config_parameter'].sudo().set_param('kdvn_website_project.vnd_per_usd', '25000')
+        jobs = [
+            {'name': 'Daikin Plant', 'code': 'HE11-25-0001', 'state': 'closed', 'job_type': '00-big_job',
+             'em': 'E', 'date_start': '2024-01-01', 'actual_completion_date': '2025-06-30',
+             'city_province_id': [1, 'Hai Phong'], 'job_amount': 15000000000.0, 'currency_id': [23, 'VND']},
+            {'name': 'Daikin Plant', 'code': 'HM11-25-0002', 'state': 'done', 'job_type': '00-big_job',
+             'em': 'M', 'date_start': '2024-02-01', 'completion_date': '2025-05-31',
+             'city_province_id': [1, 'Hai Phong'], 'job_amount': 450000.0, 'currency_id': [2, 'USD']},
+        ]
+        result = self.Project._kdvn_import_jobs(jobs)
+        self.assertEqual(result, {'created': 1, 'updated': 0, 'skipped': 0})
+        project = self.Project.search([('kderp_key', '=', 'DAIKIN PLANT')])
+        self.assertEqual(project.kderp_amount_usd, 1050000, "600,000 (VND / 25,000) + 450,000")
+        self.assertEqual(project.project_type, 'me')
+        self.assertEqual(project.kderp_type, 'E&M')
+
+    def test_job_amount_usd(self):
+        self.assertEqual(_job_amount_usd({'contracted_amount_usd': 10.0, 'job_amount': 99.0}, 25000), 10.0)
+        self.assertEqual(_job_amount_usd({'job_amount': 50000.0, 'currency_id': [1, 'VND']}, 25000), 2.0)
+        self.assertEqual(_job_amount_usd({'job_amount': 50000.0, 'currency_id': [1, 'VND'], 'usd_rate': 20000}, 25000), 2.5)
+        self.assertEqual(_job_amount_usd({'job_amount': 7.0, 'currency_id': [1, 'USD']}, 25000), 7.0)
+        self.assertEqual(_job_amount_usd({'job_amount': 7.0, 'currency_id': [1, 'JPY']}, 25000), 0.0)
+        self.assertEqual(_job_em({'job_type': '00-big_job', 'em': 'M'}), 'M')
+        self.assertFalse(_job_em({'job_type': '00-big_job'}))
 
     def test_project_type(self):
         self.assertEqual(_project_type(['E']), 'electrical')
