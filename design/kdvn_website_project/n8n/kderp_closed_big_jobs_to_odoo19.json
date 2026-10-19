@@ -86,12 +86,33 @@
     },
     {
       "parameters": {
-        "jsCode": "// Collect the jobs of all servers into one payload for Odoo 19.\n// Stop with a clear error if a server refused the login or the search.\nconst jobs = [];\nconst servers = $('Servers').all();\n$input.all().forEach((item, i) => {\n  const server = servers[i] ? servers[i].json.server : `server ${i + 1}`;\n  if (item.json.error) {\n    throw new Error(`${server}: ${JSON.stringify(item.json.error.data ? item.json.error.data.message : item.json.error)}`);\n  }\n  for (const job of item.json.result || []) {\n    jobs.push({ ...job, server });\n  }\n});\nreturn [{ json: { jobs, count: jobs.length } }];\n"
+        "method": "POST",
+        "url": "={{ $('Servers').item.json.url }}/jsonrpc",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"call\",\n  \"params\": {\n    \"service\": \"object\",\n    \"method\": \"execute_kw\",\n    \"args\": [\n      \"{{ $('Servers').item.json.db }}\",\n      {{ $('Authenticate').item.json.result }},\n      \"{{ $('Servers').item.json.password }}\",\n      \"kderp.job.currency\",\n      \"search_read\",\n      [[[\"account_analytic_id\", \"in\", {{ JSON.stringify(($json.result || []).map(job => job.id)) }}]]],\n      {\"fields\": [\"account_analytic_id\", \"currency_id\", \"rate\"]}\n    ]\n  },\n  \"id\": 3\n}\n",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -20,
+        -80
+      ],
+      "id": "2b445423-aaf1-4106-93bf-682c534c2d74",
+      "name": "Job Rates",
+      "notes": "Each job's own exchange rates (kderp.job.currency: rate = rate to the company currency), used like KDERP's compute(): USD = job_amount * rate(job currency) / rate(USD)."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Collect the jobs of all servers into one payload for Odoo 19, each with its\n// own exchange rates: currency_rates = {\"VND\": 1, \"USD\": 25000, ...} (KDERP\n// kderp.job.currency.rate = rate to the company currency). Odoo 19 converts\n// job_amount to USD like KDERP's compute(): amount * rate(cur) / rate(USD).\n// Stop with a clear error if a server refused the login or a search.\nconst jobs = [];\nconst servers = $('Servers').all();\nconst jobItems = $('Closed Big Jobs').all();\nconst rateItems = $input.all();\nconst errorText = (err) => JSON.stringify(err.data ? err.data.message : err);\njobItems.forEach((item, i) => {\n  const server = servers[i] ? servers[i].json.server : `server ${i + 1}`;\n  if (item.json.error) {\n    throw new Error(`${server} (jobs): ${errorText(item.json.error)}`);\n  }\n  const rateResult = rateItems[i] ? rateItems[i].json : {};\n  if (rateResult.error) {\n    throw new Error(`${server} (job rates): ${errorText(rateResult.error)}`);\n  }\n  const ratesByJob = {};\n  for (const line of rateResult.result || []) {\n    const jobId = Array.isArray(line.account_analytic_id) ? line.account_analytic_id[0] : line.account_analytic_id;\n    const currency = Array.isArray(line.currency_id) ? line.currency_id[1] : line.currency_id;\n    (ratesByJob[jobId] = ratesByJob[jobId] || {})[currency] = line.rate;\n  }\n  for (const job of item.json.result || []) {\n    jobs.push({ ...job, server, currency_rates: ratesByJob[job.id] || {} });\n  }\n});\nreturn [{ json: { jobs, count: jobs.length } }];\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -20,
+        200,
         -80
       ],
       "id": "fad8815d-0dfa-44d5-8276-ed40bccf4438",
@@ -120,7 +141,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        200,
+        420,
         -80
       ],
       "id": "22cca5eb-8fcb-480f-ae73-ce64cfc74b3d",
@@ -148,8 +169,8 @@
     },
     {
       "parameters": {
-        "content": "## KDERP closed big jobs -> Odoo 19 website projects\n1. **Servers**: fill in login/password (+ HCMC server).\n2. First run **Check fields** (enable it, connect after Authenticate) to confirm the field names on your server: `state` values (done/closed), `job_scale` ('00-big_job'), `completion_date` or `actual_completion_date`, `contracted_amount_usd`. Adjust **Closed Big Jobs** if a name differs.\n3. **Send to Odoo 19**: API key from Odoo 19 Settings > Website Projects. Add header `X-Odoo-Database` if the server has several databases.\n\nOdoo groups jobs by name, creates **unpublished** projects from the minimum amount (default 1,000,000 USD) and only refreshes the KDERP fields of existing ones.",
-        "height": 300,
+        "content": "## KDERP closed big jobs -> Odoo 19 website projects\n1. **Servers**: fill in login/password (+ HCMC server).\n2. **Closed Big Jobs** reads KDERP (Odoo 12) `account.analytic.account`: `state` done/closed, `job_type` = '00-big_job', `job_amount` (without VAT) + `currency_id`, `em`; context `many2one_show_all` so closed jobs are returned. If a field is missing on your server, run **Check fields** (enable it, connect after Authenticate).\n3. **Job Rates** reads each job's own exchange rates (`kderp.job.currency`); Odoo converts to USD like KDERP: amount * rate(currency) / rate(USD).\n4. **Send to Odoo 19**: API key from Odoo 19 Settings > Website Projects. Add header `X-Odoo-Database` if the server has several databases.\n\nOdoo groups jobs by name, creates **unpublished** projects from the minimum amount (default 1,000,000 USD) and only refreshes the KDERP fields of existing ones.",
+        "height": 340,
         "width": 520
       },
       "type": "n8n-nodes-base.stickyNote",
@@ -211,7 +232,7 @@
       "main": [
         [
           {
-            "node": "Collect jobs",
+            "node": "Job Rates",
             "type": "main",
             "index": 0
           }
@@ -223,6 +244,17 @@
         [
           {
             "node": "Send to Odoo 19",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Rates": {
+      "main": [
+        [
+          {
+            "node": "Collect jobs",
             "type": "main",
             "index": 0
           }

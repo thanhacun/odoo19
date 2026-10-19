@@ -60,7 +60,8 @@ class TestProjectImport(TransactionCase):
         jobs = [
             {'name': 'Daikin Plant', 'code': 'HE11-25-0001', 'state': 'closed', 'job_type': '00-big_job',
              'em': 'E', 'date_start': '2024-01-01', 'actual_completion_date': '2025-06-30',
-             'city_province_id': [1, 'Hai Phong'], 'job_amount': 15000000000.0, 'currency_id': [23, 'VND']},
+             'city_province_id': [1, 'Hai Phong'], 'job_amount': 15000000000.0, 'currency_id': [23, 'VND'],
+             'currency_rates': {'VND': 1.0, 'USD': 25000.0}},
             {'name': 'Daikin Plant', 'code': 'HM11-25-0002', 'state': 'done', 'job_type': '00-big_job',
              'em': 'M', 'date_start': '2024-02-01', 'completion_date': '2025-05-31',
              'city_province_id': [1, 'Hai Phong'], 'job_amount': 450000.0, 'currency_id': [2, 'USD']},
@@ -78,6 +79,14 @@ class TestProjectImport(TransactionCase):
         self.assertEqual(_job_amount_usd({'job_amount': 50000.0, 'currency_id': [1, 'VND'], 'usd_rate': 20000}, 25000), 2.5)
         self.assertEqual(_job_amount_usd({'job_amount': 7.0, 'currency_id': [1, 'USD']}, 25000), 7.0)
         self.assertEqual(_job_amount_usd({'job_amount': 7.0, 'currency_id': [1, 'JPY']}, 25000), 0.0)
+        # the job's own KDERP rates (rate to the company currency, VND = 1)
+        rates = {'VND': 1.0, 'USD': 24000.0, 'JPY': 160.0}
+        self.assertEqual(_job_amount_usd({'job_amount': 48000.0, 'currency_id': [1, 'VND'],
+                                          'currency_rates': rates}, 25000), 2.0)
+        self.assertEqual(_job_amount_usd({'job_amount': 300.0, 'currency_id': [1, 'JPY'],
+                                          'currency_rates': rates}, 25000), 2.0)
+        self.assertEqual(_job_amount_usd({'job_amount': 5.0, 'currency_id': [1, 'USD'],
+                                          'currency_rates': rates}, 25000), 5.0)
         self.assertEqual(_job_em({'job_type': '00-big_job', 'em': 'M'}), 'M')
         self.assertFalse(_job_em({'job_type': '00-big_job'}))
 

@@ -9,7 +9,7 @@ creates unpublished projects from 1,000,000 USD, as the Odoo 12 module
 kdvn_website_project (kdvn.publish.project) did. Projects can also be added by hand. Published projects are shown at /prominent-projects
 (grid by year or list, filters by year and category).
 """,
-    'version': '19.0.3.1.0',
+    'version': '19.0.3.2.0',
     'category': 'Website',
     'author': 'Kinden Vietnam',
     'license': 'LGPL-3',
