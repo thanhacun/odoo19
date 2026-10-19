@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Website > Configuration > Project Import Sources (Settings admins) -->
+    <record id="kdvn_website_project_source_view_list" model="ir.ui.view">
+        <field name="name">kdvn.website.project.source.list</field>
+        <field name="model">kdvn.website.project.source</field>
+        <field name="arch" type="xml">
+            <list string="Project Import Sources">
+                <header>
+                    <button name="action_import_now" type="object" string="Import now" display="always" class="btn-primary"/>
+                </header>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="url"/>
+                <field name="db"/>
+                <field name="last_import_date"/>
+                <field name="last_message"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="kdvn_website_project_source_view_form" model="ir.ui.view">
+        <field name="name">kdvn.website.project.source.form</field>
+        <field name="model">kdvn.website.project.source</field>
+        <field name="arch" type="xml">
+            <form string="Project Import Source">
+                <header>
+                    <button name="action_test_connection" type="object" string="Test connection"/>
+                    <button name="action_import_now" type="object" string="Import now" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. Hanoi OpenERP"/></h1>
+                    </div>
+                    <group>
+                        <group string="Server">
+                            <field name="url" placeholder="https://erp-hn.kinden.com.vn"/>
+                            <field name="db"/>
+                            <field name="login"/>
+                            <field name="password" password="True"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group string="Import">
+                            <field name="last_import_date"/>
+                            <field name="last_message"/>
+                            <div colspan="2" class="text-muted small">
+                                Reads done and closed big jobs (job scale "big job") from this server once a day,
+                                groups them by job name and creates unpublished website projects from 1,000,000 USD
+                                (system parameter kdvn_website_project.min_amount_usd). Clear "Imported Up To" to read everything again.
+                            </div>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="kdvn_website_project_source_action" model="ir.actions.act_window">
+        <field name="name">Project Import Sources</field>
+        <field name="res_model">kdvn.website.project.source</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Add a KDERP / OpenERP server</p>
+            <p>Finished big jobs on these servers become (unpublished) website projects.</p>
+        </field>
+    </record>
+
+    <menuitem id="kdvn_website_project_source_menu" name="Project Import Sources"
+              parent="website.menu_website_global_configuration" action="kdvn_website_project_source_action"
+              sequence="62" groups="base.group_system"/>
+</odoo>
