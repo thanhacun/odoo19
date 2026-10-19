@@ -13,13 +13,16 @@ Odoo 19 successor of the Odoo 12 module `kdvn_website_project` (`kdvn.publish.pr
 
 ## Payload
 `{"jobs": [{name, code, state, em, job_type, date_start, completion_date | actual_completion_date,
-city_province_id ([id, name] or text), job_amount, currency_id}, ...]}` — JSON body (or form field `jobs`).
+city_province_id ([id, name] or text), job_amount, currency_id, currency_rates}, ...]}` — JSON body (or form field `jobs`).
 Odoo groups by name (case/spaces ignored), sums the USD amounts, takes the earliest start / latest completion.
 
 Amount (as close as possible to the old website: contract amount in USD **without VAT**):
-- KDERP today (Odoo 12, `kderp_job`): `job_amount` (without VAT) in the job's default currency `currency_id`.
-  USD is used as is, VND is divided by Settings > Website Projects > **VND per USD** (default 25,000;
-  a job's own `usd_rate` wins if n8n sends one). Other currencies count as 0.
+- KDERP today (Odoo 12, `kderp_job`): `job_amount` (without VAT) in the job's default currency `currency_id`,
+  converted with **the job's own exchange rates** like KDERP's `kderp.custom.currency.compute()`:
+  `USD = job_amount * rate(job currency) / rate(USD)` (`rate` = rate to the company currency).
+  n8n node "Job Rates" reads `kderp.job.currency` (`account_analytic_id`, `currency_id`, `rate`) and
+  "Collect jobs" sends them per job as `currency_rates` (`{"VND": 1, "USD": 25000}`).
+  Fallback when a job has no rates: USD as is, VND ÷ Settings > Website Projects > VND per USD.
 - Old OpenERP servers: `contracted_amount_usd` is still accepted and used as is.
 - E/M comes from `em` (KDERP's `job_type` is the job scale `00-big_job`, not E/M).
 - KDERP's `account.analytic.account._search` hides `closed` jobs unless the context has

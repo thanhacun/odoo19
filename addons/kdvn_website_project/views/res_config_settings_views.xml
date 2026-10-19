@@ -24,7 +24,7 @@
                             <field name="kdvn_project_min_amount"/>
                         </setting>
                         <setting id="kdvn_project_vnd_rate" string="VND per USD"
-                                 help="Job amounts in VND are divided by this rate before they are compared with the minimum (KDERP sends the amount without VAT, in the job's currency).">
+                                 help="Fallback only: jobs are converted to USD with their own KDERP exchange rates. A VND job without rates is divided by this rate.">
                             <field name="kdvn_project_vnd_rate"/>
                         </setting>
                     </block>

@@ -48,13 +48,18 @@ def _job_amount_usd(job, vnd_per_usd):
 
     - old OpenERP servers send contracted_amount_usd: used as is;
     - KDERP (Odoo 12) sends job_amount (without VAT) in the job's currency
-      (currency_id): USD as is, VND divided by the rate (the job's own
-      usd_rate when n8n sends it, else Settings > Website Projects).
-    Other currencies count as 0 (the job is then skipped)."""
+      (currency_id) and the job's own rates (currency_rates, from
+      kderp.job.currency: rate to the company currency). Converted like
+      KDERP's compute(): amount * rate(job currency) / rate(USD).
+    - No job rates: USD as is, VND divided by Settings > Website Projects >
+      VND per USD; other currencies count as 0 (the job is then skipped)."""
     if job.get('contracted_amount_usd'):
         return float(job['contracted_amount_usd'])
     amount = float(job.get('job_amount') or 0.0)
     currency = (_as_name(job.get('currency_id')) or job.get('currency') or 'USD').upper()
+    rates = {str(k).upper(): float(v or 0.0) for k, v in (job.get('currency_rates') or {}).items()}
+    if rates.get(currency) and rates.get('USD'):
+        return round(amount * rates[currency] / rates['USD'], 2)
     if currency == 'USD':
         return amount
     if currency == 'VND':
@@ -147,7 +152,7 @@ class ResConfigSettings(models.TransientModel):
         help="Imported jobs of the same project are added up; smaller projects are not created.")
     kdvn_project_vnd_rate = fields.Float(
         'VND per USD', config_parameter=PARAM_VND_RATE, default=DEFAULT_VND_RATE,
-        help="Converts the amount of VND jobs to USD for the minimum amount.")
+        help="Fallback for VND jobs sent without their KDERP exchange rates.")
 
     def action_kdvn_generate_project_api_key(self):
         self.ensure_one()
