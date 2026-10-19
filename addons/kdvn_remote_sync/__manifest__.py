@@ -2,14 +2,14 @@
     'name': 'KDVN Remote Sync',
     'summary': 'Receives jobs, budgets and customers from the KDERP (Odoo 12) server through n8n.',
     'description': """
-Odoo 19 version of the Odoo 12 module kderp_remote_sync (12.0.1.1.0).
+Odoo 19 version of the Odoo 12 module kderp_remote_sync (12.0.1.2.1).
 
 n8n reads jobs, budgets and customers on the KDERP server and posts them to
 /api/v1/sync_jobs (same payload as Odoo 12, plus an API key header). The data is
 kept in local cache models (kderp.job.lookup, kderp.job.budget.cache,
 kderp.customer.cache) that other Odoo 19 modules can link to.
 """,
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Hidden',
     'author': 'Kinden Vietnam',
     'license': 'LGPL-3',

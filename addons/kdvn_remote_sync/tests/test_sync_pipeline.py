@@ -92,3 +92,25 @@ class TestSyncPipeline(TransactionCase):
         self.env['res.partner'].create({'name': 'Holder', 'x_kdvn_test_job': job2.id})
         self._sync([jobs[0]])
         self.assertTrue(job2.exists(), "a job used by another document must not be deleted")
+
+    def test_budgets_matched_by_job_and_code(self):
+        """Budget ids from the two remote models can collide; codes are unique per job."""
+        jobs, budgets, customers = sample_payload()
+        self._sync(jobs, customers=customers)
+        Budget = self.env['kderp.job.budget.cache']
+        budgets = [
+            {'id': 100, 'budget_code': 8000, 'name': 'Budget data', 'balance_amt': 10, 'job_id': 9001},
+            {'id': 100, 'budget_code': '8100A21', 'name': 'Fixed cost', 'balance_amt': 20, 'job_id': 9001},  # same id
+            {'id': 101, 'budget_code': 8000, 'name': 'Other job', 'balance_amt': 30, 'job_id': 9002},        # same code
+        ]
+        self.assertEqual(self._sync(budgets=budgets)['budgets_synced'], 3)
+        self.assertEqual(Budget.search_count([]), 3)
+        job1 = self.Job.search([('external_id', '=', 9001)])
+        self.assertEqual(sorted(job1.budget_ids.mapped('budget_code')), ['8000', '8100A21'])
+
+        # next run: balance updated in place, the fixed cost line is gone
+        budgets = [dict(budgets[0], balance_amt=15), budgets[2]]
+        self._sync(budgets=budgets)
+        self.assertEqual(job1.budget_ids.mapped('budget_code'), ['8000'])
+        self.assertEqual(job1.budget_ids.balance_amt, 15)
+        self.assertEqual(Budget.search_count([]), 2)
