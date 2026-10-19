@@ -9,7 +9,7 @@ n8n reads jobs, budgets and customers on the KDERP server and posts them to
 kept in local cache models (kderp.job.lookup, kderp.job.budget.cache,
 kderp.customer.cache) that other Odoo 19 modules can link to.
 """,
-    'version': '19.0.1.0.1',
+    'version': '19.0.1.1.0',
     'category': 'Hidden',
     'author': 'Kinden Vietnam',
     'license': 'LGPL-3',
