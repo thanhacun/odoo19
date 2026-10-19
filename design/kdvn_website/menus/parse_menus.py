@@ -67,6 +67,19 @@ with open(menus_csv, mode='r', encoding='utf-8') as file:
             xml_content += f"            <field name=\"description\">{html.escape(description)}</field>\n"
         xml_content += "        </record>\n\n"
 
+# 3. The website shows the FIRST top-level menu (lowest sequence, then id) of a
+#    website. On a new database Odoo's own "Top Menu for Website 1" (with e.g.
+#    the recruitment "Jobs" item) comes before ours, so remove every other
+#    top-level menu of the default website (their sub-items go with them).
+#    website.main_menu (no website) is Odoo's template for new websites: kept.
+with open(menus_csv, mode='r', encoding='utf-8') as file:
+    root_ids = [r['xml_id'].strip() for r in csv.DictReader(file) if not r['parent_xml_id'].strip()]
+if root_ids:
+    xml_content += f"""        <!-- Remove Odoo's default top menu so the website shows the KDVN menu -->
+        <delete model="website.menu" search="[('website_id', '=', ref('website.default_website')), ('parent_id', '=', False), ('id', '!=', ref('kdvn_website.{root_ids[0]}'))]"/>
+
+"""
+
 xml_content += """    </data>
 </odoo>
 """
