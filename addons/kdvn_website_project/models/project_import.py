@@ -6,6 +6,8 @@ from odoo import _, api, fields, models
 PARAM_API_KEY = 'kdvn_website_project.api_key'
 PARAM_MIN_AMOUNT = 'kdvn_website_project.min_amount_usd'
 DEFAULT_MIN_AMOUNT = 1000000.0
+PARAM_VND_RATE = 'kdvn_website_project.vnd_per_usd'
+DEFAULT_VND_RATE = 25000.0
 
 
 def _project_key(name):
@@ -27,8 +29,38 @@ def _project_type(job_types):
     return 'other' if job_types else False
 
 
+def _job_em(job):
+    """E / M of a job: field `em` on KDERP (Odoo 12), `job_type` on the old
+    OpenERP servers ('E', 'M', 'M&E'). KDERP's job_type ('00-big_job'…) is
+    the job scale, not E/M, and is ignored."""
+    for value in (job.get('em'), job.get('job_type')):
+        if isinstance(value, str) and value.strip() and set(value.strip().upper()) <= set('EM&'):
+            return value.strip().upper()
+    return False
+
+
 def _as_date(value):
     return fields.Date.to_date(value) if value and value != 'False' else False
+
+
+def _job_amount_usd(job, vnd_per_usd):
+    """Contract amount of a job in USD, without VAT.
+
+    - old OpenERP servers send contracted_amount_usd: used as is;
+    - KDERP (Odoo 12) sends job_amount (without VAT) in the job's currency
+      (currency_id): USD as is, VND divided by the rate (the job's own
+      usd_rate when n8n sends it, else Settings > Website Projects).
+    Other currencies count as 0 (the job is then skipped)."""
+    if job.get('contracted_amount_usd'):
+        return float(job['contracted_amount_usd'])
+    amount = float(job.get('job_amount') or 0.0)
+    currency = (_as_name(job.get('currency_id')) or job.get('currency') or 'USD').upper()
+    if currency == 'USD':
+        return amount
+    if currency == 'VND':
+        rate = float(job.get('usd_rate') or vnd_per_usd or 0.0)
+        return amount / rate if rate > 0 else 0.0
+    return 0.0
 
 
 def _as_name(value):
@@ -52,23 +84,26 @@ class KdvnWebsiteProjectImport(models.Model):
     @api.model
     def _kdvn_import_jobs(self, jobs):
         """jobs: list of dicts with name, code, state, job_type, date_start,
-        completion_date (or actual_completion_date), city_province_id,
-        contracted_amount_usd. Returns {'created', 'updated', 'skipped'}."""
+        completion_date (or actual_completion_date), city_province_id and
+        either contracted_amount_usd or job_amount + currency_id (see
+        _job_amount_usd). Returns {'created', 'updated', 'skipped'}."""
         jobs_by_key = defaultdict(list)
         for job in jobs or []:
             if isinstance(job, dict) and (job.get('name') or '').strip():
                 jobs_by_key[_project_key(job['name'])].append(job)
 
-        min_amount = float(self.env['ir.config_parameter'].sudo().get_param(PARAM_MIN_AMOUNT) or DEFAULT_MIN_AMOUNT)
+        ICP = self.env['ir.config_parameter'].sudo()
+        min_amount = float(ICP.get_param(PARAM_MIN_AMOUNT) or DEFAULT_MIN_AMOUNT)
+        vnd_per_usd = float(ICP.get_param(PARAM_VND_RATE) or DEFAULT_VND_RATE)
         Project = self.sudo().with_context(active_test=False)
         existing = {p.kderp_key: p for p in Project.search([('kderp_key', 'in', list(jobs_by_key))])}
         result = {'created': 0, 'updated': 0, 'skipped': 0}
         now = fields.Datetime.now()
         for key, group in jobs_by_key.items():
-            amount = sum(float(job.get('contracted_amount_usd') or 0.0) for job in group)
+            amount = round(sum(_job_amount_usd(job, vnd_per_usd) for job in group), 2)
             starts = [d for d in (_as_date(j.get('date_start')) for j in group) if d]
             ends = [d for d in (_as_date(j.get('completion_date') or j.get('actual_completion_date')) for j in group) if d]
-            job_types = sorted({j['job_type'] for j in group if j.get('job_type')})
+            job_types = sorted({_job_em(j) for j in group if _job_em(j)})
             cities = [c for c in (_as_name(j.get('city_province_id')) for j in group) if c]
             vals = {
                 'kderp_name': ' '.join(group[0]['name'].split()),
@@ -110,6 +145,9 @@ class ResConfigSettings(models.TransientModel):
     kdvn_project_min_amount = fields.Float(
         'Minimum Contract Amount (USD)', config_parameter=PARAM_MIN_AMOUNT, default=DEFAULT_MIN_AMOUNT,
         help="Imported jobs of the same project are added up; smaller projects are not created.")
+    kdvn_project_vnd_rate = fields.Float(
+        'VND per USD', config_parameter=PARAM_VND_RATE, default=DEFAULT_VND_RATE,
+        help="Converts the amount of VND jobs to USD for the minimum amount.")
 
     def action_kdvn_generate_project_api_key(self):
         self.ensure_one()
