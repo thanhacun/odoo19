@@ -5,3 +5,4 @@ access_kdvn_website_project_category_user,kdvn.website.project.category.user,mod
 access_kdvn_website_project_category_designer,kdvn.website.project.category.designer,model_kdvn_website_project_category,website.group_website_designer,1,1,1,1
 access_kdvn_website_project_tag_user,kdvn.website.project.tag.user,model_kdvn_website_project_tag,base.group_user,1,0,0,0
 access_kdvn_website_project_tag_designer,kdvn.website.project.tag.designer,model_kdvn_website_project_tag,website.group_website_designer,1,1,1,1
+access_kdvn_website_project_source_admin,kdvn.website.project.source.admin,model_kdvn_website_project_source,base.group_system,1,1,1,1

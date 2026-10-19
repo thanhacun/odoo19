@@ -46,9 +46,11 @@ class KdvnWebsiteProjectTag(models.Model):
 class KdvnWebsiteProject(models.Model):
     """A project shown on the website (Past Prominent Projects).
 
-    Kept separate from the synced KDERP jobs: website text and photos stay even
-    when a job is no longer sent by KDERP, and the link keeps those jobs from
-    being purged by kdvn_remote_sync. One project can group several jobs.
+    Projects are imported from the old KDERP/OpenERP servers (done or closed
+    big jobs, grouped by job name; see kdvn.website.project.source) or added
+    by hand. Imported data lives in the read-only kderp_* fields; the website
+    fields (name, year, area, type) are only pre-filled when a project is
+    created, so editors' changes are never overwritten.
     """
     _name = 'kdvn.website.project'
     _description = 'Website Project'
@@ -58,24 +60,26 @@ class KdvnWebsiteProject(models.Model):
     name = fields.Char('Project Name', required=True, translate=True)
     sequence = fields.Integer(default=10, help="Order inside the same year.")
     active = fields.Boolean(default=True)
-    job_ids = fields.Many2many(
-        'kderp.job.lookup', 'kdvn_website_project_job_rel', 'project_id', 'job_id', string='KDERP Jobs',
-        help="Jobs this project is made of. Used to fill the year; the jobs are kept in Odoo while linked.")
-    year = fields.Integer(
-        compute='_compute_year', store=True, readonly=False,
-        help="Year shown on the website. Filled from the jobs' completion (or start) date; can be changed.")
+    year = fields.Integer(help="Year shown on the website (pre-filled from the KDERP completion date).")
     area = fields.Char('Area', translate=True, help="e.g. 'Hanoi, Vietnam'.")
     project_type = fields.Selection(PROJECT_TYPES, 'Type')
     category_id = fields.Many2one('kdvn.website.project.category', 'Category', ondelete='restrict', index=True)
     tag_ids = fields.Many2many('kdvn.website.project.tag', string='Work Scope')
     description = fields.Html(translate=True, sanitize=True, help="Not shown yet (for a future project page).")
 
-    @api.depends('job_ids.actual_completion_date', 'job_ids.date_start')
-    def _compute_year(self):
-        for project in self:
-            dates = [d for job in project.job_ids for d in (job.actual_completion_date or job.date_start,) if d]
-            # no job dates: keep the year typed by hand
-            project.year = max(dates).year if dates else project.year
+    # --- Imported from KDERP (read-only; refreshed by every import) ---
+    kderp_key = fields.Char('KDERP Key', index=True, readonly=True, copy=False,
+                            help="Normalised job name used to match imported jobs to this project.")
+    kderp_name = fields.Char('KDERP Name', readonly=True)
+    kderp_job_codes = fields.Char('Job Numbers', readonly=True)
+    kderp_type = fields.Char('KDERP Type', readonly=True, help="Job types of the jobs, e.g. 'E', 'M&E'.")
+    kderp_location = fields.Char('KDERP Location', readonly=True)
+    kderp_date_start = fields.Date('Start Date', readonly=True)
+    kderp_completion_date = fields.Date('Completion Date', readonly=True)
+    kderp_amount_usd = fields.Float('Contract Amount (USD)', digits=(16, 0), readonly=True)
+    kderp_imported_on = fields.Datetime('Last Imported', readonly=True)
+
+    _kderp_key_unique = models.Constraint('unique(kderp_key)', 'A KDERP project can only be imported once.')
 
     def _compute_website_url(self):
         for project in self:
