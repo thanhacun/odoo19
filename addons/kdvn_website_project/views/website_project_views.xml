@@ -122,7 +122,7 @@
         <field name="view_mode">list,kanban,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">Add a project for the website</p>
-            <p>Projects are also imported from KDERP every day (Website &gt; Configuration &gt; Project Import Sources).
+            <p>Finished big jobs are also imported from KDERP by n8n (Settings &gt; Website Projects).
                Published projects appear on /prominent-projects.</p>
         </field>
     </record>

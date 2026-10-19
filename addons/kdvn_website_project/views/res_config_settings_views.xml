@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Settings > Website Projects -->
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.kdvn.website.project</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Website Projects" string="Website Projects" name="kdvn_website_project" groups="base.group_system">
+                    <block title="Import from KDERP (n8n)" name="kdvn_project_import">
+                        <setting id="kdvn_project_api_key" string="Project Import API Key"
+                                 help="n8n sends this key in the X-API-Key header when it posts finished big jobs to /api/v1/website_projects. Without a key, all data is refused.">
+                            <field name="kdvn_project_api_key" widget="CopyClipboardChar" readonly="1"
+                                   placeholder="No key yet: click Generate new key"/>
+                            <div class="mt8">
+                                <button name="action_kdvn_generate_project_api_key" type="object" string="Generate new key"
+                                        icon="fa-key" class="btn-link"
+                                        confirm="Create a new key? n8n stops working until it is updated with the new key."/>
+                            </div>
+                        </setting>
+                        <setting id="kdvn_project_min_amount" string="Minimum Contract Amount (USD)"
+                                 help="Jobs with the same name are added up; smaller projects are not created.">
+                            <field name="kdvn_project_min_amount"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>
