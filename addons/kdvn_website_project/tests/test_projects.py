@@ -74,3 +74,27 @@ class TestWebsiteProjects(HttpCase):
         self.hidden.image_1920 = PIXEL
         res = self.url_open('/prominent-projects/image/%s/512' % self.hidden.id)
         self.assertEqual(res.status_code, 404)
+
+
+@tagged('post_install', '-at_install')
+class TestHomepageProjects(HttpCase):
+
+    def test_homepage_section(self):
+        Project = self.env['kdvn.website.project']
+        Project.search([]).write({'show_on_homepage': False})
+        old_featured = Project.create({'name': 'KDVN Home Featured', 'year': 2001, 'is_published': True,
+                                       'show_on_homepage': True})
+        newest = Project.create({'name': 'KDVN Home Newest', 'year': 2099, 'is_published': True})
+        hidden = Project.create({'name': 'KDVN Home Hidden', 'year': 2099, 'is_published': False,
+                                 'show_on_homepage': True})
+        cards = Project._kdvn_homepage_projects()
+        self.assertEqual(cards[0], old_featured, "'Show on Homepage' projects come first")
+        self.assertIn(newest, cards, "topped up with the newest published projects")
+        self.assertNotIn(hidden, cards)
+        self.assertLessEqual(len(cards), 4)
+
+        html = self.url_open('/').text
+        self.assertIn('kdvn-home-projects', html)
+        self.assertIn('KDVN Home Featured', html)
+        self.assertNotIn('KDVN Home Hidden', html)
+        self.assertIn('href="/prominent-projects"', html)

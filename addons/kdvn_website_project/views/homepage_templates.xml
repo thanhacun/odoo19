@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ===================================================================== -->
+    <!-- Homepage section 3: Past Prominent Projects                           -->
+    <!-- Figma: design/kdvn_website/frames/home-desktop|tablet|mobile.png       -->
+    <!-- Green band with a grid pattern; title, lead and "View all" are         -->
+    <!-- builder-editable; the 4 cards come from the projects (published,       -->
+    <!-- "Show on Homepage" first: kdvn.website.project._kdvn_homepage_projects) -->
+    <!-- and reuse the card of /prominent-projects.                            -->
+    <!-- ===================================================================== -->
+    <template id="homepage_projects" inherit_id="kdvn_website.kdvn_homepage_blueprint" name="KDVN Homepage: Past Prominent Projects">
+        <xpath expr="//div[@id='oe_structure_kdvn_home_bottom']" position="before">
+            <section class="kdvn-home-projects">
+                <div class="kdvn-container">
+                    <div id="oe_structure_kdvn_home_projects" class="oe_structure">
+                        <section class="s_text_block kdvn-home-projects-head" data-snippet="s_text_block" data-name="Section title">
+                            <div class="kdvn-home-projects-text">
+                                <h2 class="kdvn-home-title">Past Prominent Projects</h2>
+                                <p class="kdvn-home-lead">Kinden supports peoples&#8217; livelihoods in the fields of energy, environment and information.</p>
+                            </div>
+                            <a href="/prominent-projects" class="btn kdvn-btn-white kdvn-home-projects-all">View all</a>
+                        </section>
+                    </div>
+                    <t t-set="home_projects" t-value="request.env['kdvn.website.project']._kdvn_homepage_projects()"/>
+                    <div t-if="home_projects" class="kdvn-home-projects-grid">
+                        <t t-foreach="home_projects" t-as="project">
+                            <t t-call="kdvn_website_project.project_card"/>
+                        </t>
+                    </div>
+                </div>
+            </section>
+        </xpath>
+    </template>
+</odoo>

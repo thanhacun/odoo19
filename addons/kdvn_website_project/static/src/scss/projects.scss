@@ -300,3 +300,105 @@ $kdvn-proj-muted: $black-11;   // #5c5c5c
         }
     }
 }
+
+// ============================================================================
+// HOMEPAGE: Past Prominent Projects (frames/home-desktop|tablet|mobile.png)
+// Green band (#009942) with a light grid every 66px; padding 160 (mobile 80);
+// head = title + lead, "View all" on the right (mobile: full width under it);
+// cards 4 / 2 / 1 per row, 8px apart, 500px high, photo 247 x 200.
+// ============================================================================
+
+.kdvn-home-projects {
+    padding: 80px 0;
+    background-color: $color-background-accent-solid-default;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.07) 3px, transparent 3px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.07) 3px, transparent 3px);
+    background-size: 66px 66px;
+    background-position: -2px -2px;
+
+    @include media-breakpoint-up(xl) {
+        padding: 160px 0;
+    }
+
+    .kdvn-home-title,
+    .kdvn-home-lead {
+        color: #fff;
+    }
+}
+
+.kdvn-home-projects-head {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 64px;
+
+    @include media-breakpoint-up(md) {
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: $spacing-gap-x-large;
+        margin-bottom: 80px;
+    }
+}
+
+// White button on the green band
+.kdvn-btn-white {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 56px;
+    padding: 0 $spacing-padding-x-large;
+    font-size: $typography-font-size-body-small;
+    font-weight: $emphasis-font-weight-bold;
+    color: $color-content-neutral-strongest;
+    background-color: #fff;
+    border: 0;
+    border-radius: 0;
+
+    &:hover, &:focus-visible {
+        color: $color-content-neutral-strongest;
+        background-color: $black-3;
+    }
+}
+.kdvn-home-projects-all {
+    flex: none;
+    width: 100%;
+    margin-top: $spacing-gap-2x-large;
+
+    @include media-breakpoint-up(md) {
+        width: 217px;
+        margin-top: 0;
+    }
+}
+
+.kdvn-home-projects-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+
+    @include media-breakpoint-up(md) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    @include media-breakpoint-up(xl) {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .kdvn-proj-card {
+        flex: none;
+        width: auto;
+        background-color: $black-1;   // #fcfcfc
+    }
+    .kdvn-proj-card-img {
+        width: 247px;
+        height: 200px;
+    }
+    // cross lines 12px longer than the photo on each side
+    .kdvn-proj-card-media::before {
+        left: 16px;
+        right: 16px;
+    }
+    .kdvn-proj-card-media::after {
+        top: calc(50% - 120px);
+        bottom: calc(50% - 120px);
+    }
+}
