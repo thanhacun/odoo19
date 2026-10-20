@@ -98,3 +98,15 @@ class TestHomepageProjects(HttpCase):
         self.assertIn('KDVN Home Featured', html)
         self.assertNotIn('KDVN Home Hidden', html)
         self.assertIn('href="/prominent-projects"', html)
+
+
+@tagged('post_install', '-at_install')
+class TestProjectSearch(HttpCase):
+
+    def test_website_search_finds_projects(self):
+        Project = self.env['kdvn.website.project']
+        Project.create({'name': 'KDVN Searchable Zeppelin Plant', 'year': 2020, 'is_published': True})
+        Project.create({'name': 'KDVN Searchable Zeppelin Hidden', 'year': 2020, 'is_published': False})
+        html = self.url_open('/website/search?search=Zeppelin').text
+        self.assertIn('KDVN Searchable Zeppelin Plant', html)
+        self.assertNotIn('KDVN Searchable Zeppelin Hidden', html)

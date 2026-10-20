@@ -54,7 +54,7 @@ class KdvnWebsiteProject(models.Model):
     """
     _name = 'kdvn.website.project'
     _description = 'Website Project'
-    _inherit = ['website.published.mixin', 'image.mixin']
+    _inherit = ['website.published.mixin', 'website.searchable.mixin', 'image.mixin']
     _order = 'year desc, sequence, id desc'
 
     name = fields.Char('Project Name', required=True, translate=True)
@@ -88,6 +88,26 @@ class KdvnWebsiteProject(models.Model):
     def _compute_website_url(self):
         for project in self:
             project.website_url = '/prominent-projects?year=%s' % project.year if project.year else '/prominent-projects'
+
+    @api.model
+    def _search_get_detail(self, website, order, options):
+        """Website search (header Search panel > /website/search): published
+        projects by name, area, category or work scope."""
+        mapping = {
+            'name': {'name': 'name', 'type': 'text', 'match': True},
+            'website_url': {'name': 'website_url', 'type': 'text', 'truncate': False},
+        }
+        if options.get('displayDescription'):
+            mapping['description'] = {'name': 'area', 'type': 'text', 'match': True}
+        return {
+            'model': 'kdvn.website.project',
+            'base_domain': [[('is_published', '=', True)]],
+            'requires_sudo': True,
+            'search_fields': ['name', 'area', 'category_id.name', 'tag_ids.name'],
+            'fetch_fields': ['id', 'name', 'website_url', 'area'],
+            'mapping': mapping,
+            'icon': 'fa-building-o',
+        }
 
     def _kdvn_image_url(self, size=512):
         self.ensure_one()
