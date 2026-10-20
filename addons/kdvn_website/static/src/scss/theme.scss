@@ -1959,7 +1959,7 @@ body.kdvn-modal-open {
     padding: $spacing-padding-x-large;
 
     @include media-breakpoint-up(md) {
-        padding: $spacing-padding-3x-large;   // 40px (frame)
+        padding: $spacing-padding-3x-large $spacing-padding-x-large;   // 40 / 24 (frames: text 24px from the sides)
     }
     @include kdvn-glass;   // frame: white 80% + blur, like the header
 }
@@ -2140,4 +2140,107 @@ $kdvn-cert-gap: 24px;
     color: $color-content-neutral-strongest;
     background-color: #fff;
     border: 0;
+}
+
+// ============================================================================
+// HEADER PANELS: Search and Language (frames/search-*.png, languages-*.png)
+// Desktop/tablet: the glass box of .kdvn-modal (480 wide). Mobile: full
+// screen, white, back arrow + title on the left, X on the right.
+// ============================================================================
+
+.kdvn-panel {
+    .kdvn-modal-head {
+        margin-bottom: $spacing-gap-large;
+    }
+}
+.kdvn-panel-back {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    font-size: 1.5rem;
+    color: $color-content-neutral-strongest;
+    background: none;
+    border: 0;
+}
+.kdvn-search-form {
+    margin: 0;
+}
+.kdvn-search-input {
+    border: 2px solid $black-12;   // frames: dark border, 48px high
+    font-size: $typography-font-size-body-small;
+
+    &::-webkit-search-cancel-button {
+        cursor: pointer;
+    }
+}
+.kdvn-lang-list {
+    margin: 0;
+    padding: 0;
+
+    // 56px rows: 55 + 1px line; the current language: green 2px line
+    li {
+        border-bottom: 1px solid $black-5;
+
+        &.is-active {
+            border-bottom: 2px solid $color-background-accent-solid-default;
+
+            .kdvn-lang {
+                padding-bottom: 14px;
+                font-weight: $emphasis-font-weight-bold;
+                color: $color-content-neutral-strongest;
+            }
+        }
+    }
+}
+.kdvn-lang {
+    display: block;
+    padding: $spacing-padding-medium $spacing-padding-small 15px;
+    font-size: $typography-font-size-body-large;   // 20px
+    line-height: 24px;
+    color: $black-11;
+    text-decoration: none;
+
+    &:hover, &:focus-visible {
+        color: $color-content-neutral-strongest;
+    }
+}
+
+@include media-breakpoint-down(md) {
+    .kdvn-panel {
+        align-items: stretch;
+        padding: 0;
+
+        .kdvn-modal-backdrop {
+            display: none;
+        }
+        .kdvn-modal-dialog {
+            max-width: none;
+            height: 100%;
+            overflow-y: auto;
+            padding: $spacing-padding-2x-large $spacing-padding-x-large;   // 32 / 24
+            background-color: #fff;
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+        }
+        .kdvn-modal-head {
+            justify-content: flex-start;
+            gap: $spacing-gap-small;   // back arrow 40 + 12: title at 76 (frame)
+            margin-bottom: $spacing-gap-2x-large;   // 40
+        }
+        .kdvn-panel-back {
+            display: inline-flex;
+        }
+        .kdvn-modal-title {
+            flex: 1 1 auto;
+            font-size: $typography-font-size-body-base;   // 16px
+            line-height: 24px;
+        }
+        .kdvn-modal-x {
+            background-color: $black-3;
+            border-color: $black-7;
+        }
+    }
 }

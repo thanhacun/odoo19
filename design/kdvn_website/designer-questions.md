@@ -78,6 +78,11 @@ For every page, please send 3 frames: **desktop 1440, tablet 1280, mobile 390** 
 - [ ] Mobile: all certificates the same size (240 x 340), as in the frame; no "large current one" on mobile. OK?
 - [ ] Text above the slider (intro, list of licenses)? The frames have none; an editable area is there if needed.
 
+## 8e. Search and Language panels
+- [ ] Language list has 5 languages (Tiếng Việt, 日本語, English, 繁體, 简体). Plan so far: EN / JA / VI. Are Traditional and Simplified Chinese wanted? (The list shows whatever languages are installed on the website.)
+- [ ] Search: is there a design for the results page? Built with Odoo's search results page (pages, projects, jobs) in our layout.
+- [ ] Search box sits higher than the Language box in the frames (top 320 vs centred). Built both centred.
+
 ## 9. Small corrections already made (for the designer's information)
 - Company History: Vina-Kinden joint venture year is **1997** (Figma says 1944); locations = **7**.
 - Company History timeline: spacing between events made even (16px); the gaps in Figma were uneven.
