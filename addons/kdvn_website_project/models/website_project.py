@@ -66,6 +66,10 @@ class KdvnWebsiteProject(models.Model):
     category_id = fields.Many2one('kdvn.website.project.category', 'Category', ondelete='restrict', index=True)
     tag_ids = fields.Many2many('kdvn.website.project.tag', string='Work Scope')
     description = fields.Html(translate=True, sanitize=True, help="Not shown yet (for a future project page).")
+    show_on_homepage = fields.Boolean(
+        'Show on Homepage',
+        help="Shown in the homepage's Past Prominent Projects section (4 cards: these first, newest "
+             "first, then the newest other published projects).")
 
     # --- Imported from KDERP (read-only; refreshed by every import) ---
     kderp_key = fields.Char('KDERP Key', index=True, readonly=True, copy=False,
@@ -99,6 +103,20 @@ class KdvnWebsiteProject(models.Model):
     # ------------------------------------------------------------------
 
     MAX_YEAR_TABS = 5
+    HOMEPAGE_COUNT = 4
+
+    @api.model
+    def _kdvn_homepage_projects(self, limit=None):
+        """Cards of the homepage section: published projects marked 'Show on
+        Homepage' (newest first), topped up with the newest other published
+        projects so the row is always full when there are enough projects."""
+        limit = limit or self.HOMEPAGE_COUNT
+        Project = self.sudo()
+        featured = Project.search([('is_published', '=', True), ('show_on_homepage', '=', True)], limit=limit)
+        if len(featured) < limit:
+            featured |= Project.search([('is_published', '=', True), ('id', 'not in', featured.ids)],
+                                       limit=limit - len(featured))
+        return featured
 
     @api.model
     def _kdvn_page_data(self, category=None, year=None):

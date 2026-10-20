@@ -16,6 +16,7 @@
                 <field name="tag_ids" widget="many2many_tags"/>
                 <field name="kderp_job_codes" optional="hide"/>
                 <field name="kderp_amount_usd" optional="hide"/>
+                <field name="show_on_homepage" widget="boolean_toggle" string="Homepage" optional="show"/>
                 <field name="is_published" widget="boolean_toggle" string="Published"/>
             </list>
         </field>
@@ -36,6 +37,7 @@
                     <group>
                         <group string="Shown on the website">
                             <field name="is_published" widget="boolean_toggle" string="Published"/>
+                            <field name="show_on_homepage" widget="boolean_toggle"/>
                             <field name="year"/>
                             <field name="area" placeholder="e.g. Hanoi, Vietnam"/>
                             <field name="project_type"/>
@@ -103,6 +105,7 @@
                 <field name="tag_ids"/>
                 <field name="year"/>
                 <filter name="filter_published" string="Published" domain="[('is_published', '=', True)]"/>
+                <filter name="filter_homepage" string="On Homepage" domain="[('show_on_homepage', '=', True)]"/>
                 <filter name="filter_unpublished" string="Not Published" domain="[('is_published', '=', False)]"/>
                 <filter name="filter_no_photo" string="No Photo" domain="[('image_128', '=', False)]"/>
                 <filter name="filter_imported" string="Imported from KDERP" domain="[('kderp_key', '!=', False)]"/>
