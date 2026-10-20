@@ -269,7 +269,7 @@ $kdvn-header-blur: 40px;
 }
 
 // ============================================================================
-// INNER PAGES (Figma: frames/president-message-desktop.png, 1440px frame)
+// INNER PAGES (Figma: frames/gd-message-desktop|tablet|mobile.png, 1440px frame)
 // Vertical spacing measured from the frame; mobile values are our own (no frame yet).
 // ============================================================================
 
@@ -292,13 +292,19 @@ $kdvn-header-blur: 40px;
     height: 0;
     border-top: 1px solid $black-8;
 }
+// mobile frames: the divider under the page title is inset 16px on both sides
+@include media-breakpoint-down(md) {
+    .kdvn-page-header .kdvn-divider {
+        margin: 0 $spacing-gap-medium;
+    }
+}
 
 // --- Breadcrumb
 .kdvn-breadcrumb-list {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: $spacing-gap-x-small;
+    gap: 1.25rem $spacing-gap-x-small;   // rows 20px apart when the trail wraps (mobile frames)
     margin: 0;
     padding: 0;
     list-style: none;
@@ -348,7 +354,7 @@ $kdvn-header-blur: 40px;
     }
 }
 .kdvn-page-title {
-    margin: $spacing-gap-x-large 0;
+    margin: $spacing-gap-3x-large 0 $spacing-gap-x-large;   // mobile: 48 above, 32 below (frames)
     font-family: $typography-font-family-display, sans-serif;
     font-size: $typography-font-size-display-5;   // 48px on mobile (frames)
     line-height: 52px;
@@ -380,7 +386,7 @@ $kdvn-header-blur: 40px;
 
 // --- Centred quote with name and role
 .kdvn-quote-section {
-    padding-top: $spacing-gap-3x-large;
+    padding-top: $spacing-gap-2x-large;
 
     @include media-breakpoint-up(xl) {
         padding-top: $spacing-gap-giant;
@@ -393,11 +399,13 @@ $kdvn-header-blur: 40px;
 }
 .kdvn-quote-text {
     margin: 0;
+    padding: 0;
+    border: 0;
 
     p {
         margin: 0;
-        font-size: 1.5rem;
-        line-height: 32px;
+        font-size: $typography-font-size-heading-3;   // 28/40 mobile, 32/44 desktop
+        line-height: 40px;
         font-weight: $emphasis-font-weight-bold;
         letter-spacing: -0.5px;
         color: $color-content-neutral-strongest;
@@ -415,28 +423,24 @@ $kdvn-header-blur: 40px;
 }
 .kdvn-quote-name {
     display: block;
-    font-size: $typography-font-size-body-large;
-    line-height: 28px;
+    font-size: $typography-font-size-heading-4;   // 24px (frames)
+    line-height: 32px;
     font-weight: $emphasis-font-weight-bold;
     color: $color-content-neutral-strongest;
 }
 .kdvn-quote-role {
     display: block;
-    font-size: $typography-font-size-body-small;
-    line-height: 20px;
+    font-size: $typography-font-size-body-base;   // 16px (frames)
+    line-height: 24px;
     color: $color-content-neutral-strongest;
 }
 
 // --- Photo + text (photo left 5/12, text right from the middle)
 .kdvn-media-text {
-    padding-top: $spacing-gap-3x-large;
-
-    @include media-breakpoint-up(xl) {
-        padding-top: $spacing-gap-giant;
-    }
+    padding-top: $spacing-gap-giant;   // 64px on all sizes (frames)
 
     .row {
-        row-gap: $spacing-gap-large;
+        row-gap: $spacing-gap-giant;   // mobile: photo, 64px, text
     }
 }
 .kdvn-media-text-image {
@@ -445,7 +449,11 @@ $kdvn-header-blur: 40px;
 }
 .kdvn-media-text-body {
     font-size: $typography-font-size-body-small;
-    line-height: 24px;
+    line-height: 20px;   // 14/20 mobile, 14/24 from lg
+
+    @include media-breakpoint-up(lg) {
+        line-height: 24px;
+    }
     color: $color-content-neutral-strongest;
 
     p {
