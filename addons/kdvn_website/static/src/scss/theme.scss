@@ -515,6 +515,12 @@ $kdvn-header-blur: 40px;
 .kdvn-intro-image {
     width: 100%;
     max-width: 620px;
+
+    // frame: 620 x 320; any photo is cropped to that shape (centre kept)
+    img {
+        aspect-ratio: 620 / 320;
+        object-fit: cover;
+    }
 }
 
 // --- Year highlight card: year left, title/text/button right
@@ -531,7 +537,7 @@ $kdvn-header-blur: 40px;
     @include media-breakpoint-up(lg) {
         flex-direction: row;
         gap: 0;
-        padding: $spacing-padding-2x-large $spacing-padding-x-large;
+        padding: $spacing-padding-x-large;   // 24px all round (frame: card 192px high)
     }
 }
 .kdvn-year-card-year {
@@ -656,7 +662,7 @@ $kdvn-header-blur: 40px;
     @include media-breakpoint-up(lg) {
         grid-template-columns: 200px 1fr;
         column-gap: 0;
-        padding: $spacing-padding-2x-large 0;
+        padding: $spacing-padding-x-large 0;   // frame: 85px per one-line row
     }
 }
 .kdvn-timeline-year {
@@ -1572,7 +1578,7 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     }
 }
 .kdvn-bizpage-lead {
-    margin: 0 0 $spacing-gap-x-large;
+    margin: 0 0 1.25rem;
     font-size: $typography-font-size-body-small;
     line-height: 20px;
     color: $color-content-neutral-strongest;
@@ -1595,6 +1601,16 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     }
 }
 
+// Gap between sections: 48px on mobile (frame), 120px from xl like .kdvn-section
+.kdvn-bizpage-features,
+.kdvn-bizpage-items {
+    padding-top: $spacing-gap-3x-large;
+
+    @include media-breakpoint-up(xl) {
+        padding-top: $spacing-gap-2x-giant;
+    }
+}
+
 // "Feature", "Business items": display font, mixed case (not uppercase)
 .kdvn-bizpage-title {
     margin: 0;
@@ -1609,8 +1625,8 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
 .kdvn-bizpage-feature-grid {
     display: grid;
     grid-template-columns: 1fr;
-    row-gap: $spacing-gap-2x-large;
-    margin-top: $spacing-gap-large;
+    row-gap: $spacing-gap-x-large;
+    margin-top: 1.25rem;
 
     @include media-breakpoint-up(md) {
         grid-auto-flow: column;
@@ -1633,7 +1649,8 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     }
 }
 .kdvn-bizpage-feature-title {
-    margin: $spacing-gap-large 0 $spacing-gap-x-small;
+    margin: 1.25rem 0 $spacing-gap-x-small;
+    font-family: $font-family-base;   // h3: not the display (headings) font
     font-size: $typography-font-size-body-large;
     line-height: 28px;
     font-weight: $emphasis-font-weight-bold;
@@ -1641,6 +1658,7 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     color: $color-content-neutral-strongest;
 
     @include media-breakpoint-up(xl) {
+        margin-top: $spacing-gap-large;
         font-size: $typography-font-size-heading-4;
         line-height: 32px;
     }
@@ -1699,6 +1717,7 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
 }
 .kdvn-bizpage-item-title {
     margin: 0;
+    font-family: $font-family-base;
     font-size: 1.125rem;
     line-height: 32px;
     font-weight: $emphasis-font-weight-bold;
@@ -1717,12 +1736,13 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     object-fit: cover;
 }
 .kdvn-bizpage-item-text {
-    margin: $spacing-gap-large 0 $spacing-gap-medium;
+    margin: $spacing-gap-medium 0;
     font-size: $typography-font-size-body-small;
     line-height: 20px;
     color: $color-content-neutral-strongest;
 
     @include media-breakpoint-up(lg) {
+        margin-top: $spacing-gap-large;
         font-size: $typography-font-size-body-large;
         line-height: 32px;
     }
@@ -1761,23 +1781,29 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
 }
 .kdvn-inquiry-title {
     margin: 0;
-    font-size: $typography-font-size-heading-3;
-    line-height: 36px;
+    font-family: $font-family-base;   // h2: not the display (headings) font
+    font-size: $typography-font-size-heading-4;   // 24/34 mobile, 36/48 desktop (frames)
+    line-height: 34px;
     font-weight: $emphasis-font-weight-bold;
-    letter-spacing: -0.8px;
+    letter-spacing: -0.5px;
     color: $color-content-neutral-strongest;
 
     @include media-breakpoint-up(lg) {
-        font-size: $typography-font-size-heading-2;
+        font-size: $typography-font-size-heading-1;
         line-height: 48px;
+        letter-spacing: -0.8px;
     }
 }
 .kdvn-inquiry-intro {
-    margin: $spacing-gap-x-small 0 $spacing-gap-x-large;
+    margin: $spacing-gap-x-small 0 $spacing-gap-2x-large;
     max-width: 22rem;
     font-size: $typography-font-size-body-small;
     line-height: 20px;
     color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(lg) {
+        line-height: 24px;
+    }
 }
 
 // --- Contact details: grey icon square + label + value
@@ -1785,12 +1811,12 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     display: flex;
     flex-direction: column;
     gap: $spacing-gap-large;
-    margin: $spacing-gap-x-large 0 $spacing-gap-giant;
+    margin: $spacing-gap-2x-large 0;
     padding: 0;
     list-style: none;
 
     @include media-breakpoint-up(lg) {
-        margin: $spacing-gap-2x-large 0 0;
+        margin-bottom: 0;
     }
 }
 .kdvn-inquiry-contact {
@@ -1830,7 +1856,7 @@ a.kdvn-inquiry-contact-value:hover {
 
 // --- Form fields
 .kdvn-field {
-    margin-bottom: $spacing-gap-small;
+    margin-bottom: 10px;   // frame: label-to-label 90px
 }
 .kdvn-label {
     display: block;
@@ -1923,16 +1949,21 @@ body.kdvn-modal-open {
     width: 100%;
     max-width: 480px;
     padding: $spacing-padding-x-large;
+
+    @include media-breakpoint-up(md) {
+        padding: $spacing-padding-3x-large;   // 40px (frame)
+    }
     @include kdvn-glass;   // frame: white 80% + blur, like the header
 }
 .kdvn-modal-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: $spacing-gap-large;
+    margin-bottom: 28px;
 }
 .kdvn-modal-title {
     margin: 0;
+    font-family: $font-family-base;
     font-size: $typography-font-size-heading-4;
     line-height: 32px;
     font-weight: $emphasis-font-weight-bold;
@@ -1954,13 +1985,13 @@ body.kdvn-modal-open {
 .kdvn-modal-body p {
     margin: 0 0 $spacing-gap-large;
     font-size: $typography-font-size-body-small;
-    line-height: 20px;
+    line-height: 24px;
     color: $color-content-neutral-strongest;
 }
 .kdvn-modal-close {
     display: block;
     width: 100%;
-    height: 48px;
+    height: 56px;
     font-size: $typography-font-size-body-small;
     font-weight: $emphasis-font-weight-bold;
     color: #fff;
