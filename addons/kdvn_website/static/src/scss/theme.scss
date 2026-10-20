@@ -2026,6 +2026,11 @@ $kdvn-cert-gap: 24px;
     overflow: hidden;   // the track runs past both edges of the screen
     padding-bottom: $spacing-gap-medium;   // + footer nav 48 = 64 (frames)
 }
+// frames: 64px from the certificates to the bottom divider on all sizes
+// (other pages use 104px on desktop)
+.kdvn-certs ~ .kdvn-page-footer-nav {
+    padding-top: $spacing-gap-3x-large;
+}
 .kdvn-certs-nav {
     display: flex;
     justify-content: flex-end;
