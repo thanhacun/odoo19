@@ -71,7 +71,7 @@
                                         <label class="kdvn-label" for="kdvn_company_name">Company name</label>
                                         <input type="text" class="kdvn-input" id="kdvn_company_name" name="company_name" maxlength="256" autocomplete="organization" placeholder="Ex: Capital Crest Vietnam"/>
                                     </div>
-                                    <div class="row g-3">
+                                    <div class="row gx-3">
                                         <div class="col-12 col-md-6 kdvn-field">
                                             <label class="kdvn-label" for="kdvn_email">Company email</label>
                                             <input type="email" class="kdvn-input" id="kdvn_email" name="email" required="required" maxlength="254" autocomplete="email" placeholder="Ex: jasonmarcus@company.com"/>
