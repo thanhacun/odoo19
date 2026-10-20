@@ -70,6 +70,7 @@ export class KdvnCertificates extends Interaction {
         }
         const button = ev.currentTarget;
         const img = this.lightbox.querySelector(".kdvn-lightbox-img");
+        img.loading = "eager";   // Odoo marks page images lazy; this one is loaded on demand
         img.src = button.dataset.full;
         img.alt = button.getAttribute("aria-label") || "";
         this.lightbox.hidden = false;

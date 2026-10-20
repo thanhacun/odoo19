@@ -343,7 +343,7 @@
                 <!-- Full-size view (frames/licences-certificates-popup-page.png) -->
                 <div t-if="certificates" class="kdvn-lightbox" role="dialog" aria-modal="true" aria-label="Certificate" hidden="hidden">
                     <div class="kdvn-lightbox-backdrop" data-kdvn-close=""/>
-                    <img class="kdvn-lightbox-img" src="" alt=""/>
+                    <img class="kdvn-lightbox-img" src="" alt="" loading="eager"/>
                     <button type="button" class="kdvn-lightbox-close" data-kdvn-close="" aria-label="Close"><i class="ri-close-line" aria-hidden="true"/></button>
                 </div>
 
