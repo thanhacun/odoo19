@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- ===================================================================== -->
-    <!-- Shared inner-page parts (Figma: frames/president-message-desktop.png) -->
+    <!-- Shared inner-page parts (Figma: frames/gd-message-desktop|tablet|mobile.png) -->
     <!--                                                                       -->
     <!-- Usage in a page: t-call kdvn_website.page_header at the top and      -->
     <!-- kdvn_website.page_footer_nav at the bottom of #wrap.                  -->

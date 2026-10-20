@@ -2,7 +2,7 @@
 <odoo>
     <!-- ===================================================================== -->
     <!-- General Director Message  (/company-profile/general-director-message) -->
-    <!-- Figma: frames/president-message-desktop.png, adjusted per the Website -->
+    <!-- Figma: frames/gd-message-desktop|tablet|mobile.png, adjusted per the Website -->
     <!-- Rollout Plan (slide 2): new title, BOD group photo, GD quote (TBC).  -->
     <!-- Content inside oe_structure is editable in the website builder.       -->
     <!-- ===================================================================== -->
