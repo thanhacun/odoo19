@@ -4,7 +4,7 @@
         <xpath expr="//header" position="replace">
             <!-- Full-width structural background layer -->
             <header id="top" data-anchor="true" 
-                    class="navbar navbar-expand-xl sticky-top oe_unremovable p-0 m-0 kdvn-header">
+                    class="navbar navbar-expand-xl sticky-top oe_unremovable p-0 m-0 kdvn-header o_no_autohide_menu">
                 
                 <!-- FIGMA MAIN CONTENT SECTION WRAPPER: Handles your horizontal/vertical padding precisely -->
                 <div class="d-flex flex-wrap align-items-center justify-content-between w-100 mx-auto kdvn-navbar-main-content">
@@ -28,7 +28,8 @@
                     <div class="collapse navbar-collapse kdvn-navbar-collapse-wrapper" id="kdvnTopHeaderNav">
                         
                         <!-- 2. MAIN MENU BLOCK (Centered across the navigation track) -->
-                        <ul class="navbar-nav align-items-xl-center gap-2 mb-3 mb-xl-0 kdvn-centered-menu-group" t-if="website.menu_id">
+                        <!-- top_menu + o_no_autohide_menu on the header: Odoo's auto-hide menu script expects a .top_menu and stops there -->
+                        <ul class="navbar-nav align-items-xl-center gap-2 mb-3 mb-xl-0 kdvn-centered-menu-group top_menu" t-if="website.menu_id">
                             <t t-foreach="website.menu_id.child_id" t-as="submenu">
                                 
                                 <!-- Standard Menu Item Anchor Target Link -->

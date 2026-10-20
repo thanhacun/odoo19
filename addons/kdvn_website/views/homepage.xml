@@ -4,9 +4,12 @@
         Homepage (Figma: frames/home-*.png; spec: design/kdvn_website/specs/home.md).
         Editable areas (oe_structure) for text and the hero slider; data blocks (t-call)
         stay outside them so saving in the builder never freezes them.
-        Once the homepage is saved in the builder, Odoo keeps a website copy of this view
-        and later changes to this file no longer apply; deleting that copy in developer
-        mode brings back the code version.
+        When an editor saves the homepage, Odoo stores each edited oe_structure (by id) as
+        a small website-specific view, and keeps a website copy of this outline with that
+        area emptied: from then on, changes to this file's outline (and to the default
+        content of edited areas) no longer reach that website. Data blocks (t-call
+        templates), styles and new inheriting views (e.g. kdvn_website_project's projects
+        section) still apply. So: put homepage changes in new sections / templates.
     -->
     <template id="kdvn_homepage_blueprint" inherit_id="website.homepage" name="KDVN Homepage">
         <xpath expr="//div[@id='wrap']" position="replace">
