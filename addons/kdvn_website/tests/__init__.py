@@ -4,3 +4,4 @@ from . import test_website_media
 from . import test_homepage
 from . import test_business_pages
 from . import test_inquiry
+from . import test_certificates

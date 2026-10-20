@@ -61,3 +61,19 @@ class KdvnInquiryController(http.Controller):
         })
         Inquiry._kdvn_create_from_website(values)
         return request.redirect(self._kdvn_form_url('sent=1'))
+
+
+class KdvnCertificateController(http.Controller):
+
+    @http.route('/company-profile/licenses-certifications/image/<int:cert_id>/<int:size>', type='http',
+                auth='public', website=True, sitemap=False, readonly=True)
+    def kdvn_certificate_image(self, cert_id, size=1024, **kwargs):
+        """Certificate scan, only for certificates shown on the website."""
+        Cert = request.env['kdvn.website.certificate']
+        cert = Cert.sudo().search(Cert._kdvn_website_domain() + [('id', '=', cert_id)], limit=1)
+        if not cert or not cert.image_1920:
+            raise request.not_found()
+        field = {128: 'image_128', 256: 'image_256', 512: 'image_512', 1024: 'image_1024'}.get(size, 'image_1920')
+        stream = request.env['ir.binary']._get_image_stream_from(cert, field)
+        stream.max_age = 300
+        return stream.get_response(immutable=False)

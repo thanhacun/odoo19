@@ -23,7 +23,7 @@ Status: `todo` → `design` (frames + spec ready) → `build` → `review` → `
 | — | Home | 1 | `/` | build | Hero slider + Business Information done; next: Past Prominent Projects (project model). Spec: specs/home.md |
 | Company profile | Overview | 1 | `/company-profile` | todo | "View details" target |
 | Company profile | General Director Message | 1 | `/company-profile/general-director-message` | review | Quote from Shinsha-san pending; BOD photo in |
-| Company profile | Licenses & Certifications | 1 | | todo | |
+| Company profile | Licenses & Certifications | 1 | `/company-profile/licenses-certifications` | review | Certificates = records (Website > Site > Content > Licenses & Certificates) with validity dates: expired ones hidden, 'Renew' to-do 60 days before expiry; slider + full-size view |
 | Company profile | Company History | 1 | `/company-profile/company-history` | review | Built; content questions answered |
 | Company profile | Kinden Business Areas | 3 | | todo | |
 | Company profile | Group Companies | 3 | `/company-profile/group-companies` | review | Aligned to full-size desktop/tablet/mobile PNG frames; photos = placeholders |

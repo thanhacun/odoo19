@@ -295,4 +295,66 @@
         <field name="view_id" ref="group_companies_page"/>
         <field name="is_published" eval="True"/>
     </record>
+
+    <!-- ===================================================================== -->
+    <!-- Licenses & Certifications (/company-profile/licenses-certifications)  -->
+    <!-- Figma: frames/licences-certificates-page-01|02, -tablet-01,           -->
+    <!-- -mobile-01, -popup-page.png                                           -->
+    <!-- Data: kdvn.website.certificate (Website > Site > Content > Licenses & -->
+    <!-- Certificates): published and not expired, in "sequence" order.        -->
+    <!-- Slider: the current certificate is large (452 x 640), the next ones   -->
+    <!-- small (297 x 420); click a certificate to see it full size.           -->
+    <!-- JS: static/src/js/certificates.js                                     -->
+    <!-- ===================================================================== -->
+    <template id="licenses_certifications_page" name="Licenses &amp; Certifications">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <t t-call="kdvn_website.page_header"/>
+
+                <!-- Optional text above the slider (empty in the design) -->
+                <div id="oe_structure_kdvn_certificates_top" class="oe_structure"/>
+
+                <t t-set="certificates" t-value="request.env['kdvn.website.certificate']._kdvn_website_certificates()"/>
+                <section t-if="certificates" class="kdvn-certs" aria-label="Licenses and certifications">
+                    <div class="kdvn-container">
+                        <div class="kdvn-certs-nav">
+                            <button type="button" class="kdvn-action-btn kdvn-certs-prev" aria-label="Previous" title="Previous">
+                                <i class="ri-arrow-left-s-line" aria-hidden="true"/>
+                            </button>
+                            <button type="button" class="kdvn-action-btn kdvn-certs-next" aria-label="Next" title="Next">
+                                <i class="ri-arrow-right-s-line" aria-hidden="true"/>
+                            </button>
+                        </div>
+                        <ul class="kdvn-certs-track list-unstyled">
+                            <li t-foreach="certificates" t-as="cert" t-attf-class="kdvn-cert #{'is-active' if cert_first else ''}">
+                                <button type="button" class="kdvn-cert-open" t-att-data-full="cert._kdvn_image_url(1920)"
+                                        t-att-aria-label="cert.name">
+                                    <img t-att-src="cert._kdvn_image_url(1024)" t-att-alt="cert.name" loading="lazy" class="kdvn-cert-img"/>
+                                </button>
+                                <span class="visually-hidden">
+                                    <t t-out="cert.issuer or ''"/> <t t-out="cert.certificate_number or ''"/>
+                                    <t t-if="cert.date_end">- valid until <t t-out="cert.date_end" t-options="{'widget': 'date'}"/></t>
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Full-size view (frames/licences-certificates-popup-page.png) -->
+                <div t-if="certificates" class="kdvn-lightbox" role="dialog" aria-modal="true" aria-label="Certificate" hidden="hidden">
+                    <div class="kdvn-lightbox-backdrop" data-kdvn-close=""/>
+                    <img class="kdvn-lightbox-img" src="" alt=""/>
+                    <button type="button" class="kdvn-lightbox-close" data-kdvn-close="" aria-label="Close"><i class="ri-close-line" aria-hidden="true"/></button>
+                </div>
+
+                <t t-call="kdvn_website.page_footer_nav"/>
+            </div>
+        </t>
+    </template>
+
+    <record id="page_kdvn_licenses_certifications" model="website.page">
+        <field name="url">/company-profile/licenses-certifications</field>
+        <field name="view_id" ref="licenses_certifications_page"/>
+        <field name="is_published" eval="True"/>
+    </record>
 </odoo>

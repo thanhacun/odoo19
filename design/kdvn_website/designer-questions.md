@@ -73,6 +73,11 @@ For every page, please send 3 frames: **desktop 1440, tablet 1280, mobile 390** 
 - [ ] Popup text "respond within [X] business days": built with **2** business days. Correct number?
 - [ ] Placeholder of Inquiry type in the frame is "Ex: Capital Crest Vietnam" (copied from Company name). Built "Select an inquiry type".
 
+## 8d. Licenses & Certifications
+- [ ] Clicking a certificate opens it full size (popup frame). The popup frame has no close button: built with a small X (plus click outside / Escape). OK?
+- [ ] Mobile: all certificates the same size (240 x 340), as in the frame; no "large current one" on mobile. OK?
+- [ ] Text above the slider (intro, list of licenses)? The frames have none; an editable area is there if needed.
+
 ## 9. Small corrections already made (for the designer's information)
 - Company History: Vina-Kinden joint venture year is **1997** (Figma says 1944); locations = **7**.
 - Company History timeline: spacing between events made even (16px); the gaps in Figma were uneven.

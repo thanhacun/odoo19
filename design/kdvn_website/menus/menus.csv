@@ -2,7 +2,7 @@ name,url,xml_id,parent_xml_id,sequence,overview_url,description
 KDVN Menu Root,/default-main-menu,menu_kdvn_master_root,,1,,
 Company profile,#,menu_kdvn_company_profile,kdvn_website.menu_kdvn_master_root,10,/company-profile,
 General Director Message,/company-profile/general-director-message,menu_kdvn_general_director_message,kdvn_website.menu_kdvn_company_profile,10,,
-Licenses & Certifications,#,menu_kdvn_licenses_certifications,kdvn_website.menu_kdvn_company_profile,20,,
+Licenses & Certifications,/company-profile/licenses-certifications,menu_kdvn_licenses_certifications,kdvn_website.menu_kdvn_company_profile,20,,
 Company History,/company-profile/company-history,menu_kdvn_company_history,kdvn_website.menu_kdvn_company_profile,30,,
 Kinden Business Areas,#,menu_kdvn_business_areas,kdvn_website.menu_kdvn_company_profile,40,,
 Group Companies,/company-profile/group-companies,menu_kdvn_group_companies,kdvn_website.menu_kdvn_company_profile,50,,
