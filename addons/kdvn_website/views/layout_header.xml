@@ -73,23 +73,63 @@
 
                         <!-- 3. Corporate Action Items Segment Component -->
                         <div class="d-flex align-items-center gap-3 ms-xl-auto mt-1 mt-xl-0 o_not_editable kdvn-actions-right-block" contenteditable="false">
-                            <a href="/website/search" class="btn kdvn-action-btn" title="Search Site">
+                            <button type="button" class="btn kdvn-action-btn" data-kdvn-open="kdvn_search_panel"
+                                    aria-haspopup="dialog" aria-controls="kdvn_search_panel" title="Search" aria-label="Search">
                                 <i class="ri-search-line" aria-hidden="true"/>
-                            </a>
-                            <div class="dropdown" style="font-family: 'Inter Tight', sans-serif;">
-                                <button class="btn kdvn-action-btn" type="button" id="kdvnLanguageDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Change Language">
-                                    <i class="ri-global-line" aria-hidden="true"/>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-2 p-2 rounded-3" aria-labelledby="kdvnLanguageDropdown">
-                                    <li><a class="dropdown-item px-3 py-2 rounded fw-semibold" style="font-size: 0.875rem;" href="#">English</a></li>
-                                    <li><a class="dropdown-item px-3 py-2 rounded fw-semibold" style="font-size: 0.875rem;" href="#">Tiếng Việt</a></li>
-                                </ul>
-                            </div>
+                            </button>
+                            <button type="button" class="btn kdvn-action-btn" data-kdvn-open="kdvn_lang_panel"
+                                    aria-haspopup="dialog" aria-controls="kdvn_lang_panel" title="Language" aria-label="Language">
+                                <i class="ri-global-line" aria-hidden="true"/>
+                            </button>
                         </div>
 
                     </div>
                 </div>
             </header>
+        </xpath>
+
+        <!-- Search and Language panels (frames/search-*.png, languages-*.png):
+             desktop/tablet = centred box, mobile = full screen with a back arrow.
+             Opened by the header buttons (static/src/js/panels.js). -->
+        <xpath expr="//header" position="after">
+            <div class="kdvn-modal kdvn-panel o_not_editable" id="kdvn_search_panel" role="dialog" aria-modal="true"
+                 aria-labelledby="kdvn_search_title" hidden="hidden">
+                <div class="kdvn-modal-backdrop" data-kdvn-close=""/>
+                <div class="kdvn-modal-dialog">
+                    <div class="kdvn-modal-head">
+                        <button type="button" class="kdvn-panel-back" data-kdvn-close="" aria-label="Back"><i class="ri-arrow-left-s-line" aria-hidden="true"/></button>
+                        <h2 class="kdvn-modal-title" id="kdvn_search_title">Search</h2>
+                        <button type="button" class="kdvn-modal-x" data-kdvn-close="" aria-label="Close"><i class="ri-close-line" aria-hidden="true"/></button>
+                    </div>
+                    <form t-att-action="url_for('/website/search')" method="get" role="search" class="kdvn-search-form">
+                        <label class="visually-hidden" for="kdvn_search_input">Search</label>
+                        <input type="search" name="search" id="kdvn_search_input" class="kdvn-input kdvn-search-input"
+                               placeholder="Search name, categories,..." autocomplete="off" required="required"/>
+                    </form>
+                </div>
+            </div>
+            <div class="kdvn-modal kdvn-panel o_not_editable" id="kdvn_lang_panel" role="dialog" aria-modal="true"
+                 aria-labelledby="kdvn_lang_title" hidden="hidden">
+                <div class="kdvn-modal-backdrop" data-kdvn-close=""/>
+                <div class="kdvn-modal-dialog">
+                    <div class="kdvn-modal-head">
+                        <button type="button" class="kdvn-panel-back" data-kdvn-close="" aria-label="Back"><i class="ri-arrow-left-s-line" aria-hidden="true"/></button>
+                        <h2 class="kdvn-modal-title" id="kdvn_lang_title">Language</h2>
+                        <button type="button" class="kdvn-modal-x" data-kdvn-close="" aria-label="Close"><i class="ri-close-line" aria-hidden="true"/></button>
+                    </div>
+                    <ul class="kdvn-lang-list list-unstyled">
+                        <li t-foreach="website._kdvn_language_choices()" t-as="choice"
+                            t-att-class="'is-active' if request.lang and choice[0].code == request.lang.code else None">
+                            <t t-set="lg" t-value="choice[0]"/>
+                            <a t-att-href="url_localized(lang_code=lg.code)" t-att-data-url_code="lg.url_code"
+                               t-att-hreflang="lg.hreflang" t-att-lang="lg.iso_code"
+                               t-att-aria-current="'true' if request.lang and lg.code == request.lang.code else None"
+                               class="kdvn-lang js_change_lang"
+                               t-out="choice[1]"/>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </xpath>
     </template>
 </odoo>

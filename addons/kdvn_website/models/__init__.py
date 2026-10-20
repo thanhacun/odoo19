@@ -4,3 +4,4 @@ from . import res_partner
 from . import website_menu
 from . import website_inquiry
 from . import website_certificate
+from . import website
