@@ -47,7 +47,7 @@
         <!-- Menu: Licenses &amp; Certifications -->
         <record id="menu_kdvn_licenses_certifications" model="website.menu">
             <field name="name">Licenses &amp; Certifications</field>
-            <field name="url">#</field>
+            <field name="url">/company-profile/licenses-certifications</field>
             <field name="website_id" ref="website.default_website"/>
             <field name="is_mega_menu">False</field>
             <field name="parent_id" ref="kdvn_website.menu_kdvn_company_profile"/>

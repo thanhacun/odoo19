@@ -2012,3 +2012,127 @@ body.kdvn-modal-open {
         background-color: $black-11;
     }
 }
+
+// ============================================================================
+// LICENSES & CERTIFICATIONS (frames/licences-certificates-*.png)
+// Slider: current certificate 452 x 640, others 297 x 420 (A4 portrait),
+// 24px apart, top-aligned, running to the right edge of the screen; mobile:
+// all 240 x 340. Arrows top right. Click = full-size view (lightbox).
+// ============================================================================
+
+$kdvn-cert-gap: 24px;
+
+.kdvn-certs {
+    overflow: hidden;   // the track runs past both edges of the screen
+    padding-bottom: $spacing-gap-medium;   // + footer nav 48 = 64 (frames)
+}
+.kdvn-certs-nav {
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-gap-x-small;
+    margin: $spacing-gap-giant 0 $spacing-gap-2x-large;   // 64 / 40
+
+    .kdvn-action-btn:disabled {
+        opacity: 0.4;
+        cursor: default;
+    }
+}
+.kdvn-certs-track {
+    --kdvn-cert-w: 240px;
+    --kdvn-cert-h: 340px;
+    --kdvn-cert-active-w: 240px;
+    --kdvn-cert-active-h: 340px;
+
+    display: flex;
+    align-items: flex-start;
+    gap: $kdvn-cert-gap;
+    margin: 0;
+    padding: 0;
+    transform: translateX(calc(var(--kdvn-cert-index, 0) * -1 * (var(--kdvn-cert-w) + #{$kdvn-cert-gap})));
+    transition: transform 0.4s ease;
+    touch-action: pan-y;
+
+    @include media-breakpoint-up(md) {
+        --kdvn-cert-w: 297px;
+        --kdvn-cert-h: 420px;
+        --kdvn-cert-active-w: 452px;
+        --kdvn-cert-active-h: 640px;
+    }
+}
+.kdvn-cert {
+    flex: none;
+    width: var(--kdvn-cert-w);
+    height: var(--kdvn-cert-h);
+    border: 2px solid $color-content-neutral-strongest;
+    background-color: #fff;
+    transition: width 0.4s ease, height 0.4s ease;
+
+    &.is-active {
+        width: var(--kdvn-cert-active-w);
+        height: var(--kdvn-cert-active-h);
+    }
+}
+.kdvn-cert-open {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+}
+.kdvn-cert-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+@media (prefers-reduced-motion: reduce) {
+    .kdvn-certs-track,
+    .kdvn-cert {
+        transition: none;
+    }
+}
+
+// --- Full-size view
+.kdvn-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: $zindex-modal;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-padding-medium;
+
+    &[hidden] {
+        display: none;
+    }
+}
+.kdvn-lightbox-backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    cursor: zoom-out;
+}
+.kdvn-lightbox-img {
+    position: relative;
+    max-width: 100%;
+    max-height: calc(100vh - 64px);
+    background-color: #fff;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+.kdvn-lightbox-close {
+    position: absolute;
+    top: $spacing-gap-medium;
+    right: $spacing-gap-medium;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    font-size: 1.25rem;
+    color: $color-content-neutral-strongest;
+    background-color: #fff;
+    border: 0;
+}

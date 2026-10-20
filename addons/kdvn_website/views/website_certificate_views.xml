@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Website > Site > Content > Licenses & Certificates -->
+    <record id="kdvn_website_certificate_view_list" model="ir.ui.view">
+        <field name="name">kdvn.website.certificate.list</field>
+        <field name="model">kdvn.website.certificate</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="validity_state == 'expired'" decoration-warning="validity_state == 'expiring'">
+                <field name="sequence" widget="handle"/>
+                <field name="image_128" widget="image" options="{'size': [32, 45]}" string="Scan"/>
+                <field name="name"/>
+                <field name="issuer"/>
+                <field name="certificate_number"/>
+                <field name="holder" optional="show"/>
+                <field name="date_start" optional="hide"/>
+                <field name="date_end"/>
+                <field name="validity_state" widget="badge" decoration-success="validity_state == 'valid'"
+                       decoration-warning="validity_state == 'expiring'" decoration-danger="validity_state == 'expired'"/>
+                <field name="user_id" optional="hide" widget="many2one_avatar_user"/>
+                <field name="website_published" widget="boolean_toggle" string="Website"/>
+                <field name="activity_ids" widget="list_activity" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="kdvn_website_certificate_view_form" model="ir.ui.view">
+        <field name="name">kdvn.website.certificate.form</field>
+        <field name="model">kdvn.website.certificate</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <widget name="web_ribbon" title="Expired" bg_color="text-bg-danger" invisible="validity_state != 'expired'"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-secondary" invisible="active"/>
+                    <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'image_256'}"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. ISO 9001:2015 - Quality Management System"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="issuer"/>
+                            <field name="certificate_number"/>
+                            <field name="holder"/>
+                            <field name="website_published" widget="boolean_toggle"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="validity_state" widget="badge" decoration-success="validity_state == 'valid'"
+                                   decoration-warning="validity_state == 'expiring'" decoration-danger="validity_state == 'expired'"/>
+                            <field name="days_left" invisible="not date_end or validity_state == 'expired'"/>
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                        </group>
+                    </group>
+                    <div class="text-muted small mb-3">
+                        The scan is shown on the website (portrait, A4 shape) while the certificate is valid.
+                        To renew: upload the new scan and dates here; expired certificates are hidden automatically.
+                    </div>
+                    <field name="note" placeholder="Internal note (not shown on the website)"/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="kdvn_website_certificate_view_search" model="ir.ui.view">
+        <field name="name">kdvn.website.certificate.search</field>
+        <field name="model">kdvn.website.certificate</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="issuer"/>
+                <field name="certificate_number"/>
+                <filter name="filter_published" string="Shown on Website" domain="[('website_published', '=', True)]"/>
+                <separator/>
+                <filter name="filter_expiring" string="Expiring in 60 Days"
+                        domain="[('date_end', '!=', False), ('date_end', '&gt;=', context_today().strftime('%Y-%m-%d')), ('date_end', '&lt;=', (context_today() + relativedelta(days=60)).strftime('%Y-%m-%d'))]"/>
+                <filter name="filter_expired" string="Expired"
+                        domain="[('date_end', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="kdvn_website_certificate_action" model="ir.actions.act_window">
+        <field name="name">Licenses &amp; Certificates</field>
+        <field name="res_model">kdvn.website.certificate</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Add a license or certificate</p>
+            <p>Upload the scan and its validity dates. Valid, published certificates are shown on
+               /company-profile/licenses-certifications; expired ones are hidden automatically and the
+               responsible person gets a "Renew" to-do before the expiry date.</p>
+        </field>
+    </record>
+
+    <menuitem id="kdvn_website_certificate_menu"
+              name="Licenses &amp; Certificates"
+              parent="website.menu_content"
+              action="kdvn_website_certificate_action"
+              sequence="92"/>
+</odoo>
