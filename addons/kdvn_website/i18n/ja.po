@@ -1,0 +1,361 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* kdvn_website
+# Pilot: Company History + header, breadcrumb, footer. Draft by Claude, to be reviewed
+# (design/kdvn_website/i18n/translation-review-company-history.xlsx).
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ja_JP\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.kdvn_custom_header model_terms:ir.ui.view,arch_db:kdvn_website.kdvn_custom_footer
+msgid "Kinden Vietnam"
+msgstr "きんでんベトナム"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.kdvn_custom_header
+msgid "Toggle navigation"
+msgstr "メニューを開閉"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.kdvn_custom_header
+msgid "View details"
+msgstr "詳しく見る"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.kdvn_custom_header
+msgid "Search"
+msgstr "検索"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.kdvn_custom_header
+msgid "Language"
+msgstr "言語"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.kdvn_custom_header
+msgid "Back"
+msgstr "戻る"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.kdvn_custom_header
+msgid "Close"
+msgstr "閉じる"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.kdvn_custom_header
+msgid "Search name, categories,..."
+msgstr "名称・カテゴリで検索..."
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.kdvn_custom_footer
+msgid "Kinden comprehensively supports people’s good lives."
+msgstr "きんでんは、人々の豊かな暮らしを総合的に支えます。"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.kdvn_custom_footer model:website.menu,name:kdvn_website.menu_kdvn_company_profile
+msgid "Company profile"
+msgstr "会社概要"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.kdvn_custom_footer model:website.menu,name:kdvn_website.menu_kdvn_business_information
+msgid "Business Information"
+msgstr "事業紹介"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.kdvn_custom_footer model:website.menu,name:kdvn_website.menu_kdvn_past_prominent_projects
+msgid "Past Prominent Projects"
+msgstr "主要施工実績"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.kdvn_custom_footer model:website.menu,name:kdvn_website.menu_kdvn_contact_us
+msgid "Contact Us"
+msgstr "お問い合わせ"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.kdvn_custom_footer model:website.menu,name:kdvn_website.menu_kdvn_recruitment
+msgid "Recruitment"
+msgstr "採用情報"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.kdvn_custom_footer
+msgid "Office Network"
+msgstr "拠点ネットワーク"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.breadcrumb
+msgid "Kinden"
+msgstr "きんでん"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.breadcrumb
+msgid "breadcrumb"
+msgstr "パンくずリスト"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.footer_offices
+msgid "<br/>Tel"
+msgstr "<br/>TEL"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "From Japan’s engineering heritage to Vietnam’s industrial development"
+msgstr "日本の技術の伝統から、ベトナムの産業発展へ"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "<strong>KINDEN CORPORATION</strong> was established in Japan in <strong>1944</strong> and has since developed extensive engineering expertise worldwide. Building on this heritage, Kinden Vietnam has developed long-term engineering capabilities and experience in Vietnam."
+msgstr "<strong>株式会社きんでん</strong>は<strong>1944年</strong>に日本で設立され、以来、世界各地で幅広い技術力を培ってきました。この伝統を受け継ぎ、きんでんベトナムはベトナムにおいて長年にわたり技術力と経験を積み重ねてきました。"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "The First President Norishige Satake"
+msgstr "初代社長 Norishige Satake"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "80+ Years of Engineering Heritage"
+msgstr "80年以上にわたる技術の歴史"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "KINDEN CORPORATION was established in Japan in 1944 and has since grown into one of Japan’s leading integrated facility engineering companies, with a global track record across electrical, mechanical and communication systems."
+msgstr "株式会社きんでんは1944年に日本で設立され、以来、電気・機械・通信設備の分野で世界的な実績を持つ、日本有数の総合設備エンジニアリング企業へと成長しました。"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "Explore KINDEN CORPORATION History"
+msgstr "きんでんの歩みを見る"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "Growing alongside Vietnam’s industrial development"
+msgstr "ベトナムの産業発展とともに"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "Kinden Vietnam - At a Glance"
+msgstr "数字で見るきんでんベトナム"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "Years in Vietnam"
+msgstr "ベトナムでの実績年数"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "Projects"
+msgstr "プロジェクト"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "Engineers"
+msgstr "エンジニア"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "Locations"
+msgstr "拠点"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "Our Journey in Vietnam"
+msgstr "ベトナムでの歩み"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "From technical training in the 1990s to integrated engineering partnership today, three decades of building alongside Vietnam’s industrial growth."
+msgstr "1990年代の技術研修から現在の総合エンジニアリングパートナーへ。ベトナムの産業発展とともに歩んだ30年。"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "HISTORICAL → DEVELOPMENT → INDUSTRIAL EXPANSION → MODERN ENGINEERING"
+msgstr "創業期 → 発展期 → 産業拡大期 → 現代エンジニアリング"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "Began human resource development in Vietnam"
+msgstr "ベトナムでの人材育成を開始"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "Established the joint venture Vina-Kinden Corporation"
+msgstr "合弁会社 Vina-Kinden Corporation を設立"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "Early 2000s"
+msgstr "2000年代初頭"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "Expanded into infrastructure projects (Hai Van Tunnel, Thang Long area power transmission system)"
+msgstr "インフラ案件へ事業を拡大（ハイヴァントンネル、タンロン地区送電設備）"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "Expanded into Japanese factory construction projects (Canon, TOTO, Nitto Denko, etc.)"
+msgstr "日系工場の建設案件へ事業を拡大（キヤノン、TOTO、日東電工など）"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "Established the Ho Chi Minh City Branch"
+msgstr "ホーチミン支店を開設"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "Renamed the company to Kinden Vietnam Co., Ltd."
+msgstr "社名を Kinden Vietnam Co., Ltd. に変更"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "Became a wholly owned (100%) subsidiary of Kinden Corporation"
+msgstr "きんでんの100%子会社となる"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "Began hosting young trainees from Japan"
+msgstr "日本からの若手研修生の受け入れを開始"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "Expanded into large-scale commercial facilities (AEON MALL Binh Duong)"
+msgstr "大型商業施設へ事業を拡大（イオンモール・ビンズオン）"
+
+#. module: kdvn_website
+#: model_terms:ir.ui.view,arch_db:kdvn_website.company_history_page
+msgid "Fully entered the data center sector (CMC, VNG)"
+msgstr "データセンター分野へ本格参入（CMC、VNG）"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_general_director_message
+msgid "General Director Message"
+msgstr "社長メッセージ"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_licenses_certifications
+msgid "Licenses & Certifications"
+msgstr "許認可・認証"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_company_history
+msgid "Company History"
+msgstr "沿革"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_business_areas
+msgid "Kinden Business Areas"
+msgstr "きんでんの事業領域"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_group_companies
+msgid "Group Companies"
+msgstr "グループ会社"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_hr_development
+msgid "Human Resource Development"
+msgstr "人材育成"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_electrical_system
+msgid "Electrical Systems"
+msgstr "電気設備"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_instrumentation_systems
+msgid "Instrumentation Systems"
+msgstr "計装設備"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_ict_systems
+msgid "Information & Communication Systems"
+msgstr "情報通信設備"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_hvac_sanitary_systems
+msgid "Air Conditioning & Sanitary Systems"
+msgstr "空調衛生設備"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_interior_systems
+msgid "Interior Systems"
+msgstr "内装設備"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_energy_saving_renewal
+msgid "Energy Saving & Renewal"
+msgstr "省エネ・リニューアル"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_maintenance_services
+msgid "Maintenance Services"
+msgstr "メンテナンス"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_projects_overview
+msgid "Projects Overview"
+msgstr "施工実績一覧"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_factories
+msgid "Factories"
+msgstr "工場"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_data_center
+msgid "Data Center"
+msgstr "データセンター"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_building
+msgid "Buildings"
+msgstr "ビル"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_logistics_facilities
+msgid "Logistics Facilities"
+msgstr "物流施設"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_educational_facilities
+msgid "Educational Facilities"
+msgstr "教育施設"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_hotels
+msgid "Hotels"
+msgstr "ホテル"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_why_join_kdvn
+msgid "Why Join Kinden Vietnam"
+msgstr "きんでんベトナムで働く魅力"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_open_positions
+msgid "Open Positions"
+msgstr "募集職種"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_linkedin
+msgid "LinkedIn Homepage of Kinden"
+msgstr "きんでんのLinkedIn"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_office_locations
+msgid "Office Locations & Map"
+msgstr "拠点・アクセス"
+
+#. module: kdvn_website
+#: model:website.menu,name:kdvn_website.menu_kdvn_contact_us_form
+msgid "Inquiry Form"
+msgstr "お問い合わせフォーム"
