@@ -2244,3 +2244,25 @@ $kdvn-cert-gap: 24px;
         }
     }
 }
+
+// ============================================================================
+// JAPANESE PAGES (<html lang="ja-JP">)
+// Latin letters keep Inter Tight / Oswald, Japanese characters use Noto Sans JP
+// (font stacks in primary_variables.scss, incl. Odoo's theme font configs;
+// the body gets it here). Japanese has no capitals and needs no tight tracking;
+// line breaks between words/phrases instead of inside them.
+// ============================================================================
+
+html:lang(ja) {
+    body {
+        font-family: $font-family-base;
+        word-break: auto-phrase;
+        line-break: strict;
+    }
+    [class*="-title"],
+    .kdvn-lead,
+    .kdvn-stat-number,
+    .kdvn-quote-text p {
+        letter-spacing: 0;
+    }
+}

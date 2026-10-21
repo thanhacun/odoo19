@@ -5,6 +5,9 @@
         <!-- FIXED: Replaced conflicting tables thead locator flag with the authentic header metadata node -->
         <xpath expr="//head" position="inside">
             <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css" rel="stylesheet"/>
+            <!-- Japanese: Noto Sans JP after Inter Tight / Oswald in every font stack. Google serves it in
+                 small character ranges, so browsers only download it when Japanese text is on the page. -->
+            <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
         </xpath>
     </template>
 </odoo>

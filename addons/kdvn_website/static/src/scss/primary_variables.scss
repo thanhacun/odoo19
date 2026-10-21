@@ -2,8 +2,8 @@
 // AUTOMATED COMPILATION TARGET: SCSS VARIABLES ONLY (DO NOT EDIT)
 // ============================================================================
 $google-fonts: ('Oswald:300,400,500,600,700', 'Inter+Tight:300,400,500,600,700,800');
-$font-family-base: 'Inter Tight', sans-serif;
-$headings-font-family: 'Oswald', sans-serif;
+$font-family-base: 'Inter Tight', 'Noto Sans JP', sans-serif;   // Noto Sans JP: Japanese characters (views/assets.xml)
+$headings-font-family: 'Oswald', 'Noto Sans JP', sans-serif;
 
 // --- DYNAMIC REGISTERED DESIGN CORES
 $black: #000000;
@@ -562,7 +562,7 @@ $tomato-alpha-6: rgba(255, 53, 0, 0.4);
 $tomato-alpha-7: rgba(255, 51, 0, 0.471);
 $tomato-alpha-8: rgba(255, 51, 0, 0.537);
 $tomato-alpha-9: rgba(223, 45, 0, 0.82);
-$typography-font-family-display: 'Oswald';
+$typography-font-family-display: 'Oswald', 'Noto Sans JP';
 $typography-font-family-heading: 'Inter Tight';
 $typography-font-family-sans: 'Inter Tight';
 $typography-font-size-body-base: 1.0rem;
@@ -660,10 +660,18 @@ $white-alpha-9: rgba(255, 255, 255, 0.361);
 // (Odoo 19 only loads fonts listed in $o-theme-font-configs).
 $o-theme-font-configs: map-merge($o-theme-font-configs, (
     'Oswald': (
-        'family': ('Oswald', sans-serif),
+        'family': ('Oswald', 'Noto Sans JP', sans-serif),
         'url': 'Oswald:400,500,600,700',
     ),
 ));
+// Japanese characters in Odoo's body font too (Noto Sans JP is loaded in views/assets.xml)
+@if map-has-key($o-theme-font-configs, 'Inter Tight') {
+    $o-theme-font-configs: map-merge($o-theme-font-configs, (
+        'Inter Tight': map-merge(map-get($o-theme-font-configs, 'Inter Tight'), (
+            'family': ('Inter Tight', 'Noto Sans JP', sans-serif),
+        )),
+    ));
+}
 
 // --- ODOO 19 THEME SYSTEM PALETTE SPECIFICATION HOOKS ---
 $o-color-palettes: map-merge($o-color-palettes, (
