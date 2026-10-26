@@ -1,15 +1,39 @@
 # kdvn_website: progress
 
 Status as of 2026-10-26. Update the date and the sections below at the end of each task.
-History: `claude/kdvn_website_progress.md`. Projects module: `claude/kdvn_website_project.md`.
+History: git log and tags. Projects module `kdvn_website_project`: read its code and manifest (19.0.3.4.0).
 
 ## Repo state
-- Repo `~/odoo19_thcn`, branch `dev`, clean. `dev` = `main` = `b9237e1` (merge of `feature/kdvn_website`, translation pilot).
-- Latest tags: `261021_jp_font` (Noto Sans JP), `261021_translation_pilot` (same content as `b9237e1`).
-- Versions: `kdvn_website` 19.0.1.18.1, `kdvn_website_project` 19.0.3.4.0.
-- No open worktrees.
-- Beta runs the translation pilot.
-- TODO (Thanh): confirm `git push origin dev main` was done (`b9237e1` was local only at handoff).
+- Repo `~/odoo19_thcn`, branch `dev`. `main` = `b9237e1` (translation pilot, tagged `261021_translation_pilot`); `dev` is ahead of `main`.
+- `dev` has a local test merge `cefbf6e` ("Merge feature/why_join, not approved yet", branch `feature/why_join`, worktree `.worktrees/why_join`). It is not on `main`, not tagged, not pushed. To undo: `git revert -m 1 cefbf6e` (a reset would also drop the docs commit after it).
+- Versions: `kdvn_website` 19.0.1.19.0, `kdvn_website_project` 19.0.3.4.0.
+- Beta runs the translation pilot (1.18.1), not Why Join.
+- Why Join is installed on `odoo19_dev` only.
+
+## Why Join Kinden Vietnam (built 2026-10-26, in review)
+- Page `/recruitment/why-join-kinden-vietnam`, from `design/kdvn_website/frames/why-join-desktop|tablet|mobile.png`. Template in `views/pages/recruitment_pages.xml`, SCSS block "WHY JOIN KINDEN VIETNAM" in `theme.scss`. The menu item "Why Join Kinden Vietnam" links to it.
+- Tokens used where one exists. Hardcoded: 5S label sizes (10/12px), image heights, diagram width.
+- 5S diagram is HTML/CSS (translatable). Mobile diagram is full width, not the 300px of the frame (labels would be 7px).
+- Photos are cut from the desktop frame (about 2x resolution), in Site Media `why_join_hero`, `why_join_site_1..2`, `why_join_teambuilding_1..6`. Replace with originals.
+- Open: heading "Teambuilding" vs "Teambuilding at Hoi An" (frames differ and misspell it); bottom divider and breadcrumb (frames show blank space, page keeps `page_footer_nav`); VI/JA translations not done; Thanh is checking details.
+
+## Module map
+See `addons/kdvn_website/CLAUDE.md`.
+
+## Review findings (2026-10-26)
+Tests: 33 run on `kdvn_test`, 28 pass, 5 fail, all in `tests/test_inquiry.py`.
+- `test_page` expects the breadcrumb text "Inquiry form"; the menu is named "Inquiry Form". Stale test (case).
+- `test_honeypot`, `test_invalid`, `test_send`, `test_unknown_type_ignored` fail because the test cannot find `name="csrf_token" value="` in `/contactus`. Cause not found. Not checked on a fresh DB; `kdvn_test` also has Odoo's stock "Contact us" menu pointing to `/contactus`.
+Cleanup, not urgent:
+- `views/pages.xml` is not in the manifest and holds an old "Figma Layout Staging Container" homepage block. Delete.
+- `__manifest__.py` still says "KDERP Official Enterprise Website", author KDERP, header comment `kderp_website`. `views/assets.xml` has a stale "FIXED:" comment.
+- `views/assets.xml` loads Remix Icon (jsdelivr) and Noto Sans JP (Google Fonts) at runtime. Consider self-hosting before go-live (speed, privacy, offline).
+- `views/layout_footer.xml` has one inline `style` (footer background image URL). Rule says no inline styles; move to a class or CSS variable.
+- `theme.scss` is 2,490 lines with 39 `!important`. Consider one partial per section.
+- To review later: `__manifest__.py` still lists the bundle `web_editor.assets_media_dialog` (also in `docs/kdvn_website_progress.md`); check it exists in Odoo 19.
+- Inquiry form has a honeypot and length limits but no rate limit.
+- `kdvn_test` had `kdvn_website` 19.0.1.14.0 until the test run updated it.
+Rules check: no `attrs=`, `t-esc`, `t-raw`, `<tree>` or font-size spans in views.
 
 ## Translation pilot (Company History)
 Files:
