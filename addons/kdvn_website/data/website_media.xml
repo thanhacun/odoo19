@@ -254,5 +254,68 @@
             <field name="note">Business item photo, 668 x 320 on desktop. The starting image is cut from the design.</field>
             <field name="image" type="base64" file="kdvn_website/static/src/img/content/ac-sanitary-item-4.jpg"/>
         </record>
+        <record id="media_why_join_hero" model="kdvn.website.media">
+            <field name="name">Why Join - team photo (wide)</field>
+            <field name="key">why_join_hero</field>
+            <field name="sequence">60</field>
+            <field name="note">Wide team photo under the intro (1360 x 480 on desktop, cropped to fit). The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/why-join-hero.jpg"/>
+        </record>
+        <record id="media_why_join_site_1" model="kdvn.website.media">
+            <field name="name">Why Join - site photo 1</field>
+            <field name="key">why_join_site_1</field>
+            <field name="sequence">61</field>
+            <field name="note">Left site photo, 672 x 400 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/why-join-site-1.jpg"/>
+        </record>
+        <record id="media_why_join_site_2" model="kdvn.website.media">
+            <field name="name">Why Join - site photo 2</field>
+            <field name="key">why_join_site_2</field>
+            <field name="sequence">62</field>
+            <field name="note">Right site photo, 672 x 400 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/why-join-site-2.jpg"/>
+        </record>
+        <record id="media_why_join_teambuilding_1" model="kdvn.website.media">
+            <field name="name">Why Join - teambuilding photo 1 (tall)</field>
+            <field name="key">why_join_teambuilding_1</field>
+            <field name="sequence">63</field>
+            <field name="note">Tall tile on the left of the teambuilding grid (328 x 560 on desktop). The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/why-join-teambuilding-1.jpg"/>
+        </record>
+        <record id="media_why_join_teambuilding_2" model="kdvn.website.media">
+            <field name="name">Why Join - teambuilding photo 2</field>
+            <field name="key">why_join_teambuilding_2</field>
+            <field name="sequence">64</field>
+            <field name="note">Teambuilding grid tile, 328 x 272 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/why-join-teambuilding-2.jpg"/>
+        </record>
+        <record id="media_why_join_teambuilding_3" model="kdvn.website.media">
+            <field name="name">Why Join - teambuilding photo 3</field>
+            <field name="key">why_join_teambuilding_3</field>
+            <field name="sequence">65</field>
+            <field name="note">Teambuilding grid tile, 328 x 272 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/why-join-teambuilding-3.jpg"/>
+        </record>
+        <record id="media_why_join_teambuilding_4" model="kdvn.website.media">
+            <field name="name">Why Join - teambuilding photo 4</field>
+            <field name="key">why_join_teambuilding_4</field>
+            <field name="sequence">66</field>
+            <field name="note">Teambuilding grid tile, 328 x 272 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/why-join-teambuilding-4.jpg"/>
+        </record>
+        <record id="media_why_join_teambuilding_5" model="kdvn.website.media">
+            <field name="name">Why Join - teambuilding photo 5</field>
+            <field name="key">why_join_teambuilding_5</field>
+            <field name="sequence">67</field>
+            <field name="note">Teambuilding grid tile, 328 x 272 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/why-join-teambuilding-5.jpg"/>
+        </record>
+        <record id="media_why_join_teambuilding_6" model="kdvn.website.media">
+            <field name="name">Why Join - teambuilding photo 6 (wide)</field>
+            <field name="key">why_join_teambuilding_6</field>
+            <field name="sequence">68</field>
+            <field name="note">Wide tile at the bottom right of the teambuilding grid (672 x 272 on desktop). The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/why-join-teambuilding-6.jpg"/>
+        </record>
     </data>
 </odoo>

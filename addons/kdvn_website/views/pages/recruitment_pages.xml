@@ -49,4 +49,99 @@
         </xpath>
         <xpath expr="//div[@id='wrap']/h1" position="replace"/>
     </template>
+
+    <!-- ===================================================================== -->
+    <!-- Why Join Kinden Vietnam  (/recruitment/why-join-kinden-vietnam)       -->
+    <!-- Figma: frames/why-join-desktop|tablet|mobile.png                      -->
+    <!-- Images: Site Media keys why_join_hero, why_join_site_1..2,            -->
+    <!-- why_join_teambuilding_1..6. The 5S diagram is HTML/CSS (text is       -->
+    <!-- translatable). Content inside oe_structure is editable in the builder.-->
+    <!-- ===================================================================== -->
+    <template id="why_join_page" name="Why Join Kinden Vietnam">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <t t-call="kdvn_website.page_header"/>
+
+                <div class="oe_structure">
+                    <!-- Intro: heading left, text right, wide team photo -->
+                    <section class="kdvn-whyjoin-intro">
+                        <div class="kdvn-container">
+                            <div class="kdvn-whyjoin-intro-row">
+                                <h2 class="kdvn-section-title">Company culture &amp;<br/>Japanese working standards</h2>
+                                <p class="kdvn-whyjoin-text">At Kinden Vietnam, our culture is built on the same principles that have guided Kinden Corporation for over 70 years in Japan and for 30 years here in Vietnam: precision, safety, and continuous improvement.</p>
+                            </div>
+                            <img src="/kdvn/media/why_join_hero" class="d-block w-100 kdvn-whyjoin-hero"
+                                 alt="Kinden Vietnam team at a teambuilding event" loading="lazy"/>
+                        </div>
+                    </section>
+
+                    <!-- 5S -->
+                    <section class="kdvn-whyjoin-5s">
+                        <div class="kdvn-container">
+                            <p class="kdvn-whyjoin-text">We follow Japanese working standards such as the 5S principles:</p>
+                            <div class="kdvn-5s">
+                                <ul class="kdvn-5s-diagram list-unstyled" aria-label="5S">
+                                    <li class="kdvn-5s-center">5S</li>
+                                    <li class="kdvn-5s-item kdvn-5s-top">
+                                        <span class="kdvn-5s-kanji" lang="ja">整理</span>
+                                        <span class="kdvn-5s-label">Seiri<br/>(Sort)</span>
+                                    </li>
+                                    <li class="kdvn-5s-item kdvn-5s-top">
+                                        <span class="kdvn-5s-kanji" lang="ja">整理</span>
+                                        <span class="kdvn-5s-label">Seiri<br/>(Sort)</span>
+                                    </li>
+                                    <li class="kdvn-5s-item kdvn-5s-right">
+                                        <span class="kdvn-5s-kanji" lang="ja">整頓</span>
+                                        <span class="kdvn-5s-label">Seiton<br/>(Stabilize)</span>
+                                    </li>
+                                    <li class="kdvn-5s-item kdvn-5s-bottom-right">
+                                        <span class="kdvn-5s-kanji" lang="ja">清掃</span>
+                                        <span class="kdvn-5s-label">Seisou<br/>(Shine)</span>
+                                    </li>
+                                    <li class="kdvn-5s-item kdvn-5s-bottom-left">
+                                        <span class="kdvn-5s-kanji" lang="ja">清潔</span>
+                                        <span class="kdvn-5s-label">Seiketsu<br/>(Standardize)</span>
+                                    </li>
+                                    <li class="kdvn-5s-item kdvn-5s-left">
+                                        <span class="kdvn-5s-kanji" lang="ja">躾</span>
+                                        <span class="kdvn-5s-label">Shitsuke<br/>(Sustain)</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <p class="kdvn-whyjoin-text">Displayed and practiced across our offices and sites, alongside a &#8220;Safety First&#8221; mindset on every project.</p>
+                            <div class="kdvn-whyjoin-site">
+                                <img src="/kdvn/media/why_join_site_1?width=1200" alt="Kinden Vietnam engineers on site" loading="lazy"/>
+                                <img src="/kdvn/media/why_join_site_2?width=1200" alt="Kinden Vietnam engineers on site" loading="lazy"/>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Kaizen + teambuilding -->
+                    <section class="kdvn-whyjoin-closing">
+                        <div class="kdvn-container">
+                            <p class="kdvn-whyjoin-text">Together, these standards ensure a clean, organized, and secure working environment for every employee. Our teams practice Kaizen, the spirit of continuous, incremental improvement in everything from technical execution to daily communication. This means every voice matters: engineers and staff are encouraged to raise ideas, question inefficiencies, and take ownership of quality.</p>
+                            <p class="kdvn-whyjoin-text">We combine Japanese discipline and attention to detail with Vietnamese talent and adaptability, creating a workplace where punctuality, mutual respect, and teamwork are valued as much as technical skill. Joining Kinden Vietnam means becoming part of a company culture that treats every project and every colleague with the same care and precision.</p>
+                            <h3 class="kdvn-whyjoin-subtitle">Teambuilding</h3>
+                            <div class="kdvn-whyjoin-grid">
+                                <img src="/kdvn/media/why_join_teambuilding_1?width=800" class="kdvn-whyjoin-tile kdvn-whyjoin-tile-tall" alt="Kinden Vietnam teambuilding" loading="lazy"/>
+                                <img src="/kdvn/media/why_join_teambuilding_2?width=800" class="kdvn-whyjoin-tile" alt="Kinden Vietnam teambuilding" loading="lazy"/>
+                                <img src="/kdvn/media/why_join_teambuilding_5?width=800" class="kdvn-whyjoin-tile" alt="Kinden Vietnam teambuilding" loading="lazy"/>
+                                <img src="/kdvn/media/why_join_teambuilding_3?width=800" class="kdvn-whyjoin-tile" alt="Kinden Vietnam teambuilding" loading="lazy"/>
+                                <img src="/kdvn/media/why_join_teambuilding_4?width=800" class="kdvn-whyjoin-tile" alt="Kinden Vietnam teambuilding" loading="lazy"/>
+                                <img src="/kdvn/media/why_join_teambuilding_6?width=800" class="kdvn-whyjoin-tile kdvn-whyjoin-tile-wide" alt="Kinden Vietnam teambuilding" loading="lazy"/>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <t t-call="kdvn_website.page_footer_nav"/>
+            </div>
+        </t>
+    </template>
+
+    <record id="page_kdvn_why_join" model="website.page">
+        <field name="url">/recruitment/why-join-kinden-vietnam</field>
+        <field name="view_id" ref="why_join_page"/>
+        <field name="is_published" eval="True"/>
+    </record>
 </odoo>

@@ -269,7 +269,7 @@
         <!-- Menu: Why Join Kinden Vietnam -->
         <record id="menu_kdvn_why_join_kdvn" model="website.menu">
             <field name="name">Why Join Kinden Vietnam</field>
-            <field name="url">#</field>
+            <field name="url">/recruitment/why-join-kinden-vietnam</field>
             <field name="website_id" ref="website.default_website"/>
             <field name="is_mega_menu">False</field>
             <field name="parent_id" ref="kdvn_website.menu_kdvn_recruitment"/>
