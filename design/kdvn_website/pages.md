@@ -38,7 +38,7 @@ Status: `todo` → `design` (frames + spec ready) → `build` → `review` → `
 | Business Information | Maintenance Services | 2 | | todo | |
 | Past Prominent Projects | Projects Overview | 1 | `/prominent-projects` | build | Module kdvn_website_project; spec specs/prominent-projects.md |
 | Past Prominent Projects | Factories / Data Center / Buildings / Logistics / Educational / Hotels | 3 | `/prominent-projects?category=…` | build | Same page filtered by category |
-| Recruitment | Why Join Kinden Vietnam | 4 | | todo | |
+| Recruitment | Why Join Kinden Vietnam | 4 | `/recruitment/why-join-kinden-vietnam` | review | Built from frames (desktop/tablet/mobile); photos cut from the desktop frame into Site Media `why_join_*` (replace with originals); 5S diagram is HTML/CSS |
 | Recruitment | Open Positions | 4 | `/jobs` | build | KDVN page header on list, detail, apply |
 | Recruitment | LinkedIn Homepage | 4 | external | todo | Need URL |
 | Contact Us | Overview | 1 | `/contact-us` | todo | |

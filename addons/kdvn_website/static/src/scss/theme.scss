@@ -2246,6 +2246,229 @@ $kdvn-cert-gap: 24px;
 }
 
 // ============================================================================
+// WHY JOIN KINDEN VIETNAM (Figma: frames/why-join-desktop|tablet|mobile.png)
+// Sizes: mobile 390, "tablet" frame 1280 (md up), desktop frame 1440 (xxl up).
+// Spacing is 64px between blocks on all sizes (measured from the frames).
+// ============================================================================
+
+.kdvn-whyjoin-intro,
+.kdvn-whyjoin-5s,
+.kdvn-whyjoin-closing {
+    padding-top: $spacing-gap-giant;
+}
+.kdvn-whyjoin-closing {
+    padding-bottom: $spacing-gap-giant;
+}
+
+// Body text: 16/24 mobile, 14/24 tablet, 20/32 desktop
+.kdvn-whyjoin-text {
+    margin: 0;
+    font-size: $typography-font-size-body-base;
+    line-height: 24px;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(md) {
+        font-size: $typography-font-size-body-small;
+    }
+    @include media-breakpoint-up(xxl) {
+        font-size: $typography-font-size-body-large;
+        line-height: 32px;
+    }
+}
+
+// Heading left, text right (text column 45.5% = 620px on the desktop frame)
+.kdvn-whyjoin-intro-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    row-gap: $spacing-gap-2x-large;
+
+    @include media-breakpoint-up(md) {
+        grid-template-columns: 1fr 45.5%;
+        align-items: start;
+    }
+}
+
+.kdvn-whyjoin-hero {
+    margin-top: $spacing-gap-giant;
+    height: 200px;
+    object-fit: cover;
+
+    @include media-breakpoint-up(md) {
+        height: 480px;
+    }
+}
+
+.kdvn-5s {
+    margin: $spacing-gap-3x-large 0;
+}
+
+// 5S diagram: positions measured on the 500 x 478 desktop frame, in %
+.kdvn-5s-diagram {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    aspect-ratio: 500 / 478;
+    margin: 0 auto;
+    padding: 0;
+
+    // ring behind the circles
+    &::before {
+        content: "";
+        position: absolute;
+        left: 50.4%;
+        top: 50.6%;
+        width: 75.2%;
+        aspect-ratio: 1;
+        transform: translate(-50%, -50%);
+        border: 4px solid $kinden-11;
+        border-radius: 50%;
+
+        @include media-breakpoint-up(md) {
+            border-width: 6px;
+        }
+    }
+}
+.kdvn-5s-item,
+.kdvn-5s-center {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    color: $white;
+    text-align: center;
+}
+.kdvn-5s-item {
+    width: 25.6%;
+    background-color: $color-background-accent-solid-default;
+}
+.kdvn-5s-center {
+    left: 50.4%;
+    top: 50%;
+    width: 32%;
+    background-color: $kinden-10;
+    font-size: $typography-font-size-heading-4;
+    font-weight: $emphasis-font-weight-bold;
+
+    @include media-breakpoint-up(md) {
+        font-size: $typography-font-size-heading-2;
+    }
+}
+.kdvn-5s-kanji {
+    font-size: $typography-font-size-body-base;
+    line-height: 1.4;
+    font-weight: $emphasis-font-weight-bold;
+
+    @include media-breakpoint-up(md) {
+        font-size: $typography-font-size-body-large;
+    }
+}
+.kdvn-5s-label {
+    // diagram labels: 10px / 12px, smaller than any text token
+    font-size: 0.625rem;
+    line-height: 1.3;
+
+    @include media-breakpoint-up(md) {
+        font-size: 0.75rem;
+        line-height: 1.5;
+    }
+}
+.kdvn-5s-top { left: 50.4%; top: 13.4%; }
+.kdvn-5s-right { left: 87%; top: 41.2%; }
+.kdvn-5s-bottom-right { left: 75.6%; top: 86.4%; }
+.kdvn-5s-bottom-left { left: 26.6%; top: 86.4%; }
+.kdvn-5s-left { left: 12.8%; top: 41.2%; }
+
+// Two site photos: stacked on mobile, side by side from md
+.kdvn-whyjoin-site {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-gap-medium;
+    margin-top: $spacing-gap-giant;
+
+    @include media-breakpoint-up(md) {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    img {
+        width: 100%;
+        height: 240px;
+        object-fit: cover;
+
+        @include media-breakpoint-up(md) {
+            height: 400px;
+        }
+    }
+}
+
+.kdvn-whyjoin-closing .kdvn-whyjoin-text {
+    margin-bottom: $spacing-gap-2x-large;
+}
+.kdvn-whyjoin-subtitle {
+    margin: $spacing-gap-large 0 0;
+    font-family: $font-family-base;
+    font-size: $typography-font-size-heading-4;
+    line-height: 36px;
+    font-weight: $emphasis-font-weight-medium;
+    letter-spacing: -0.4px;
+    color: $color-content-neutral-strongest;
+}
+
+// Teambuilding grid. Photo order in the page: tall, 2, 5, 3, 4, wide.
+// Mobile: one column, photos 3 and 4 side by side. From md: 4 columns,
+// tall photo spans two rows, wide photo spans two columns (frames).
+.kdvn-whyjoin-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-gap-medium;
+    margin-top: $spacing-gap-large;
+
+    img {
+        grid-column: span 2;
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+    }
+    .kdvn-whyjoin-tile-tall {
+        height: 240px;
+    }
+    img:nth-child(4),
+    img:nth-child(5) {
+        grid-column: span 1;
+    }
+
+    @include media-breakpoint-up(md) {
+        grid-template-columns: repeat(4, 1fr);
+        grid-auto-rows: 272px;
+
+        img,
+        .kdvn-whyjoin-tile-tall {
+            grid-column: auto;
+            height: 100%;
+        }
+        img:nth-child(4),
+        img:nth-child(5) {
+            grid-column: auto;
+        }
+        .kdvn-whyjoin-tile-tall {
+            grid-column: 1;
+            grid-row: 1 / span 2;
+        }
+        img:nth-child(2) { grid-column: 2; grid-row: 1; }
+        img:nth-child(3) { grid-column: 2; grid-row: 2; }
+        img:nth-child(4) { grid-column: 3; grid-row: 1; }
+        img:nth-child(5) { grid-column: 4; grid-row: 1; }
+        .kdvn-whyjoin-tile-wide {
+            grid-column: 3 / span 2;
+            grid-row: 2;
+        }
+    }
+}
+
+// ============================================================================
 // JAPANESE PAGES (<html lang="ja-JP">)
 // Latin letters keep Inter Tight / Oswald, Japanese characters use Noto Sans JP
 // (font stacks in primary_variables.scss, incl. Odoo's theme font configs;
