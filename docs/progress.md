@@ -4,18 +4,18 @@ Status as of 2026-10-26. Update the date and the sections below at the end of ea
 History: git log and tags. Projects module `kdvn_website_project`: read its code and manifest (19.0.3.4.0).
 
 ## Repo state
-- Repo `~/odoo19_thcn`, branch `dev`. `main` = `b9237e1` (translation pilot, tagged `261021_translation_pilot`); `dev` is ahead of `main`.
-- `dev` has a local test merge `cefbf6e` ("Merge feature/why_join, not approved yet", branch `feature/why_join`, worktree `.worktrees/why_join`). It is not on `main`, not tagged, not pushed. To undo: `git revert -m 1 cefbf6e` (a reset would also drop the docs commit after it).
+- Repo `~/odoo19_thcn`, branch `dev`. `dev` = `main`. Tag `261026_why_join` (Why Join approved 2026-10-26, merge `cefbf6e`; its message still says "not approved yet").
+- Not pushed yet: Thanh pushes `git push origin dev main --tags`.
 - Versions: `kdvn_website` 19.0.1.19.0, `kdvn_website_project` 19.0.3.4.0.
-- Beta runs the translation pilot (1.18.1), not Why Join.
-- Why Join is installed on `odoo19_dev` only.
+- Beta runs the translation pilot (1.18.1), not Why Join, until deployed.
+- Worktree `.worktrees/why_join` and branch `feature/why_join` are merged and can be removed.
 
-## Why Join Kinden Vietnam (built 2026-10-26, in review)
+## Why Join Kinden Vietnam (built and approved 2026-10-26)
 - Page `/recruitment/why-join-kinden-vietnam`, from `design/kdvn_website/frames/why-join-desktop|tablet|mobile.png`. Template in `views/pages/recruitment_pages.xml`, SCSS block "WHY JOIN KINDEN VIETNAM" in `theme.scss`. The menu item "Why Join Kinden Vietnam" links to it.
 - Tokens used where one exists. Hardcoded: 5S label sizes (10/12px), image heights, diagram width.
 - 5S diagram is HTML/CSS (translatable). Mobile diagram is full width, not the 300px of the frame (labels would be 7px).
 - Photos are cut from the desktop frame (about 2x resolution), in Site Media `why_join_hero`, `why_join_site_1..2`, `why_join_teambuilding_1..6`. Replace with originals.
-- Open: heading "Teambuilding" vs "Teambuilding at Hoi An" (frames differ and misspell it); bottom divider and breadcrumb (frames show blank space, page keeps `page_footer_nav`); VI/JA translations not done; Thanh is checking details.
+- Open: heading "Teambuilding" vs "Teambuilding at Hoi An" (frames differ and misspell it); bottom divider and breadcrumb (frames show blank space, page keeps `page_footer_nav`); VI/JA translations not done.
 
 ## Module map
 See `addons/kdvn_website/CLAUDE.md`.
