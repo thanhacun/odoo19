@@ -8,17 +8,15 @@ History: git log and tags. Projects module `kdvn_website_project`: read its code
 - Not pushed yet: Thanh pushes `git push origin dev main --tags`.
 - Versions: `kdvn_website` 19.0.1.19.0, `kdvn_website_project` 19.0.3.4.0.
 - Beta runs the translation pilot (1.18.1), not Why Join, until deployed.
-- Worktree `.worktrees/why_join` and branch `feature/why_join` are merged and can be removed.
+- Worktree and branch `feature/why_join` removed.
 
 ## Why Join Kinden Vietnam (built and approved 2026-10-26)
 - Page `/recruitment/why-join-kinden-vietnam`, from `design/kdvn_website/frames/why-join-desktop|tablet|mobile.png`. Template in `views/pages/recruitment_pages.xml`, SCSS block "WHY JOIN KINDEN VIETNAM" in `theme.scss`. The menu item "Why Join Kinden Vietnam" links to it.
 - Tokens used where one exists. Hardcoded: 5S label sizes (10/12px), image heights, diagram width.
 - 5S diagram is HTML/CSS (translatable). Mobile diagram is full width, not the 300px of the frame (labels would be 7px).
-- Photos are cut from the desktop frame (about 2x resolution), in Site Media `why_join_hero`, `why_join_site_1..2`, `why_join_teambuilding_1..6`. Replace with originals.
-- Open: heading "Teambuilding" vs "Teambuilding at Hoi An" (frames differ and misspell it); bottom divider and breadcrumb (frames show blank space, page keeps `page_footer_nav`); VI/JA translations not done.
-
-## Module map
-See `addons/kdvn_website/CLAUDE.md`.
+- Photos are cut from the desktop frame (about 2x resolution) and accepted by Thanh; they are in Site Media `why_join_hero`, `why_join_site_1..2`, `why_join_teambuilding_1..6` and can be replaced in the backend.
+- Decided: heading is "Teambuilding". Bottom divider and breadcrumb (`page_footer_nav`) kept as built; not confirmed by Thanh.
+- Open: VI/JA translations (later).
 
 ## Review findings (2026-10-26)
 Tests: 33 run on `kdvn_test`, 28 pass, 5 fail, all in `tests/test_inquiry.py`.
