@@ -16,3 +16,6 @@ __pycache__/
 
 # Figma PNG exports (large, kept on disk only)
 design/kdvn_website/frames/
+.worktrees/
+HANDOFF.md
+
