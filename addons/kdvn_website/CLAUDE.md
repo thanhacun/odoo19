@@ -22,13 +22,15 @@ Three frames per page: desktop 1440, tablet 1280, mobile 390.
 
 ## Module map
 - models/: kdvn.website.media, kdvn.website.certificate, kdvn.website.inquiry (+ type),
-  website.menu (breadcrumb helpers, dropdown text), res.company / res.partner (company facts, offices), website (language panel).
-- controllers/main.py: media, inquiry POST (CSRF, honeypot, length limits), certificate images.
+  website.menu (breadcrumb helpers, dropdown text), res.company / res.partner (company facts, offices), website (language panel),
+  hr.job (Open Positions: salary, level, work mode, deadline, date and location labels).
+- controllers/main.py: media, inquiry POST (CSRF, honeypot, length limits), certificate images,
+  jobs (KdvnJobsController: Odoo's /jobs routes with our templates, application POST answering JSON).
 - views/: layout_header|footer, homepage, snippets, components/ (page header and footer nav, company info, home business),
-  pages/ (company profile, business information, contact, recruitment, office locations), backend views.
+  pages/ (company profile, business information, contact, recruitment incl. Open Positions, office locations), backend views.
 - data/: menus.xml, website_media.xml, certificates and inquiry types (noupdate).
-- static/src/scss/: primary_variables.scss (tokens), theme.scss, theme_utilities.scss. static/src/js/: small widgets.
-- tests/: breadcrumb, business pages, certificates, company info, homepage, inquiry, panels, media.
+- static/src/scss/: primary_variables.scss (tokens), theme.scss, theme_utilities.scss. static/src/js/: small widgets (job_apply.js: form + popups, jobs_filter.js).
+- tests/: breadcrumb, business pages, certificates, company info, homepage, inquiry, jobs, panels, media.
   No tests yet for company profile, recruitment or contact pages.
 
 ## Pitfalls

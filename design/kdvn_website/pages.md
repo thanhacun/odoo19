@@ -39,7 +39,7 @@ Status: `todo` → `design` (frames + spec ready) → `build` → `review` → `
 | Past Prominent Projects | Projects Overview | 1 | `/prominent-projects` | build | Module kdvn_website_project; spec specs/prominent-projects.md |
 | Past Prominent Projects | Factories / Data Center / Buildings / Logistics / Educational / Hotels | 3 | `/prominent-projects?category=…` | build | Same page filtered by category |
 | Recruitment | Why Join Kinden Vietnam | 4 | `/recruitment/why-join-kinden-vietnam` | review | Built from frames (desktop/tablet/mobile); photos cut from the desktop frame into Site Media `why_join_*` (replace with originals); 5S diagram is HTML/CSS |
-| Recruitment | Open Positions | 4 | `/jobs` | build | KDVN page header on list, detail, apply |
+| Recruitment | Open Positions | 4 | `/jobs` | review | List (search, location), job page with application form and popups. Built from frames open-position-*, detail-job-*, job-modal-*, job-apply-form-*. Job facts (salary, level, work mode, deadline) are fields on the job (Recruitment > Job Positions) |
 | Recruitment | LinkedIn Homepage | 4 | external | todo | Need URL |
 | Contact Us | Overview | 1 | `/contact-us` | todo | |
 | Contact Us | Office Locations & Map | 1 | `/contact-us/office-locations` | review | Desktop/tablet/mobile frames applied (mobile: search, scrolling list, map below) |
