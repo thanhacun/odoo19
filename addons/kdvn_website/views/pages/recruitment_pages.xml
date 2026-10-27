@@ -1,53 +1,285 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- ===================================================================== -->
-    <!-- Odoo job pages (website_hr_recruitment) with the KDVN page header     -->
-    <!-- Kinden > Recruitment > Open Positions > ...                           -->
+    <!-- Open Positions (/jobs, /jobs/<job>)                                   -->
+    <!-- Figma: frames/open-position-*, detail-job-*, job-modal-*,             -->
+    <!-- job-apply-form-*, detail-job-filled-form-*                            -->
+    <!-- Odoo's routes and search (website_hr_recruitment) with our templates: -->
+    <!-- controllers/main.py KdvnJobsController swaps the template.            -->
+    <!-- The application form is on the job page; /jobs/apply/<job> redirects  -->
+    <!-- there. Popups: static/src/js/job_apply.js.                            -->
     <!-- ===================================================================== -->
 
-    <!-- /jobs : job list -->
-    <template id="jobs_index_page_header" inherit_id="website_hr_recruitment.index" name="KDVN: jobs list header">
-        <xpath expr="//div[@id='oe_structure_hr_recruitment_index_top']" position="before">
-            <t t-set="kdvn_page_url" t-value="'/jobs'"/>
-            <t t-call="kdvn_website.page_header"/>
-        </xpath>
-        <!-- Title now comes from the page header -->
-        <xpath expr="//section[hasclass('o_wevent_index_topbar_filters')]/h1" position="replace"/>
-        <xpath expr="//div[@id='oe_structure_hr_recruitment_index_bottom']" position="after">
-            <t t-call="kdvn_website.page_footer_nav"/>
-        </xpath>
+    <!-- Date line of a job: "Updated: 23/07/2026 • You have 5 days to apply" or "5 days ago" -->
+    <template id="job_dates" name="KDVN: job dates">
+        <t t-set="kdvn_deadline" t-value="job._kdvn_deadline_label()"/>
+        <t t-if="kdvn_deadline">
+            <span>Updated: <t t-out="job.write_date" t-options='{"widget": "date", "format": "dd/MM/yyyy"}'/></span>
+            <span class="kdvn-job-deadline" t-out="kdvn_deadline"/>
+        </t>
+        <span t-else="" t-out="job._kdvn_posted_label()"/>
     </template>
 
-    <!-- /jobs/detail/<job> : one job -->
-    <template id="jobs_detail_page_header" inherit_id="website_hr_recruitment.detail" name="KDVN: job detail header">
-        <!-- "All Jobs" bar replaced by the breadcrumb -->
-        <xpath expr="//nav[hasclass('navbar')]" position="replace"/>
-        <xpath expr="//div[@id='wrap']/div[1]" position="before">
-            <t t-set="kdvn_parent_url" t-value="'/jobs'"/>
-            <t t-set="kdvn_page_title" t-value="job.name"/>
-            <t t-call="kdvn_website.page_header"/>
-        </xpath>
-        <xpath expr="//h1[@t-field='job.name']" position="replace"/>
-        <xpath expr="//div[@id='wrap']" position="inside">
-            <t t-set="kdvn_parent_url" t-value="'/jobs'"/>
-            <t t-set="kdvn_page_title" t-value="job.name"/>
-            <t t-call="kdvn_website.page_footer_nav"/>
-        </xpath>
+    <!-- Tags: employment type, work mode, salary -->
+    <template id="job_tags" name="KDVN: job tags">
+        <ul class="kdvn-job-tags">
+            <li t-if="job.contract_type_id" class="kdvn-job-tag kdvn-job-tag-accent" t-out="job.contract_type_id.sudo().name"/>
+            <li t-if="job.kdvn_work_mode" class="kdvn-job-tag" t-out="job._kdvn_work_mode_label()"/>
+            <li class="kdvn-job-tag"><t t-if="job.kdvn_salary" t-out="job.kdvn_salary"/><t t-else="">Negotiable</t></li>
+        </ul>
     </template>
 
-    <!-- /jobs/apply/<job> : application form -->
-    <template id="jobs_apply_page_header" inherit_id="website_hr_recruitment.apply" name="KDVN: job application header">
-        <!-- full-width wrap: the page header has its own container -->
-        <xpath expr="//div[@id='wrap']" position="attributes">
-            <attribute name="class"/>
-        </xpath>
-        <xpath expr="//div[@id='wrap']/nav" position="replace">
-            <t t-set="kdvn_parent_url" t-value="'/jobs'"/>
-            <t t-set="kdvn_extra_crumbs" t-value="[(job.name, '/jobs/detail/%s' % slug(job))] if job else []"/>
-            <t t-set="kdvn_page_title">Job Application Form</t>
-            <t t-call="kdvn_website.page_header"/>
-        </xpath>
-        <xpath expr="//div[@id='wrap']/h1" position="replace"/>
+    <!-- /jobs : list with search and location -->
+    <template id="jobs_index" name="KDVN: Open Positions">
+        <t t-call="website.layout">
+            <div id="wrap" class="o_website_hr_recruitment_jobs_list">
+                <t t-set="kdvn_page_url" t-value="'/jobs'"/>
+                <t t-call="kdvn_website.page_header"/>
+
+                <section class="kdvn-jobs">
+                    <div class="kdvn-container">
+                        <form class="kdvn-jobs-filter" action="/jobs" method="get" role="search">
+                            <input type="hidden" name="all_countries" value="1"/>
+                            <div class="kdvn-jobs-search">
+                                <i class="ri-search-line" aria-hidden="true"/>
+                                <input type="search" name="search" class="kdvn-input" t-att-value="search"
+                                       placeholder="Search name of job" aria-label="Search name of job"/>
+                            </div>
+                            <select name="office_id" class="kdvn-input kdvn-select kdvn-jobs-location"
+                                    aria-label="Location" data-kdvn-jobs-location="">
+                                <option value="">All locations</option>
+                                <option t-foreach="kdvn_offices" t-as="kdvn_office" t-att-value="kdvn_office.id"
+                                        t-att-selected="office_id and office_id.id == kdvn_office.id"
+                                        t-out="kdvn_office._kdvn_job_location() or kdvn_office.name"/>
+                            </select>
+                        </form>
+
+                        <div t-if="jobs" class="kdvn-jobs-grid">
+                            <article t-foreach="jobs" t-as="job" class="kdvn-job-card">
+                                <a t-attf-href="/jobs/#{slug(job)}" class="kdvn-job-card-link" draggable="false">
+                                    <h2 class="kdvn-job-card-title" t-out="job.name"/>
+                                    <p class="kdvn-job-card-location" t-out="job._kdvn_location()"/>
+                                    <p class="kdvn-job-card-dates"><t t-call="kdvn_website.job_dates"/></p>
+                                    <t t-call="kdvn_website.job_tags"/>
+                                </a>
+                            </article>
+                        </div>
+                        <div t-else="" class="kdvn-jobs-empty">
+                            <h2 class="kdvn-jobs-empty-title">No open positions right now</h2>
+                            <p class="kdvn-jobs-empty-text">We're not hiring at the moment, but we're always interested in meeting talented people. Check back soon or send us your resume.</p>
+                            <a href="/" class="btn kdvn-btn-dark kdvn-jobs-empty-button">Back to homepage</a>
+                        </div>
+
+                        <div t-if="pager and pager['page_count'] &gt; 1" class="kdvn-jobs-pager">
+                            <t t-call="website.pager"/>
+                        </div>
+                    </div>
+                </section>
+
+                <t t-call="kdvn_website.page_footer_nav"/>
+            </div>
+        </t>
+    </template>
+
+    <!-- /jobs/<job> : description, overview and the application form -->
+    <template id="jobs_detail" name="KDVN: Job detail" track="1">
+        <t t-call="website.layout">
+            <div id="wrap" class="js_hr_recruitment">
+                <t t-set="job" t-value="job.sudo()"/>
+                <t t-set="kdvn_bc" t-value="request.env['website.menu']._kdvn_breadcrumb(website, url='/jobs')"/>
+                <div itemscope="itemscope" itemtype="https://schema.org/JobPosting">
+                    <meta t-if="job.contract_type_id" itemprop="employmentType" t-att-content="job.contract_type_id.name"/>
+                    <meta t-if="job.published_date" itemprop="datePosted" t-att-content="job.published_date"/>
+                    <meta itemprop="title" t-att-content="job.name"/>
+                    <meta itemprop="directApply" content="true"/>
+                    <span itemprop="hiringOrganization" itemscope="itemscope" itemtype="https://schema.org/Organization">
+                        <meta itemprop="name" t-att-content="job.company_id.name"/>
+                    </span>
+                    <span t-if="job.address_id.contact_address" itemprop="jobLocation" itemscope="itemscope" itemtype="https://schema.org/Place">
+                        <meta itemprop="address" t-att-content="job.address_id.contact_address"/>
+                    </span>
+
+                    <section class="kdvn-page-header kdvn-job-header">
+                        <script type="application/ld+json" t-out="request.env['website.menu']._kdvn_breadcrumb_json_ld(website, kdvn_bc)"/>
+                        <div class="kdvn-container">
+                            <t t-call="kdvn_website.breadcrumb"/>
+                            <div class="kdvn-job-head">
+                                <div class="kdvn-job-head-text">
+                                    <p class="kdvn-job-head-dates">
+                                        <span t-if="job.contract_type_id" class="kdvn-job-tag kdvn-job-tag-accent" t-out="job.contract_type_id.name"/>
+                                        <t t-call="kdvn_website.job_dates"/>
+                                    </p>
+                                    <h1 class="kdvn-page-title" t-out="job.name"/>
+                                </div>
+                                <a href="#apply" class="btn kdvn-btn-primary kdvn-job-apply-now">Apply now</a>
+                            </div>
+                            <div class="kdvn-divider"/>
+                        </div>
+                    </section>
+
+                    <section class="kdvn-job-body">
+                        <div class="kdvn-container">
+                            <div class="kdvn-job-grid">
+                                <aside class="kdvn-job-overview">
+                                    <h2 class="kdvn-job-overview-title">Job Overview</h2>
+                                    <dl class="kdvn-job-overview-list">
+                                        <div class="kdvn-job-overview-item">
+                                            <i class="ri-map-2-fill" aria-hidden="true"/>
+                                            <dt>Job Location</dt>
+                                            <dd t-out="job._kdvn_location()"/>
+                                        </div>
+                                        <div class="kdvn-job-overview-item">
+                                            <i class="ri-wallet-3-fill" aria-hidden="true"/>
+                                            <dt>Salary</dt>
+                                            <dd><t t-if="job.kdvn_salary" t-out="job.kdvn_salary"/><t t-else="">Negotiable</t></dd>
+                                        </div>
+                                        <div t-if="job.kdvn_job_level" class="kdvn-job-overview-item">
+                                            <i class="ri-stack-fill" aria-hidden="true"/>
+                                            <dt>Job Level</dt>
+                                            <dd t-out="job.kdvn_job_level"/>
+                                        </div>
+                                    </dl>
+                                </aside>
+
+                                <div class="kdvn-job-description" t-field="job.website_description"/>
+
+                                <div class="kdvn-job-apply" id="apply">
+                                    <form id="kdvn_job_apply" class="kdvn-apply" method="post" enctype="multipart/form-data"
+                                          novalidate="novalidate" t-attf-action="/jobs/apply/#{slug(job)}/submit"
+                                          data-msg-required="This field is required"
+                                          data-msg-email="Please enter a valid email"
+                                          data-msg-resume="Please upload a PDF, DOC or DOCX file up to 10 MB">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <div class="kdvn-inquiry-hp" aria-hidden="true">
+                                            <input type="text" name="kdvn_website_url" tabindex="-1" autocomplete="off"/>
+                                        </div>
+                                        <h2 class="kdvn-apply-title">Are you ready to<br/>start your career with Kinden?</h2>
+                                        <p class="kdvn-apply-intro">Please leave us your information to apply</p>
+
+                                        <div class="kdvn-field">
+                                            <label class="kdvn-label" for="kdvn_apply_name">Full name</label>
+                                            <input type="text" id="kdvn_apply_name" name="partner_name" class="kdvn-input" required="required"
+                                                   maxlength="128" autocomplete="name" placeholder="Enter your fullname"/>
+                                            <p class="kdvn-field-error" hidden="hidden"/>
+                                        </div>
+                                        <div class="kdvn-field">
+                                            <label class="kdvn-label" for="kdvn_apply_email">Email</label>
+                                            <input type="email" id="kdvn_apply_email" name="email_from" class="kdvn-input" required="required"
+                                                   maxlength="254" autocomplete="email" placeholder="Enter your email"/>
+                                            <p class="kdvn-field-error" hidden="hidden"/>
+                                        </div>
+                                        <div class="kdvn-field">
+                                            <label class="kdvn-label" for="kdvn_apply_phone">Phone number</label>
+                                            <input type="tel" id="kdvn_apply_phone" name="partner_phone" class="kdvn-input" required="required"
+                                                   maxlength="64" autocomplete="tel" placeholder="Enter your phone number"/>
+                                            <p class="kdvn-field-error" hidden="hidden"/>
+                                        </div>
+                                        <div class="kdvn-field">
+                                            <label class="kdvn-label" for="kdvn_apply_address">Current address <span class="kdvn-label-optional">(Optional)</span></label>
+                                            <input type="text" id="kdvn_apply_address" name="address" class="kdvn-input"
+                                                   maxlength="256" autocomplete="street-address" placeholder="Enter your current address"/>
+                                        </div>
+                                        <div class="kdvn-field">
+                                            <label class="kdvn-label" for="kdvn_apply_source">Source of application <span class="kdvn-label-optional">(Optional)</span></label>
+                                            <select id="kdvn_apply_source" name="source_id" class="kdvn-input kdvn-select">
+                                                <option value="">Select source of application</option>
+                                                <option t-foreach="kdvn_sources" t-as="kdvn_source" t-att-value="kdvn_source.id" t-out="kdvn_source.name"/>
+                                            </select>
+                                        </div>
+                                        <div class="kdvn-field">
+                                            <span class="kdvn-label">Resume</span>
+                                            <input type="file" id="kdvn_apply_resume" name="resume" class="visually-hidden"
+                                                   accept=".pdf,.doc,.docx" required="required"/>
+                                            <label class="kdvn-dropzone" for="kdvn_apply_resume">
+                                                <i class="ri-file-upload-fill" aria-hidden="true"/>
+                                                <span>Drag and Drop your resume here or <span class="kdvn-dropzone-browse">Browse files</span></span>
+                                            </label>
+                                            <div class="kdvn-resume-file" hidden="hidden">
+                                                <div>
+                                                    <p class="kdvn-resume-name"/>
+                                                    <p class="kdvn-resume-size"/>
+                                                </div>
+                                                <button type="button" class="kdvn-resume-remove" data-kdvn-remove-file="" aria-label="Remove file"><i class="ri-close-line" aria-hidden="true"/></button>
+                                            </div>
+                                            <p class="kdvn-field-error" hidden="hidden"/>
+                                        </div>
+                                        <button type="submit" class="btn kdvn-btn-primary kdvn-apply-submit">Apply</button>
+                                    </form>
+
+                                    <!-- Popups (Figma: job-modal-*), opened by kdvn_website.job_apply (js) -->
+                                    <div class="kdvn-modal" id="kdvn_apply_confirm" role="dialog" aria-modal="true" aria-labelledby="kdvn_apply_confirm_title" hidden="hidden">
+                                        <div class="kdvn-modal-backdrop" data-kdvn-close=""/>
+                                        <div class="kdvn-modal-dialog">
+                                            <div class="kdvn-modal-head">
+                                                <h2 class="kdvn-modal-title" id="kdvn_apply_confirm_title">Confirm to submit your application?</h2>
+                                                <button type="button" class="kdvn-modal-x" data-kdvn-close="" aria-label="Close"><i class="ri-close-line" aria-hidden="true"/></button>
+                                            </div>
+                                            <div class="kdvn-modal-body">
+                                                <p>Please make sure your information and attached documents are correct before submitting.</p>
+                                                <p>Once submitted, you may not be able to edit your application.</p>
+                                            </div>
+                                            <div class="kdvn-modal-actions">
+                                                <button type="button" class="btn kdvn-modal-cancel" data-kdvn-close="">Cancel</button>
+                                                <button type="button" class="btn kdvn-modal-close" data-kdvn-confirm="">Submit</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="kdvn-modal" id="kdvn_apply_success" role="dialog" aria-modal="true" aria-labelledby="kdvn_apply_success_title" hidden="hidden">
+                                        <div class="kdvn-modal-backdrop" data-kdvn-close=""/>
+                                        <div class="kdvn-modal-dialog">
+                                            <div class="kdvn-modal-head">
+                                                <h2 class="kdvn-modal-title" id="kdvn_apply_success_title">Application submitted!</h2>
+                                                <button type="button" class="kdvn-modal-x" data-kdvn-close="" aria-label="Close"><i class="ri-close-line" aria-hidden="true"/></button>
+                                            </div>
+                                            <div class="kdvn-modal-status">
+                                                <span class="kdvn-status-icon kdvn-status-success"><i class="ri-check-line" aria-hidden="true"/></span>
+                                                <p>Your application has been successfully submitted<br/>We'll review your application and get back to you</p>
+                                            </div>
+                                            <button type="button" class="btn kdvn-modal-close" data-kdvn-close="">Close</button>
+                                        </div>
+                                    </div>
+                                    <div class="kdvn-modal" id="kdvn_apply_error" role="alertdialog" aria-modal="true" aria-labelledby="kdvn_apply_error_title" hidden="hidden">
+                                        <div class="kdvn-modal-backdrop" data-kdvn-close=""/>
+                                        <div class="kdvn-modal-dialog">
+                                            <div class="kdvn-modal-head">
+                                                <h2 class="kdvn-modal-title" id="kdvn_apply_error_title">Something went wrong!</h2>
+                                                <button type="button" class="kdvn-modal-x" data-kdvn-close="" aria-label="Close"><i class="ri-close-line" aria-hidden="true"/></button>
+                                            </div>
+                                            <div class="kdvn-modal-status">
+                                                <span class="kdvn-status-icon kdvn-status-error"><i class="ri-error-warning-line" aria-hidden="true"/></span>
+                                                <p>We couldn't submit your application<br/>Please check your information and try again</p>
+                                            </div>
+                                            <button type="button" class="btn kdvn-modal-close" data-kdvn-close="">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <t t-set="kdvn_page_url" t-value="'/jobs'"/>
+                <t t-call="kdvn_website.page_footer_nav"/>
+            </div>
+        </t>
+    </template>
+
+    <!-- Starting text of a new job's website description (editable per job in the website builder) -->
+    <template id="job_default_description" name="KDVN: default job description">
+        <h2>Job Description</h2>
+        <p>Describe the role and the team.</p>
+        <h2>Requirements</h2>
+        <ul>
+            <li>Requirement</li>
+        </ul>
+        <h2>Desirable</h2>
+        <ul>
+            <li>Nice to have</li>
+        </ul>
+        <h2>Benefits</h2>
+        <ul>
+            <li>Benefit</li>
+        </ul>
     </template>
 
     <!-- ===================================================================== -->

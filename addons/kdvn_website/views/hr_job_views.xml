@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Open Positions page: the facts shown on the job cards and the job page -->
+    <record id="hr_job_form_kdvn" model="ir.ui.view">
+        <field name="name">hr.job.form.kdvn</field>
+        <field name="model">hr.job</field>
+        <field name="inherit_id" ref="hr.view_hr_job_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='contract']" position="after">
+                <group name="kdvn_website" string="Open Positions Page">
+                    <field name="kdvn_work_mode"/>
+                    <field name="kdvn_salary" placeholder="Negotiable"/>
+                    <field name="kdvn_job_level"/>
+                    <field name="kdvn_apply_deadline"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

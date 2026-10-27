@@ -1,12 +1,12 @@
 # kdvn_website: progress
 
-Status as of 2026-10-26. Update the date and the sections below at the end of each task.
+Status as of 2026-10-27. Update the date and the sections below at the end of each task.
 History: git log and tags. Projects module `kdvn_website_project`: read its code and manifest (19.0.3.4.0).
 
 ## Repo state
 - Repo `~/odoo19_thcn`, branch `dev`. `dev` = `main`. Tag `261026_why_join` (Why Join approved 2026-10-26, merge `cefbf6e`; its message still says "not approved yet").
 - Not pushed yet: Thanh pushes `git push origin dev main --tags`.
-- Versions: `kdvn_website` 19.0.1.19.0, `kdvn_website_project` 19.0.3.4.0.
+- Versions: `kdvn_website` 19.0.1.20.0 (on `feature/open_positions`, not merged), `kdvn_website_project` 19.0.3.4.0.
 - Beta runs the translation pilot (1.18.1), not Why Join, until deployed.
 - Worktree and branch `feature/why_join` removed.
 
@@ -17,6 +17,19 @@ History: git log and tags. Projects module `kdvn_website_project`: read its code
 - Photos are cut from the desktop frame (about 2x resolution) and accepted by Thanh; they are in Site Media `why_join_hero`, `why_join_site_1..2`, `why_join_teambuilding_1..6` and can be replaced in the backend.
 - Decided: heading is "Teambuilding". Bottom divider and breadcrumb (`page_footer_nav`) kept as built; not confirmed by Thanh.
 - Open: VI/JA translations (later).
+
+## Open Positions (built 2026-10-27, branch `feature/open_positions`, waiting for Thanh's test)
+- `/jobs` list (search, location, 2-column cards, empty state) and `/jobs/<job>` (description, Job Overview, application form, 3 popups) from `design/kdvn_website/frames/open-position-*`, `detail-job-*`, `job-modal-*`, `job-apply-form-*`, `detail-job-filled-form-*`.
+- Odoo's routes and search stay; `KdvnJobsController` swaps the template (`kdvn_website.jobs_index`, `jobs_detail` in `views/pages/recruitment_pages.xml`). `/jobs/apply/<job>` redirects to `/jobs/<job>#apply`. The old inherits of Odoo's templates are gone.
+- Form posts to `/jobs/apply/<job>/submit` (CSRF, honeypot, length limits; resume PDF/DOC/DOCX up to 10 MB) and creates an `hr.applicant` with the resume attached; "Current address" goes into the applicant notes. JS: `job_apply.js` (checks, confirm popup, result popup), `jobs_filter.js`.
+- New fields on `hr.job` (tab group "Open Positions Page"): Work Mode, Salary (empty = "Negotiable"), Job Level, Apply Before. "Updated" is the job's last change date; the orange "You have N days to apply" shows until the deadline, otherwise "5 days ago".
+- Checked: 9 new tests pass (`tests/test_jobs.py`); browser run on a scratch DB (errors, confirm, submit, applicant + attachment saved); desktop and mobile screenshots. Not checked: tablet width, the error popup, drag and drop, VI/JA translations.
+- Decisions to confirm with Thanh / the designer:
+  - Source of application lists the utm sources LinkedIn, Facebook, Search engine, Referral, Glassdoor, Monster (those that exist); the frame shows only LinkedIn.
+  - Salary and Job Level are free text per job, filled by HR in the job form (recruitment jobs are entered by hand; the n8n "jobs" are KDERP projects, a different thing).
+  - The new default job description (Job Description / Requirements / Desirable / Benefits) applies to new jobs only; existing jobs keep Odoo's old default text and look wrong on the new page until edited.
+  - No rate limit on the application form.
+  - Frame breadcrumb says "Kinden TOP" and "Open positions"; built with the site's "Kinden" and the menu name "Open Positions".
 
 ## Review findings (2026-10-26)
 Tests: 33 run on `kdvn_test`, 28 pass, 5 fail, all in `tests/test_inquiry.py`.

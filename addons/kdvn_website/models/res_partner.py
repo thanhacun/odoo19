@@ -40,6 +40,11 @@ class ResPartner(models.Model):
         self.ensure_one()
         return self.kdvn_office_name or self.name or ''
 
+    def _kdvn_job_location(self):
+        """City, country: how an office is shown on the Open Positions page."""
+        self.ensure_one()
+        return ', '.join(part for part in (self.city, self.country_id.name) if part)
+
     def _kdvn_address_line(self):
         """Street, street 2, city on one line (as used on the website)."""
         self.ensure_one()

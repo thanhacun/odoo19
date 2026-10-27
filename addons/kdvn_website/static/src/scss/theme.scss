@@ -2469,6 +2469,447 @@ $kdvn-cert-gap: 24px;
 }
 
 // ============================================================================
+// OPEN POSITIONS (Figma: frames/open-position-*, detail-job-*, job-modal-*,
+// job-apply-form-*, detail-job-filled-form-*). List: 2 columns from md. Job
+// page: description left, overview + application form right from lg; below lg
+// the order is overview, description, form.
+// ============================================================================
+
+.kdvn-jobs {
+    padding-top: $spacing-gap-2x-large;
+    padding-bottom: $spacing-gap-giant;
+}
+.kdvn-jobs-filter {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-gap-medium;
+    margin-bottom: $spacing-gap-large;
+
+    @include media-breakpoint-up(md) {
+        flex-direction: row;
+    }
+}
+.kdvn-jobs-search,
+.kdvn-jobs-location {
+    width: 100%;
+
+    @include media-breakpoint-up(md) {
+        width: 300px;   // frame: both 300 wide
+    }
+}
+.kdvn-jobs-search {
+    position: relative;
+
+    > i {
+        position: absolute;
+        top: 50%;
+        left: $spacing-padding-small;
+        transform: translateY(-50%);
+        font-size: 1.25rem;
+        color: $color-content-neutral-strongest;
+        pointer-events: none;
+    }
+    .kdvn-input {
+        padding-left: 2.75rem;
+    }
+}
+.kdvn-jobs-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-gap-large;
+
+    @include media-breakpoint-up(md) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+.kdvn-job-card {
+    background-color: $color-background-surface-default;
+    border: 1px solid $black-5;
+
+    &:hover, &:focus-within {
+        border-color: $color-border-accent-solid-default;
+        box-shadow: inset 0 0 0 1px $color-border-accent-solid-default;   // frame: 2px green
+    }
+}
+.kdvn-job-card-link {
+    display: block;
+    padding: $spacing-padding-large;   // 20 (frame 24)
+    color: $color-content-neutral-strongest;
+    text-decoration: none;
+
+    &:hover {
+        color: $color-content-neutral-strongest;
+    }
+}
+.kdvn-job-card-title {
+    margin: 0 0 $spacing-gap-small;
+    font-family: $font-family-base;
+    font-size: $typography-font-size-body-large;
+    line-height: 28px;
+    font-weight: $emphasis-font-weight-bold;
+    letter-spacing: -0.4px;
+}
+.kdvn-job-card-location,
+.kdvn-job-card-dates {
+    margin: 0 0 $spacing-gap-3x-small;
+    font-size: $typography-font-size-body-small;
+    line-height: 24px;
+    color: $black-11;
+}
+.kdvn-job-deadline {
+    margin-left: $spacing-gap-x-small;
+    color: $color-content-warning-light;
+
+    &::before {
+        content: "\2022";   // bullet between "Updated" and the deadline
+        margin-right: $spacing-gap-x-small;
+        color: $black-11;
+    }
+}
+.kdvn-job-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-gap-x-small;
+    margin: $spacing-gap-small 0 0;
+    padding: 0;
+    list-style: none;
+}
+.kdvn-job-tag {
+    display: inline-block;
+    padding: 0 $spacing-padding-x-small;
+    font-size: $typography-font-size-caption;
+    line-height: 24px;
+    color: $color-content-neutral-strongest;
+    background-color: $black-3;
+}
+.kdvn-job-tag-accent {
+    color: $color-content-accent-base;
+    background-color: $color-background-accent-subtle-default;
+}
+.kdvn-jobs-empty {
+    max-width: 24rem;
+    margin: $spacing-gap-giant auto;
+    text-align: center;
+}
+.kdvn-jobs-empty-title {
+    margin: 0 0 $spacing-gap-small;
+    font-family: $font-family-base;
+    font-size: $typography-font-size-heading-4;
+    line-height: 36px;
+    font-weight: $emphasis-font-weight-bold;
+    letter-spacing: -0.5px;
+    color: $color-content-neutral-strongest;
+}
+.kdvn-jobs-empty-text {
+    margin: 0 0 $spacing-gap-large;
+    font-size: $typography-font-size-body-small;
+    line-height: 24px;
+    color: $black-11;
+}
+.kdvn-jobs-empty-button {
+    margin-top: 0;
+}
+.kdvn-jobs-pager {
+    margin-top: $spacing-gap-x-large;
+}
+
+// --- Job page header: tag + dates above the title, Apply now on the right
+.kdvn-job-head {
+    display: flex;
+    margin: $spacing-gap-large 0 $spacing-gap-2x-large;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-gap-medium;
+
+    @include media-breakpoint-up(md) {
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: space-between;
+    }
+}
+.kdvn-job-head-dates {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $spacing-gap-x-small;
+    margin: 0 0 $spacing-gap-x-small;
+    font-size: $typography-font-size-body-small;
+    line-height: 24px;
+    color: $black-11;
+}
+.kdvn-job-header .kdvn-page-title {
+    margin-bottom: 0;
+}
+.kdvn-job-apply-now {
+    flex: none;
+    width: 100%;
+
+    @include media-breakpoint-up(md) {
+        width: auto;
+    }
+}
+
+// --- Job page body
+.kdvn-job-body {
+    padding: $spacing-gap-2x-large 0 $spacing-gap-giant;
+}
+.kdvn-job-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: $spacing-gap-large;
+
+    @include media-breakpoint-up(lg) {
+        grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+        grid-template-rows: auto 1fr;
+        column-gap: $spacing-gap-giant;
+        align-items: start;
+
+        .kdvn-job-description {
+            grid-column: 1;
+            grid-row: 1 / span 2;
+        }
+        .kdvn-job-overview,
+        .kdvn-job-apply {
+            grid-column: 2;
+        }
+    }
+}
+.kdvn-job-overview {
+    padding: $spacing-padding-x-large;
+    background-color: $black-2;
+}
+.kdvn-job-overview-title {
+    margin: 0 0 $spacing-gap-medium;
+    font-family: $font-family-base;
+    font-size: $typography-font-size-body-large;
+    line-height: 28px;
+    font-weight: $emphasis-font-weight-bold;
+    letter-spacing: -0.4px;
+}
+.kdvn-job-overview-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    gap: $spacing-gap-medium;
+    margin: 0;
+}
+.kdvn-job-overview-item {
+    > i {
+        display: block;
+        margin-bottom: $spacing-gap-x-small;
+        font-size: 1.25rem;
+        color: $color-background-accent-solid-default;
+    }
+    dt {
+        font-size: $typography-font-size-body-small;
+        line-height: 20px;
+        font-weight: $emphasis-font-weight-regular;
+        color: $black-10;
+    }
+    dd {
+        margin: 0;
+        font-size: $typography-font-size-body-small;
+        line-height: 20px;
+        font-weight: $emphasis-font-weight-bold;
+        color: $color-content-neutral-strongest;
+    }
+}
+.kdvn-job-description {
+    font-size: $typography-font-size-body-small;
+    line-height: 24px;
+    color: $black-12;
+
+    h2, h3 {
+        margin: $spacing-gap-large 0 $spacing-gap-x-small;
+        font-family: $font-family-base;
+        font-size: $typography-font-size-body-large;
+        line-height: 28px;
+        font-weight: $emphasis-font-weight-bold;
+        letter-spacing: -0.4px;
+        color: $color-content-neutral-strongest;
+
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+    p {
+        margin: 0 0 $spacing-gap-small;
+    }
+    ul, ol {
+        margin: 0 0 $spacing-gap-small;
+        padding-left: $spacing-padding-x-large;
+    }
+}
+
+// --- Application form (Figma: job-apply-form-desktop: empty, filled, errors)
+.kdvn-apply {
+    padding: $spacing-padding-x-large;
+    background-color: $color-background-surface-default;
+    border: 1px solid $black-5;
+}
+.kdvn-apply-title {
+    margin: $spacing-gap-medium 0 $spacing-gap-2x-small;
+    font-family: $font-family-base;
+    font-size: $typography-font-size-body-large;
+    line-height: 28px;
+    font-weight: $emphasis-font-weight-bold;
+    letter-spacing: -0.4px;
+    text-align: center;
+    color: $color-content-neutral-strongest;
+}
+.kdvn-apply-intro {
+    margin: 0 0 $spacing-gap-large;
+    font-size: $typography-font-size-body-small;
+    line-height: 20px;
+    text-align: center;
+    color: $black-11;
+}
+.kdvn-label-optional {
+    font-size: $typography-font-size-body-small;
+    font-weight: $emphasis-font-weight-regular;
+    color: $black-11;
+}
+.kdvn-field-error {
+    margin: $spacing-gap-2x-small 0 0;
+    font-size: $typography-font-size-body-small;
+    line-height: 20px;
+    color: $color-content-negative-light;
+}
+.kdvn-field.has-error {
+    .kdvn-input, .kdvn-dropzone {
+        border-color: $color-border-negative-solid-default;
+    }
+}
+.kdvn-apply {
+    .kdvn-field {
+        margin-bottom: $spacing-gap-medium;
+    }
+    .kdvn-input {
+        font-size: $typography-font-size-body-small;
+    }
+}
+.kdvn-dropzone {
+    display: flex;
+    align-items: center;
+    gap: $spacing-gap-x-small;
+    min-height: 48px;
+    padding: $spacing-padding-small;
+    font-size: $typography-font-size-body-small;
+    color: $black-11;
+    background-color: $black-2;
+    border: 1px solid transparent;
+    cursor: pointer;
+
+    &[hidden] {
+        display: none;
+    }
+    > i {
+        font-size: 1.25rem;
+        color: $color-background-accent-solid-default;
+    }
+    &.is-dragover {
+        border-color: $color-border-accent-solid-default;
+    }
+}
+.kdvn-dropzone-browse {
+    font-weight: $emphasis-font-weight-bold;
+    color: $color-content-accent-base;
+}
+.visually-hidden:focus-visible + .kdvn-dropzone {
+    outline: 2px solid $color-focus-accent-solid;
+}
+.kdvn-resume-file {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-padding-small;
+    border: 1px solid $black-5;
+
+    &[hidden] {
+        display: none;
+    }
+    p {
+        margin: 0;
+        font-size: $typography-font-size-body-small;
+        line-height: 20px;
+    }
+}
+.kdvn-resume-name {
+    font-weight: $emphasis-font-weight-bold;
+    word-break: break-all;
+}
+.kdvn-resume-size {
+    color: $black-11;
+}
+.kdvn-resume-remove {
+    padding: $spacing-padding-2x-small;
+    font-size: 1.25rem;
+    color: $black-11;
+    background: none;
+    border: 0;
+}
+.kdvn-apply-submit {
+    display: block;
+    width: 100%;
+    height: 56px;
+    margin-top: $spacing-gap-large;
+    font-size: $typography-font-size-body-base;
+    font-weight: $emphasis-font-weight-bold;
+
+    &:disabled {
+        opacity: 0.6;
+    }
+}
+
+// --- Popups (Figma: job-modal-*): confirm (Cancel / Submit), success, error
+.kdvn-modal-actions {
+    display: flex;
+    gap: $spacing-gap-medium;
+
+    .btn {
+        flex: 1 1 0;
+        margin: 0;
+    }
+}
+.kdvn-modal-cancel {
+    height: 56px;
+    font-size: $typography-font-size-body-small;
+    font-weight: $emphasis-font-weight-bold;
+    color: $color-content-neutral-strongest;
+    background-color: $black-5;
+    border: 1px solid $black-7;
+    border-radius: 0;
+}
+.kdvn-modal-status {
+    display: flex;
+    align-items: center;
+    gap: $spacing-gap-medium;
+    margin-bottom: $spacing-gap-large;
+
+    p {
+        margin: 0;
+        font-size: $typography-font-size-body-small;
+        line-height: 24px;
+    }
+}
+.kdvn-status-icon {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    font-size: 1.5rem;
+    color: #fff;
+    border-radius: 50%;
+}
+.kdvn-status-success {
+    background-color: $color-background-positive-solid-default;
+}
+.kdvn-status-error {
+    background-color: $color-background-negative-solid-default;
+}
+
+// ============================================================================
 // JAPANESE PAGES (<html lang="ja-JP">)
 // Latin letters keep Inter Tight / Oswald, Japanese characters use Noto Sans JP
 // (font stacks in primary_variables.scss, incl. Odoo's theme font configs;

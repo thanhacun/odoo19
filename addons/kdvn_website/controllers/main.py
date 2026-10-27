@@ -1,5 +1,11 @@
-from odoo import http
+import os
+import re
+
+from odoo import _, http
+from odoo.addons.website_hr_recruitment.controllers.main import WebsiteHrRecruitment
+from odoo.exceptions import AccessError
 from odoo.http import request
+from odoo.tools import email_normalize, html_escape
 
 
 class KdvnWebsiteMediaController(http.Controller):
@@ -77,3 +83,101 @@ class KdvnCertificateController(http.Controller):
         stream = request.env['ir.binary']._get_image_stream_from(cert, field)
         stream.max_age = 300
         return stream.get_response(immutable=False)
+
+
+class KdvnJobsController(WebsiteHrRecruitment):
+    """Open Positions (/jobs): Odoo's routes and search, our templates, and an
+    application form on the job page that answers with JSON (popups in job_apply.js)."""
+
+    HONEYPOT = 'kdvn_website_url'
+    MAX_LEN = {'partner_name': 128, 'email_from': 254, 'partner_phone': 64, 'address': 256}
+    RESUME_EXTENSIONS = ('.pdf', '.doc', '.docx')
+    RESUME_MAX_SIZE = 10 * 1024 * 1024
+    # Sources offered in the form (utm.source names; the ones missing in the database are left out)
+    SOURCE_NAMES = ('LinkedIn', 'Facebook', 'Search engine', 'Referral', 'Glassdoor', 'Monster')
+
+    @http.route()
+    def jobs(self, *args, **kwargs):
+        # Always all offices: the location list in the page is the filter
+        kwargs.setdefault('all_countries', True)
+        response = super().jobs(*args, **kwargs)
+        response.template = 'kdvn_website.jobs_index'
+        # Offices of the jobs found (the counter also has 'all' and None keys)
+        response.qcontext['kdvn_offices'] = [
+            office for office in response.qcontext['count_per_office'] if hasattr(office, '_name')]
+        return response
+
+    @http.route()
+    def job(self, job, **kwargs):
+        response = super().job(job, **kwargs)
+        response.template = 'kdvn_website.jobs_detail'
+        response.qcontext['kdvn_sources'] = request.env['utm.source'].sudo().search(
+            [('name', 'in', list(self.SOURCE_NAMES))])
+        return response
+
+    @http.route()
+    def jobs_apply(self, job, **kwargs):
+        # The form is on the job page
+        return request.redirect('/jobs/%s#apply' % request.env['ir.http']._slug(job))
+
+    @http.route('/jobs/apply/<model("hr.job"):job>/submit', type='http', auth='public',
+                methods=['POST'], website=True, sitemap=False)
+    def kdvn_job_apply_submit(self, job, **post):
+        """Create the applicant. Answers {"ok": true} or {"ok": false, "errors": {field: message}}."""
+        job = job.sudo()
+        if not job.website_published:
+            raise request.not_found()
+        if post.get(self.HONEYPOT):
+            return request.make_json_response({'ok': True})
+
+        values = {name: (post.get(name) or '').strip()[:max_len] for name, max_len in self.MAX_LEN.items()}
+        errors = {}
+        if not values['partner_name']:
+            errors['partner_name'] = _('This field is required')
+        email = email_normalize(values['email_from'])
+        if not email:
+            errors['email_from'] = _('This field is required') if not values['email_from'] \
+                else _('Please enter a valid email')
+        digits = re.sub(r'\D', '', values['partner_phone'])
+        if not values['partner_phone']:
+            errors['partner_phone'] = _('This field is required')
+        elif not 8 <= len(digits) <= 15:
+            errors['partner_phone'] = _('Please enter a valid phone number')
+
+        resume = post.get('resume')
+        content = resume.read(self.RESUME_MAX_SIZE + 1) if resume and resume.filename else b''
+        if not content:
+            errors['resume'] = _('This field is required')
+        elif len(content) > self.RESUME_MAX_SIZE \
+                or os.path.splitext(resume.filename)[1].lower() not in self.RESUME_EXTENSIONS:
+            errors['resume'] = _('Please upload a PDF, DOC or DOCX file up to 10 MB')
+        if errors:
+            return request.make_json_response({'ok': False, 'errors': errors})
+
+        source = request.env['utm.source']
+        if (post.get('source_id') or '').isdigit():
+            source = source.sudo().search(
+                [('id', '=', int(post['source_id'])), ('name', 'in', list(self.SOURCE_NAMES))], limit=1)
+        applicant_values = {
+            'job_id': job.id,
+            'department_id': job.department_id.id,
+            'company_id': job.company_id.id or request.env.company.id,
+            'partner_name': values['partner_name'],
+            'email_from': email,
+            'partner_phone': values['partner_phone'],
+            'source_id': source.id,
+        }
+        if values['address']:
+            applicant_values['applicant_notes'] = '<p>%s: %s</p>' % (
+                _('Current address'), html_escape(values['address']))
+        try:
+            applicant = request.env['hr.applicant'].sudo().create(applicant_values)
+        except AccessError:
+            raise request.not_found()
+        request.env['ir.attachment'].sudo().create({
+            'name': os.path.basename(resume.filename),
+            'raw': content,
+            'res_model': 'hr.applicant',
+            'res_id': applicant.id,
+        })
+        return request.make_json_response({'ok': True})
