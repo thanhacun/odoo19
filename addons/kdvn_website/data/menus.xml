@@ -67,7 +67,7 @@
         <!-- Menu: Kinden Business Areas -->
         <record id="menu_kdvn_business_areas" model="website.menu">
             <field name="name">Kinden Business Areas</field>
-            <field name="url">#</field>
+            <field name="url">/company-profile/business-areas</field>
             <field name="website_id" ref="website.default_website"/>
             <field name="is_mega_menu">False</field>
             <field name="parent_id" ref="kdvn_website.menu_kdvn_company_profile"/>

@@ -25,7 +25,7 @@ Status: `todo` → `design` (frames + spec ready) → `build` → `review` → `
 | Company profile | General Director Message | 1 | `/company-profile/general-director-message` | review | Quote from Shinsha-san pending; BOD photo in |
 | Company profile | Licenses & Certifications | 1 | `/company-profile/licenses-certifications` | review | Certificates = records (Website > Site > Content > Licenses & Certificates) with validity dates: expired ones hidden, 'Renew' to-do 60 days before expiry; slider + full-size view |
 | Company profile | Company History | 1 | `/company-profile/company-history` | review | Built; content questions answered |
-| Company profile | Kinden Business Areas | 3 | | todo | |
+| Company profile | Kinden Business Areas | 3 | `/company-profile/business-areas` | review | Built from frames kinden-business-areas-*; reuses the Homepage business list (menu items + Site Media `business_*`). Frame title typo "BUSSINESS" not copied |
 | Company profile | Group Companies | 3 | `/company-profile/group-companies` | review | Aligned to full-size desktop/tablet/mobile PNG frames; photos = placeholders |
 | Company profile | HR Development | 4 | `/company-profile/human-resource-development` | review | Built from frames hr-development-*; photos cut from the desktop frame into Site Media `hr_development_*` (replace with originals) |
 | Business Information | Electrical Systems | 1 | `/business/electrical-system` | review | Built from frames (desktop/tablet/mobile); shared `kdvn-bizpage-*` layout, images in Site Media `electrical_*` |

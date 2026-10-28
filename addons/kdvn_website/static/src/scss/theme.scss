@@ -1569,6 +1569,16 @@ $kdvn-biz-figure-height: 733px;
     }
 }
 
+// Kinden Business Areas page (Figma: frames/kinden-business-areas-*.png):
+// the Homepage list below the page header, on white.
+.kdvn-business-areas {
+    padding: 40px 0 $spacing-gap-giant;
+
+    @include media-breakpoint-up(xl) {
+        padding-top: 64px;
+    }
+}
+
 // ============================================================================
 // BUSINESS AREA PAGES (Figma: frames/electrical-system-*, ac-sanitary-*)
 // Same blocks for every business area page: intro + wide photo, Feature

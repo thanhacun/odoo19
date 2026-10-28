@@ -359,6 +359,35 @@
     </record>
 
     <!-- ===================================================================== -->
+    <!-- Kinden Business Areas  (/company-profile/business-areas)              -->
+    <!-- Figma: frames/kinden-business-areas-desktop|tablet|mobile.png         -->
+    <!-- The list is the Homepage one (kdvn_website.home_business_list): items -->
+    <!-- and links come from the Business Information menu, photos from Site   -->
+    <!-- Media business_<item>.                                                -->
+    <!-- ===================================================================== -->
+    <template id="business_areas_page" name="Kinden Business Areas">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <t t-call="kdvn_website.page_header"/>
+
+                <section class="kdvn-business-areas">
+                    <div class="kdvn-container">
+                        <t t-call="kdvn_website.home_business_list"/>
+                    </div>
+                </section>
+
+                <t t-call="kdvn_website.page_footer_nav"/>
+            </div>
+        </t>
+    </template>
+
+    <record id="page_kdvn_business_areas" model="website.page">
+        <field name="url">/company-profile/business-areas</field>
+        <field name="view_id" ref="business_areas_page"/>
+        <field name="is_published" eval="True"/>
+    </record>
+
+    <!-- ===================================================================== -->
     <!-- Human Resource Development  (/company-profile/human-resource-development) -->
     <!-- Figma: frames/hr-development-desktop|tablet|mobile.png                -->
     <!-- Images: Site Media keys hr_development_hero_1..2, hr_development_portrait_1..6. -->
