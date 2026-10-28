@@ -2284,6 +2284,7 @@ $kdvn-cert-gap: 24px;
 
     @include media-breakpoint-up(md) {
         grid-template-columns: 1fr 45.5%;
+        column-gap: $spacing-gap-giant;
         align-items: start;
     }
 }
