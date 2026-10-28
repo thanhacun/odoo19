@@ -7,7 +7,7 @@ Company History,/company-profile/company-history,menu_kdvn_company_history,kdvn_
 Kinden Business Areas,#,menu_kdvn_business_areas,kdvn_website.menu_kdvn_company_profile,40,,
 Group Companies,/company-profile/group-companies,menu_kdvn_group_companies,kdvn_website.menu_kdvn_company_profile,50,,
 Human Resource Development,#,menu_kdvn_hr_development,kdvn_website.menu_kdvn_company_profile,60,,
-Business Information,#,menu_kdvn_business_information,kdvn_website.menu_kdvn_master_root,20,/business-information,
+Business Information,#,menu_kdvn_business_information,kdvn_website.menu_kdvn_master_root,20,,
 Electrical Systems,/business/electrical-system,menu_kdvn_electrical_system,kdvn_website.menu_kdvn_business_information,10,,
 Instrumentation Systems,#,menu_kdvn_instrumentation_systems,kdvn_website.menu_kdvn_business_information,20,,
 Information & Communication Systems,#,menu_kdvn_ict_systems,kdvn_website.menu_kdvn_business_information,30,,
