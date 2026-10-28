@@ -1,3 +1,4 @@
+import re
 import secrets
 from collections import defaultdict
 
@@ -27,6 +28,28 @@ def _project_type(job_types):
     if letters == {'E', 'M'}:
         return 'me'
     return 'other' if job_types else False
+
+
+# Category slug -> words in the project name. Only a clear case counts: when the
+# name matches the words of more than one category, none is guessed.
+CATEGORY_KEYWORDS = {
+    'factory': ('factory', 'plant', 'manufacturing'),
+    'data-center': ('data center', 'data centre', 'datacenter'),
+    'logistics': ('logistics', 'warehouse', 'distribution center', 'distribution centre'),
+    'educational': ('school', 'university', 'college', 'kindergarten'),
+    'hotel': ('hotel', 'resort'),
+    'shopping-mall': ('shopping mall', 'shopping center', 'shopping centre', 'mall', 'supermarket'),
+    'building': ('office', 'apartment', 'tower', 'condominium', 'residential', 'hospital'),
+}
+
+
+def _guess_category_slug(name):
+    """Slug of the category the project name clearly points to, else False.
+    'TOYODA GOSEI THAI BINH NEW FACTORY' -> 'factory'."""
+    text = ' '.join(re.findall(r'[a-z0-9]+', (name or '').lower()))
+    found = [slug for slug, words in CATEGORY_KEYWORDS.items()
+             if any(re.search(r'\b%s\b' % w, text) for w in words)]
+    return found[0] if len(found) == 1 else False
 
 
 def _job_em(job):
@@ -102,6 +125,7 @@ class KdvnWebsiteProjectImport(models.Model):
         vnd_per_usd = float(ICP.get_param(PARAM_VND_RATE) or DEFAULT_VND_RATE)
         Project = self.sudo().with_context(active_test=False)
         existing = {p.kderp_key: p for p in Project.search([('kderp_key', 'in', list(jobs_by_key))])}
+        categories = {c.slug: c for c in self.env['kdvn.website.project.category'].sudo().search([])}
         result = {'created': 0, 'updated': 0, 'skipped': 0}
         now = fields.Datetime.now()
         for key, group in jobs_by_key.items():
@@ -134,6 +158,7 @@ class KdvnWebsiteProjectImport(models.Model):
                     year=vals['kderp_completion_date'].year if vals['kderp_completion_date'] else False,
                     area='%s, Vietnam' % vals['kderp_location'] if vals['kderp_location'] else False,
                     project_type=_project_type(job_types),
+                    category_id=categories.get(_guess_category_slug(vals['kderp_name']), self.env['kdvn.website.project.category']).id,
                     is_published=False,
                 ))
                 result['created'] += 1
