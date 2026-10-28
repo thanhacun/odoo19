@@ -61,7 +61,17 @@
                         <!-- Grid: one row per year -->
                         <t t-elif="view == 'grid'">
                             <section t-foreach="groups" t-as="group" class="kdvn-proj-group">
-                                <h2 class="kdvn-proj-group-year" t-out="group[0]"/>
+                                <div class="kdvn-proj-group-side">
+                                    <h2 class="kdvn-proj-group-year" t-out="group[0]"/>
+                                    <div class="kdvn-proj-nav" hidden="hidden">
+                                        <button type="button" class="kdvn-proj-nav-btn kdvn-proj-prev" aria-label="Previous" title="Previous">
+                                            <i class="ri-arrow-left-s-line" aria-hidden="true"/>
+                                        </button>
+                                        <button type="button" class="kdvn-proj-nav-btn kdvn-proj-next" aria-label="Next" title="Next">
+                                            <i class="ri-arrow-right-s-line" aria-hidden="true"/>
+                                        </button>
+                                    </div>
+                                </div>
                                 <div class="kdvn-proj-row">
                                     <t t-foreach="group[2]" t-as="project">
                                         <t t-call="kdvn_website_project.project_card"/>

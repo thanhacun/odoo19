@@ -19,6 +19,12 @@ class WebsiteMenu(models.Model):
              "with sub-items, because Odoo always sets their own URL to '#'.",
     )
 
+    detail_url = fields.Char(
+        'View Details Link',
+        help="Where the 'View details' button in the header dropdown goes. "
+             "Empty: the Overview Page is used.",
+    )
+
     def _kdvn_link(self):
         """URL to link this menu to: overview page if set, else its own URL."""
         self.ensure_one()

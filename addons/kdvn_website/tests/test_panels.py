@@ -21,3 +21,9 @@ class TestKdvnHeaderPanels(HttpCase):
         website.language_ids |= langs
         labels = [label for _lang, label in website._kdvn_language_choices()]
         self.assertEqual(labels[:3], ['Tiếng Việt', '日本語', 'English'])
+
+    def test_view_details_link(self):
+        menu = self.env.ref('kdvn_website.menu_kdvn_company_profile')
+        self.assertIn('class="btn kdvn-btn-ghost" href="/company-profile">View details', self.url_open('/').text)
+        menu.detail_url = '/company-profile/history'
+        self.assertIn('class="btn kdvn-btn-ghost" href="/company-profile/history">View details', self.url_open('/').text)
