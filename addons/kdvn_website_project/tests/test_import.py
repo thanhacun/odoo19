@@ -2,7 +2,7 @@ import json
 
 from odoo.tests import HttpCase, TransactionCase, tagged
 
-from odoo.addons.kdvn_website_project.models.project_import import _job_amount_usd, _job_em, _project_type
+from odoo.addons.kdvn_website_project.models.project_import import _job_amount_usd, _guess_category_slug, _job_em, _project_type
 
 JOBS = [
     # one project made of two jobs (names differ only in case / spaces)
@@ -89,6 +89,23 @@ class TestProjectImport(TransactionCase):
                                           'currency_rates': rates}, 25000), 5.0)
         self.assertEqual(_job_em({'job_type': '00-big_job', 'em': 'M'}), 'M')
         self.assertFalse(_job_em({'job_type': '00-big_job'}))
+
+    def test_guess_category_slug(self):
+        self.assertEqual(_guess_category_slug('TOYODA GOSEI THAI BINH NEW FACTORY'), 'factory')
+        self.assertEqual(_guess_category_slug('Viettel IDC Data Center Phase 2'), 'data-center')
+        self.assertEqual(_guess_category_slug('Sheraton Hotel Hanoi'), 'hotel')
+        self.assertFalse(_guess_category_slug('Factory Office Building'))   # two categories: unclear
+        self.assertFalse(_guess_category_slug('Mallory Project'))            # whole words only
+        self.assertFalse(_guess_category_slug('Project ABC'))
+        self.assertFalse(_guess_category_slug(False))
+
+    def test_import_guesses_category(self):
+        result = self.Project._kdvn_import_jobs(JOBS + [
+            {'id': 4, 'name': 'Project ABC', 'code': 'X1', 'job_type': 'E', 'contracted_amount_usd': 2000000.0}])
+        self.assertEqual(result['created'], 2)
+        factory = self.Project.search([('kderp_key', '=', 'POCARI SWEAT FACTORY')])
+        self.assertEqual(factory.category_id.slug, 'factory')
+        self.assertFalse(self.Project.search([('kderp_key', '=', 'PROJECT ABC')]).category_id)
 
     def test_project_type(self):
         self.assertEqual(_project_type(['E']), 'electrical')
