@@ -167,7 +167,7 @@
         </record>
 
         <!-- Maintenance Services menu removed: delete it from databases that already have it -->
-        <delete model="website.menu" id="kdvn_website.menu_kdvn_maintenance_services"/>
+        <delete model="website.menu" search="[('name', '=', 'Maintenance Services'), ('parent_id', '=', ref('kdvn_website.menu_kdvn_business_information'))]"/>
 
         <!-- Menu: Past Prominent Projects -->
         <record id="menu_kdvn_past_prominent_projects" model="website.menu">
@@ -299,7 +299,8 @@
             <field name="is_mega_menu">False</field>
             <field name="parent_id" ref="kdvn_website.menu_kdvn_master_root"/>
             <field name="sequence" type="int">50</field>
-            <field name="overview_url">/contact-us</field>
+            <!-- no overview page: no "View details" button. eval False clears the value on databases that had one -->
+            <field name="overview_url" eval="False"/>
         </record>
 
         <!-- Menu: Office Locations &amp; Map -->

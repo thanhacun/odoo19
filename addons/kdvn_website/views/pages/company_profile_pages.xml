@@ -1,6 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- ===================================================================== -->
+    <!-- Company profile  (/company-profile): list of the sub pages            -->
+    <!-- Figma: design/kdvn_website/frames/company-profile-{desktop,tablet,mobile}.png -->
+    <!-- Link targets are the menu items under Company profile; a row is hidden -->
+    <!-- while its menu item has no page yet (url '#').                        -->
+    <!-- ===================================================================== -->
+    <template id="company_profile_page" name="Company profile">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <t t-call="kdvn_website.page_header"/>
+
+                <section class="kdvn-profile-list">
+                    <div class="kdvn-container">
+                        <ul class="kdvn-profile-rows">
+                            <t t-set="row_menu" t-value="request.env.ref('kdvn_website.menu_kdvn_general_director_message', raise_if_not_found=False)"/>
+                            <li t-if="row_menu and row_menu.url and row_menu.url != '#'" class="kdvn-profile-row">
+                                <h2 class="kdvn-profile-row-title">President Message</h2>
+                                <a t-att-href="row_menu.url" class="btn kdvn-btn-ghost kdvn-profile-row-link">View details <i class="ri-arrow-right-up-line" aria-hidden="true"/></a>
+                            </li>
+                            <t t-set="row_menu" t-value="request.env.ref('kdvn_website.menu_kdvn_business_areas', raise_if_not_found=False)"/>
+                            <li t-if="row_menu and row_menu.url and row_menu.url != '#'" class="kdvn-profile-row">
+                                <h2 class="kdvn-profile-row-title">Kinden Business Areas</h2>
+                                <a t-att-href="row_menu.url" class="btn kdvn-btn-ghost kdvn-profile-row-link">View details <i class="ri-arrow-right-up-line" aria-hidden="true"/></a>
+                            </li>
+                            <t t-set="row_menu" t-value="request.env.ref('kdvn_website.menu_kdvn_group_companies', raise_if_not_found=False)"/>
+                            <li t-if="row_menu and row_menu.url and row_menu.url != '#'" class="kdvn-profile-row">
+                                <h2 class="kdvn-profile-row-title">Group Companies</h2>
+                                <a t-att-href="row_menu.url" class="btn kdvn-btn-ghost kdvn-profile-row-link">View details <i class="ri-arrow-right-up-line" aria-hidden="true"/></a>
+                            </li>
+                            <t t-set="row_menu" t-value="request.env.ref('kdvn_website.menu_kdvn_licenses_certifications', raise_if_not_found=False)"/>
+                            <li t-if="row_menu and row_menu.url and row_menu.url != '#'" class="kdvn-profile-row">
+                                <h2 class="kdvn-profile-row-title">Licenses &amp; Certifications</h2>
+                                <a t-att-href="row_menu.url" class="btn kdvn-btn-ghost kdvn-profile-row-link">View details <i class="ri-arrow-right-up-line" aria-hidden="true"/></a>
+                            </li>
+                            <t t-set="row_menu" t-value="request.env.ref('kdvn_website.menu_kdvn_hr_development', raise_if_not_found=False)"/>
+                            <li t-if="row_menu and row_menu.url and row_menu.url != '#'" class="kdvn-profile-row">
+                                <h2 class="kdvn-profile-row-title">Human Resource Development</h2>
+                                <a t-att-href="row_menu.url" class="btn kdvn-btn-ghost kdvn-profile-row-link">View details <i class="ri-arrow-right-up-line" aria-hidden="true"/></a>
+                            </li>
+                            <t t-set="row_menu" t-value="request.env.ref('kdvn_website.menu_kdvn_company_history', raise_if_not_found=False)"/>
+                            <li t-if="row_menu and row_menu.url and row_menu.url != '#'" class="kdvn-profile-row">
+                                <h2 class="kdvn-profile-row-title">Company History</h2>
+                                <a t-att-href="row_menu.url" class="btn kdvn-btn-ghost kdvn-profile-row-link">View details <i class="ri-arrow-right-up-line" aria-hidden="true"/></a>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
+                <t t-call="kdvn_website.page_footer_nav"/>
+            </div>
+        </t>
+    </template>
+
+    <record id="page_kdvn_company_profile" model="website.page">
+        <field name="name">Company profile</field>
+        <field name="url">/company-profile</field>
+        <field name="view_id" ref="company_profile_page"/>
+        <field name="type">qweb</field>
+        <field name="key">kdvn_website.company_profile_page</field>
+        <field name="is_published" eval="True"/>
+    </record>
+
+    <!-- ===================================================================== -->
     <!-- General Director Message  (/company-profile/general-director-message) -->
     <!-- Figma: frames/gd-message-desktop|tablet|mobile.png, adjusted per the Website -->
     <!-- Rollout Plan (slide 2): new title, BOD group photo, GD quote (TBC).  -->

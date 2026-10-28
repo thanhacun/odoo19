@@ -52,12 +52,13 @@ class WebsiteMenu(models.Model):
 
     @api.model
     def _kdvn_find_by_url(self, url, website):
-        """Menu item of `website` pointing to `url`, only inside the menu the
+        """Menu item of `website` pointing to `url` (or having it as overview page), only inside the menu the
         site actually shows (website.menu_id). Other menu trees, e.g. Odoo's
         old default menu with its own "Jobs" item, are ignored."""
         if not url or not website:
             return self.browse()
-        domain = [('website_id', '=', website.id), ('url', '=', url)]
+        # a menu with sub-items has url '#'; its page is the overview_url
+        domain = [('website_id', '=', website.id), '|', ('url', '=', url), ('overview_url', '=', url)]
         if website.menu_id:
             domain.append(('id', 'child_of', website.menu_id.id))
         return self.sudo().search(domain, limit=1)

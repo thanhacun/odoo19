@@ -21,7 +21,7 @@ Status: `todo` → `design` (frames + spec ready) → `build` → `review` → `
 | Section | Page | Phase | URL | Status | Notes |
 |---|---|---|---|---|---|
 | — | Home | 1 | `/` | build | Hero slider + Business Information done; next: Past Prominent Projects (project model). Spec: specs/home.md |
-| Company profile | Overview | 1 | `/company-profile` | todo | "View details" target |
+| Company profile | Overview | 1 | `/company-profile` | review | List of sub pages from frames company-profile-*; a row shows only when its menu item has a page (Kinden Business Areas hidden until then) |
 | Company profile | General Director Message | 1 | `/company-profile/general-director-message` | review | Quote from Shinsha-san pending; BOD photo in |
 | Company profile | Licenses & Certifications | 1 | `/company-profile/licenses-certifications` | review | Certificates = records (Website > Site > Content > Licenses & Certificates) with validity dates: expired ones hidden, 'Renew' to-do 60 days before expiry; slider + full-size view |
 | Company profile | Company History | 1 | `/company-profile/company-history` | review | Built; content questions answered |
@@ -39,6 +39,5 @@ Status: `todo` → `design` (frames + spec ready) → `build` → `review` → `
 | Recruitment | Why Join Kinden Vietnam | 4 | `/recruitment/why-join-kinden-vietnam` | review | Built from frames (desktop/tablet/mobile); photos cut from the desktop frame into Site Media `why_join_*` (replace with originals); 5S diagram is HTML/CSS |
 | Recruitment | Open Positions | 4 | `/jobs` | review | List (search, location), job page with application form and popups. Built from frames open-position-*, detail-job-*, job-modal-*, job-apply-form-*. Job facts (salary, level, work mode, deadline) are fields on the job (Recruitment > Job Positions) |
 | Recruitment | LinkedIn Homepage | 4 | external | review | Menu item opens https://vn.linkedin.com/company/kinden-vietnam in a new tab; no page of our own |
-| Contact Us | Overview | 1 | `/contact-us` | todo | |
 | Contact Us | Office Locations & Map | 1 | `/contact-us/office-locations` | review | Desktop/tablet/mobile frames applied (mobile: search, scrolling list, map below) |
 | Contact Us | Inquiry Form | 1 | `/contactus` | review | Custom form → `kdvn.website.inquiry` (Website > Inquiries), email to Settings > Website > Inquiry Form; "Got it!" popup on `?sent=1` |

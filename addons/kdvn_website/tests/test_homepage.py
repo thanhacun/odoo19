@@ -18,16 +18,16 @@ class TestKdvnHomepage(HttpCase):
     def test_homepage_business_list(self):
         Menu = self.env['website.menu']
         areas = Menu._kdvn_children_of('kdvn_website.menu_kdvn_business_information')
-        self.assertEqual(len(areas), 7)
+        self.assertEqual(len(areas), 6)
         self.assertEqual(areas[0].name, 'Electrical Systems')
         self.assertEqual(areas[0]._kdvn_media_key('business_'), 'business_electrical_system')
         # every item has a Site Media image
         keys = [a._kdvn_media_key('business_') for a in areas]
         media = self.env['kdvn.website.media'].search([('key', 'in', keys)])
-        self.assertEqual(len(media), 7)
+        self.assertEqual(len(media), 6)
 
         html = self.url_open('/').text
-        self.assertEqual(html.count('class="kdvn-biz-item'), 7)
+        self.assertEqual(html.count('class="kdvn-biz-item'), 6)
         self.assertIn('kdvn-biz-item active', html)
         self.assertIn('/kdvn/media/business_electrical_system', html)
         self.assertIn('/business/electrical-system', html)
