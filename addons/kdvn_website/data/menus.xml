@@ -118,7 +118,7 @@
         <!-- Menu: Instrumentation Systems -->
         <record id="menu_kdvn_instrumentation_systems" model="website.menu">
             <field name="name">Instrumentation Systems</field>
-            <field name="url">#</field>
+            <field name="url">/business/instrumentation-system</field>
             <field name="website_id" ref="website.default_website"/>
             <field name="is_mega_menu">False</field>
             <field name="parent_id" ref="kdvn_website.menu_kdvn_business_information"/>
@@ -128,7 +128,7 @@
         <!-- Menu: Information &amp; Communication Systems -->
         <record id="menu_kdvn_ict_systems" model="website.menu">
             <field name="name">Information &amp; Communication Systems</field>
-            <field name="url">#</field>
+            <field name="url">/business/information-communication-system</field>
             <field name="website_id" ref="website.default_website"/>
             <field name="is_mega_menu">False</field>
             <field name="parent_id" ref="kdvn_website.menu_kdvn_business_information"/>
@@ -148,7 +148,7 @@
         <!-- Menu: Interior Systems -->
         <record id="menu_kdvn_interior_systems" model="website.menu">
             <field name="name">Interior Systems</field>
-            <field name="url">#</field>
+            <field name="url">/business/interior-system</field>
             <field name="website_id" ref="website.default_website"/>
             <field name="is_mega_menu">False</field>
             <field name="parent_id" ref="kdvn_website.menu_kdvn_business_information"/>
@@ -158,7 +158,7 @@
         <!-- Menu: Energy Saving &amp; Renewal -->
         <record id="menu_kdvn_energy_saving_renewal" model="website.menu">
             <field name="name">Energy Saving &amp; Renewal</field>
-            <field name="url">#</field>
+            <field name="url">/business/energy-saving-renewal</field>
             <field name="website_id" ref="website.default_website"/>
             <field name="is_mega_menu">False</field>
             <field name="parent_id" ref="kdvn_website.menu_kdvn_business_information"/>

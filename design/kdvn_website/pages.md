@@ -31,10 +31,10 @@ Status: `todo` → `design` (frames + spec ready) → `build` → `review` → `
 | Business Information | Overview | 1 | `/business-information` | todo | |
 | Business Information | Electrical Systems | 1 | `/business/electrical-system` | review | Built from frames (desktop/tablet/mobile); shared `kdvn-bizpage-*` layout, images in Site Media `electrical_*` |
 | Business Information | Air Conditioning & Sanitary Systems | 1 | `/business/air-conditioning-sanitary-system` | review | Same layout as Electrical; images in Site Media `ac_sanitary_*` |
-| Business Information | Instrumentation Systems | 2 | | todo | Probably same layout as Electrical |
-| Business Information | Information & Communication Systems | 2 | | todo | |
-| Business Information | Interior Systems | 2 | | todo | |
-| Business Information | Energy Saving & Renewal | 2 | | todo | |
+| Business Information | Instrumentation Systems | 2 | `/business/instrumentation-system` | review | Built from desktop frames; 2 features, 3 items; images in Site Media `instrumentation_*` |
+| Business Information | Information & Communication Systems | 2 | `/business/information-communication-system` | review | Built from desktop frames; Feature tiles scroll with arrows (bizpage_tiles.js); media `ict_*` |
+| Business Information | Interior Systems | 2 | `/business/interior-system` | review | Built from desktop frames; 1 item; media `interior_*` |
+| Business Information | Energy Saving & Renewal | 2 | `/business/energy-saving-renewal` | review | Built from desktop frames; Approach, diagnosis items, renewal, renewable energy; media `energy_*` |
 | Business Information | Maintenance Services | 2 | | todo | |
 | Past Prominent Projects | Projects Overview | 1 | `/prominent-projects` | build | Module kdvn_website_project; spec specs/prominent-projects.md |
 | Past Prominent Projects | Factories / Data Center / Buildings / Logistics / Educational / Hotels | 3 | `/prominent-projects?category=…` | build | Same page filtered by category |
