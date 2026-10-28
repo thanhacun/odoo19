@@ -2964,7 +2964,12 @@ html:lang(ja) {
 
     @include media-breakpoint-up(md) {
         grid-template-columns: 1fr 45.5%;
+        column-gap: $spacing-gap-giant;
         align-items: start;
+    }
+    // heading wraps to 3 lines like the frame (about 570px wide on desktop)
+    .kdvn-section-title {
+        max-width: 36rem;
     }
 }
 
