@@ -2992,8 +2992,13 @@ html:lang(ja) {
     display: flex;
     gap: $spacing-gap-x-large;
     margin: $spacing-gap-giant 0 0;
-    padding: 0 $spacing-gap-x-large;
     overflow-x: auto;
+    // left edge lines up with .kdvn-container (max 1440px, centered); the strip scrolls past the right edge
+    padding: 0 0 0 unquote("max(#{$spacing-padding-x-large}, calc((100% - 1440px) / 2 + #{$spacing-padding-x-large}))");
+
+    @include media-breakpoint-up(xl) {
+        padding-left: unquote("max(#{$spacing-padding-3x-large}, calc((100% - 1440px) / 2 + #{$spacing-padding-3x-large}))");
+    }
 
     li {
         flex: 0 0 200px;
