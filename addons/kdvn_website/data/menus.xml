@@ -87,7 +87,7 @@
         <!-- Menu: Human Resource Development -->
         <record id="menu_kdvn_hr_development" model="website.menu">
             <field name="name">Human Resource Development</field>
-            <field name="url">#</field>
+            <field name="url">/company-profile/human-resource-development</field>
             <field name="website_id" ref="website.default_website"/>
             <field name="is_mega_menu">False</field>
             <field name="parent_id" ref="kdvn_website.menu_kdvn_company_profile"/>
@@ -289,7 +289,8 @@
         <!-- Menu: LinkedIn Homepage of Kinden -->
         <record id="menu_kdvn_linkedin" model="website.menu">
             <field name="name">LinkedIn Homepage of Kinden</field>
-            <field name="url">#</field>
+            <field name="url">https://vn.linkedin.com/company/kinden-vietnam</field>
+            <field name="new_window" eval="True"/>
             <field name="website_id" ref="website.default_website"/>
             <field name="is_mega_menu">False</field>
             <field name="parent_id" ref="kdvn_website.menu_kdvn_recruitment"/>

@@ -27,7 +27,7 @@ Status: `todo` → `design` (frames + spec ready) → `build` → `review` → `
 | Company profile | Company History | 1 | `/company-profile/company-history` | review | Built; content questions answered |
 | Company profile | Kinden Business Areas | 3 | | todo | |
 | Company profile | Group Companies | 3 | `/company-profile/group-companies` | review | Aligned to full-size desktop/tablet/mobile PNG frames; photos = placeholders |
-| Company profile | HR Development | 4 | | todo | |
+| Company profile | HR Development | 4 | `/company-profile/human-resource-development` | review | Built from frames hr-development-*; photos cut from the desktop frame into Site Media `hr_development_*` (replace with originals) |
 | Business Information | Overview | 1 | `/business-information` | todo | |
 | Business Information | Electrical Systems | 1 | `/business/electrical-system` | review | Built from frames (desktop/tablet/mobile); shared `kdvn-bizpage-*` layout, images in Site Media `electrical_*` |
 | Business Information | Air Conditioning & Sanitary Systems | 1 | `/business/air-conditioning-sanitary-system` | review | Same layout as Electrical; images in Site Media `ac_sanitary_*` |
@@ -40,7 +40,7 @@ Status: `todo` → `design` (frames + spec ready) → `build` → `review` → `
 | Past Prominent Projects | Factories / Data Center / Buildings / Logistics / Educational / Hotels | 3 | `/prominent-projects?category=…` | build | Same page filtered by category |
 | Recruitment | Why Join Kinden Vietnam | 4 | `/recruitment/why-join-kinden-vietnam` | review | Built from frames (desktop/tablet/mobile); photos cut from the desktop frame into Site Media `why_join_*` (replace with originals); 5S diagram is HTML/CSS |
 | Recruitment | Open Positions | 4 | `/jobs` | review | List (search, location), job page with application form and popups. Built from frames open-position-*, detail-job-*, job-modal-*, job-apply-form-*. Job facts (salary, level, work mode, deadline) are fields on the job (Recruitment > Job Positions) |
-| Recruitment | LinkedIn Homepage | 4 | external | todo | Need URL |
+| Recruitment | LinkedIn Homepage | 4 | external | review | Menu item opens https://vn.linkedin.com/company/kinden-vietnam in a new tab; no page of our own |
 | Contact Us | Overview | 1 | `/contact-us` | todo | |
 | Contact Us | Office Locations & Map | 1 | `/contact-us/office-locations` | review | Desktop/tablet/mobile frames applied (mobile: search, scrolling list, map below) |
 | Contact Us | Inquiry Form | 1 | `/contactus` | review | Custom form → `kdvn.website.inquiry` (Website > Inquiries), email to Settings > Website > Inquiry Form; "Got it!" popup on `?sent=1` |
