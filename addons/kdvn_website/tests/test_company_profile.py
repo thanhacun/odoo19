@@ -8,9 +8,9 @@ class TestKdvnCompanyProfile(HttpCase):
         res = self.url_open('/company-profile')
         self.assertEqual(res.status_code, 200)
         html = res.text
-        # Business Areas has no page yet, so its row is hidden
+        # every row has a page (rows without a menu link stay hidden)
         self.assertIn('<h1 class="kdvn-page-title">Company profile</h1>', html)
-        self.assertEqual(html.count('class="kdvn-profile-row"'), 5)
+        self.assertEqual(html.count('class="kdvn-profile-row"'), 6)
         self.assertNotIn('Kinden Business Areas</h2>', html)
         for url in ('/company-profile/general-director-message', '/company-profile/group-companies',
                     '/company-profile/licenses-certifications', '/company-profile/human-resource-development',
