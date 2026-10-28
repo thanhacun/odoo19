@@ -11,10 +11,9 @@ class TestKdvnCompanyProfile(HttpCase):
         # every row has a page (rows without a menu link stay hidden)
         self.assertIn('<h1 class="kdvn-page-title">Company profile</h1>', html)
         self.assertEqual(html.count('class="kdvn-profile-row"'), 6)
-        self.assertNotIn('Kinden Business Areas</h2>', html)
         for url in ('/company-profile/general-director-message', '/company-profile/group-companies',
                     '/company-profile/licenses-certifications', '/company-profile/human-resource-development',
-                    '/company-profile/company-history'):
+                    '/company-profile/company-history', '/company-profile/business-areas'):
             self.assertIn('href="%s"' % url, html)
 
     def test_footer_links(self):
