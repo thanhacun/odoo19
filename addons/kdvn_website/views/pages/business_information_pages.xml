@@ -279,4 +279,469 @@
         <field name="view_id" ref="ac_sanitary_system_page"/>
         <field name="is_published" eval="True"/>
     </record>
+
+    <!-- ===================================================================== -->
+    <!-- Instrumentation  (/business/instrumentation-system) -->
+    <!-- Figma: design/kdvn_website/frames/instrumentation-{desktop,tablet,mobile}.png -->
+    <!-- Layout: shared kdvn-bizpage-* blocks. Content inside oe_structure is editable. -->
+    <!-- Images: Site Media keys instrumentation_hero, instrumentation_feature_N, instrumentation_item_N -->
+    <!-- ===================================================================== -->
+    <template id="instrumentation_system_page" name="Instrumentation System">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <t t-call="kdvn_website.page_header"/>
+
+                <div class="oe_structure">
+                    <section class="kdvn-bizpage-intro">
+                        <div class="kdvn-container">
+                            <p class="kdvn-bizpage-lead">To ensure buildings and factories remain functional, safe and comfortable, Kinden develops wide-ranging systems using information technology and with project sizes and applications in mind, including building automation systems supervising and controlling electricity, air-conditioning and sanitary installations as well as a system designed to make factories and plants more productive.</p>
+                            <img src="/kdvn/media/instrumentation_hero" class="kdvn-bizpage-hero" alt="Instrumentation" loading="lazy"/>
+                        </div>
+                    </section>
+
+                    <section class="kdvn-section kdvn-bizpage-features">
+                        <div class="kdvn-container">
+                            <h2 class="kdvn-bizpage-title">Feature</h2>
+                            <div class="kdvn-bizpage-feature-grid">
+                                <div class="kdvn-bizpage-feature">
+                                    <img src="/kdvn/media/instrumentation_feature_1?width=960" alt="Oversee and operate facilities with a control system" loading="lazy"/>
+                                    <h3 class="kdvn-bizpage-feature-title">Oversee and operate facilities with a control system</h3>
+                                    <p class="kdvn-bizpage-feature-text">Monitoring and control systems are essential to maintaining the functional capabilities, security measures and comfort of office buildings and production plants — especially with system needs becoming more complicated with each new breakthrough.</p>
+                                    <p class="kdvn-bizpage-feature-text">Based on our advanced instrumentation technology, special brand of know-how and long years of experience, Kinden custom-tailors system design, development and construction to a broad spectrum of system sizes and applications — including communications systems for early detection of malfunctions and other irregularities, and plant systems designed to boost productivity.</p>
+                                </div>
+                                <div class="kdvn-bizpage-feature">
+                                    <img src="/kdvn/media/instrumentation_feature_2?width=960" alt="Advanced production equipment systems support" loading="lazy"/>
+                                    <h3 class="kdvn-bizpage-feature-title">Advanced production equipment systems support</h3>
+                                    <p class="kdvn-bizpage-feature-text">Kinden has been an instrumentation construction specialist since the 1950s. Based on the foundation of explosion-proof instrumentation construction expertise developed in the field of petrochemicals, today we offer total production system support with comprehensive engineering capabilities — from meter and valve design to power, control panels and monitoring systems.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="kdvn-section kdvn-bizpage-items">
+                        <div class="kdvn-container">
+                            <div class="row">
+                                <div class="col-12 col-lg-6">
+                                    <h2 class="kdvn-bizpage-title kdvn-bizpage-items-title">Business items</h2>
+                                </div>
+                                <div class="col-12 col-lg-6">
+                                    <article class="kdvn-bizpage-item">
+                                        <div class="kdvn-bizpage-item-head">
+                                            <span class="kdvn-bizpage-item-no">(01)</span>
+                                            <h3 class="kdvn-bizpage-item-title">Integrated Building Systems Monitoring - Building Automation and Control System (BACS)</h3>
+                                        </div>
+                                        <img src="/kdvn/media/instrumentation_item_1?width=1336" class="kdvn-bizpage-item-image" alt="Integrated Building Systems" loading="lazy"/>
+                                        <p class="kdvn-bizpage-item-text">Kinden specializes in multi-vendor engineering. We construct total systems custom-tailored to client’s building management and operating needs from the standpoints of functional performance, safety, comfort and convenience.</p>
+                                        <p class="kdvn-bizpage-subhead">■ Building automation systems (BAS)</p>
+                                        <ul class="kdvn-bizpage-bullets">
+                                            <li>Power reception and transformer equipment monitoring and control, air conditioning systems monitoring and control, lighting monitoring and control, disaster prevention and security systems monitoring.</li>
+                                            <li>Building automation system “INFORINNO BA”</li>
+                                            <li>Central Monitoring System with 4K Resolution-Support “Inforinno BA 4K Version”</li>
+                                        </ul>
+                                        <p class="kdvn-bizpage-subhead">■ Energy Management System (EMS)</p>
+                                        <ul class="kdvn-bizpage-bullets">
+                                            <li>Energy Management and Meter Mapping,</li>
+                                            <li>Building Energy Management System “INFORINNO EMS”</li>
+                                        </ul>
+                                    </article>
+                                    <article class="kdvn-bizpage-item">
+                                        <div class="kdvn-bizpage-item-head">
+                                            <span class="kdvn-bizpage-item-no">(02)</span>
+                                            <h3 class="kdvn-bizpage-item-title">Instrumentation systems for plants and other facilities</h3>
+                                        </div>
+                                        <img src="/kdvn/media/instrumentation_item_2?width=1336" class="kdvn-bizpage-item-image" alt="Instrumentation systems for plants" loading="lazy"/>
+                                        <p class="kdvn-bizpage-item-text">Kinden offers extensive client instrumentation system support — from monitoring and control systems engineering for plants and other facilities to proprietary system development and design.</p>
+                                        <p class="kdvn-bizpage-subhead">■ Instrumentation systems for plants and other facilities</p>
+                                        <ul class="kdvn-bizpage-bullets">
+                                            <li>Process/factory automation systems</li>
+                                            <li>Facility monitoring and control systems (FACIAS)</li>
+                                        </ul>
+                                    </article>
+                                    <article class="kdvn-bizpage-item">
+                                        <div class="kdvn-bizpage-item-head">
+                                            <span class="kdvn-bizpage-item-no">(03)</span>
+                                            <h3 class="kdvn-bizpage-item-title">Field instrumentation services</h3>
+                                        </div>
+                                        <img src="/kdvn/media/instrumentation_item_3?width=1336" class="kdvn-bizpage-item-image" alt="Field instrumentation services" loading="lazy"/>
+                                        <p class="kdvn-bizpage-item-text">From the design and supply of measurement and analysis equipment to design and implementation of general electrical and instrumentation systems and explosion-proofing systems, Kinden supplies systems of all sizes for a diverse range of applications.</p>
+                                        <p class="kdvn-bizpage-subhead">■ Measurement and analysis equipment design and supply</p>
+                                        <p class="kdvn-bizpage-subhead">■ Control systems planning, design, supply and maintenance</p>
+                                        <p class="kdvn-bizpage-subhead">■ Measurement and control systems design and implementation, including explosion-proof works</p>
+                                    </article>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <t t-call="kdvn_website.page_footer_nav"/>
+            </div>
+        </t>
+    </template>
+
+    <record id="page_kdvn_instrumentation_system" model="website.page">
+        <field name="name">Instrumentation Systems</field>
+        <field name="url">/business/instrumentation-system</field>
+        <field name="view_id" ref="instrumentation_system_page"/>
+        <field name="type">qweb</field>
+        <field name="key">kdvn_website.instrumentation_system_page</field>
+        <field name="is_published" eval="True"/>
+    </record>
+
+    <!-- ===================================================================== -->
+    <!-- Information and Communication  (/business/information-communication-system) -->
+    <!-- Figma: design/kdvn_website/frames/information-communication-{desktop,tablet,mobile}.png -->
+    <!-- Layout: shared kdvn-bizpage-* blocks. Content inside oe_structure is editable. -->
+    <!-- Images: Site Media keys ict_hero, ict_tile_N, ict_item_N -->
+    <!-- ===================================================================== -->
+    <template id="ict_system_page" name="Information and Communication System">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <t t-call="kdvn_website.page_header"/>
+
+                <div class="oe_structure">
+                    <section class="kdvn-bizpage-intro">
+                        <div class="kdvn-container">
+                            <p class="kdvn-bizpage-lead">Kinden consistently coordinates efforts to develop network systems ranging from infrastructure within buildings, including offices and public facilities, telecommunications carrier center facilities, mobile telephone base stations and household internet. We accommodate your needs with technologies and know-how accumulated through long experience.</p>
+                            <img src="/kdvn/media/ict_hero" class="kdvn-bizpage-hero" alt="Information and Communication" loading="lazy"/>
+                        </div>
+                    </section>
+
+                    <section class="kdvn-section kdvn-bizpage-features kdvn-bizpage-tiles-section">
+                        <div class="kdvn-container">
+                            <div class="kdvn-bizpage-tiles-head">
+                                <div>
+                                    <h2 class="kdvn-bizpage-title">Feature</h2>
+                                    <p class="kdvn-bizpage-tagline">We accommodate your needs in all information and communications fields as a one-stop service provider.</p>
+                                </div>
+                                <div class="kdvn-bizpage-tiles-nav">
+                                    <button type="button" class="kdvn-action-btn kdvn-bizpage-tiles-prev" aria-label="Previous" title="Previous">
+                                        <i class="ri-arrow-left-s-line" aria-hidden="true"/>
+                                    </button>
+                                    <button type="button" class="kdvn-action-btn kdvn-bizpage-tiles-next" aria-label="Next" title="Next">
+                                        <i class="ri-arrow-right-s-line" aria-hidden="true"/>
+                                    </button>
+                                </div>
+                            </div>
+                            <ul class="kdvn-bizpage-tiles">
+                                <li class="kdvn-bizpage-tile">
+                                    <img src="/kdvn/media/ict_tile_1?width=480" alt="" loading="lazy"/>
+                                    <span class="kdvn-bizpage-tile-label">Office Building</span>
+                                </li>
+                                <li class="kdvn-bizpage-tile">
+                                    <img src="/kdvn/media/ict_tile_2?width=480" alt="" loading="lazy"/>
+                                    <span class="kdvn-bizpage-tile-label">Commercial Facility</span>
+                                </li>
+                                <li class="kdvn-bizpage-tile">
+                                    <img src="/kdvn/media/ict_tile_3?width=480" alt="" loading="lazy"/>
+                                    <span class="kdvn-bizpage-tile-label">Factory</span>
+                                </li>
+                                <li class="kdvn-bizpage-tile">
+                                    <img src="/kdvn/media/ict_tile_4?width=480" alt="" loading="lazy"/>
+                                    <span class="kdvn-bizpage-tile-label">Warehouse</span>
+                                </li>
+                                <li class="kdvn-bizpage-tile">
+                                    <img src="/kdvn/media/ict_tile_5?width=480" alt="" loading="lazy"/>
+                                    <span class="kdvn-bizpage-tile-label">Medical Facility</span>
+                                </li>
+                                <li class="kdvn-bizpage-tile">
+                                    <img src="/kdvn/media/ict_tile_6?width=480" alt="" loading="lazy"/>
+                                    <span class="kdvn-bizpage-tile-label">Educational Facility</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <section class="kdvn-section kdvn-bizpage-items">
+                        <div class="kdvn-container">
+                            <div class="row">
+                                <div class="col-12 col-lg-6">
+                                    <h2 class="kdvn-bizpage-title kdvn-bizpage-items-title">Business items</h2>
+                                </div>
+                                <div class="col-12 col-lg-6">
+                                    <article class="kdvn-bizpage-item">
+                                        <div class="kdvn-bizpage-item-head">
+                                            <span class="kdvn-bizpage-item-no">(01)</span>
+                                            <h3 class="kdvn-bizpage-item-title">Campus information communication equipment</h3>
+                                        </div>
+                                        <img src="/kdvn/media/ict_item_1?width=1336" class="kdvn-bizpage-item-image" alt="Campus information communication equipment" loading="lazy"/>
+                                        <p class="kdvn-bizpage-item-text">Kinden proposes optimal systems to create safe, secure and comfortable environments such as information network systems (LANs) , security systems and network camera systems, all of which help people in a range of sites work more efficiently and safely, including office buildings, factories, medical facilities and educational institutions. The Company covers integrated network solution needs across the board, from design and installation to maintenance.</p>
+                                        <ul class="kdvn-bizpage-scope">
+                                            <li>Internet</li>
+                                            <li>Security system</li>
+                                            <li>LAN</li>
+                                            <li>Intranet</li>
+                                            <li>Wind farm power generation system</li>
+                                            <li>Telephone</li>
+                                            <li>Information processing facility</li>
+                                        </ul>
+                                    </article>
+                                    <article class="kdvn-bizpage-item">
+                                        <div class="kdvn-bizpage-item-head">
+                                            <span class="kdvn-bizpage-item-no">(02)</span>
+                                            <h3 class="kdvn-bizpage-item-title">Wide area information communication equipment</h3>
+                                        </div>
+                                        <img src="/kdvn/media/ict_item_2?width=1336" class="kdvn-bizpage-item-image" alt="Wide area information communication equipment" loading="lazy"/>
+                                        <p class="kdvn-bizpage-item-text">Capitalizing on its sites with close ties to local communities, Kinden develops and improves facilities such as regional information &amp; communication infrastructures, FTTH, cable TV and governmental wireless security systems. The Company can respond to all customers’ work needs; building on an extensive track record of serving communication lines of all kinds, including installing base stations and wireless towers for mobile network operators, indoor and rooftop building antennae.</p>
+                                        <ul class="kdvn-bizpage-scope">
+                                            <li>Mobile Communication Base Stations</li>
+                                            <li>Service operation business</li>
+                                            <li>Cable Television</li>
+                                            <li>FTTH (Fiber To The Home)</li>
+                                            <li>A government emergency radio system for disaster prevention and relief</li>
+                                            <li>Regional Information &amp; Communication Infrastructure Development</li>
+                                            <li>Equipment Installation Work in Central Office</li>
+                                            <li>TV Radio Receiver Pre-flight Study</li>
+                                            <li>Maintenance work for base stations (coating operation for telecommunication towers)</li>
+                                        </ul>
+                                    </article>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <t t-call="kdvn_website.page_footer_nav"/>
+            </div>
+        </t>
+    </template>
+
+    <record id="page_kdvn_ict_system" model="website.page">
+        <field name="name">Information and Communication Systems</field>
+        <field name="url">/business/information-communication-system</field>
+        <field name="view_id" ref="ict_system_page"/>
+        <field name="type">qweb</field>
+        <field name="key">kdvn_website.ict_system_page</field>
+        <field name="is_published" eval="True"/>
+    </record>
+
+    <!-- ===================================================================== -->
+    <!-- Interior Systems  (/business/interior-system) -->
+    <!-- Figma: design/kdvn_website/frames/interior-systems-{desktop,tablet,mobile}.png -->
+    <!-- Layout: shared kdvn-bizpage-* blocks. Content inside oe_structure is editable. -->
+    <!-- Images: Site Media keys interior_hero, interior_feature_1, interior_item_1 -->
+    <!-- ===================================================================== -->
+    <template id="interior_system_page" name="Interior System">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <t t-call="kdvn_website.page_header"/>
+
+                <div class="oe_structure">
+                    <section class="kdvn-bizpage-intro">
+                        <div class="kdvn-container">
+                            <p class="kdvn-bizpage-lead">We meet a range of customer needs by pursuing functionality and design. For office buildings we develop system ceilings and free access floors to flexibly meet customer requirements. We also engage in renovation projects for commercial and accommodation facilities and hospitals as well as interior facilities for complex housing and specialty interior facilities, including anechoic chambers and sealed rooms.</p>
+                            <img src="/kdvn/media/interior_hero" class="kdvn-bizpage-hero" alt="Interior Systems" loading="lazy"/>
+                        </div>
+                    </section>
+
+                    <section class="kdvn-section kdvn-bizpage-features">
+                        <div class="kdvn-container">
+                            <div class="kdvn-bizpage-title-row">
+                                <h2 class="kdvn-bizpage-title">Feature</h2>
+                                <p class="kdvn-bizpage-tagline">Creating a cozy space with functionality and design freedom in mind</p>
+                            </div>
+                            <img src="/kdvn/media/interior_feature_1" class="kdvn-bizpage-wide" alt="Creating a cozy space" loading="lazy"/>
+                        </div>
+                    </section>
+
+                    <section class="kdvn-section kdvn-bizpage-items">
+                        <div class="kdvn-container">
+                            <div class="row">
+                                <div class="col-12 col-lg-6">
+                                    <h2 class="kdvn-bizpage-title kdvn-bizpage-items-title">Business items</h2>
+                                </div>
+                                <div class="col-12 col-lg-6">
+                                    <article class="kdvn-bizpage-item">
+                                        <div class="kdvn-bizpage-item-head">
+                                            <span class="kdvn-bizpage-item-no">(01)</span>
+                                            <h3 class="kdvn-bizpage-item-title">Helping create comfortable working spaces</h3>
+                                        </div>
+                                        <img src="/kdvn/media/interior_item_1?width=1336" class="kdvn-bizpage-item-image" alt="Helping create comfortable working spaces" loading="lazy"/>
+                                        <p class="kdvn-bizpage-item-text">Kinden brings together a wide range of field-of-specialization technologies — information and communications, electricity, lighting, air conditioning and more — in creating optimum work-conducive environments designed to boost productivity. Two main interior system products are our adjustable system ceilings and free-access floors. All materials, parts and assembly procedures have been completely streamlined. What’s more, our integrated construction management system, which places the same on-site supervisor in charge of electricity, air conditioning and other systems, enables safe, efficient and speedy construction.</p>
+                                    </article>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <t t-call="kdvn_website.page_footer_nav"/>
+            </div>
+        </t>
+    </template>
+
+    <record id="page_kdvn_interior_system" model="website.page">
+        <field name="name">Interior Systems</field>
+        <field name="url">/business/interior-system</field>
+        <field name="view_id" ref="interior_system_page"/>
+        <field name="type">qweb</field>
+        <field name="key">kdvn_website.interior_system_page</field>
+        <field name="is_published" eval="True"/>
+    </record>
+
+    <!-- ===================================================================== -->
+    <!-- Energy Saving and Renewal  (/business/energy-saving-renewal) -->
+    <!-- Figma: design/kdvn_website/frames/energy-saving-{desktop,tablet,mobile}.png -->
+    <!-- Layout: shared kdvn-bizpage-* blocks. Content inside oe_structure is editable. -->
+    <!-- Images: Site Media keys energy_hero, energy_approach_N, energy_banner, energy_ac_item_N, energy_elec_item_N, energy_renewal, energy_renewable_hero, energy_solar -->
+    <!-- ===================================================================== -->
+    <template id="energy_saving_page" name="Energy Saving and Renewal">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <t t-call="kdvn_website.page_header"/>
+
+                <div class="oe_structure">
+                    <section class="kdvn-bizpage-intro">
+                        <div class="kdvn-container">
+                            <p class="kdvn-bizpage-lead">Kinden offers plans to renovate facility systems with facility lifecycles in mind after examining issues of existing facilities. As part of this, we also suggest saving energy utilizing an integrated facility diagnostic program and strive to develop an environment in which to promote comfortable living.</p>
+                            <img src="/kdvn/media/energy_hero" class="kdvn-bizpage-hero" alt="Energy Saving and Renewal" loading="lazy"/>
+                        </div>
+                    </section>
+
+                    <section class="kdvn-section kdvn-bizpage-features">
+                        <div class="kdvn-container">
+                            <h2 class="kdvn-bizpage-title">Approach</h2>
+                            <div class="kdvn-bizpage-feature-grid kdvn-bizpage-approach">
+                                <div class="kdvn-bizpage-feature">
+                                    <img src="/kdvn/media/energy_approach_1?width=960" class="kdvn-bizpage-diagram" alt="Kinden Consolidated Equipment Diagnostic System: energy saving diagnosis, deterioration diagnosis, trouble investigation" loading="lazy"/>
+                                    <h3 class="kdvn-bizpage-feature-title">Energy conservation diagnosis and equipment diagnosis system</h3>
+                                    <p class="kdvn-bizpage-feature-text">Kinden provides a complete range of integrated services — from energy conservation evaluation and diagnosis, equipment evaluation and diagnosis and trouble investigation to analysis and evaluation of survey results, improvement proposals, improvement design, implementation and inspection. Kinden’s Comprehensive Equipment Diagnostic System, for instance, provides an overall, integrated assessment of equipment energy conservation capabilities and deterioration renewal. It is a total system designed to achieve optimal energy conservation in the interests of streamlining business efficiency and operations.</p>
+                                </div>
+                                <div class="kdvn-bizpage-feature">
+                                    <img src="/kdvn/media/energy_approach_2?width=960" class="kdvn-bizpage-diagram" alt="Total Facility Diagnosis Services: from questioning, primary and secondary diagnosis to proposal" loading="lazy"/>
+                                    <h3 class="kdvn-bizpage-feature-title">Comprehensive equipment diagnostic program</h3>
+                                    <p class="kdvn-bizpage-feature-text">Kinden’s Comprehensive Equipment Diagnostic Program is a “total service program” that offers services from studies and diagnosis to energy conservation proposals for the purpose of maintaining equipment systems at maximum operating capability. The ultimate aim? Letting users operate these systems with complete confidence throughout the equipment’s life cycle.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="kdvn-section kdvn-bizpage-band">
+                        <div class="kdvn-container">
+                            <img src="/kdvn/media/energy_banner" class="kdvn-bizpage-wide" alt="Conservation Diagnosis and Proposals" loading="lazy"/>
+                            <h2 class="kdvn-bizpage-band-title">Conservation Diagnosis and Proposals</h2>
+                            <div class="kdvn-divider"/>
+                            <p class="kdvn-bizpage-band-text">Energy-saving efforts have become the social mission for corporate activities. Kinden’s consolidated equipment diagnostic program implements energy-saving and deterioration diagnoses. We aim to optimize energy-saving measures through facility management operations, starting from proposals for renovation, planning, construction and validation.</p>
+                        </div>
+                    </section>
+
+                    <section class="kdvn-section kdvn-bizpage-items">
+                        <div class="kdvn-container">
+                            <div class="row kdvn-bizpage-group">
+                                <div class="col-12 col-lg-6">
+                                    <h2 class="kdvn-bizpage-title kdvn-bizpage-items-title">Business items</h2>
+                                    <p class="kdvn-bizpage-items-sub">Air conditioning and sanitation systems equipment diagnosis</p>
+                                </div>
+                                <div class="col-12 col-lg-6">
+                                    <article class="kdvn-bizpage-item">
+                                        <h3 class="kdvn-bizpage-item-title kdvn-bizpage-item-title-left">Systems performance diagnosis</h3>
+                                        <img src="/kdvn/media/energy_ac_item_1?width=1336" class="kdvn-bizpage-item-image" alt="Systems performance diagnosis" loading="lazy"/>
+                                        <ul class="kdvn-bizpage-bullets">
+                                            <li>Examination and measurement of energy consumption</li>
+                                            <li>Cold water/hot water flow rate measurement</li>
+                                            <li>Duct/outlet flow rate measurement</li>
+                                        </ul>
+                                    </article>
+                                    <article class="kdvn-bizpage-item">
+                                        <h3 class="kdvn-bizpage-item-title kdvn-bizpage-item-title-left">Systems/equipment deterioration diagnosis</h3>
+                                        <img src="/kdvn/media/energy_ac_item_2?width=1336" class="kdvn-bizpage-item-image" alt="Systems/equipment deterioration diagnosis" loading="lazy"/>
+                                        <ul class="kdvn-bizpage-bullets">
+                                            <li>Heat source equipment performance measurement</li>
+                                            <li>Rotary machinery vibration measurement</li>
+                                            <li>Steam trap functionality studies</li>
+                                        </ul>
+                                    </article>
+                                    <article class="kdvn-bizpage-item">
+                                        <h3 class="kdvn-bizpage-item-title kdvn-bizpage-item-title-left">Plumbing systems deterioration diagnosis</h3>
+                                        <img src="/kdvn/media/energy_ac_item_3?width=1336" class="kdvn-bizpage-item-image" alt="Plumbing systems deterioration diagnosis" loading="lazy"/>
+                                        <ul class="kdvn-bizpage-bullets">
+                                            <li>Heat source equipment performance measurement</li>
+                                            <li>Rotary machinery vibration measurement</li>
+                                            <li>Steam trap functionality studies</li>
+                                        </ul>
+                                    </article>
+                                </div>
+                            </div>
+                            <div class="row kdvn-bizpage-group">
+                                <div class="col-12 col-lg-6">
+                                    <h2 class="kdvn-bizpage-title kdvn-bizpage-items-title">Business items</h2>
+                                    <p class="kdvn-bizpage-items-sub">Electrical systems equipment diagnosis</p>
+                                </div>
+                                <div class="col-12 col-lg-6">
+                                    <article class="kdvn-bizpage-item">
+                                        <h3 class="kdvn-bizpage-item-title kdvn-bizpage-item-title-left">Systems/equipment deterioration diagnosis</h3>
+                                        <img src="/kdvn/media/energy_elec_item_1?width=1336" class="kdvn-bizpage-item-image" alt="Systems/equipment deterioration diagnosis" loading="lazy"/>
+                                        <ul class="kdvn-bizpage-bullets">
+                                            <li>Transformer gas-in-oil analysis</li>
+                                            <li>Insulation resistance measurement</li>
+                                            <li>Equipment deterioration studies (protective relays, fluorescent light stabilizers, etc.)</li>
+                                            <li>Heat source quality studies (harmonic measurement, electromagnetic field environment measurement, etc.)</li>
+                                        </ul>
+                                    </article>
+                                    <article class="kdvn-bizpage-item">
+                                        <h3 class="kdvn-bizpage-item-title kdvn-bizpage-item-title-left">Cable/transmission line deterioration analysis</h3>
+                                        <img src="/kdvn/media/energy_elec_item_2?width=1336" class="kdvn-bizpage-item-image" alt="Cable/transmission line deterioration analysis" loading="lazy"/>
+                                        <ul class="kdvn-bizpage-bullets">
+                                            <li>Ground resistance measurement</li>
+                                            <li>Current leakage measurement</li>
+                                            <li>Temperature measurement (checking clamping of terminals and joints, etc.)</li>
+                                        </ul>
+                                    </article>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="kdvn-bizpage-renewal">
+                        <div class="kdvn-container">
+                            <img src="/kdvn/media/energy_renewal" class="kdvn-bizpage-wide" alt="Renewal recommendations" loading="lazy"/>
+                            <div class="row kdvn-bizpage-renewal-row">
+                                <div class="col-12 col-lg-6">
+                                    <h2 class="kdvn-bizpage-subtitle">Renewal Recommendations Based on Comprehensive Equipment Diagnosis</h2>
+                                </div>
+                                <div class="col-12 col-lg-6">
+                                    <p class="kdvn-bizpage-body">Facility systems renovations make up an important part of Kinden’s renewal services. Based on the principles of facilities management, these renovations are designed to optimize the performance of equipment and systems according to the life cycle of the facilities they operate in.</p>
+                                    <p class="kdvn-bizpage-body">Renewal operations are an integral field in Kinden’s total systems support service lineup — from on-site field studies to planning, design, implementation and maintenance — as an integrated systems engineering leader. Operations start with the identification and analysis of the problem areas presented by currently operating facilities based on the results of our comprehensive system diagnosis — including deterioration diagnosis, energy conservation diagnosis and trouble investigation. Our engineering specialists use these results as guidelines in determining the proper corrective measures — using our proprietary systems technology to restore existing systems to maximum operating capabilities and develop new and innovative systems custom-tailored to facility needs.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="kdvn-section kdvn-bizpage-renewable">
+                        <div class="kdvn-container">
+                            <h2 class="kdvn-page-title">Renewable energy</h2>
+                            <div class="kdvn-divider"/>
+                            <p class="kdvn-bizpage-lead">In this era of massive energy consumption, depletion of underground resources such as fossil fuel is also coming to the fore alongside global environmental destruction. Under such circumstances, Kinden focuses on renewable energy, including solar and wind power and proactively engages in developing a green energy system.</p>
+                            <img src="/kdvn/media/energy_renewable_hero" class="kdvn-bizpage-hero" alt="Renewable energy" loading="lazy"/>
+                        </div>
+                    </section>
+
+                    <section class="kdvn-section kdvn-bizpage-features">
+                        <div class="kdvn-container">
+                            <h2 class="kdvn-bizpage-title">Feature</h2>
+                            <div class="kdvn-bizpage-split">
+                                <img src="/kdvn/media/energy_solar?width=960" alt="Photovoltaic power generation optimization systems (SOLAR NAVI)" loading="lazy"/>
+                                <div class="kdvn-bizpage-split-text">
+                                    <h3 class="kdvn-bizpage-feature-title">Photovoltaic power generation optimization systems (SOLAR NAVI)</h3>
+                                    <p class="kdvn-bizpage-feature-sub">Advanced technology designed to boost efficient solar power utilization and generation efficiency</p>
+                                    <p class="kdvn-bizpage-feature-text">The ideal location to install solar batteries is one free from shadows all year round. However, such ideal installation locations are limited. Kinden provides the most efficient design of generating energy(kwh) by utilizing "SOLAR NAVI" under any circumstance.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <t t-call="kdvn_website.page_footer_nav"/>
+            </div>
+        </t>
+    </template>
+
+    <record id="page_kdvn_energy_saving" model="website.page">
+        <field name="name">Energy Saving and Renewal</field>
+        <field name="url">/business/energy-saving-renewal</field>
+        <field name="view_id" ref="energy_saving_page"/>
+        <field name="type">qweb</field>
+        <field name="key">kdvn_website.energy_saving_page</field>
+        <field name="is_published" eval="True"/>
+    </record>
 </odoo>

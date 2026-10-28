@@ -373,5 +373,215 @@
             <field name="note">Square portrait in the scrolling strip, 200 x 200 on desktop. The starting image is cut from the design.</field>
             <field name="image" type="base64" file="kdvn_website/static/src/img/content/hr-development-portrait-6.jpg"/>
         </record>
+        <record id="media_instrumentation_hero" model="kdvn.website.media">
+            <field name="name">Instrumentation - hero</field>
+            <field name="key">instrumentation_hero</field>
+            <field name="sequence">92</field>
+            <field name="note">1360 x 440 wide photo under the intro text. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/instrumentation-hero.jpg"/>
+        </record>
+        <record id="media_instrumentation_feature_1" model="kdvn.website.media">
+            <field name="name">Instrumentation - Feature 1</field>
+            <field name="key">instrumentation_feature_1</field>
+            <field name="sequence">93</field>
+            <field name="note">Feature column photo, about 668 x 320. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/instrumentation-feature-1.jpg"/>
+        </record>
+        <record id="media_instrumentation_feature_2" model="kdvn.website.media">
+            <field name="name">Instrumentation - Feature 2</field>
+            <field name="key">instrumentation_feature_2</field>
+            <field name="sequence">94</field>
+            <field name="note">Feature column photo, about 668 x 320. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/instrumentation-feature-2.jpg"/>
+        </record>
+        <record id="media_instrumentation_item_1" model="kdvn.website.media">
+            <field name="name">Instrumentation - (01) Building systems</field>
+            <field name="key">instrumentation_item_1</field>
+            <field name="sequence">95</field>
+            <field name="note">Business item photo, 668 x 320. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/instrumentation-item-1.jpg"/>
+        </record>
+        <record id="media_instrumentation_item_2" model="kdvn.website.media">
+            <field name="name">Instrumentation - (02) Plants and facilities</field>
+            <field name="key">instrumentation_item_2</field>
+            <field name="sequence">96</field>
+            <field name="note">Business item photo, 668 x 320. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/instrumentation-item-2.jpg"/>
+        </record>
+        <record id="media_instrumentation_item_3" model="kdvn.website.media">
+            <field name="name">Instrumentation - (03) Field services</field>
+            <field name="key">instrumentation_item_3</field>
+            <field name="sequence">97</field>
+            <field name="note">Business item photo, 668 x 320. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/instrumentation-item-3.jpg"/>
+        </record>
+        <record id="media_ict_hero" model="kdvn.website.media">
+            <field name="name">Information &amp; Communication - hero</field>
+            <field name="key">ict_hero</field>
+            <field name="sequence">98</field>
+            <field name="note">1360 x 440 wide photo under the intro text. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/ict-hero.jpg"/>
+        </record>
+        <record id="media_ict_tile_1" model="kdvn.website.media">
+            <field name="name">Information &amp; Communication - Feature tile 1 (Office Building)</field>
+            <field name="key">ict_tile_1</field>
+            <field name="sequence">99</field>
+            <field name="note">Square tile, about 200 x 200. A darker photo works best because the white label sits on it. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/ict-tile-1.jpg"/>
+        </record>
+        <record id="media_ict_tile_2" model="kdvn.website.media">
+            <field name="name">Information &amp; Communication - Feature tile 2 (Commercial Facility)</field>
+            <field name="key">ict_tile_2</field>
+            <field name="sequence">100</field>
+            <field name="note">Square tile, about 200 x 200. A darker photo works best because the white label sits on it. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/ict-tile-2.jpg"/>
+        </record>
+        <record id="media_ict_tile_3" model="kdvn.website.media">
+            <field name="name">Information &amp; Communication - Feature tile 3 (Factory)</field>
+            <field name="key">ict_tile_3</field>
+            <field name="sequence">101</field>
+            <field name="note">Square tile, about 200 x 200. A darker photo works best because the white label sits on it. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/ict-tile-3.jpg"/>
+        </record>
+        <record id="media_ict_tile_4" model="kdvn.website.media">
+            <field name="name">Information &amp; Communication - Feature tile 4 (Warehouse)</field>
+            <field name="key">ict_tile_4</field>
+            <field name="sequence">102</field>
+            <field name="note">Square tile, about 200 x 200. A darker photo works best because the white label sits on it. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/ict-tile-4.jpg"/>
+        </record>
+        <record id="media_ict_tile_5" model="kdvn.website.media">
+            <field name="name">Information &amp; Communication - Feature tile 5 (Medical Facility)</field>
+            <field name="key">ict_tile_5</field>
+            <field name="sequence">103</field>
+            <field name="note">Square tile, about 200 x 200. A darker photo works best because the white label sits on it. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/ict-tile-5.jpg"/>
+        </record>
+        <record id="media_ict_tile_6" model="kdvn.website.media">
+            <field name="name">Information &amp; Communication - Feature tile 6 (Educational Facility)</field>
+            <field name="key">ict_tile_6</field>
+            <field name="sequence">104</field>
+            <field name="note">Square tile, about 200 x 200. A darker photo works best because the white label sits on it. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/ict-tile-6.jpg"/>
+        </record>
+        <record id="media_ict_item_1" model="kdvn.website.media">
+            <field name="name">Information &amp; Communication - (01) Campus</field>
+            <field name="key">ict_item_1</field>
+            <field name="sequence">105</field>
+            <field name="note">Business item photo, 668 x 320. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/ict-item-1.jpg"/>
+        </record>
+        <record id="media_ict_item_2" model="kdvn.website.media">
+            <field name="name">Information &amp; Communication - (02) Wide area</field>
+            <field name="key">ict_item_2</field>
+            <field name="sequence">106</field>
+            <field name="note">Business item photo, 668 x 320. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/ict-item-2.jpg"/>
+        </record>
+        <record id="media_interior_hero" model="kdvn.website.media">
+            <field name="name">Interior - hero</field>
+            <field name="key">interior_hero</field>
+            <field name="sequence">107</field>
+            <field name="note">1360 x 440 wide photo under the intro text. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/interior-hero.jpg"/>
+        </record>
+        <record id="media_interior_feature_1" model="kdvn.website.media">
+            <field name="name">Interior - Feature</field>
+            <field name="key">interior_feature_1</field>
+            <field name="sequence">108</field>
+            <field name="note">Wide photo, 1360 x 320. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/interior-feature-1.jpg"/>
+        </record>
+        <record id="media_interior_item_1" model="kdvn.website.media">
+            <field name="name">Interior - (01) Working spaces</field>
+            <field name="key">interior_item_1</field>
+            <field name="sequence">109</field>
+            <field name="note">Business item photo, 668 x 320. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/interior-item-1.jpg"/>
+        </record>
+        <record id="media_energy_hero" model="kdvn.website.media">
+            <field name="name">Energy Saving - hero</field>
+            <field name="key">energy_hero</field>
+            <field name="sequence">110</field>
+            <field name="note">1360 x 440 wide photo under the intro text. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/energy-hero.jpg"/>
+        </record>
+        <record id="media_energy_approach_1" model="kdvn.website.media">
+            <field name="name">Energy Saving - Approach diagram 1</field>
+            <field name="key">energy_approach_1</field>
+            <field name="sequence">111</field>
+            <field name="note">Diagram with its text drawn in the image, about 664 x 460. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/energy-approach-1.jpg"/>
+        </record>
+        <record id="media_energy_approach_2" model="kdvn.website.media">
+            <field name="name">Energy Saving - Approach diagram 2</field>
+            <field name="key">energy_approach_2</field>
+            <field name="sequence">112</field>
+            <field name="note">Diagram with its text drawn in the image, about 664 x 460. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/energy-approach-2.jpg"/>
+        </record>
+        <record id="media_energy_banner" model="kdvn.website.media">
+            <field name="name">Energy Saving - Conservation Diagnosis banner</field>
+            <field name="key">energy_banner</field>
+            <field name="sequence">113</field>
+            <field name="note">Wide photo, 1344 x 320. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/energy-banner.jpg"/>
+        </record>
+        <record id="media_energy_ac_item_1" model="kdvn.website.media">
+            <field name="name">Energy Saving - Air conditioning 1</field>
+            <field name="key">energy_ac_item_1</field>
+            <field name="sequence">114</field>
+            <field name="note">Business item photo, 668 x 320. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/energy-ac-item-1.jpg"/>
+        </record>
+        <record id="media_energy_ac_item_2" model="kdvn.website.media">
+            <field name="name">Energy Saving - Air conditioning 2</field>
+            <field name="key">energy_ac_item_2</field>
+            <field name="sequence">115</field>
+            <field name="note">Business item photo, 668 x 320. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/energy-ac-item-2.jpg"/>
+        </record>
+        <record id="media_energy_ac_item_3" model="kdvn.website.media">
+            <field name="name">Energy Saving - Air conditioning 3</field>
+            <field name="key">energy_ac_item_3</field>
+            <field name="sequence">116</field>
+            <field name="note">Business item photo, 668 x 320. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/energy-ac-item-3.jpg"/>
+        </record>
+        <record id="media_energy_elec_item_1" model="kdvn.website.media">
+            <field name="name">Energy Saving - Electrical 1</field>
+            <field name="key">energy_elec_item_1</field>
+            <field name="sequence">117</field>
+            <field name="note">Business item photo, 668 x 320. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/energy-elec-item-1.jpg"/>
+        </record>
+        <record id="media_energy_elec_item_2" model="kdvn.website.media">
+            <field name="name">Energy Saving - Electrical 2</field>
+            <field name="key">energy_elec_item_2</field>
+            <field name="sequence">118</field>
+            <field name="note">Business item photo, 668 x 320. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/energy-elec-item-2.jpg"/>
+        </record>
+        <record id="media_energy_renewal" model="kdvn.website.media">
+            <field name="name">Energy Saving - Renewal recommendations</field>
+            <field name="key">energy_renewal</field>
+            <field name="sequence">119</field>
+            <field name="note">Wide photo, 1360 x 354. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/energy-renewal.jpg"/>
+        </record>
+        <record id="media_energy_renewable_hero" model="kdvn.website.media">
+            <field name="name">Energy Saving - Renewable energy photo</field>
+            <field name="key">energy_renewable_hero</field>
+            <field name="sequence">120</field>
+            <field name="note">1360 x 440 wide photo. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/energy-renewable-hero.jpg"/>
+        </record>
+        <record id="media_energy_solar" model="kdvn.website.media">
+            <field name="name">Energy Saving - Solar Navi</field>
+            <field name="key">energy_solar</field>
+            <field name="sequence">121</field>
+            <field name="note">Feature photo, 668 x 320. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/energy-solar.jpg"/>
+        </record>
     </data>
 </odoo>

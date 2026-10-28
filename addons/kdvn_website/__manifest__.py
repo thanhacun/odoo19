@@ -3,7 +3,7 @@
     'name': 'KDERP Official Enterprise Website',
     'description': 'Production-grade enterprise website built matching Figma layout tokens.',
     'category': 'Website/Theme',
-    'version': '19.0.1.21.3',
+    'version': '19.0.1.22.0',
     'author': 'KDERP',
     'license': 'LGPL-3',
     'depends': ['website', 'website_hr_recruitment'],
@@ -50,6 +50,7 @@
             'kdvn_website/static/src/js/panels.js',
             'kdvn_website/static/src/js/job_apply.js',
             'kdvn_website/static/src/js/jobs_filter.js',
+            'kdvn_website/static/src/js/bizpage_tiles.js',
         ],
         'web_editor.assets_media_dialog': [
             'kdvn_website/static/src/js/options/remix_icons_options.js',

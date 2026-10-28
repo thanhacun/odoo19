@@ -1776,6 +1776,318 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     }
 }
 
+// --- Business area pages: blocks used by Instrumentation, Information and Communication,
+// Interior and Energy Saving (Figma: frames/instrumentation-*, information-communication-*,
+// interior-systems-*, energy-saving-*)
+.kdvn-bizpage-feature-text + .kdvn-bizpage-feature-text {
+    margin-top: $spacing-gap-small;
+}
+.kdvn-bizpage-subhead {
+    margin: $spacing-gap-small 0 $spacing-gap-x-small;
+    font-size: $typography-font-size-body-small;
+    line-height: 20px;
+    font-weight: $emphasis-font-weight-bold;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-body-base;
+        line-height: 24px;
+    }
+}
+.kdvn-bizpage-bullets {
+    margin: 0;
+    padding-left: 1.5rem;
+    font-size: $typography-font-size-body-small;
+    line-height: 20px;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-body-base;
+        line-height: 24px;
+    }
+}
+.kdvn-bizpage-item-title-left {
+    margin-bottom: $spacing-gap-large;
+    line-height: 28px;
+
+    @include media-breakpoint-up(lg) {
+        text-align: left;
+    }
+}
+.kdvn-bizpage-item-title-left + .kdvn-bizpage-item-image {
+    margin-bottom: $spacing-gap-large;
+}
+.kdvn-bizpage-bullets li + li {
+    margin-top: $spacing-gap-x-small;
+}
+
+// "Feature" with a grey line next to / under it
+.kdvn-bizpage-tagline {
+    margin: $spacing-gap-x-small 0 0;
+    font-size: $typography-font-size-body-small;
+    line-height: 20px;
+    color: $kdvn-bizpage-grey;
+
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-body-large;
+        line-height: 28px;
+    }
+}
+.kdvn-bizpage-title-row {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-gap-x-small;
+    margin-bottom: 1.25rem;
+
+    .kdvn-bizpage-tagline {
+        margin: 0;
+    }
+
+    @include media-breakpoint-up(lg) {
+        flex-direction: row;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: $spacing-gap-3x-large;
+    }
+}
+.kdvn-bizpage-wide {
+    display: block;
+    width: 100%;
+    aspect-ratio: 342 / 200;
+    object-fit: cover;
+
+    @include media-breakpoint-up(md) {
+        aspect-ratio: 1360 / 320;
+    }
+}
+
+// Information and Communication: row of square tiles that scrolls sideways
+.kdvn-bizpage-tiles-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: $spacing-gap-large;
+    margin-bottom: 1.25rem;
+
+    .kdvn-bizpage-tagline {
+        max-width: 24rem;
+    }
+
+    @include media-breakpoint-up(xl) {
+        margin-bottom: $spacing-gap-3x-large;
+    }
+}
+.kdvn-bizpage-tiles-nav {
+    display: flex;
+    flex: none;
+    gap: $spacing-gap-x-small;
+
+    .kdvn-action-btn:disabled {
+        opacity: 0.4;
+        cursor: default;
+    }
+}
+.kdvn-bizpage-tiles {
+    display: flex;
+    gap: $spacing-gap-small;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+.kdvn-bizpage-tile {
+    position: relative;
+    flex: none;
+    width: 160px;
+    aspect-ratio: 1;
+    scroll-snap-align: start;
+    overflow: hidden;
+    background: $black-12;
+
+    @include media-breakpoint-up(lg) {
+        width: 200px;
+    }
+
+    img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+.kdvn-bizpage-tile-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-gap-x-small;
+    text-align: center;
+    font-size: $typography-font-size-body-small;
+    line-height: 20px;
+    color: $color-content-on-color;
+    background: $color-background-black-overlay-light;
+
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-body-base;
+        line-height: 24px;
+    }
+}
+
+// Energy Saving and Renewal
+.kdvn-bizpage-diagram {
+    border: 1px solid $black-5;
+    aspect-ratio: 664 / 461 !important;
+    height: auto !important;
+    object-fit: contain !important;
+}
+.kdvn-bizpage-band {
+    padding-bottom: $spacing-gap-3x-large;
+    background: $black-2;
+
+    @include media-breakpoint-up(xl) {
+        padding-bottom: $spacing-gap-2x-giant;
+    }
+}
+.kdvn-bizpage-band-title {
+    margin: $spacing-gap-large 0 $spacing-gap-large;
+    font-family: $font-family-base;
+    font-size: $typography-font-size-heading-4;
+    line-height: 34px;
+    font-weight: $emphasis-font-weight-bold;
+    letter-spacing: -0.5px;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(xl) {
+        font-size: $typography-font-size-heading-1;
+        line-height: 48px;
+        margin-top: $spacing-gap-x-large;
+    }
+}
+.kdvn-bizpage-band-text {
+    margin: $spacing-gap-large 0 0;
+    font-size: $typography-font-size-body-small;
+    line-height: 20px;
+    color: $kdvn-bizpage-grey;
+
+    @include media-breakpoint-up(lg) {
+        max-width: 600px;
+        margin: $spacing-gap-2x-large 0 0 33%;
+        font-size: $typography-font-size-body-base;
+        line-height: 24px;
+    }
+}
+.kdvn-bizpage-group + .kdvn-bizpage-group {
+    margin-top: $spacing-gap-3x-large;
+
+    @include media-breakpoint-up(xl) {
+        margin-top: $spacing-gap-2x-giant;
+    }
+}
+.kdvn-bizpage-items-sub {
+    margin: $spacing-gap-x-small 0 $spacing-gap-large;
+    font-size: $typography-font-size-heading-4;
+    line-height: 32px;
+    font-weight: $emphasis-font-weight-bold;
+    letter-spacing: -0.5px;
+    color: $color-content-neutral-base;
+
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-heading-3;
+        line-height: 44px;
+        position: sticky;
+        top: 11rem;
+        margin-bottom: 0;
+    }
+}
+.kdvn-bizpage-renewal {
+    padding-top: $spacing-gap-3x-large;
+
+    @include media-breakpoint-up(xl) {
+        padding-top: $spacing-gap-giant;
+    }
+}
+.kdvn-bizpage-renewal-row {
+    margin-top: $spacing-gap-large;
+
+    @include media-breakpoint-up(xl) {
+        margin-top: $spacing-gap-x-large;
+    }
+}
+.kdvn-bizpage-subtitle {
+    margin: 0 0 $spacing-gap-medium;
+    font-family: $font-family-base;
+    font-size: $typography-font-size-heading-4;
+    line-height: 34px;
+    font-weight: $emphasis-font-weight-bold;
+    letter-spacing: -0.5px;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(xl) {
+        font-size: $typography-font-size-heading-3;
+        line-height: 44px;
+    }
+}
+.kdvn-bizpage-body {
+    margin: 0 0 $spacing-gap-medium;
+    font-size: $typography-font-size-body-small;
+    line-height: 20px;
+    color: $color-content-neutral-strongest;
+
+    @include media-breakpoint-up(lg) {
+        font-size: $typography-font-size-body-base;
+        line-height: 32px;
+    }
+}
+.kdvn-bizpage-renewable .kdvn-page-title {
+    margin-bottom: $spacing-gap-x-large;
+
+    @include media-breakpoint-up(xl) {
+        margin-bottom: $spacing-gap-giant;
+    }
+}
+.kdvn-bizpage-renewable .kdvn-bizpage-lead {
+    margin-top: $spacing-gap-x-large;
+}
+.kdvn-bizpage-split {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-gap-large;
+    margin-top: 1.25rem;
+
+    img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 668 / 320;
+        object-fit: cover;
+    }
+
+    @include media-breakpoint-up(md) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: center;
+        column-gap: $spacing-gap-giant;   // text starts 64px after the photo (frame)
+    }
+    @include media-breakpoint-up(xl) {
+        margin-top: $spacing-gap-3x-large;
+    }
+}
+.kdvn-bizpage-split-text .kdvn-bizpage-feature-title {
+    margin-top: 0;
+}
+.kdvn-bizpage-feature-sub {
+    margin: $spacing-gap-x-small 0;
+    font-size: $typography-font-size-body-small;
+    line-height: 24px;
+    font-weight: $emphasis-font-weight-bold;
+    color: $kdvn-bizpage-grey;
+}
+
 // ============================================================================
 // INQUIRY FORM (Figma: frames/inquiry-form-01-* form, inquiry-form-02-* popup)
 // ============================================================================
