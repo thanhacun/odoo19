@@ -28,7 +28,6 @@ Status: `todo` → `design` (frames + spec ready) → `build` → `review` → `
 | Company profile | Kinden Business Areas | 3 | | todo | |
 | Company profile | Group Companies | 3 | `/company-profile/group-companies` | review | Aligned to full-size desktop/tablet/mobile PNG frames; photos = placeholders |
 | Company profile | HR Development | 4 | `/company-profile/human-resource-development` | review | Built from frames hr-development-*; photos cut from the desktop frame into Site Media `hr_development_*` (replace with originals) |
-| Business Information | Overview | 1 | `/business-information` | todo | |
 | Business Information | Electrical Systems | 1 | `/business/electrical-system` | review | Built from frames (desktop/tablet/mobile); shared `kdvn-bizpage-*` layout, images in Site Media `electrical_*` |
 | Business Information | Air Conditioning & Sanitary Systems | 1 | `/business/air-conditioning-sanitary-system` | review | Same layout as Electrical; images in Site Media `ac_sanitary_*` |
 | Business Information | Instrumentation Systems | 2 | `/business/instrumentation-system` | review | Built from desktop frames; 2 features, 3 items; images in Site Media `instrumentation_*` |

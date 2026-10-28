@@ -102,7 +102,8 @@
             <field name="is_mega_menu">False</field>
             <field name="parent_id" ref="kdvn_website.menu_kdvn_master_root"/>
             <field name="sequence" type="int">20</field>
-            <field name="overview_url">/business-information</field>
+            <!-- no overview page: no "View details" button. eval False clears the value on databases that had one -->
+            <field name="overview_url" eval="False"/>
         </record>
 
         <!-- Menu: Electrical Systems -->
