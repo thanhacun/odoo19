@@ -297,6 +297,54 @@
     </record>
 
     <!-- ===================================================================== -->
+    <!-- Human Resource Development  (/company-profile/human-resource-development) -->
+    <!-- Figma: frames/hr-development-desktop|tablet|mobile.png                -->
+    <!-- Images: Site Media keys hr_development_hero_1..2, hr_development_portrait_1..6. -->
+    <!-- ===================================================================== -->
+    <template id="hr_development_page" name="Human Resource Development">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <t t-call="kdvn_website.page_header"/>
+
+                <div class="oe_structure">
+                    <section class="kdvn-hrdev">
+                        <div class="kdvn-container">
+                            <div class="kdvn-hrdev-hero">
+                                <img src="/kdvn/media/hr_development_hero_1?width=800" alt="Kinden employees lined up for training" loading="lazy"/>
+                                <img src="/kdvn/media/hr_development_hero_2?width=800" alt="Kinden technical training field" loading="lazy"/>
+                            </div>
+                            <div class="kdvn-hrdev-row">
+                                <h2 class="kdvn-section-title">Training personnel to meet today&#8217;s rapidly changing technological and social needs head on</h2>
+                                <div class="kdvn-hrdev-text">
+                                    <p>Kinden human resources training reflects the performance record that we have built and the experience and special brand of know-how we have accumulated over the last half-century. First, we train our people to proactively adapt to the broad spectrum of today&#8217;s technological and social changes - not only for corporate growth, but to contribute to society at large through their work at Kinden.</p>
+                                    <p>More specifically, the goal of human resources development training here at Kinden is &#8220;the integrated development of mind, skills and body&#8221;. In practice, that means working to develop a strong yet humane character, superior occupational capabilities and a body trained to endure the demands of harsh physical environments. What&#8217;s more, we&#8217;re confident that this training regimen is key element in Kinden&#8217;s distinguished reputation for high, uncompromising standards at home and abroad.</p>
+                                    <p>As one test of our technical training, Kinden sends training personnel to the WorldSkills Competition held bi-annually at venues around the world. Our representatives have won numerous awards at WorldSkills as well as other competitive technical events both at home and abroad.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <ul class="kdvn-hrdev-portraits list-unstyled">
+                            <li><img src="/kdvn/media/hr_development_portrait_1?width=400" alt="Kinden engineer at work" loading="lazy"/></li>
+                            <li><img src="/kdvn/media/hr_development_portrait_2?width=400" alt="Kinden engineer at work" loading="lazy"/></li>
+                            <li><img src="/kdvn/media/hr_development_portrait_3?width=400" alt="Kinden engineer at work" loading="lazy"/></li>
+                            <li><img src="/kdvn/media/hr_development_portrait_4?width=400" alt="Kinden engineer at work" loading="lazy"/></li>
+                            <li><img src="/kdvn/media/hr_development_portrait_5?width=400" alt="Kinden engineer at work" loading="lazy"/></li>
+                            <li><img src="/kdvn/media/hr_development_portrait_6?width=400" alt="Kinden engineer at work" loading="lazy"/></li>
+                        </ul>
+                    </section>
+                </div>
+
+                <t t-call="kdvn_website.page_footer_nav"/>
+            </div>
+        </t>
+    </template>
+
+    <record id="page_kdvn_hr_development" model="website.page">
+        <field name="url">/company-profile/human-resource-development</field>
+        <field name="view_id" ref="hr_development_page"/>
+        <field name="is_published" eval="True"/>
+    </record>
+
+    <!-- ===================================================================== -->
     <!-- Licenses & Certifications (/company-profile/licenses-certifications)  -->
     <!-- Figma: frames/licences-certificates-page-01|02, -tablet-01,           -->
     <!-- -mobile-01, -popup-page.png                                           -->

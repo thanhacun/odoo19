@@ -317,5 +317,61 @@
             <field name="note">Wide tile at the bottom right of the teambuilding grid (672 x 272 on desktop). The starting image is cut from the design.</field>
             <field name="image" type="base64" file="kdvn_website/static/src/img/content/why-join-teambuilding-6.jpg"/>
         </record>
+        <record id="media_hr_development_hero_1" model="kdvn.website.media">
+            <field name="name">HR Development - training photo (left)</field>
+            <field name="key">hr_development_hero_1</field>
+            <field name="sequence">70</field>
+            <field name="note">Left half of the photo pair, 680 x 353 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/hr-development-hero-1.jpg"/>
+        </record>
+        <record id="media_hr_development_hero_2" model="kdvn.website.media">
+            <field name="name">HR Development - training photo (right)</field>
+            <field name="key">hr_development_hero_2</field>
+            <field name="sequence">71</field>
+            <field name="note">Right half of the photo pair, 680 x 353 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/hr-development-hero-2.jpg"/>
+        </record>
+        <record id="media_hr_development_portrait_1" model="kdvn.website.media">
+            <field name="name">HR Development - portrait 1</field>
+            <field name="key">hr_development_portrait_1</field>
+            <field name="sequence">72</field>
+            <field name="note">Square portrait in the scrolling strip, 200 x 200 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/hr-development-portrait-1.jpg"/>
+        </record>
+        <record id="media_hr_development_portrait_2" model="kdvn.website.media">
+            <field name="name">HR Development - portrait 2</field>
+            <field name="key">hr_development_portrait_2</field>
+            <field name="sequence">73</field>
+            <field name="note">Square portrait in the scrolling strip, 200 x 200 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/hr-development-portrait-2.jpg"/>
+        </record>
+        <record id="media_hr_development_portrait_3" model="kdvn.website.media">
+            <field name="name">HR Development - portrait 3</field>
+            <field name="key">hr_development_portrait_3</field>
+            <field name="sequence">74</field>
+            <field name="note">Square portrait in the scrolling strip, 200 x 200 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/hr-development-portrait-3.jpg"/>
+        </record>
+        <record id="media_hr_development_portrait_4" model="kdvn.website.media">
+            <field name="name">HR Development - portrait 4</field>
+            <field name="key">hr_development_portrait_4</field>
+            <field name="sequence">75</field>
+            <field name="note">Square portrait in the scrolling strip, 200 x 200 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/hr-development-portrait-4.jpg"/>
+        </record>
+        <record id="media_hr_development_portrait_5" model="kdvn.website.media">
+            <field name="name">HR Development - portrait 5</field>
+            <field name="key">hr_development_portrait_5</field>
+            <field name="sequence">76</field>
+            <field name="note">Square portrait in the scrolling strip, 200 x 200 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/hr-development-portrait-5.jpg"/>
+        </record>
+        <record id="media_hr_development_portrait_6" model="kdvn.website.media">
+            <field name="name">HR Development - portrait 6</field>
+            <field name="key">hr_development_portrait_6</field>
+            <field name="sequence">77</field>
+            <field name="note">Square portrait in the scrolling strip, 200 x 200 on desktop. The starting image is cut from the design.</field>
+            <field name="image" type="base64" file="kdvn_website/static/src/img/content/hr-development-portrait-6.jpg"/>
+        </record>
     </data>
 </odoo>
