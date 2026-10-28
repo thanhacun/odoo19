@@ -165,15 +165,8 @@
             <field name="sequence" type="int">60</field>
         </record>
 
-        <!-- Menu: Maintenance Services -->
-        <record id="menu_kdvn_maintenance_services" model="website.menu">
-            <field name="name">Maintenance Services</field>
-            <field name="url">#</field>
-            <field name="website_id" ref="website.default_website"/>
-            <field name="is_mega_menu">False</field>
-            <field name="parent_id" ref="kdvn_website.menu_kdvn_business_information"/>
-            <field name="sequence" type="int">70</field>
-        </record>
+        <!-- Maintenance Services menu removed: delete it from databases that already have it -->
+        <delete model="website.menu" id="kdvn_website.menu_kdvn_maintenance_services"/>
 
         <!-- Menu: Past Prominent Projects -->
         <record id="menu_kdvn_past_prominent_projects" model="website.menu">

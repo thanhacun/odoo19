@@ -14,7 +14,6 @@ Information & Communication Systems,#,menu_kdvn_ict_systems,kdvn_website.menu_kd
 Air Conditioning & Sanitary Systems,/business/air-conditioning-sanitary-system,menu_kdvn_hvac_sanitary_systems,kdvn_website.menu_kdvn_business_information,40,,
 Interior Systems,#,menu_kdvn_interior_systems,kdvn_website.menu_kdvn_business_information,50,,
 Energy Saving & Renewal,#,menu_kdvn_energy_saving_renewal,kdvn_website.menu_kdvn_business_information,60,,
-Maintenance Services,#,menu_kdvn_maintenance_services,kdvn_website.menu_kdvn_business_information,70,,
 Past Prominent Projects,#,menu_kdvn_past_prominent_projects,kdvn_website.menu_kdvn_master_root,30,/prominent-projects,
 Projects Overview,/prominent-projects,menu_kdvn_projects_overview,kdvn_website.menu_kdvn_past_prominent_projects,10,,
 Factories,/prominent-projects?category=factory,menu_kdvn_factories,kdvn_website.menu_kdvn_past_prominent_projects,20,,
