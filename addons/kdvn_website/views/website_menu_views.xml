@@ -8,6 +8,7 @@
         <field name="arch" type="xml">
             <field name="url" position="after">
                 <field name="overview_url" optional="show"/>
+                <field name="detail_url" optional="hide"/>
                 <field name="description" optional="hide"/>
             </field>
         </field>
@@ -20,6 +21,7 @@
         <field name="arch" type="xml">
             <xpath expr="(//field[@name='url'])[1]" position="after">
                 <field name="overview_url" invisible="not child_id" placeholder="/company-profile"/>
+                <field name="detail_url" invisible="not child_id" placeholder="Empty: same as Overview Page"/>
                 <field name="description" invisible="not child_id"/>
             </xpath>
         </field>

@@ -54,7 +54,7 @@
                                             <div class="kdvn-mega-menu-intro">
                                                 <h3 class="kdvn-mega-menu-title" t-field="submenu.name"/>
                                                 <p t-if="submenu.description" class="kdvn-mega-menu-description" t-field="submenu.description"/>
-                                                <a t-if="submenu.overview_url" t-att-href="submenu.overview_url" class="btn kdvn-btn-ghost">View details</a>
+                                                <a t-if="submenu.detail_url or submenu.overview_url" t-att-href="submenu.detail_url or submenu.overview_url" class="btn kdvn-btn-ghost">View details</a>
                                             </div>
                                             <!-- Right: links, max 5 per column -->
                                             <ul class="list-unstyled m-0 kdvn-mega-menu-links">

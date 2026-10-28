@@ -137,6 +137,37 @@ $kdvn-proj-muted: $black-11;   // #5c5c5c
     }
 }
 
+// Prev / next under the year, shown by project_rows.js only when the row overflows
+.kdvn-proj-nav {
+    display: flex;
+    gap: 8px;
+    margin-top: $spacing-gap-large;
+
+    &[hidden] {
+        display: none;
+    }
+}
+.kdvn-proj-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid $black-6;
+    background-color: $black-3;
+    color: $color-content-neutral-strongest;
+    font-size: 24px;
+
+    &:hover:not(:disabled) {
+        border-color: $color-content-neutral-strongest;
+    }
+    &:disabled {
+        opacity: 0.4;
+        cursor: default;
+    }
+}
+
 // --- Card
 .kdvn-proj-card {
     position: relative;
