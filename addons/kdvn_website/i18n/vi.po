@@ -296,11 +296,6 @@ msgid "Energy Saving & Renewal"
 msgstr "Tiết kiệm năng lượng & Cải tạo"
 
 #. module: kdvn_website
-#: model:website.menu,name:kdvn_website.menu_kdvn_maintenance_services
-msgid "Maintenance Services"
-msgstr "Dịch vụ bảo trì"
-
-#. module: kdvn_website
 #: model:website.menu,name:kdvn_website.menu_kdvn_projects_overview
 msgid "Projects Overview"
 msgstr "Tổng quan dự án"
