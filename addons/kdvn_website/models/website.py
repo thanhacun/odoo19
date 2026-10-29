@@ -1,4 +1,5 @@
 from odoo import models
+from odoo.http import request
 
 # Short native names shown in the language panel (frames/languages-*.png);
 # other languages use the part of Odoo's name after "/" (e.g. "Français").
@@ -31,3 +32,19 @@ class Website(models.Model):
             label = KDVN_LANG_LABELS.get(lang.code) or lang.name.split('/')[-1].strip()
             choices.append((lang, label))
         return choices
+
+    def _kdvn_lang_url(self, lang):
+        """The current page in `lang`, for the language panel. QWeb puts the
+        current language in front of every href, so the link to the default
+        language (English, no prefix) must carry its prefix: QWeb strips it
+        again. A bare path stayed on /vi/..."""
+        self.ensure_one()
+        path = request.httprequest.path
+        parts = path.split('/')
+        if len(parts) > 1 and parts[1] in {lg.url_code for lg in self.language_ids}:
+            path = '/'.join(parts[:1] + parts[2:]) or '/'
+        qs = request.httprequest.query_string.decode()
+        url = path + ('?' + qs if qs else '')
+        if lang == self.default_lang_id:
+            return '/%s%s' % (lang.url_code, url)
+        return self.env['ir.http']._url_localized(url, lang.code)

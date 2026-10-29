@@ -121,7 +121,7 @@
                         <li t-foreach="website._kdvn_language_choices()" t-as="choice"
                             t-att-class="'is-active' if request.lang and choice[0].code == request.lang.code else None">
                             <t t-set="lg" t-value="choice[0]"/>
-                            <a t-att-href="url_localized(lang_code=lg.code)" t-att-data-url_code="lg.url_code"
+                            <a t-att-href="website._kdvn_lang_url(lg)" t-att-data-url_code="lg.url_code"
                                t-att-hreflang="(lg.iso_code or lg.code).replace('_', '-')" t-att-lang="(lg.iso_code or lg.code).replace('_', '-')"
                                t-att-aria-current="'true' if request.lang and lg.code == request.lang.code else None"
                                class="kdvn-lang js_change_lang"

@@ -6,6 +6,7 @@ from . import test_business_pages
 from . import test_inquiry
 from . import test_certificates
 from . import test_panels
+from . import test_lang_switch
 from . import test_jobs
 from . import test_recruitment_pages
 from . import test_company_profile
