@@ -53,7 +53,7 @@
 // 1. MENU ITEM STATES (Figma prototype: hover shows a thin green underline, no animation)
 .kdvn-nav-link {
     position: relative !important;
-    color: $color-content-neutral-strongest !important;
+    color: var(--kdvn-color-content-neutral-strongest) !important;
     font-size: $typography-font-size-body-large;
     font-weight: 400;
 
@@ -67,7 +67,7 @@
         height: 1px !important;
         margin: 0 !important;
         border: 0 !important;
-        background-color: $color-focus-accent-solid !important;
+        background-color: var(--kdvn-color-focus-accent-solid) !important;
         opacity: 0;
     }
 

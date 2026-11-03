@@ -99,12 +99,21 @@
     --kdvn-solid-hover: #{$dark-neutral-7};
 }
 
+// The header logo has black lettering: invert it, then turn the green back (hue-rotate 180).
+@mixin kdvn-dark-logo {
+    .kdvn-header-logo {
+        filter: invert(1) hue-rotate(180deg);
+    }
+}
+
 html[data-kdvn-theme="dark"] {
     @include kdvn-dark-colors;
+    @include kdvn-dark-logo;
 }
 @media (prefers-color-scheme: dark) {
     html[data-kdvn-theme="system"] {
         @include kdvn-dark-colors;
+        @include kdvn-dark-logo;
     }
 }
 
