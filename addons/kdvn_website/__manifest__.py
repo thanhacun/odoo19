@@ -3,7 +3,7 @@
     'name': 'KDERP Official Enterprise Website',
     'description': 'Production-grade enterprise website built matching Figma layout tokens.',
     'category': 'Website/Theme',
-    'version': '19.0.1.25.1',
+    'version': '19.0.1.26.0',
     'author': 'KDERP',
     'license': 'LGPL-3',
     'depends': ['website', 'website_hr_recruitment'],
@@ -22,6 +22,7 @@
         'views/snippets.xml',
         'views/components/company_info.xml',
         'views/components/home_business.xml',
+        'views/layout_theme.xml',
         'views/layout_header.xml',
         'views/layout_footer.xml',
         'views/homepage.xml',
@@ -40,6 +41,7 @@
         ],
         # Main consumer-facing stylesheet layer
         'web.assets_frontend': [
+            'kdvn_website/static/src/scss/theme_colors.scss',
             'kdvn_website/static/src/scss/theme_utilities.scss',
             'kdvn_website/static/src/scss/theme.scss',
             'kdvn_website/static/src/js/office_locator.js',
@@ -48,6 +50,7 @@
             'kdvn_website/static/src/js/hero_indicators.js',
             'kdvn_website/static/src/js/certificates.js',
             'kdvn_website/static/src/js/panels.js',
+            'kdvn_website/static/src/js/theme_switch.js',
             'kdvn_website/static/src/js/job_apply.js',
             'kdvn_website/static/src/js/jobs_filter.js',
             'kdvn_website/static/src/js/bizpage_tiles.js',

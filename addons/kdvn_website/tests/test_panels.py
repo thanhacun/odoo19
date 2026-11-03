@@ -27,3 +27,10 @@ class TestKdvnHeaderPanels(HttpCase):
         self.assertIn('class="btn kdvn-btn-ghost" href="/company-profile">View details', self.url_open('/').text)
         menu.detail_url = '/company-profile/history'
         self.assertIn('class="btn kdvn-btn-ghost" href="/company-profile/history">View details', self.url_open('/').text)
+
+    def test_theme_panel_rendered(self):
+        html = self.url_open('/').text
+        self.assertIn('id="kdvn_theme_panel"', html)
+        for choice in ('light', 'dark', 'system'):
+            self.assertIn('data-kdvn-theme-choice="%s"' % choice, html)
+        self.assertIn('localStorage.getItem("kdvn_theme")', html)
