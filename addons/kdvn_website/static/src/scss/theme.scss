@@ -3,7 +3,7 @@
 // ============================================================================
 
 .text-neutral-strong {
-    color: $color-content-neutral-strongest !important;
+    color: var(--kdvn-color-content-neutral-strongest) !important;
 }
 
 // --- HEADER CONTAINER STRUCTURAL SPACING BINDINGS
@@ -20,7 +20,7 @@
 
 // Background blur: Figma "Background blur" = 80 → CSS blur(40px) (CSS ≈ Figma / 2).
 // Fill opacity not confirmed yet: white 80% is a placeholder.
-$kdvn-header-bg: rgba(255, 255, 255, 0.8);
+$kdvn-header-bg: var(--kdvn-header-bg);
 $kdvn-header-blur: 40px;
 
 // The blur sits on a pseudo-element: a backdrop-filter on the header itself
@@ -69,10 +69,10 @@ $kdvn-header-blur: 40px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid $color-border-neutral-subtle-default;
+    border: 1px solid var(--kdvn-color-border-neutral-subtle-default);
     border-radius: 0;
-    background-color: $color-background-neutral-ghost-default;
-    color: $color-content-neutral-strongest;
+    background-color: var(--kdvn-color-background-neutral-ghost-default);
+    color: var(--kdvn-color-content-neutral-strongest);
     font-size: 20px;
     line-height: 1;
 
@@ -80,7 +80,7 @@ $kdvn-header-blur: 40px;
         box-shadow: none;
     }
     &:focus-visible {
-        outline: 2px solid $color-focus-accent-solid;
+        outline: 2px solid var(--kdvn-color-focus-accent-solid);
         outline-offset: 2px;
     }
 }
@@ -109,9 +109,9 @@ $kdvn-header-blur: 40px;
     padding-right: $spacing-padding-medium !important;
 
     // 3. COLOR PALETTE MAP BINDINGS
-    border: 1px solid $color-border-neutral-subtle-default !important;
-    background-color: $color-background-neutral-ghost-default !important;
-    color: $color-content-neutral-strongest !important;
+    border: 1px solid var(--kdvn-color-border-neutral-subtle-default) !important;
+    background-color: var(--kdvn-color-background-neutral-ghost-default) !important;
+    color: var(--kdvn-color-content-neutral-strongest) !important;
 
     // 4. INNER ICON SIZE MATRICES (Enforces strict 20x20 sizing)
     i, .ri {
@@ -126,8 +126,8 @@ $kdvn-header-blur: 40px;
     // Hover interactive state behaviors
     &:hover {
         opacity: 0.85;
-        border-color: $color-content-neutral-strongest !important;
-        background-color: rgba(0, 0, 0, 0.03) !important;
+        border-color: var(--kdvn-color-content-neutral-strongest) !important;
+        background-color: var(--kdvn-hover-tint) !important;
     }
 }
 
@@ -139,7 +139,7 @@ $kdvn-header-blur: 40px;
 // Top bar while a panel is open: open item bold black, the others grey, no underline
 @include media-breakpoint-up(xl) {
     .kdvn-centered-menu-group:has(.dropdown-toggle.show) > .nav-item > .kdvn-nav-link:not(.show) {
-        color: $color-content-neutral-base !important;
+        color: var(--kdvn-color-content-neutral-base) !important;
     }
 }
 .kdvn-nav-link.dropdown-toggle {
@@ -169,7 +169,7 @@ $kdvn-header-blur: 40px;
         width: 100%;
         max-height: calc(100vh - 100px);
         overflow-y: auto;
-        border-top: 1px solid $color-border-neutral-subtle-default;
+        border-top: 1px solid var(--kdvn-color-border-neutral-subtle-default);
         @include kdvn-glass;
     }
 }
@@ -213,13 +213,13 @@ $kdvn-header-blur: 40px;
     line-height: 52px;
     letter-spacing: -1px;
     font-weight: 700;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 }
 
 .kdvn-mega-menu-description {
     margin: 0;
     font-size: $typography-font-size-body-base;
-    color: $color-content-neutral-base;
+    color: var(--kdvn-color-content-neutral-base);
 }
 
 // Secondary button on the glass background (View details)
@@ -227,15 +227,15 @@ $kdvn-header-blur: 40px;
     padding: $spacing-padding-x-small $spacing-padding-medium;
     font-size: $typography-font-size-body-small;
     font-weight: $emphasis-font-weight-medium;
-    color: $color-content-neutral-strongest;
-    background-color: $color-background-neutral-ghost-default;
-    border: 1px solid $color-border-neutral-subtle-default;
+    color: var(--kdvn-color-content-neutral-strongest);
+    background-color: var(--kdvn-color-background-neutral-ghost-default);
+    border: 1px solid var(--kdvn-color-border-neutral-subtle-default);
     border-radius: 0;
 
     &:hover {
-        color: $color-content-neutral-strongest;
-        background-color: $color-background-neutral-ghost-hover;
-        border-color: $color-border-neutral-subtle-hover;
+        color: var(--kdvn-color-content-neutral-strongest);
+        background-color: var(--kdvn-color-background-neutral-ghost-hover);
+        border-color: var(--kdvn-color-border-neutral-subtle-hover);
     }
 }
 
@@ -256,14 +256,14 @@ $kdvn-header-blur: 40px;
     padding: $spacing-padding-medium $spacing-padding-small;
     font-size: $typography-font-size-body-large;
     font-weight: $emphasis-font-weight-regular;
-    color: $color-content-neutral-base;
+    color: var(--kdvn-color-content-neutral-base);
     text-decoration: none;
-    border-bottom: 1px solid $color-border-neutral-subtle-default;
+    border-bottom: 1px solid var(--kdvn-color-border-neutral-subtle-default);
 
     &:hover, &:focus-visible {
         font-weight: $emphasis-font-weight-bold;
-        color: $color-content-neutral-strongest;
-        border-bottom-color: $color-focus-accent-solid;
+        color: var(--kdvn-color-content-neutral-strongest);
+        border-bottom-color: var(--kdvn-color-focus-accent-solid);
         text-decoration: none;
     }
 }
@@ -290,7 +290,7 @@ $kdvn-header-blur: 40px;
 
 .kdvn-divider {
     height: 0;
-    border-top: 1px solid $black-8;
+    border-top: 1px solid var(--kdvn-n-8);
 }
 // mobile frames: the divider under the page title is inset 16px on both sides
 @include media-breakpoint-down(md) {
@@ -310,7 +310,7 @@ $kdvn-header-blur: 40px;
     list-style: none;
     font-size: $typography-font-size-body-base;   // 16px on mobile (frames)
     line-height: 24px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(lg) {
         font-size: $typography-font-size-body-small;
@@ -333,7 +333,7 @@ $kdvn-header-blur: 40px;
 
         &:hover {
             text-decoration: underline;
-            text-decoration-color: $color-focus-accent-solid;
+            text-decoration-color: var(--kdvn-color-focus-accent-solid);
             text-underline-offset: 4px;
         }
     }
@@ -360,7 +360,7 @@ $kdvn-header-blur: 40px;
     line-height: 52px;
     font-weight: 700;
     text-transform: uppercase;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(xl) {
         margin: $spacing-gap-3x-large 0 $spacing-gap-giant;
@@ -408,7 +408,7 @@ $kdvn-header-blur: 40px;
         line-height: 40px;
         font-weight: $emphasis-font-weight-bold;
         letter-spacing: -0.5px;
-        color: $color-content-neutral-strongest;
+        color: var(--kdvn-color-content-neutral-strongest);
         text-wrap: balance;
 
         @include media-breakpoint-up(xl) {
@@ -426,13 +426,13 @@ $kdvn-header-blur: 40px;
     font-size: $typography-font-size-heading-4;   // 24px (frames)
     line-height: 32px;
     font-weight: $emphasis-font-weight-bold;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 }
 .kdvn-quote-role {
     display: block;
     font-size: $typography-font-size-body-base;   // 16px (frames)
     line-height: 24px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 }
 
 // --- Photo + text (photo left 5/12, text right from the middle)
@@ -454,7 +454,7 @@ $kdvn-header-blur: 40px;
     @include media-breakpoint-up(lg) {
         line-height: 24px;
     }
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     p {
         margin: 0 0 $spacing-gap-large;
@@ -486,17 +486,17 @@ $kdvn-header-blur: 40px;
     font-weight: $emphasis-font-weight-medium;
     line-height: 16px;
     color: #fff;
-    background-color: $color-background-accent-solid-default;
+    background-color: var(--kdvn-color-background-accent-solid-default);
     border: 0;
     border-radius: 0;
 
     &:hover, &:focus-visible {
         color: #fff;
-        background-color: $color-background-accent-solid-hover;
+        background-color: var(--kdvn-color-background-accent-solid-hover);
     }
     &:active {
         color: #fff;
-        background-color: $color-background-accent-solid-pressed;
+        background-color: var(--kdvn-color-background-accent-solid-pressed);
     }
 }
 
@@ -512,7 +512,7 @@ $kdvn-header-blur: 40px;
 .kdvn-intro-text {
     font-size: $typography-font-size-body-small;
     line-height: 24px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 }
 .kdvn-intro-tagline {
     margin-bottom: $spacing-gap-large;
@@ -540,7 +540,7 @@ $kdvn-header-blur: 40px;
     flex-direction: column;
     gap: $spacing-gap-medium;
     padding: $spacing-padding-x-large;
-    background-color: $color-background-canvas-default;
+    background-color: var(--kdvn-color-background-canvas-default);
 
     @include media-breakpoint-up(lg) {
         flex-direction: row;
@@ -553,12 +553,12 @@ $kdvn-header-blur: 40px;
     font-size: $typography-font-size-heading-1;
     line-height: 40px;
     font-weight: $emphasis-font-weight-medium;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 }
 .kdvn-year-card-body {
     font-size: $typography-font-size-body-small;
     line-height: 24px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     p {
         margin-bottom: $spacing-gap-medium;
@@ -570,7 +570,7 @@ $kdvn-header-blur: 40px;
     font-size: $typography-font-size-body-large;
     line-height: 28px;
     font-weight: $emphasis-font-weight-bold;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 }
 
 // --- Section title + subtitle / lead / kicker
@@ -581,7 +581,7 @@ $kdvn-header-blur: 40px;
     line-height: 1.2;
     font-weight: $emphasis-font-weight-medium;
     letter-spacing: -0.8px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(xl) {
         font-size: $typography-font-size-heading-1;
@@ -592,13 +592,13 @@ $kdvn-header-blur: 40px;
     margin: $spacing-gap-large 0 0;
     font-size: $typography-font-size-body-small;
     line-height: 20px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 }
 .kdvn-section-lead {
     margin: $spacing-gap-x-large 0 0;
     font-size: $typography-font-size-body-base;
     line-height: 24px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 }
 .kdvn-section-kicker {
     margin: $spacing-gap-medium 0 0;
@@ -606,7 +606,7 @@ $kdvn-header-blur: 40px;
     line-height: 24px;
     font-weight: $emphasis-font-weight-bold;
     text-transform: uppercase;
-    color: $color-content-accent-light;
+    color: var(--kdvn-color-content-accent-light);
 }
 
 // --- Key figures: 4 columns with thin dividers (1 column on mobile)
@@ -627,7 +627,7 @@ $kdvn-header-blur: 40px;
         padding: $spacing-padding-2x-large $spacing-padding-medium;
 
         & + & {
-            border-left: 1px solid $black-6;
+            border-left: 1px solid var(--kdvn-n-6);
         }
     }
 }
@@ -636,7 +636,7 @@ $kdvn-header-blur: 40px;
     font-size: $typography-font-size-display-5;
     line-height: 1.1;
     font-weight: 700;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(xl) {
         font-size: $typography-font-size-display-3;
@@ -648,7 +648,7 @@ $kdvn-header-blur: 40px;
     margin-top: $spacing-gap-x-small;
     font-size: $typography-font-size-body-small;
     line-height: 20px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 }
 
 // --- Timeline: year left (200px), events right, divider under each row
@@ -665,7 +665,7 @@ $kdvn-header-blur: 40px;
     column-gap: $spacing-gap-medium;
     align-items: center;
     padding: $spacing-padding-x-large 0;
-    border-bottom: 1px solid $black-6;
+    border-bottom: 1px solid var(--kdvn-n-6);
 
     @include media-breakpoint-up(lg) {
         grid-template-columns: 200px 1fr;
@@ -677,7 +677,7 @@ $kdvn-header-blur: 40px;
     font-size: $typography-font-size-body-large;
     line-height: 28px;
     font-weight: $emphasis-font-weight-medium;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(lg) {
         font-size: $typography-font-size-heading-3;
@@ -694,7 +694,7 @@ $kdvn-header-blur: 40px;
         font-size: $typography-font-size-body-small;
         line-height: 20px;
         font-weight: $emphasis-font-weight-medium;
-        color: $color-content-neutral-strongest;
+        color: var(--kdvn-color-content-neutral-strongest);
 
         @include media-breakpoint-up(lg) {
             font-size: $typography-font-size-body-base;
@@ -728,7 +728,7 @@ $kdvn-header-blur: 40px;
 @include media-breakpoint-down(xl) {
     // Solid white while the menu is open: the glass blur over the page looked smudged
     .kdvn-header:has(.navbar-collapse.show, .navbar-collapse.collapsing)::before {
-        background-color: #fff;
+        background-color: var(--kdvn-surface);
         -webkit-backdrop-filter: none;
         backdrop-filter: none;
     }
@@ -793,7 +793,7 @@ $kdvn-header-blur: 40px;
         &:hover {
             color: #fff;
             text-decoration: underline;
-            text-decoration-color: $color-focus-accent-solid;
+            text-decoration-color: var(--kdvn-color-focus-accent-solid);
             text-underline-offset: 4px;
         }
     }
@@ -806,7 +806,7 @@ $kdvn-header-blur: 40px;
 // Black box with white logo + tagline
 .kdvn-footer-brand {
     padding: $spacing-padding-2x-large $spacing-padding-x-large;
-    background-color: $color-content-neutral-strongest;
+    background-color: var(--kdvn-solid);
 
     @include media-breakpoint-up(lg) {
         padding: 34px 30px $spacing-padding-2x-large;
@@ -906,7 +906,7 @@ $kdvn-header-blur: 40px;
     line-height: 36px;
     font-weight: $emphasis-font-weight-bold;
     letter-spacing: -0.4px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(lg) {
         font-size: $typography-font-size-heading-3;
@@ -960,7 +960,7 @@ $kdvn-header-blur: 40px;
     font-size: $typography-font-size-heading-3;
     line-height: 36px;
     font-weight: $emphasis-font-weight-bold;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(lg) {
         font-size: $typography-font-size-heading-2;
@@ -971,7 +971,7 @@ $kdvn-header-blur: 40px;
     margin: $spacing-gap-x-small 0 0;
     font-size: $typography-font-size-body-base;
     line-height: 24px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 }
 
 // Text column + tall image (body 16/24 mobile, 16/32 desktop)
@@ -986,7 +986,7 @@ $kdvn-header-blur: 40px;
 .kdvn-split-text {
     font-size: $typography-font-size-body-base;
     line-height: 24px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(lg) {
         line-height: 32px;
@@ -1050,7 +1050,7 @@ $kdvn-header-blur: 40px;
 .kdvn-map {
     position: relative;
     aspect-ratio: 575 / 404;
-    background-color: $color-background-canvas-default;
+    background-color: var(--kdvn-color-background-canvas-default);
 
     iframe {
         position: absolute;
@@ -1065,13 +1065,13 @@ $kdvn-header-blur: 40px;
     font-size: $typography-font-size-body-large;
     line-height: 28px;
     font-weight: $emphasis-font-weight-bold;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 }
 .kdvn-map-address {
     margin: 0;
     font-size: $typography-font-size-body-base;
     line-height: 24px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(lg) {
         font-size: $typography-font-size-body-small;
@@ -1079,7 +1079,7 @@ $kdvn-header-blur: 40px;
 
     a {
         display: inline-block;
-        color: $color-background-info-solid-default;
+        color: var(--kdvn-color-background-info-solid-default);
         text-decoration: underline;
 
         @include media-breakpoint-up(lg) {
@@ -1090,17 +1090,17 @@ $kdvn-header-blur: 40px;
 // Label / value table, 50/50, line above and under each row
 .kdvn-profile-table {
     margin: 0;
-    border-top: 1px solid $black-6;
+    border-top: 1px solid var(--kdvn-n-6);
 }
 .kdvn-profile-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     column-gap: $spacing-gap-small;
     padding: $spacing-padding-x-large 0;
-    border-bottom: 1px solid $black-6;
+    border-bottom: 1px solid var(--kdvn-n-6);
     font-size: $typography-font-size-body-base;
     line-height: 24px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(lg) {
         font-size: $typography-font-size-body-small;
@@ -1145,7 +1145,7 @@ $kdvn-header-blur: 40px;
     height: 48px;
     padding: 0 $spacing-padding-small;
     font-size: $typography-font-size-body-base;
-    border: 1px solid #cccccc;
+    border: 1px solid var(--kdvn-input-border);
     border-radius: 0;
 
     @include media-breakpoint-up(lg) {
@@ -1153,10 +1153,10 @@ $kdvn-header-blur: 40px;
     }
 
     &::placeholder {
-        color: $black-9;
+        color: var(--kdvn-n-9);
     }
     &:focus {
-        border-color: $color-focus-accent-solid;
+        border-color: var(--kdvn-color-focus-accent-solid);
         box-shadow: none;
     }
 }
@@ -1174,17 +1174,17 @@ $kdvn-header-blur: 40px;
 }
 .kdvn-office-card {
     padding: $spacing-padding-small;
-    border-bottom: 1px solid $black-5;
+    border-bottom: 1px solid var(--kdvn-n-5);
 
     & + & {
         margin-top: $spacing-gap-large;
     }
     &.active {
-        background-color: $black-3;
+        background-color: var(--kdvn-n-3);
         border-bottom-color: transparent;
 
         .kdvn-icon-box {
-            background-color: $color-background-canvas-default;
+            background-color: var(--kdvn-color-background-canvas-default);
         }
     }
 }
@@ -1195,7 +1195,7 @@ $kdvn-header-blur: 40px;
     line-height: 36px;
     font-weight: $emphasis-font-weight-bold;
     letter-spacing: -0.4px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(lg) {
         font-size: $typography-font-size-body-large;
@@ -1209,7 +1209,7 @@ $kdvn-header-blur: 40px;
     margin-bottom: $spacing-gap-small;
     font-size: $typography-font-size-body-small;
     line-height: 20px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(lg) {
         font-size: $typography-font-size-caption;
@@ -1231,7 +1231,7 @@ $kdvn-header-blur: 40px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background-color: $black-3;
+    background-color: var(--kdvn-n-3);
     font-size: 18px;
 }
 .kdvn-btn-dark {
@@ -1241,7 +1241,7 @@ $kdvn-header-blur: 40px;
     font-weight: $emphasis-font-weight-bold;
     line-height: 16px;
     color: #fff;
-    background-color: $color-content-neutral-strongest;
+    background-color: var(--kdvn-solid);
     border: 0;
     border-radius: 0;
 
@@ -1251,18 +1251,18 @@ $kdvn-header-blur: 40px;
 
     &:hover, &:focus-visible {
         color: #fff;
-        background-color: $black-11;
+        background-color: var(--kdvn-solid-hover);
     }
 }
 .kdvn-office-empty {
     margin: 0;
     font-size: $typography-font-size-body-small;
-    color: $color-content-neutral-base;
+    color: var(--kdvn-color-content-neutral-base);
 }
 .kdvn-office-locator-map {
     position: relative;
     aspect-ratio: 310 / 400;
-    background-color: $color-background-canvas-default;
+    background-color: var(--kdvn-color-background-canvas-default);
 
     @include media-breakpoint-up(lg) {
         flex: 1 1 auto;
@@ -1294,7 +1294,7 @@ $kdvn-hero-height: 900px;
 
 .s_kdvn_hero {
     position: relative;
-    background-color: $color-background-canvas-alt;
+    background-color: var(--kdvn-color-background-canvas-alt);
 
     .carousel-item {
         transition-duration: .6s;
@@ -1364,7 +1364,7 @@ $kdvn-hero-height: 900px;
     font-weight: 700;
     letter-spacing: -1.5px;
     text-transform: uppercase;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
     overflow-wrap: break-word;
 }
 
@@ -1431,7 +1431,7 @@ $kdvn-biz-figure-height: 733px;
 
 .kdvn-home-business {
     padding: 80px 0;
-    background-color: $light-neutral-4;   // #eaeaea
+    background-color: var(--kdvn-n-4);   // #eaeaea
 
     @include media-breakpoint-up(xl) {
         padding: 160px 0;
@@ -1453,7 +1453,7 @@ $kdvn-biz-figure-height: 733px;
     line-height: 52px;
     font-weight: 700;
     text-transform: uppercase;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(xl) {
         font-size: $typography-font-size-display-3;   // 64px
@@ -1465,7 +1465,7 @@ $kdvn-biz-figure-height: 733px;
     margin: $spacing-gap-large 0 0;   // 24px
     font-size: $typography-font-size-body-base;
     line-height: 32px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(xl) {
         line-height: 24px;
@@ -1514,7 +1514,7 @@ $kdvn-biz-figure-height: 733px;
 
     &:hover,
     &:focus {
-        color: $color-content-neutral-strongest;
+        color: var(--kdvn-color-content-neutral-strongest);
         text-decoration: none;
     }
 }
@@ -1541,7 +1541,7 @@ $kdvn-biz-figure-height: 733px;
 
 .kdvn-biz-item.active {
     .kdvn-biz-name {
-        color: $color-content-neutral-strongest;
+        color: var(--kdvn-color-content-neutral-strongest);
     }
     .kdvn-biz-go {
         display: inline-flex !important;
@@ -1586,7 +1586,7 @@ $kdvn-biz-figure-height: 733px;
 // Desktop values measured on the 1440 frame, mobile on the 390 frame.
 // ============================================================================
 
-$kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
+$kdvn-bizpage-grey: var(--kdvn-n-10);   // (01) numbers and scope lists: #7e7e7e
 
 .kdvn-bizpage-intro {
     padding-top: $spacing-gap-2x-large;
@@ -1599,7 +1599,7 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     margin: 0 0 1.25rem;
     font-size: $typography-font-size-body-small;
     line-height: 20px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(lg) {
         margin-bottom: $spacing-gap-2x-large;
@@ -1636,7 +1636,7 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     font-size: $typography-font-size-display-5;
     line-height: 52px;
     font-weight: 700;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 }
 
 // --- Feature: one column on mobile, equal columns (2 or 3) from md
@@ -1673,7 +1673,7 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     line-height: 28px;
     font-weight: $emphasis-font-weight-bold;
     letter-spacing: -0.5px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(xl) {
         margin-top: $spacing-gap-large;
@@ -1685,7 +1685,7 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     margin: 0;
     font-size: $typography-font-size-body-small;
     line-height: 20px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(xl) {
         font-size: $typography-font-size-body-base;
@@ -1739,7 +1739,7 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     font-size: 1.125rem;
     line-height: 32px;
     font-weight: $emphasis-font-weight-bold;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(lg) {
         font-size: $typography-font-size-body-large;
@@ -1757,7 +1757,7 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     margin: $spacing-gap-medium 0;
     font-size: $typography-font-size-body-small;
     line-height: 20px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(lg) {
         margin-top: $spacing-gap-large;
@@ -1797,7 +1797,7 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     font-size: $typography-font-size-body-small;
     line-height: 20px;
     font-weight: $emphasis-font-weight-bold;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(lg) {
         font-size: $typography-font-size-body-base;
@@ -1809,7 +1809,7 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     padding-left: 1.5rem;
     font-size: $typography-font-size-body-small;
     line-height: 20px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(lg) {
         font-size: $typography-font-size-body-base;
@@ -1918,7 +1918,7 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     aspect-ratio: 1;
     scroll-snap-align: start;
     overflow: hidden;
-    background: $black-12;
+    background: var(--kdvn-n-12);
 
     @include media-breakpoint-up(lg) {
         width: 200px;
@@ -1941,8 +1941,8 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     text-align: center;
     font-size: $typography-font-size-body-small;
     line-height: 20px;
-    color: $color-content-on-color;
-    background: $color-background-black-overlay-light;
+    color: var(--kdvn-color-content-on-color);
+    background: var(--kdvn-color-background-black-overlay-light);
 
     @include media-breakpoint-up(lg) {
         font-size: $typography-font-size-body-base;
@@ -1952,14 +1952,14 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
 
 // Energy Saving and Renewal
 .kdvn-bizpage-diagram {
-    border: 1px solid $black-5;
+    border: 1px solid var(--kdvn-n-5);
     aspect-ratio: 664 / 461 !important;
     height: auto !important;
     object-fit: contain !important;
 }
 .kdvn-bizpage-band {
     padding-bottom: $spacing-gap-3x-large;
-    background: $black-2;
+    background: var(--kdvn-n-2);
 
     @include media-breakpoint-up(xl) {
         padding-bottom: $spacing-gap-2x-giant;
@@ -1972,7 +1972,7 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     line-height: 34px;
     font-weight: $emphasis-font-weight-bold;
     letter-spacing: -0.5px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(xl) {
         font-size: $typography-font-size-heading-1;
@@ -2006,7 +2006,7 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     line-height: 32px;
     font-weight: $emphasis-font-weight-bold;
     letter-spacing: -0.5px;
-    color: $color-content-neutral-base;
+    color: var(--kdvn-color-content-neutral-base);
 
     @include media-breakpoint-up(lg) {
         font-size: $typography-font-size-heading-3;
@@ -2037,7 +2037,7 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     line-height: 34px;
     font-weight: $emphasis-font-weight-bold;
     letter-spacing: -0.5px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(xl) {
         font-size: $typography-font-size-heading-3;
@@ -2048,7 +2048,7 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     margin: 0 0 $spacing-gap-medium;
     font-size: $typography-font-size-body-small;
     line-height: 20px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(lg) {
         font-size: $typography-font-size-body-base;
@@ -2140,7 +2140,7 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     line-height: 28px;
     font-weight: $emphasis-font-weight-bold;
     letter-spacing: -0.5px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(xl) {
         font-size: $typography-font-size-heading-1;
@@ -2172,7 +2172,7 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     line-height: 34px;
     font-weight: $emphasis-font-weight-bold;
     letter-spacing: -0.5px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(lg) {
         font-size: $typography-font-size-heading-1;
@@ -2185,7 +2185,7 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     max-width: 22rem;
     font-size: $typography-font-size-body-small;
     line-height: 20px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(lg) {
         line-height: 24px;
@@ -2218,22 +2218,22 @@ $kdvn-bizpage-grey: $black-10;   // (01) numbers and scope lists: #7e7e7e
     width: 64px;
     height: 64px;
     font-size: 1.5rem;
-    color: $color-content-neutral-strongest;
-    background-color: $black-3;
+    color: var(--kdvn-color-content-neutral-strongest);
+    background-color: var(--kdvn-n-3);
 }
 .kdvn-inquiry-contact-label {
     margin: 0 0 $spacing-gap-x-small;
     font-size: $typography-font-size-body-large;
     line-height: 28px;
     font-weight: $emphasis-font-weight-bold;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 }
 .kdvn-inquiry-contact-value {
     display: block;
     margin: 0;
     font-size: $typography-font-size-body-base;
     line-height: 24px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
     text-decoration: none;
 }
 a.kdvn-inquiry-contact-value:hover {
@@ -2250,7 +2250,7 @@ a.kdvn-inquiry-contact-value:hover {
     font-size: $typography-font-size-body-base;
     line-height: 24px;
     font-weight: $emphasis-font-weight-medium;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 }
 .kdvn-input {
     display: block;
@@ -2258,18 +2258,18 @@ a.kdvn-inquiry-contact-value:hover {
     height: 48px;
     padding: 0 $spacing-padding-small;
     font-size: $typography-font-size-body-small;
-    color: $color-content-neutral-strongest;
-    background-color: #fff;
-    border: 1px solid $black-7;
+    color: var(--kdvn-color-content-neutral-strongest);
+    background-color: var(--kdvn-surface);
+    border: 1px solid var(--kdvn-n-7);
     border-radius: 0;
     appearance: none;
 
     &::placeholder {
-        color: $black-9;
+        color: var(--kdvn-n-9);
     }
     &:focus {
         outline: none;
-        border-color: $color-content-neutral-strongest;
+        border-color: var(--kdvn-color-content-neutral-strongest);
     }
 }
 // select: black triangle on the right (like the frame)
@@ -2354,7 +2354,7 @@ body.kdvn-modal-open {
     line-height: 32px;
     font-weight: $emphasis-font-weight-bold;
     letter-spacing: -0.5px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 }
 .kdvn-modal-x {
     display: inline-flex;
@@ -2364,15 +2364,15 @@ body.kdvn-modal-open {
     height: 40px;
     padding: 0;
     font-size: 1.25rem;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
     background-color: transparent;
-    border: 1px solid $black-7;
+    border: 1px solid var(--kdvn-n-7);
 }
 .kdvn-modal-body p {
     margin: 0 0 $spacing-gap-large;
     font-size: $typography-font-size-body-small;
     line-height: 24px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 }
 .kdvn-modal-close {
     display: block;
@@ -2381,13 +2381,13 @@ body.kdvn-modal-open {
     font-size: $typography-font-size-body-small;
     font-weight: $emphasis-font-weight-bold;
     color: #fff;
-    background-color: $color-content-neutral-strongest;
+    background-color: var(--kdvn-solid);
     border: 0;
     border-radius: 0;
 
     &:hover, &:focus-visible {
         color: #fff;
-        background-color: $black-11;
+        background-color: var(--kdvn-solid-hover);
     }
 }
 
@@ -2446,7 +2446,7 @@ $kdvn-cert-gap: 24px;
     flex: none;
     width: var(--kdvn-cert-w);
     height: var(--kdvn-cert-h);
-    border: 2px solid $color-content-neutral-strongest;
+    border: 2px solid var(--kdvn-color-content-neutral-strongest);
     background-color: #fff;
     transition: width 0.4s ease, height 0.4s ease;
 
@@ -2515,8 +2515,8 @@ $kdvn-cert-gap: 24px;
     height: 40px;
     padding: 0;
     font-size: 1.25rem;
-    color: $color-content-neutral-strongest;
-    background-color: #fff;
+    color: var(--kdvn-color-content-neutral-strongest);
+    background-color: var(--kdvn-surface);
     border: 0;
 }
 
@@ -2539,7 +2539,7 @@ $kdvn-cert-gap: 24px;
     height: 40px;
     padding: 0;
     font-size: 1.5rem;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
     background: none;
     border: 0;
 }
@@ -2547,7 +2547,7 @@ $kdvn-cert-gap: 24px;
     margin: 0;
 }
 .kdvn-search-input {
-    border: 2px solid $black-12;   // frames: dark border, 48px high
+    border: 2px solid var(--kdvn-n-12);   // frames: dark border, 48px high
     font-size: $typography-font-size-body-small;
 
     &::-webkit-search-cancel-button {
@@ -2560,29 +2560,33 @@ $kdvn-cert-gap: 24px;
 
     // 56px rows: 55 + 1px line; the current language: green 2px line
     li {
-        border-bottom: 1px solid $black-5;
+        border-bottom: 1px solid var(--kdvn-n-5);
 
         &.is-active {
-            border-bottom: 2px solid $color-background-accent-solid-default;
+            border-bottom: 2px solid var(--kdvn-color-background-accent-solid-default);
 
             .kdvn-lang {
                 padding-bottom: 14px;
                 font-weight: $emphasis-font-weight-bold;
-                color: $color-content-neutral-strongest;
+                color: var(--kdvn-color-content-neutral-strongest);
             }
         }
     }
 }
 .kdvn-lang {
     display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: 0;
     padding: $spacing-padding-medium $spacing-padding-small 15px;
     font-size: $typography-font-size-body-large;   // 20px
     line-height: 24px;
-    color: $black-11;
+    color: var(--kdvn-n-11);
     text-decoration: none;
 
     &:hover, &:focus-visible {
-        color: $color-content-neutral-strongest;
+        color: var(--kdvn-color-content-neutral-strongest);
     }
 }
 
@@ -2599,7 +2603,7 @@ $kdvn-cert-gap: 24px;
             height: 100%;
             overflow-y: auto;
             padding: $spacing-padding-2x-large $spacing-padding-x-large;   // 32 / 24
-            background-color: #fff;
+            background-color: var(--kdvn-surface);
             -webkit-backdrop-filter: none;
             backdrop-filter: none;
         }
@@ -2617,8 +2621,8 @@ $kdvn-cert-gap: 24px;
             line-height: 24px;
         }
         .kdvn-modal-x {
-            background-color: $black-3;
-            border-color: $black-7;
+            background-color: var(--kdvn-n-3);
+            border-color: var(--kdvn-n-7);
         }
     }
 }
@@ -2643,7 +2647,7 @@ $kdvn-cert-gap: 24px;
     margin: 0;
     font-size: $typography-font-size-body-base;
     line-height: 24px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(md) {
         font-size: $typography-font-size-body-small;
@@ -2699,7 +2703,7 @@ $kdvn-cert-gap: 24px;
         width: 75.2%;
         aspect-ratio: 1;
         transform: translate(-50%, -50%);
-        border: 4px solid $kinden-11;
+        border: 4px solid var(--kdvn-kinden-11);
         border-radius: 50%;
 
         @include media-breakpoint-up(md) {
@@ -2722,13 +2726,13 @@ $kdvn-cert-gap: 24px;
 }
 .kdvn-5s-item {
     width: 25.6%;
-    background-color: $color-background-accent-solid-default;
+    background-color: var(--kdvn-color-background-accent-solid-default);
 }
 .kdvn-5s-center {
     left: 50.4%;
     top: 50%;
     width: 32%;
-    background-color: $kinden-10;
+    background-color: var(--kdvn-kinden-10);
     font-size: $typography-font-size-heading-4;
     font-weight: $emphasis-font-weight-bold;
 
@@ -2793,7 +2797,7 @@ $kdvn-cert-gap: 24px;
     line-height: 36px;
     font-weight: $emphasis-font-weight-medium;
     letter-spacing: -0.4px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 }
 
 // Teambuilding grid. Photo order in the page: tall, 2, 5, 3, 4, wide.
@@ -2885,7 +2889,7 @@ $kdvn-cert-gap: 24px;
         left: $spacing-padding-small;
         transform: translateY(-50%);
         font-size: 1.25rem;
-        color: $color-content-neutral-strongest;
+        color: var(--kdvn-color-content-neutral-strongest);
         pointer-events: none;
     }
     .kdvn-input {
@@ -2902,22 +2906,22 @@ $kdvn-cert-gap: 24px;
     }
 }
 .kdvn-job-card {
-    background-color: $color-background-surface-default;
-    border: 1px solid $black-5;
+    background-color: var(--kdvn-color-background-surface-default);
+    border: 1px solid var(--kdvn-n-5);
 
     &:hover, &:focus-within {
-        border-color: $color-border-accent-solid-default;
-        box-shadow: inset 0 0 0 1px $color-border-accent-solid-default;   // frame: 2px green
+        border-color: var(--kdvn-color-border-accent-solid-default);
+        box-shadow: inset 0 0 0 1px var(--kdvn-color-border-accent-solid-default);   // frame: 2px green
     }
 }
 .kdvn-job-card-link {
     display: block;
     padding: $spacing-padding-large;   // 20 (frame 24)
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
     text-decoration: none;
 
     &:hover {
-        color: $color-content-neutral-strongest;
+        color: var(--kdvn-color-content-neutral-strongest);
     }
 }
 .kdvn-job-card-title {
@@ -2933,16 +2937,16 @@ $kdvn-cert-gap: 24px;
     margin: 0 0 $spacing-gap-3x-small;
     font-size: $typography-font-size-body-small;
     line-height: 24px;
-    color: $black-11;
+    color: var(--kdvn-n-11);
 }
 .kdvn-job-deadline {
     margin-left: $spacing-gap-x-small;
-    color: $color-content-warning-light;
+    color: var(--kdvn-color-content-warning-light);
 
     &::before {
         content: "\2022";   // bullet between "Updated" and the deadline
         margin-right: $spacing-gap-x-small;
-        color: $black-11;
+        color: var(--kdvn-n-11);
     }
 }
 .kdvn-job-tags {
@@ -2958,12 +2962,12 @@ $kdvn-cert-gap: 24px;
     padding: 0 $spacing-padding-x-small;
     font-size: $typography-font-size-caption;
     line-height: 24px;
-    color: $color-content-neutral-strongest;
-    background-color: $black-3;
+    color: var(--kdvn-color-content-neutral-strongest);
+    background-color: var(--kdvn-n-3);
 }
 .kdvn-job-tag-accent {
-    color: $color-content-accent-base;
-    background-color: $color-background-accent-subtle-default;
+    color: var(--kdvn-color-content-accent-base);
+    background-color: var(--kdvn-color-background-accent-subtle-default);
 }
 .kdvn-jobs-empty {
     max-width: 24rem;
@@ -2977,13 +2981,13 @@ $kdvn-cert-gap: 24px;
     line-height: 36px;
     font-weight: $emphasis-font-weight-bold;
     letter-spacing: -0.5px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 }
 .kdvn-jobs-empty-text {
     margin: 0 0 $spacing-gap-large;
     font-size: $typography-font-size-body-small;
     line-height: 24px;
-    color: $black-11;
+    color: var(--kdvn-n-11);
 }
 .kdvn-jobs-empty-button {
     margin-top: 0;
@@ -3014,7 +3018,7 @@ $kdvn-cert-gap: 24px;
     margin: 0 0 $spacing-gap-x-small;
     font-size: $typography-font-size-body-small;
     line-height: 24px;
-    color: $black-11;
+    color: var(--kdvn-n-11);
 }
 .kdvn-job-header .kdvn-page-title {
     margin-bottom: 0;
@@ -3055,7 +3059,7 @@ $kdvn-cert-gap: 24px;
 }
 .kdvn-job-overview {
     padding: $spacing-padding-x-large;
-    background-color: $black-2;
+    background-color: var(--kdvn-n-2);
 }
 .kdvn-job-overview-title {
     margin: 0 0 $spacing-gap-medium;
@@ -3076,26 +3080,26 @@ $kdvn-cert-gap: 24px;
         display: block;
         margin-bottom: $spacing-gap-x-small;
         font-size: 1.25rem;
-        color: $color-background-accent-solid-default;
+        color: var(--kdvn-color-background-accent-solid-default);
     }
     dt {
         font-size: $typography-font-size-body-small;
         line-height: 20px;
         font-weight: $emphasis-font-weight-regular;
-        color: $black-10;
+        color: var(--kdvn-n-10);
     }
     dd {
         margin: 0;
         font-size: $typography-font-size-body-small;
         line-height: 20px;
         font-weight: $emphasis-font-weight-bold;
-        color: $color-content-neutral-strongest;
+        color: var(--kdvn-color-content-neutral-strongest);
     }
 }
 .kdvn-job-description {
     font-size: $typography-font-size-body-small;
     line-height: 24px;
-    color: $black-12;
+    color: var(--kdvn-n-12);
 
     h2, h3 {
         margin: $spacing-gap-large 0 $spacing-gap-x-small;
@@ -3104,7 +3108,7 @@ $kdvn-cert-gap: 24px;
         line-height: 28px;
         font-weight: $emphasis-font-weight-bold;
         letter-spacing: -0.4px;
-        color: $color-content-neutral-strongest;
+        color: var(--kdvn-color-content-neutral-strongest);
 
         &:first-child {
             margin-top: 0;
@@ -3122,8 +3126,8 @@ $kdvn-cert-gap: 24px;
 // --- Application form (Figma: job-apply-form-desktop: empty, filled, errors)
 .kdvn-apply {
     padding: $spacing-padding-x-large;
-    background-color: $color-background-surface-default;
-    border: 1px solid $black-5;
+    background-color: var(--kdvn-color-background-surface-default);
+    border: 1px solid var(--kdvn-n-5);
 }
 .kdvn-apply-title {
     margin: $spacing-gap-medium 0 $spacing-gap-2x-small;
@@ -3133,29 +3137,29 @@ $kdvn-cert-gap: 24px;
     font-weight: $emphasis-font-weight-bold;
     letter-spacing: -0.4px;
     text-align: center;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 }
 .kdvn-apply-intro {
     margin: 0 0 $spacing-gap-large;
     font-size: $typography-font-size-body-small;
     line-height: 20px;
     text-align: center;
-    color: $black-11;
+    color: var(--kdvn-n-11);
 }
 .kdvn-label-optional {
     font-size: $typography-font-size-body-small;
     font-weight: $emphasis-font-weight-regular;
-    color: $black-11;
+    color: var(--kdvn-n-11);
 }
 .kdvn-field-error {
     margin: $spacing-gap-2x-small 0 0;
     font-size: $typography-font-size-body-small;
     line-height: 20px;
-    color: $color-content-negative-light;
+    color: var(--kdvn-color-content-negative-light);
 }
 .kdvn-field.has-error {
     .kdvn-input, .kdvn-dropzone {
-        border-color: $color-border-negative-solid-default;
+        border-color: var(--kdvn-color-border-negative-solid-default);
     }
 }
 .kdvn-apply {
@@ -3173,8 +3177,8 @@ $kdvn-cert-gap: 24px;
     min-height: 48px;
     padding: $spacing-padding-small;
     font-size: $typography-font-size-body-small;
-    color: $black-11;
-    background-color: $black-2;
+    color: var(--kdvn-n-11);
+    background-color: var(--kdvn-n-2);
     border: 1px solid transparent;
     cursor: pointer;
 
@@ -3183,25 +3187,25 @@ $kdvn-cert-gap: 24px;
     }
     > i {
         font-size: 1.25rem;
-        color: $color-background-accent-solid-default;
+        color: var(--kdvn-color-background-accent-solid-default);
     }
     &.is-dragover {
-        border-color: $color-border-accent-solid-default;
+        border-color: var(--kdvn-color-border-accent-solid-default);
     }
 }
 .kdvn-dropzone-browse {
     font-weight: $emphasis-font-weight-bold;
-    color: $color-content-accent-base;
+    color: var(--kdvn-color-content-accent-base);
 }
 .visually-hidden:focus-visible + .kdvn-dropzone {
-    outline: 2px solid $color-focus-accent-solid;
+    outline: 2px solid var(--kdvn-color-focus-accent-solid);
 }
 .kdvn-resume-file {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: $spacing-padding-small;
-    border: 1px solid $black-5;
+    border: 1px solid var(--kdvn-n-5);
 
     &[hidden] {
         display: none;
@@ -3217,12 +3221,12 @@ $kdvn-cert-gap: 24px;
     word-break: break-all;
 }
 .kdvn-resume-size {
-    color: $black-11;
+    color: var(--kdvn-n-11);
 }
 .kdvn-resume-remove {
     padding: $spacing-padding-2x-small;
     font-size: 1.25rem;
-    color: $black-11;
+    color: var(--kdvn-n-11);
     background: none;
     border: 0;
 }
@@ -3253,9 +3257,9 @@ $kdvn-cert-gap: 24px;
     height: 56px;
     font-size: $typography-font-size-body-small;
     font-weight: $emphasis-font-weight-bold;
-    color: $color-content-neutral-strongest;
-    background-color: $black-5;
-    border: 1px solid $black-7;
+    color: var(--kdvn-color-content-neutral-strongest);
+    background-color: var(--kdvn-n-5);
+    border: 1px solid var(--kdvn-n-7);
     border-radius: 0;
 }
 .kdvn-modal-status {
@@ -3282,10 +3286,10 @@ $kdvn-cert-gap: 24px;
     border-radius: 50%;
 }
 .kdvn-status-success {
-    background-color: $color-background-positive-solid-default;
+    background-color: var(--kdvn-color-background-positive-solid-default);
 }
 .kdvn-status-error {
-    background-color: $color-background-negative-solid-default;
+    background-color: var(--kdvn-color-background-negative-solid-default);
 }
 
 // ============================================================================
@@ -3355,7 +3359,7 @@ html:lang(ja) {
 .kdvn-hrdev-text {
     font-size: $typography-font-size-body-base;
     line-height: 24px;
-    color: $color-content-neutral-strongest;
+    color: var(--kdvn-color-content-neutral-strongest);
 
     @include media-breakpoint-up(md) {
         font-size: $typography-font-size-body-small;

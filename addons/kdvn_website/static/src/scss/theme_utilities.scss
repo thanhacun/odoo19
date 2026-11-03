@@ -4,7 +4,7 @@
 
 // --- 1. TEXT TRANSLATION HOOKS
 .kdvn-text-strong {
-    color: #0d0d0d !important;
+    color: var(--kdvn-color-content-neutral-strongest) !important;
     font-family: $font-family-base;
 }
 .kdvn-brand-heading {
@@ -23,7 +23,7 @@
 }
 
 .kdvn-surface-canvas {
-    background-color: #f7f7f7 !important;
+    background-color: var(--kdvn-color-background-canvas-default) !important;
 }
 
 // ============================================================================

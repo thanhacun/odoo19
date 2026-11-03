@@ -1,0 +1,115 @@
+// ============================================================================
+// COLOUR THEMES: Light / Dark / System
+// Every themable colour in theme.scss is a CSS variable defined here.
+// Light = the design tokens (primary_variables.scss). Dark = the dark-neutral scale
+// (same step numbers as black-N) plus lighter accent text. Chosen by
+// <html data-kdvn-theme="light|dark|system">, set by js/theme_switch.js
+// (and by the inline script in views/layout_theme.xml before first paint).
+// No attribute = light.
+// ============================================================================
+
+:root {
+    color-scheme: light;
+    --kdvn-n-1: #{$black-1};
+    --kdvn-n-2: #{$black-2};
+    --kdvn-n-3: #{$black-3};
+    --kdvn-n-4: #{$black-4};
+    --kdvn-n-5: #{$black-5};
+    --kdvn-n-6: #{$black-6};
+    --kdvn-n-7: #{$black-7};
+    --kdvn-n-8: #{$black-8};
+    --kdvn-n-9: #{$black-9};
+    --kdvn-n-10: #{$black-10};
+    --kdvn-n-11: #{$black-11};
+    --kdvn-n-12: #{$black-12};
+    --kdvn-kinden-10: #{$kinden-10};
+    --kdvn-kinden-11: #{$kinden-11};
+
+    --kdvn-color-content-neutral-strongest: #{$color-content-neutral-strongest};
+    --kdvn-color-content-neutral-base: #{$color-content-neutral-base};
+    --kdvn-color-content-accent-base: #{$color-content-accent-base};
+    --kdvn-color-content-accent-light: #{$color-content-accent-light};
+    --kdvn-color-content-negative-light: #{$color-content-negative-light};
+    --kdvn-color-content-warning-light: #{$color-content-warning-light};
+    --kdvn-color-content-on-color: #{$color-content-on-color};
+    --kdvn-color-focus-accent-solid: #{$color-focus-accent-solid};
+    --kdvn-color-border-neutral-subtle-default: #{$color-border-neutral-subtle-default};
+    --kdvn-color-border-neutral-subtle-hover: #{$color-border-neutral-subtle-hover};
+    --kdvn-color-border-accent-solid-default: #{$color-border-accent-solid-default};
+    --kdvn-color-border-negative-solid-default: #{$color-border-negative-solid-default};
+    --kdvn-color-background-accent-solid-default: #{$color-background-accent-solid-default};
+    --kdvn-color-background-accent-solid-hover: #{$color-background-accent-solid-hover};
+    --kdvn-color-background-accent-solid-pressed: #{$color-background-accent-solid-pressed};
+    --kdvn-color-background-accent-subtle-default: #{$color-background-accent-subtle-default};
+    --kdvn-color-background-canvas-default: #{$color-background-canvas-default};
+    --kdvn-color-background-canvas-alt: #{$color-background-canvas-alt};
+    --kdvn-color-background-surface-default: #{$color-background-surface-default};
+    --kdvn-color-background-neutral-ghost-default: #{$color-background-neutral-ghost-default};
+    --kdvn-color-background-neutral-ghost-hover: #{$color-background-neutral-ghost-hover};
+    --kdvn-color-background-black-overlay-light: #{$color-background-black-overlay-light};
+    --kdvn-color-background-positive-solid-default: #{$color-background-positive-solid-default};
+    --kdvn-color-background-negative-solid-default: #{$color-background-negative-solid-default};
+    --kdvn-color-background-info-solid-default: #{$color-background-info-solid-default};
+
+    --kdvn-surface: #fff;                       // panels, inputs, menus
+    --kdvn-input-border: #cccccc;
+    --kdvn-hover-tint: rgba(0, 0, 0, 0.03);
+    --kdvn-header-bg: rgba(255, 255, 255, 0.8);
+    --kdvn-solid: #{$color-content-neutral-strongest};  // dark buttons with white text
+    --kdvn-solid-hover: #{$black-11};
+}
+
+@mixin kdvn-dark-colors {
+    color-scheme: dark;
+    --kdvn-n-1: #{$dark-neutral-1};
+    --kdvn-n-2: #{$dark-neutral-2};
+    --kdvn-n-3: #{$dark-neutral-3};
+    --kdvn-n-4: #{$dark-neutral-4};
+    --kdvn-n-5: #{$dark-neutral-5};
+    --kdvn-n-6: #{$dark-neutral-6};
+    --kdvn-n-7: #{$dark-neutral-7};
+    --kdvn-n-8: #{$dark-neutral-8};
+    --kdvn-n-9: #{$dark-neutral-9};
+    --kdvn-n-10: #{$dark-neutral-10};
+    --kdvn-n-11: #{$dark-neutral-11};
+    --kdvn-n-12: #{$dark-neutral-12};
+    --kdvn-kinden-10: #3fb06a;
+    --kdvn-kinden-11: #4fd18b;
+
+    --kdvn-color-content-neutral-strongest: #{$dark-neutral-12};
+    --kdvn-color-content-neutral-base: #{$dark-neutral-alpha-11};
+    --kdvn-color-content-accent-base: #4fd18b;
+    --kdvn-color-content-accent-light: #3fb06a;
+    --kdvn-color-content-negative-light: #ff7a59;
+    --kdvn-color-content-warning-light: #f5a742;
+    --kdvn-color-border-neutral-subtle-default: #{$dark-neutral-alpha-6};
+    --kdvn-color-border-neutral-subtle-hover: #{$dark-neutral-alpha-7};
+    --kdvn-color-background-canvas-default: #{$dark-neutral-1};
+    --kdvn-color-background-canvas-alt: #{$dark-neutral-2};
+    --kdvn-color-background-surface-default: #{$dark-neutral-2};
+    --kdvn-color-background-neutral-ghost-default: #{$dark-neutral-alpha-3};
+    --kdvn-color-background-neutral-ghost-hover: #{$dark-neutral-alpha-4};
+    --kdvn-color-background-black-overlay-light: rgba(0, 0, 0, 0.4);
+
+    --kdvn-surface: #{$dark-neutral-2};
+    --kdvn-input-border: #{$dark-neutral-7};
+    --kdvn-hover-tint: rgba(255, 255, 255, 0.06);
+    --kdvn-header-bg: rgba(17, 17, 17, 0.8);
+    --kdvn-solid: #{$dark-neutral-5};
+    --kdvn-solid-hover: #{$dark-neutral-7};
+}
+
+html[data-kdvn-theme="dark"] {
+    @include kdvn-dark-colors;
+}
+@media (prefers-color-scheme: dark) {
+    html[data-kdvn-theme="system"] {
+        @include kdvn-dark-colors;
+    }
+}
+
+// Page base: Odoo/Bootstrap paint body white and text dark by default.
+body {
+    color: var(--kdvn-color-content-neutral-strongest);
+    background-color: var(--kdvn-color-background-surface-default);
+}

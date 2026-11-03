@@ -77,6 +77,10 @@
                                     aria-haspopup="dialog" aria-controls="kdvn_search_panel" title="Search" aria-label="Search">
                                 <i class="ri-search-line" aria-hidden="true"/>
                             </button>
+                            <button type="button" class="btn kdvn-action-btn" data-kdvn-open="kdvn_theme_panel"
+                                    aria-haspopup="dialog" aria-controls="kdvn_theme_panel" title="Appearance" aria-label="Appearance">
+                                <i class="ri-contrast-2-line" aria-hidden="true"/>
+                            </button>
                             <button type="button" class="btn kdvn-action-btn" data-kdvn-open="kdvn_lang_panel"
                                     aria-haspopup="dialog" aria-controls="kdvn_lang_panel" title="Language" aria-label="Language">
                                 <i class="ri-global-line" aria-hidden="true"/>
@@ -106,6 +110,22 @@
                         <input type="search" name="search" id="kdvn_search_input" class="kdvn-input kdvn-search-input"
                                placeholder="Search name, categories,..." autocomplete="off" required="required"/>
                     </form>
+                </div>
+            </div>
+            <div class="kdvn-modal kdvn-panel o_not_editable" id="kdvn_theme_panel" role="dialog" aria-modal="true"
+                 aria-labelledby="kdvn_theme_title" hidden="hidden">
+                <div class="kdvn-modal-backdrop" data-kdvn-close=""/>
+                <div class="kdvn-modal-dialog">
+                    <div class="kdvn-modal-head">
+                        <button type="button" class="kdvn-panel-back" data-kdvn-close="" aria-label="Back"><i class="ri-arrow-left-s-line" aria-hidden="true"/></button>
+                        <h2 class="kdvn-modal-title" id="kdvn_theme_title">Appearance</h2>
+                        <button type="button" class="kdvn-modal-x" data-kdvn-close="" aria-label="Close"><i class="ri-close-line" aria-hidden="true"/></button>
+                    </div>
+                    <ul class="kdvn-lang-list kdvn-theme-list list-unstyled">
+                        <li data-kdvn-theme-item="light"><button type="button" class="kdvn-lang" data-kdvn-theme-choice="light">Light</button></li>
+                        <li data-kdvn-theme-item="dark"><button type="button" class="kdvn-lang" data-kdvn-theme-choice="dark">Dark</button></li>
+                        <li data-kdvn-theme-item="system"><button type="button" class="kdvn-lang" data-kdvn-theme-choice="system">System</button></li>
+                    </ul>
                 </div>
             </div>
             <div class="kdvn-modal kdvn-panel o_not_editable" id="kdvn_lang_panel" role="dialog" aria-modal="true"

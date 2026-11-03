@@ -29,7 +29,7 @@ Three frames per page: desktop 1440, tablet 1280, mobile 390.
 - views/: layout_header|footer, homepage, snippets, components/ (page header and footer nav, company info, home business),
   pages/ (company profile, business information, contact, recruitment incl. Open Positions, office locations), backend views.
 - data/: menus.xml, website_media.xml, certificates and inquiry types (noupdate).
-- static/src/scss/: primary_variables.scss (tokens), theme.scss, theme_utilities.scss. static/src/js/: small widgets (job_apply.js: form + popups, jobs_filter.js).
+- static/src/scss/: primary_variables.scss (tokens), theme_colors.scss (light/dark CSS variables; theme.scss uses var(--kdvn-...) for colours, not $tokens), theme.scss, theme_utilities.scss. static/src/js/: small widgets (job_apply.js: form + popups, jobs_filter.js).
 - tests/: breadcrumb, business pages, certificates, company info, homepage, inquiry, jobs, panels, media.
   No tests yet for company profile, recruitment or contact pages.
 
