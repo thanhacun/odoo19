@@ -56,7 +56,10 @@
                         </div>
                         <div class="kdvn-divider"/>
 
-                        <p t-if="not projects" class="kdvn-proj-empty">No projects to show yet.</p>
+                        <div t-if="not projects" class="kdvn-proj-empty">
+                            <p class="kdvn-proj-empty-title">Project not found</p>
+                            <a t-att-href="proj_url(category=None, year='all')" class="kdvn-btn-dark">Back to all projects</a>
+                        </div>
 
                         <!-- Grid: one row per year -->
                         <t t-elif="view == 'grid'">
