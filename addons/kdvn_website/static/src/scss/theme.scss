@@ -1383,7 +1383,8 @@ $kdvn-hero-height: 900px;
 }
 
 // Wider than 1440: the text column lines up with the 1440px header/content
-// (extra space added on its left), the photo keeps going to the right edge.
+// (extra space added on its left) and the photo ends at the right edge of the
+// same column (margin-right below), so both sides match.
 $kdvn-hero-gutter: unquote("max(0px, (100% - 1440px) / 2)");
 
 @include media-breakpoint-up(xl) {
@@ -1414,6 +1415,7 @@ $kdvn-hero-gutter: unquote("max(0px, (100% - 1440px) / 2)");
         aspect-ratio: auto;
         max-height: none;
         height: 100%;
+        margin-right: $kdvn-hero-gutter;
     }
 }
 

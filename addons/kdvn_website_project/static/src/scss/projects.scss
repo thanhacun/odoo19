@@ -140,10 +140,13 @@ $kdvn-proj-muted: $black-11;   // #5c5c5c
         flex-direction: row;
         overflow-x: auto;
         scroll-snap-type: x proximity;
-        // run to the right edge of the screen
-        margin-right: calc(50% - 50vw);
+        // run on into the right padding of the 1440px column (to the screen edge up to 1440px wide)
+        margin-right: unquote("calc(-1 * min(50vw - 50%, #{$spacing-padding-x-large}))");
         padding-right: 24px;
         scrollbar-width: thin;
+    }
+    @include media-breakpoint-up(xl) {
+        margin-right: unquote("calc(-1 * min(50vw - 50%, #{$spacing-padding-3x-large}))");
     }
 }
 
