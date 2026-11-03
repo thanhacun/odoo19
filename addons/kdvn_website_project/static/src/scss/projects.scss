@@ -91,7 +91,17 @@ $kdvn-proj-muted: $black-11;   // #5c5c5c
 
 .kdvn-proj-empty {
     margin: $spacing-gap-3x-large 0;
-    color: $kdvn-proj-muted;
+    text-align: center;
+
+    .kdvn-proj-empty-title {
+        margin: 0;
+        font-size: $typography-font-size-body-base;
+        font-weight: $emphasis-font-weight-bold;
+    }
+    .kdvn-btn-dark {
+        display: inline-block;
+        margin-top: $spacing-gap-medium;
+    }
 }
 
 // --- Grid: one row per year

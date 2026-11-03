@@ -67,6 +67,14 @@ class TestWebsiteProjects(HttpCase):
         self.assertIn('Hung Yen, Vietnam', res.text)
         self.assertNotIn('KDVN Test Taisei', res.text)
 
+    def test_empty_category_shows_not_found(self):
+        empty = self.env['kdvn.website.project.category'].create({'name': 'KDVN Test Empty', 'slug': 'kdvn-test-empty'})
+        res = self.url_open('/prominent-projects?category=%s' % empty.slug)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('Project not found', res.text)
+        self.assertIn('Back to all projects', res.text)
+        self.assertIn('href="/prominent-projects"', res.text)
+
     def test_image_route(self):
         res = self.url_open('/prominent-projects/image/%s/512' % self.p2025.id)
         self.assertEqual(res.status_code, 200)
