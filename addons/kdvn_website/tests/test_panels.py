@@ -13,6 +13,13 @@ class TestKdvnHeaderPanels(HttpCase):
         self.assertIn('js_change_lang', html)
         self.assertIn('>English<', html)
 
+    def test_mobile_menu_markup(self):
+        """Mobile menu: a back row per section and a toggle that starts as a hamburger."""
+        html = self.url_open('/').text
+        self.assertIn('kdvn-mobile-back', html)
+        self.assertIn('kdvn-menu-toggle collapsed', html)
+        self.assertIn('kdvn-menu-icon-close', html)
+
     def test_language_labels_and_order(self):
         website = self.env['website'].get_current_website()
         langs = self.env['res.lang']

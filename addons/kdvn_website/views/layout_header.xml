@@ -18,10 +18,11 @@
                     </a>
 
                     <!-- Mobile Toggler Option -->
-                    <button class="navbar-toggler kdvn-menu-toggle" type="button"
+                    <button class="navbar-toggler kdvn-menu-toggle collapsed" type="button"
                             data-bs-toggle="collapse" data-bs-target="#kdvnTopHeaderNav"
                             aria-controls="kdvnTopHeaderNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <i class="ri-menu-line" aria-hidden="true"/>
+                        <i class="ri-menu-line kdvn-menu-icon-open" aria-hidden="true"/>
+                        <i class="ri-close-line kdvn-menu-icon-close" aria-hidden="true"/>
                     </button>
 
                     <!-- Responsive Collapse Wrapper -->
@@ -29,24 +30,30 @@
                         
                         <!-- 2. MAIN MENU BLOCK (Centered across the navigation track) -->
                         <!-- top_menu + o_no_autohide_menu on the header: Odoo's auto-hide menu script expects a .top_menu and stops there -->
-                        <ul class="navbar-nav align-items-xl-center gap-2 mb-3 mb-xl-0 kdvn-centered-menu-group top_menu" t-if="website.menu_id">
+                        <ul class="navbar-nav align-items-xl-center gap-0 gap-xl-2 mb-3 mb-xl-0 kdvn-centered-menu-group top_menu" t-if="website.menu_id">
                             <t t-foreach="website.menu_id.child_id" t-as="submenu">
                                 
                                 <!-- Standard Menu Item Anchor Target Link -->
                                 <li t-if="not submenu.child_id" class="nav-item m-0 p-0">
                                     <a t-att-href="submenu.url" 
-                                       t-attf-class="nav-link kdvn-nav-link px-2 py-2 #{'active' if request.httprequest.path == submenu.url else ''}">
+                                       t-attf-class="nav-link kdvn-nav-link px-xl-2 py-xl-2 #{'active' if request.httprequest.path == submenu.url else ''}">
                                         <span t-field="submenu.name"/>
                                     </a>
                                 </li>
                                 
                                 <!-- Dropdown menu: hover = underline, click = open mega panel (Figma prototype) -->
                                 <li t-else="" class="nav-item dropdown position-static m-0 p-0 kdvn-mega-dropdown">
-                                    <a class="nav-link dropdown-toggle kdvn-nav-link px-2 py-2"
+                                    <a class="nav-link dropdown-toggle kdvn-nav-link px-xl-2 py-xl-2"
                                        href="#" t-att-id="'menu_%s' % submenu.id" role="button"
                                        data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
                                         <span t-field="submenu.name"/>
+                                        <i class="ri-arrow-right-s-line d-xl-none ms-auto" aria-hidden="true"/>
                                     </a>
+                                    <!-- Mobile menu, open section: back to the main list (kdvn_mobile_menu.js) -->
+                                    <button type="button" class="kdvn-mobile-back d-xl-none">
+                                        <i class="ri-arrow-left-s-line" aria-hidden="true"/>
+                                        <span t-out="submenu.name"/>
+                                    </button>
 
                                     <div class="dropdown-menu kdvn-mega-menu-panel" t-att-aria-labelledby="'menu_%s' % submenu.id">
                                         <div class="kdvn-mega-menu-inner">
