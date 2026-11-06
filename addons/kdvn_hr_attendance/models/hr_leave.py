@@ -1541,6 +1541,7 @@ class KderpHolidaysType(models.Model):
 
     max_leaves = fields.Float(search="_search_max_leaves")
     leaves_taken_past = fields.Float(compute='_compute_leaves')
+    remaining_leaves = fields.Float(compute='_compute_leaves', string='Remaining Time Off')   # Odoo 12 core field (max_leaves - leaves_taken), set by our _compute_leaves
     category = fields.Selection([
         ('annual_leave', 'Annual Leave'),
         ('special_leave', 'Special Leave'),
@@ -1824,6 +1825,18 @@ class KderpHolidaysAllocation(models.Model):
     _name = "hr.leave.allocation"
     _description = "KDERP Leave Allocation"
     _inherit = ['hr.leave.allocation']
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Odoo 19 allocations have their own validity dates (date_from defaults to today) and a leave needs an allocation that covers its
+        days. Odoo 12 had no dates on the allocation: its validity was the validity of the leave type. Same here unless dates are given."""
+        for vals in vals_list:
+            leave_type = self.env['hr.leave.type'].browse(vals.get('holiday_status_id'))
+            if leave_type.validity_start and not vals.get('date_from'):
+                vals['date_from'] = leave_type.validity_start
+            if leave_type.validity_stop and not vals.get('date_to'):
+                vals['date_to'] = leave_type.validity_stop
+        return super().create(vals_list)
     _order = 'employee_id, holiday_status_id'
 
     # name = fields.Char(states={'draft': [('readonly', False)], 'confirm': [('readonly', False)], 'validate': [('readonly', False)]})
