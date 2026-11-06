@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kdvn_legacy_import_wizard_form" model="ir.ui.view">
+        <field name="name">kdvn.legacy.import.wizard.form</field>
+        <field name="model">kdvn.legacy.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import from Odoo 12">
+                <group>
+                    <field name="employee_codes" placeholder="empty = everybody"/>
+                    <field name="working_only"/>
+                    <field name="password" password="True"/>
+                    <field name="dry_run"/>
+                </group>
+                <field name="result" nolabel="1" readonly="1" invisible="not result" style="font-family: monospace; white-space: pre;"/>
+                <footer>
+                    <button string="Run" name="action_run" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button string="Close" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_kdvn_legacy_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import from Odoo 12</field>
+        <field name="res_model">kdvn.legacy.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_kdvn_legacy_import" name="Import from Odoo 12" parent="base.menu_custom"
+              action="action_kdvn_legacy_import_wizard" groups="base.group_system" sequence="900"/>
+</odoo>

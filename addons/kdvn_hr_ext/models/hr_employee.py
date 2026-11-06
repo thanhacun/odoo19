@@ -36,6 +36,8 @@ class HrEmployee(models.Model):
     @api.constrains('working', 'stop_working_date')
     def _check_working_dates(self):
         """A leaver needs a stop date, a working person must not have one. Staff without a code and S9xxx staff are exempt."""
+        if self.env.context.get('kdvn_skip_working_check'):
+            return   # legacy import: Odoo 12 data already has leavers without a stop date; copy it as it is
         for employee in self:
             if not employee.code or employee.code[:2] == 'S9':
                 continue
@@ -104,6 +106,8 @@ class HrEmployee(models.Model):
 
     def _refresh_organisation(self, from_date=None):
         """After a history change: sections, managers, manager chains, and (when attendance is installed) who may see attendance."""
+        if self.env.context.get('kdvn_defer_org_refresh'):
+            return   # bulk load (legacy import): the caller refreshes once at the end
         employees = self.exists()
         employees.compute_current_dept(force_update=True)
         employees._compute_parent_users()

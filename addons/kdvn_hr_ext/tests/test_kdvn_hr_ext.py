@@ -64,6 +64,15 @@ class TestKdvnHrExt(TransactionCase):
         self.env['hr.manager.history'].create({'department_id': self.sec.id, 'manager_id': self.boss.id, 'effective_date': self.today})
         self.assertEqual(self.staff.parent_id, self.boss)
 
+    def test_bulk_load_can_defer_the_refresh(self):
+        self.staff.department_id = self.top
+        self.env['hr.employee.department.history'].with_context(kdvn_defer_org_refresh=True).create({
+            'employee_id': self.staff.id, 'department_id': self.sec.id, 'effective_date': self.today,
+            'admin_dept_id': self.sec.id, 'admin_effv_date': self.today})
+        self.assertEqual(self.staff.department_id, self.top, 'nothing recomputed while deferred')
+        self.staff._refresh_organisation()
+        self.assertEqual(self.staff.department_id, self.sec)
+
     def test_deleting_history_keeps_data_consistent(self):
         line = self._history(self.staff, self.sec)
         line.unlink()
