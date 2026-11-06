@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+   <!-- Attendance Request Type -->
+    <record id="view_hr_attendance_request_type_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.request.type.tree</field>
+        <field name="model">hr.attendance.request.type</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="request_type"/>
+                <field name="code"/>
+                <field name="need_description"/>
+                <field name="auto_in_out"/>
+                <field name="sequence" widget="handle"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_attendance_request_type_form" model="ir.ui.view">
+        <field name="name">hr.attendance.request.type.form</field>
+        <field name="model">hr.attendance.request.type</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="request_type"/>
+                        <field name="code"/>
+                        <field name="need_description"/>
+                        <field name="auto_in_out"/>
+                        <field name="sequence"/>
+                        <field name="active" widget="boolean_button"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Attendance Request -->
+
+    <record id="view_hr_attendance_request_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.request.tree</field>
+        <field name="model">hr.attendance.request</field>
+        <field name="arch" type="xml">
+            <list decoration-success="state == 'waiting_fman'" decoration-info="state ==  'waiting_fhr'" decoration-warning="state == 'waiting_fman2'" decoration-muted="state == 'done'" decoration-danger="state == 'refuse'">
+                <field name="at_id"/>
+                <field name="request_type" string="Type"/>
+                <field name="sub_request_type_id" string="Detail"/>
+                <field name="display_name" string="Reason"/>
+                <field name="create_date" string="Request Time"/>
+                <field name="request_in"/>
+                <field name="request_out"/>
+                <field name="batch_id"/>
+                <field name="estimate_ot_dsp" invisible="request_type != 'over_time'"/>
+                <field name="out_by_reg" invisible="request_type != 'over_time'" readonly="1"/>
+                <field name="include_absence_hour" invisible="request_type != 'over_time'" readonly="1"/>
+                <field name="state"/>
+                <button name="action_submit" string="Approve" icon="fa-paper-plane" type="object" invisible="next_button_visible != 'submit'"/>
+                <button name="action_approve" string="Approve" icon="fa-arrow-right text-success" type="object" invisible="next_button_visible != 'approve'"/>
+                <button name="action_validate" string="Validate" icon="fa-check text-success" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="next_button_visible != 'validate'"/>
+                <button name="action_need_director" string="Need director" icon="fa-user-plus text-danger" type="object" invisible="not need_director_button_visible"/>
+                <button name="action_approve_man2" string="GM Approve" icon="fa-check text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_gm" invisible="next_button_visible != 'approve2'"/>
+                <button name="action_revise" string="Revise" icon="fa-pencil text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff,hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_section_manager" invisible="not revise_button_visible"/>
+                <button name="action_refuse" string="Refuse" type="object" icon="fa-hand-stop-o text-danger" invisible="not refuse_button_visible"/>
+                <button name="action_open_ot_request" string="Open Detail" type="object" icon="fa-desktop text-success" invisible="request_type == 'working_time'"/>
+                <button name="action_open_wt_request" string="Open Detail" type="object" icon="fa-clock-o text-success" invisible="request_type == 'over_time'"/>
+                <button name="action_unlink" string="Delete" type="object" icon="fa-trash text-danger" confirm="Are you sure to delete this request?" invisible="next_button_visible not in ['submit', 'delete']"/>
+                <field name="next_button_visible" column_invisible="1"/>
+                <field name="refuse_button_visible" column_invisible="1"/>
+                <field name="need_director_button_visible" column_invisible="1"/>
+                <field name="man2_approve" column_invisible="1"/>
+                <field name="revise_button_visible" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_attendance_request_form" model="ir.ui.view">
+        <field name="name">hr.attendance.request.form</field>
+        <field name="model">hr.attendance.request</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_submit" string="Submit" icon="fa-paper-plane" type="object" invisible="next_button_visible != 'submit'"/>
+                    <button name="action_approve" string="Approve" icon="fa-arrow-right text-success" type="object" invisible="next_button_visible != 'approve'"/>
+                    <button name="action_validate" string="Validate" icon="fa-check text-success" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="next_button_visible != 'validate'"/>
+
+                    <button name="action_need_director" string="Need director" type="object" icon="fa-user-plus" class="btn-info" groups="hr_attendance.group_hr_attendance_manager" invisible="not need_director_button_visible"/>
+                    <button name="action_approve_man2" string="GM Approve" icon="fa-check text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_gm" invisible="next_button_visible != 'approve2'"/>
+
+                    <button name="action_refuse" string="Refuse" type="object" icon="fa-hand-stop-o text-danger" invisible="not refuse_button_visible"/>
+                    <button name="action_change_approve_manager" string="Change Manager" type="object" icon="fa-exchange" invisible="state != 'draft'"/>
+                    <button name="action_revise" string="Revise/Reset" type="object" icon="fa-refresh" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff,hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_section_manager" invisible="not revise_button_visible"/>
+
+                    <field name="state" widget="statusbar" statusbar_visible="draft,waiting_fman,waiting_fhr,done"/>
+                    <field name="next_button_visible" invisible="1"/>
+                    <field name="refuse_button_visible" invisible="1"/>
+                    <field name="revise_button_visible" invisible="1"/>
+                    <field name="man2_approve" invisible="1"/>
+                    <field name="need_director_button_visible" invisible="1"/>
+                </header>
+                <sheet>
+                    <group col="4">
+                        <field name="at_id" string="AT record"/>
+                        <field name="batch_id" readonly="1" string="Batch No."/>
+                        <field name="request_in"/>
+                        <field name="request_out"/>
+                        <field name="request_type" string="Type"/>
+                        <field name="sub_request_type_id" string="Detail" domain="[('request_type', '=', request_type)]" options="{'horizontal': True}" widget="radio" readonly="not request_type"/>
+                        <field name="display_name" string="Description" colspan="2"/>
+                        <field name="early_offset" readonly="1"/>
+                        <field name="estimate_ot_dsp" invisible="estimate_ot &lt;= 0"/>
+                        <field name="approve_manager_id" string="Approve manager" decoration-warning="approve_manager_id != False" invisible="not approve_manager_id"/>
+                        <field name="refuse_comment" decoration-danger="refuse_comment != '' and state == 'refuse'" decoration-muted="refuse_comment != '' and state != 'refuse'" invisible="refuse_comment == ''"/>
+                        <field name="estimate_ot" invisible="1"/>
+                    </group>
+                    <group string="Options set by HR only" col="4">
+                        <field name="out_by_reg" readonly="1"/>
+                        <field name="include_absence_hour" readonly="1"/>
+                        <field name="view_user_ids" widget="many2many_tags"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_attendance_request_filter" model="ir.ui.view">
+        <field name="name">view.hr.attendance.request.filter</field>
+        <field name="model">hr.attendance.request</field>
+        <field name="arch" type="xml">
+            <search string="OT/WT Request Search">
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="name"/>
+                <field name="batch_id"/>
+                <filter name="wait_for_gm" string="GM Approve" domain="[('state', 'in', ['waiting_fman2'])]" groups="kdvn_hr_attendance.group_hr_attendance_gm"/>
+                <filter name="wait_for_hr" string="HR Validate" domain="[('state', 'in', ['waiting_fhr'])]" groups="hr_attendance.group_hr_attendance_user"/>
+                <filter name="wait_for_hr" string="Manager Approve" domain="[('state', 'in', ['waiting_fman'])]" groups="kdvn_hr_attendance.group_hr_attendance_section_admin"/>
+                <group>
+                    <filter name="groupby_department" string="Section" context="{'group_by': 'department_id'}"/>
+                    <filter name="groupby_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                    <separator/>
+                    <filter name="groupby_type" string="Request Type" context="{'group_by': 'request_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ACTIONS -->
+
+    <record id="hr_attendance_request_type_action" model="ir.actions.act_window">
+        <field name="name">AT Request types</field>
+        <field name="res_model">hr.attendance.request.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{"active_test": False}</field>
+        <!-- <field name="context">{"search_default_today":1}</field> -->
+        <!-- <field name="search_view_id" ref="hr_attendance_view_filter" /> -->
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                No attendance request types records found
+            </p><p>
+                The requests will be defined here.
+            </p>
+        </field>
+    </record>
+
+    <record id="hr_attendance_requests_action" model="ir.actions.act_window">
+        <field name="name">Attendance Requests</field>
+        <field name="res_model">hr.attendance.request</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- CONFIGURATION MENUS -->
+    <menuitem id="menu_hr_attendance_configuration_at_request_type" name="AT Request types" parent="kdvn_hr_attendance.menu_hr_attendance_settings_group" sequence="20" groups="hr_attendance.group_hr_attendance_manager,hr_attendance.group_hr_attendance_user" action="hr_attendance_request_type_action"/>
+    <menuitem id="menu_hr_attendance_requests" name="OT/WT Requests" parent="kdvn_hr_attendance.menu_hr_attendance_settings_group" sequence="50" groups="hr_attendance.group_hr_attendance_manager,hr_attendance.group_hr_attendance_user" action="hr_attendance_requests_action"/>
+</odoo>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><record id="hr_attendance.menu_hr_attendance_root" model="ir.ui.menu">
+        <field name="group_ids" eval="[(6, 0, [ref('hr_attendance.group_hr_attendance_officer'), ref('group_hr_attendance_menu_staff'), ref('group_hr_attendance_section_manager'), ref('group_hr_attendance_gm')])]"/>
+    </record>
+    <record id="hr_attendance.menu_action_open_form" model="ir.ui.menu"><field name="group_ids" eval="[(6, 0, [ref('base.group_system')])]"/></record>
+    <record id="hr_attendance.menu_hr_attendance_overview" model="ir.ui.menu"><field name="group_ids" eval="[(6, 0, [ref('base.group_system')])]"/></record>
+    <record id="hr_attendance.menu_hr_attendance_view_attendances_management" model="ir.ui.menu"><field name="group_ids" eval="[(6, 0, [ref('base.group_system')])]"/></record>
+    <menuitem id="menu_hr_attendance_my_records" name="My Records" parent="hr_attendance.menu_hr_attendance_root" sequence="10" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff"/>
+        <menuitem id="menu_hr_attendance_managers" name="Management" parent="hr_attendance.menu_hr_attendance_root" sequence="30" groups="kdvn_hr_attendance.group_hr_attendance_section_manager,hr_attendance.group_hr_attendance_user"/>
+        <menuitem id="menu_hr_attendance_to_section_separator" name="Approval" parent="kdvn_hr_attendance.menu_hr_attendance_managers" sequence="10" groups="kdvn_hr_attendance.group_hr_attendance_section_manager"/>
+            <menuitem id="menu_hr_attendance_to_gm_separator" name="GM's Approval" parent="kdvn_hr_attendance.menu_hr_attendance_managers" sequence="20" groups="kdvn_hr_attendance.group_hr_attendance_gm"/>
+            <menuitem id="menu_hr_attendance_all_separator" name="View All" parent="kdvn_hr_attendance.menu_hr_attendance_managers" sequence="50" groups="kdvn_hr_attendance.group_hr_attendance_section_manager,hr_attendance.group_hr_attendance_manager,kdvn_hr_attendance.group_hr_attendance_gm,hr_attendance.group_hr_attendance_user"/>
+            <menuitem id="menu_hr_attendance_hr_separator" name="For HR only" parent="kdvn_hr_attendance.menu_hr_attendance_managers" sequence="80" groups="hr_attendance.group_hr_attendance_manager,hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_director"/>
+            <menuitem id="menu_hr_attendance_new_requests" name="My Requests" parent="hr_attendance.menu_hr_attendance_root" sequence="20" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff"/>
+    
+    <record id="hr_attendance.menu_hr_attendance_reporting" model="ir.ui.menu">
+        <field name="name">Reports</field>
+        <field name="group_ids" eval="[(6,0,[ref('hr_attendance.group_hr_attendance_manager'), ref('hr_attendance.group_hr_attendance_user'), ref('kdvn_hr_attendance.group_hr_attendance_section_manager')])]"/>
+        <field name="sequence" eval="50"/>
+    </record>
+        <menuitem id="menu_hr_attendance_reports_overtime_group" name="Overtime" parent="hr_attendance.menu_hr_attendance_reporting"/>
+        <menuitem id="menu_hr_attendance_reports_attendance_group" name="Attendance" parent="hr_attendance.menu_hr_attendance_reporting"/>
+        <menuitem id="menu_hr_attendance_reports_hr_group" name="HR" parent="hr_attendance.menu_hr_attendance_reporting"/>
+        
+        
+        <menuitem id="menu_hr_attendance_help" name="Help" parent="hr_attendance.menu_hr_attendance_root" sequence="1000"/>
+    <menuitem id="menu_hr_attendance_settings_group" name="Attendance" parent="hr_attendance.menu_hr_attendance_configuration"/>
+    
+    <menuitem id="menu_hr_leave_settings_group" name="Leave" parent="hr_attendance.menu_hr_attendance_configuration"/>
+    <record id="hr_holidays.menu_hr_holidays_root" model="ir.ui.menu">
+        <field name="group_ids" eval="[(6,0,[ref('base.group_system')])]"/>
+    </record>
+
+    <record id="hr.menu_hr_root" model="ir.ui.menu">
+        <field name="group_ids" eval="[(3,ref('base.group_user'),0)]"/>
+    </record>
+
+    </odoo>

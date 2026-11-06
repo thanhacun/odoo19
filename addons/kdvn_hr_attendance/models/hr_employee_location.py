@@ -123,7 +123,7 @@ class KderpHrEmployeeLocationFromAttendance(models.Model):
         return created
 
     # ------------------------------------------------------------------
-    # Send to the remote server (asset report): Odoo -> remote directly (kderp_remote_integration), dry run by default.
+    # Send to the remote server (asset report): Odoo -> remote directly (kdvn_remote_integration), dry run by default.
     # Before 12.0.1.0.11 this went through an n8n webhook; the planning rules below are the ones of that workflow.
     # ------------------------------------------------------------------
     TASK = 'staff_location'

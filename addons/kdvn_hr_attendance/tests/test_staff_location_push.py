@@ -5,7 +5,7 @@ from unittest import mock
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
-CLIENT = 'odoo.addons.kderp_remote_integration.models.remote_client.KderpRemoteClient'
+CLIENT = 'odoo.addons.kdvn_remote_integration.models.remote_client.KderpRemoteClient'
 TODAY = '2026-11-06'
 
 

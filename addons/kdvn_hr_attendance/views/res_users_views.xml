@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_users_form_simple_modif_origin" model="ir.ui.view">
+        <field name="name">res.users.preference.form.modif.origin</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form_simple_modif"/>
+        <field name="arch" type="xml">
+            <field name="tz" position="attributes">
+                <attribute name="readonly">1</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_users_form_simple_modif_kderp_base" model="ir.ui.view">
+        <field name="name">res.users.preference.form.modif.kderp.base</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="kderp_base.view_users_form_simple_modif_location"/>
+        <field name="arch" type="xml">
+            <field name="general_director_id" position="attributes">
+                <attribute name="readonly">1</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>

@@ -981,6 +981,15 @@ class KderpAttendanceAdminControl(models.TransientModel):
     dynamic_notice = fields.Text(compute='_compute_dynamic_notice', readonly=True)
     dynamic_input = fields.Text(help="Used for special quick input - need instruction from IT")
 
+    def action_run_get_raw_data(self):
+        """Buttons "Get data (1)" / "Sync data (2)": Odoo 12 ran the scheduled action through type="action"; Odoo 19 runs it with method_direct_trigger."""
+        self.env.ref('kdvn_hr_attendance.at_get_raw_data').sudo().method_direct_trigger()
+        return True
+
+    def action_run_sync_raw_data(self):
+        self.env.ref('kdvn_hr_attendance.at_sync_raw_data').sudo().method_direct_trigger()
+        return True
+
     @api.depends('at_date')
     def _compute_at_month_year(self):
         AT = self.env['hr.attendance']

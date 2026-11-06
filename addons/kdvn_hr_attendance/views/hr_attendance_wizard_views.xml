@@ -1,0 +1,674 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Attendance Wizard -->
+    <record id="hr_attendance_wizard_form" model="ir.ui.view">
+        <field name="name">hr.attendance.wizard.form</field>
+        <field name="model">hr.attendance.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Attendance Requests">
+                <sheet>
+                    <div class="oe_button_box d-none d-md-block" name="button_box">
+                        <label for="multi_request_mode" string="Multi Requests"/>
+                        <field name="multi_request_mode" widget="boolean_toggle"/>
+                        <div class="text-danger h6" invisible="request_mode == 'wt'">Long OT work can negatively impact health and productivity!</div>
+                        <div class="text-danger h6" invisible="request_mode == 'wt'">Limit your OT-hour under 4 hours per weekday!</div>
+                        <div class="text-danger" invisible="request_mode == 'ot'">Use concise language for Working time description!</div>
+                        <!-- <field name="show_leaves" invisible="1" /> -->
+                        <field name="request_mode" invisible="1"/>
+                        <!-- <label for="future_request_mode" string="Other Date" invisible="1" /> -->
+                        <!-- <field name="future_request_mode" widget="boolean_toggle" invisible="1" /> -->
+                        <!-- <button name="action_related_leaves_form"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-hotel"
+                                attrs="{'invisible': [('related_leaves_count','=', 0)]}"
+                                groups="base.group_user"
+                                help="Related leaves">
+                            <field string="Related leaves" name="related_leaves_count" widget="statinfo" />
+                        </button> -->
+                    </div>
+
+                    <!-- Multi request mode -->
+                    <group string="Future Requests" col="4" invisible="not multi_request_mode">
+                        <field colspan="4" name="employee_ids" widget="many2many_tags" string="Employee(s)"/>
+                        <field name="multi_from_date" options="{&quot;inputmask&quot;: {&quot;noSecond&quot;: True}, &quot;datepicker&quot;: {&quot;defaultDate&quot;: &quot;at_date&quot;}}" string="From Date" readonly="at_state not in [False, 'draft', 'waiting_fman']"/>
+                        <field name="multi_to_date" options="{&quot;inputmask&quot;: {&quot;noSecond&quot;: True}, &quot;datepicker&quot;: {&quot;defaultDate&quot;: &quot;at_date&quot;}}" string="To Date" readonly="at_state not in [False, 'draft', 'waiting_fman']"/>
+                        <field name="batch_id" readonly="1" invisible="not batch_id"/>
+                    </group>
+
+                    <group string="Working time" col="4" invisible="request_mode == 'ot'">
+                        <!-- <field name="at_request_type_id" options="{'horizontal': True}" widget="radio" string="Reason" domain="[('request_type', '=', 'working_time')]" /> -->
+                        <field name="at_request_type_id" string="Reason" widget="selection" readonly="not show_wt_buttons"/>
+                        <field name="name" string="Detail" widget="char" required="at_request_need_description" readonly="not show_wt_buttons"/>
+                        <label for="wt_in_time" class="text-danger" string="Request IN"/>
+                        <field name="wt_in_time" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;defaultTime&quot;: &quot;08:00&quot;, &quot;stepping&quot;: 15}}" nolabel="1" readonly="((((at_request_auto_in_out == 'out' or not at_request_type_id) or at_request_state not in [False, 'draft', 'waiting_fman']) or at_request_code == 'early_in') or not show_wt_buttons)"/>
+                        <!-- <field name="wt_in" options='{"inputmask": {"noSecond": True}, "datepicker": {"enabledDates": "at_date",
+                            "defaultDate": "at_date", "sideBySide": True, "defaultTime": "08:00", "stepping": 15}}' 
+                            attrs="{'readonly': ['|', ('at_request_type_id', '=', False), ('at_request_state', 'not in', (False, 'draft', 'confirm'))]}" /> -->
+                        <label for="wt_out_time" class="text-danger" string="Request OUT"/>
+                        <field name="wt_out_time" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;defaultTime&quot;: &quot;17:00&quot;, &quot;stepping&quot;: 15}}" nolabel="1" readonly="((((at_request_auto_in_out == 'in' or not at_request_type_id) or at_request_state not in [False, 'draft', 'waiting_fman']) or at_request_code == 'early_in') or not show_wt_buttons)"/>
+                        <!-- <field name="wt_out" options='{"inputmask": {"noSecond": True}, "datepicker": {"enabledDates": "at_date",
+                            "defaultDate": "at_date", "sideBySide": True, "defaultTime": "17:00", "stepping": 15}}' 
+                            attrs="{'readonly': ['|', ('at_request_type_id', '=', False), ('at_request_state', 'not in', (False, 'draft', 'confirm'))]}" /> -->
+                        <label for="early_offset" string="Early Offset" invisible="at_request_code != 'early_in'"/>
+                        <div invisible="at_request_code != 'early_in'">
+                            <field name="early_offset" nolabel="1" widget="numeric_step" options="{'step': 15, 'min': 0}" colspan="1" class="oe_inline"/>
+                            <span class="m18"> minutes</span>
+                        </div>
+                        <field name="at_request_show_request_1" widget="boolean_toggle" string="2nd Request" invisible="(at_request_type_id1 or (not at_request_type_id and not at_request_type_id1))"/>
+                        <field name="at_request_code" invisible="1"/>
+                        <field name="at_request_need_description" invisible="1"/>
+                        <field name="at_request_state" invisible="1"/>
+                        <field name="wt_in" invisible="1"/>
+                        <field name="wt_out" invisible="1"/>
+                        <field name="at_request_auto_in_out" invisible="1"/>
+                    </group>
+                    
+                    <group string="Working time (2nd request)" col="4" invisible="request_mode == 'ot' or not at_request_show_request_1">
+                        <field name="at_request_type_id1" string="Reason" widget="selection" readonly="at_request1_state not in [False, 'draft', 'confirm']"/>
+                        <field name="name1" string="Detail (2nd)" widget="char" required="at_request_need_description1" readonly="at_request1_state not in [False, 'draft', 'waiting_fman']"/>
+                        <label for="wt_in_time1" class="text-danger" string="Request IN"/>
+                        <field name="wt_in_time1" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;defaultTime&quot;: &quot;08:00&quot;, &quot;stepping&quot;: 15}}" nolabel="1" readonly="(((at_request_auto_in_out1 == 'out' or not at_request_type_id1) or at_request1_state not in [False, 'draft', 'wating_fman']) or at_request_code1 == 'early_in')"/>
+                        <!-- <field name="wt_in1" options='{"inputmask": {"noSecond": True}, "datepicker": {"enabledDates": "at_date",
+                            "defaultDate": "at_date", "sideBySide": True, "defaultTime": "08:00", "stepping": 15}}' 
+                            attrs="{'readonly': ['|', ('at_request_type_id1', '=', False), ('at_request1_state', 'not in', (False, 'draft', 'confirm'))]}" nolabel="1" /> -->
+                        <label for="wt_out_time1" class="text-danger" string="Request OUT"/>
+                        <field name="wt_out_time1" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;defaultTime&quot;: &quot;17:00&quot;, &quot;stepping&quot;: 15}}" nolabel="1" readonly="(((at_request_auto_in_out1 == 'in' or not at_request_type_id1) or at_request1_state not in [False, 'draft', 'waiting_fman']) or at_request_code1 == 'early_in')"/>
+                        <label for="early_offset" string="Early Offset" invisible="at_request_code != 'early_in'"/>
+                        <div invisible="at_request_code != 'early_in'">
+                            <field name="early_offset" nolabel="1" widget="numeric_step" options="{'step': 15, 'min': 0}" colspan="1" class="oe_inline"/>
+                            <span class="m18"> minutes</span>
+                        </div>
+                        <!-- <field name="wt_out1" options='{"inputmask": {"noSecond": True}, "datepicker": {"enabledDates": "at_date",
+                            "defaultDate": "at_date", "sideBySide": True, "defaultTime": "17:00", "stepping": 15}}' 
+                            attrs="{'readonly': ['|', ('at_request_type_id1', '=', False), ('at_request1_state', 'not in', (False, 'draft', 'confirm'))]}" nolabel="1" /> -->
+                        <field name="at_request_code1" invisible="1"/>
+                        <field name="at_request1_state" invisible="1"/>
+                        <field name="at_request_need_description1" invisible="1"/>
+                        <field name="wt_in1" invisible="1"/>
+                        <field name="wt_out1" invisible="1"/>
+                        <field name="at_request_auto_in_out1" invisible="1"/>
+                    </group>
+
+                    <group string="Overtime" col="4" invisible="request_mode == 'wt'">
+                        <!-- <field name="request_ot_for" string="On" options="{'horizontal': True}" widget="radio" /> -->
+                        <field name="request_ot_for_id" string="On" widget="selection" readonly="ot_request_state not in [False, 'draft', 'waiting_fman']"/>
+                        <field name="ot_description" string="Overtime Detail" widget="char" required="request_ot_for_id" readonly="ot_request_state not in [False, 'draft', 'confirm']"/>
+                        <label for="ot_in_time" class="text-danger" string="Request IN"/>
+                        <field name="ot_in_time" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;stepping&quot;: 15}}" nolabel="1" readonly="((ot_request_auto_in_out == 'out' or not request_ot_for_id) or ot_request_state not in [False, 'draft', 'waiting_fman'])" required="ot_request_auto_in_out in ['in', 'both']"/>
+                        <!-- <field name="ot_in" options='{"inputmask": {"noSecond"widget="timepicker" options='{"datepicker": {"defaultTime": "08:00", "stepping": 15}}' True}, "datepicker": {"enabledDates": "at_date",
+                            "defaultDate": "at_date", "sideBySide": True, "defaultTime": "08:00", "stepping": 15}}' 
+                            attrs="{'readonly': ['|', ('request_ot_for_id', '=', False), ('ot_request_state', 'not in', (False, 'draft', 'confirm'))]}" nolabel="1" /> -->
+                        <label for="ot_out_time" class="text-danger" string="Request OUT"/>
+                        <field name="ot_out_time" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;defaultTime&quot;: &quot;17:00&quot;, &quot;stepping&quot;: 15}}" nolabel="1" readonly="((ot_request_auto_in_out == 'in' or not request_ot_for_id) or ot_request_state not in [False, 'draft', 'waiting_fman'])" required="ot_request_auto_in_out in ['out', 'both']"/>
+                        <!-- <field name="ot_out" options='{"inputmask": {"noSecond": True}, "datepicker": {"enabledDates": "at_date",
+                            "defaultDate": "at_date", "sideBySide": True, "defaultTime": "17:00", "stepping": 15}}' 
+                            attrs="{'readonly': ['|', ('request_ot_for_id', '=', False), ('ot_request_state', 'not in', (False, 'draft', 'confirm'))]}" nolabel="1" /> -->
+                        <field name="ot_estimate_dsp"/>
+                        <field name="ot_apply" invisible="1"/>
+                        <field name="ot_request_state" invisible="1"/>
+                        <field name="ot_in" invisible="1"/>
+                        <field name="ot_out" invisible="1"/>
+                        <field name="ot_request_auto_in_out" invisible="1"/>
+                    </group>
+
+                    <group string="Options set by HR only" groups="hr_attendance.group_hr_attendance_user" col="4">
+                        <field name="out_by_reg"/>
+                        <field name="include_absence_hour"/>
+                    </group>
+
+                    <group string="Attendance" col="4" invisible="multi_request_mode">
+                        <field name="employee_id" string="Employee"/>
+                        <field name="department_id" string="Section"/>
+                        <field name="at_date" readonly="1"/>
+                        <field name="status_ids" widget="many2many_tags" string="Attendance marks" options="{'color_field': 'color'}" readonly="1"/>
+                        <field name="actual_in" options="{'format': 'HH:mm'}"/>
+                        <field name="actual_out" options="{'format': 'HH:mm'}"/>
+                        <!-- <label for="check_in" string="Request IN" class="widget="timepicker" options='{"datepicker": {"defaultTime": "08:00", "stepping": 15}}'text-danger" />
+                        <field name="check_in" options='{"inputmask": {"noSecond": True}, "datepicker": {"enabledDates": "at_date",
+                            "defaultDate": "at_date", "sideBySide": True, "defaultTime": "08:00", "stepping": 15}}' 
+                            attrs="{'readonly': [('at_request_type_id', '=', False), ('request_ot_for_id', '=', False)]}" nolabel="1" /> -->
+                        <!-- <label for="check_out" string="Request OUT" class="text-danger" />
+                        <field name="check_out" options='{"inputmask": {"noSecond": True}, "datepicker": {"enabledDates": "at_date", "sideBySide": True,
+                            "defaultDate": "at_date", "defaultTime" : "17:00", "stepping": 15}}' 
+                            attrs="{'readonly': [('at_request_type_id', '=', False), ('request_ot_for_id', '=', False)]}" nolabel="1" /> -->
+
+                        <!-- <field name="check_in" options='{"inputmask": {"noSecond": True}, "datepicker": {"enabledDates": ["2021-10-21", "2021-10-24"], 
+                            "disabledHours": [9,10,11,12,14,15,16,17], "defaultDate": "at_date", "defaultTime": "08:00:00", "stepping": 15, "sideBySide": True, "useCurrent" : False}}' 
+                            attrs="{'readonly1':[('check_in', '!=', False)]}" /> -->
+                    </group>
+
+                    <!-- <group string="Attendance - Multiple Requests" col="4" attrs="{'invisible': [('multi_request_mode', '=', False)]}" >
+                        <field colspan="4" name="employee_ids" widget="many2many_tags" string="Employee(s)" />
+                        <field name="multi_check_in" options='{"inputmask": {"noSecond": True}, 
+                               "datepicker": {"defaultDate": "at_date", "defaultTime": "08:00", "sideBySide": True, "stepping": 15}}'  />
+                        <field name="multi_check_out" options='{"inputmask": {"noSecond": True}, 
+                               "datepicker": {"defaultDate": "at_date", "defaultTime": "17:00", "sideBySide": True, "steppin": 15}}' />
+                    </group> -->
+
+                    <!-- <group string="Attendance - Other date" col="4" attrs="{'invisible': [('future_request_mode', '=', False)]}" >
+                        <field name="employee_id" string="Employee" />
+                        <field name="department_id" string="Section" />
+                        <field name="future_check_in" options='{"inputmask": {"noSecond": True}, 
+                               "datepicker": {"sideBySide": True}}'  />
+                        <field name="future_check_out" options='{"inputmask": {"noSecond": True}, 
+                               "datepicker": {"sideBySide": True}}' />
+                    </group> -->
+
+                    <group invisible="1" string="For getting data">
+                        <field name="at_id" string="Attendance"/>
+                        <field name="at_state" string="AT state"/>
+                        <!-- <field name="next_month_available_at" /> -->
+                    </group>
+
+                    <!-- <group string="Leave | Substitute" invisible="1" >
+                        <field name="request_leave" options="{'horizontal': True}" widget="radio" attrs="{'invisible': ['|', ('can_request_leave', '=', False)]}"/>
+                        <field name="convert_leave" options="{'horizontal': True}" widget="radio" />
+                        <field name="substitute_at_id" />
+
+                        <field name="can_request_leave" invisible="1" />
+                        <field name="can_convert_leave" invisible="1" />
+                        <field name="show_leave_request" invisible="1" />
+                    </group> -->
+
+                    <footer>
+                        <button name="save" type="object" string="Save" class="oe_highlight" invisible="(((not show_wt1_buttons and not show_wt_buttons) and not show_ot_buttons) or multi_request_mode)"/>
+                        <button name="save_multi" type="object" string="Save Multi" class="oe_highlight" invisible="not show_buttons or not multi_request_mode"/>
+                        <button name="submit" type="object" string="Submit" class="btn-info" invisible="(((not show_wt1_buttons and not show_wt_buttons) and not show_ot_buttons) or multi_request_mode)"/>
+                        <button name="submit_multi" type="object" string="Submit Multi" class="btn-info" invisible="not show_buttons or not multi_request_mode"/>
+                        <button special="cancel" string="Cancel"/>
+                        <button name="reset" type="object" string="Reset all" class="btn-danger" invisible="((not show_wt1_buttons and not show_wt_buttons) and not show_ot_buttons)"/>
+                        <div class="text-danger">Note: Your request will be auto submitted!</div>
+                        <field name="show_buttons" invisible="1"/>
+                        <field name="show_wt_buttons" invisible="1"/>
+                        <field name="show_wt1_buttons" invisible="1"/>
+                        <field name="show_ot_buttons" invisible="1"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Admin Control Wizard -->
+    <record id="hr_attendance_admin_control_wizard" model="ir.ui.view">
+        <field name="name">hr.attendance.admin.control.wizard.form</field>
+        <field name="model">hr.attendance.admin.control.wizard</field>
+        <field name="arch" type="xml">
+            <form string="HR Admin Control Panel">
+                <header/>
+                <sheet>
+                    <group col="4" string="Date and Employee">
+                        <field name="at_date" string="Pick a date"/>
+                        <field name="to_date" string="To date"/>
+                        <field name="employee_ids" string="Select employees" widget="many2many_tags"/>
+                        <label for="dynamic_notice" string="Notice" class="text-danger" invisible="not dynamic_notice"/>
+                        <span class="text-danger"><field name="dynamic_notice" nolabel="1" invisible="not dynamic_notice"/></span>
+                        <newline/>
+                        <field name="at_month" readonly="1"/>
+                        <field name="at_year" readonly="1"/>
+                    </group>
+                    <group col="4" string="Special Input Support Tools">
+                        <field name="dynamic_input" placeholder="Paste staff codes by line here!"/>
+                        <button name="action_quick_employees_input" type="object" string="For Employees" class="oe_highlight"/>
+                        <newline/>
+                        <div class="text-muted" colspan="2">Paste Staff Code values here by lines to quickly input multiple Employees</div>
+                    </group>
+                    <group string="Monthly Reports">
+                        <div class="o_row">
+                            <label for="monthly_report" string="Choose a report"/>
+                            <field name="monthly_report"/>
+                            <button name="action_print_monthly_reports" type="object" string="Export" class="oe_highlight" invisible="not monthly_report"/>
+                        </div>
+                    </group>
+                    <group col="4" string="Data from Bizone">
+                        <button name="action_run_get_raw_data" type="object" string="Get data (1)" class="oe_highlight"/>
+                        <button name="action_run_sync_raw_data" type="object" string="Sync data (2)" class="oe_highlight"/>
+                        <div class="text-muted">Get attendance data for last 7 days.</div>
+                        <newline/>
+                        <button name="action_get_sync_data" type="object" string="Get &amp; Sync data for the above date" class="oe_highlight" invisible="not at_date"/>
+                    </group>
+                    <group col="2" string="Other admin actions">
+                        <button name="action_ot_compensation" type="object" string="Add OT compensation" class="btn-danger" confirm="Make sure you understand what you are doing! You can ask IT for explanation."/>
+                        <!-- <div class="text-muted"><field name="archive_message" /></div> -->
+                        <div class="text-muted">Update OT Compensation</div>
+                        <button name="action_recompute_last_year_leave" type="object" string="Recompute Last year Leave" class="btn-danger" confirm="Make sure you understand what you are doing! You can ask IT for explanation"/>
+                        <div class="text-muted">Plase choose any date of last year attendance</div>
+                        <button name="action_archive_old_data" type="object" string="Archive old data" class="btn-danger" confirm="This will [Archive old records] older than 14 months before. Make sure you UNDERSTAND the action!"/>
+                        <div class="text-muted"><field name="archive_message"/></div>
+                        <button name="action_create_ah_leave_allocation" type="object" string="Create AH Leave Allocations" class="oe_highlight"/>
+                        <div class="text-muted">Create AH Leave Allocations for the selected month</div>
+                        <button name="action_update_employee_subordinate" type="object" string="Update an employee's subordinates parent users" class="oe_highlight"/>
+                        <div class="text-muted">Using when the employee becomes SM or GM</div>
+                        <button name="action_update_employee_at_view_users" type="object" string="Update employees' at records view users" class="btn-danger"/>
+                        <div class="text-muted">Use date to update at record from a specific date</div>
+                        <button name="action_create_summer_holiday_allocation" type="object" string="Create Summer Holiday Allocations" class="oe_highlight"/>
+                        <div class="text-muted">Create Summer Holiday Allocations for the selected year. Please choose the correct date for Summer Holiday Starting Date.</div>
+                        <button name="action_create_summer_holiday_leaves" type="object" string="Create Summer Holiday Leaves" class="btn-danger"/>
+                        <div class="text-muted">Create Summer Holiday Leaves for the selected EMPLOYEES. Please choose the correct From Date and To Date!</div>
+                        <button name="action_create_public_holidays" type="object" string="Create Public Holidays" class="oe_highlight"/>
+                        <div class="text-muted">Create public holidays for the selected year!</div>
+                        <button name="action_update_estimate_ot" type="object" string="Update Estimate OT" class="oe_highlight"/>
+                        <div class="text-muted">Update Estimate OT for the selected month and year - Once time only!</div>
+                        <button name="action_create_monthly_ot_holiday_records" type="object" string="Create OT on Holidays records" class="oe_highlight"/>
+                        <div class="text-muted">Generate OT Holidays records for selected at_year and at_month.</div>
+                        <button name="action_update_staff_locations" type="object" string="Update staff locations (all months)" class="oe_highlight"/>
+                        <div class="text-muted">Staff Location History from the most-used face-id machine of each month. Opens a 4-step wizard (machine names and areas, preview, confirm, result). Runs by itself at the start of every attendance month; use the wizard for the first load or after fixing machine names.</div>
+                        <button name="action_push_staff_locations" type="object" string="Send staff locations to remote server" class="oe_highlight"/>
+                        <div class="text-muted">Three steps: check the machine names, choose the remote location of each of our locations, confirm. Used by the remote server for the yearly asset check report. Once a month, after the attendance month starts.</div>
+                        <!-- <button name="action_change_to_40_hours_working_week" type="object" string="Modify to 40-hour working week" class="btn-danger"/> -->
+                        <!-- <div class="text-muted">Change the selected employees working hours per week to 40</div> -->
+                    </group>
+                </sheet>
+                <footer>
+                    <button special="cancel" string="Close"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Choose manager wizard -->
+    <record id="view_hr_attendance_change_approve_manager_wizard" model="ir.ui.view">
+        <field name="name">hr.attendance.change.approve.manager.wizard.form</field>
+        <field name="model">hr.mixin.manager</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="active_model" string="Model" readonly="1" invisible="1"/>
+                    <field name="active_id" string="ID" readonly="1" invisible="1"/>
+                    <field name="employee_id" string="Choose a manager"/>
+                </group>
+                <footer>
+                    <button name="action_save" type="object" string="Save"/>
+                    <button special="cancel" string="Cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Manager requests -->
+    <record id="view_hr_attendance_manager_request" model="ir.ui.view">
+        <field name="name">hr.attendance.manager.request.tree</field>
+        <field name="model">hr.attendance.manager.request</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" create="0" edit="0" default_order="manager_id">
+                <field name="manager_id" options="{'open': False}"/>
+                <!-- <field name="state" /> -->
+                <field name="total_requests"/>
+                <button name="action_open_records" type="object" icon="fa-folder-open-o" string="Open records"/>
+                <button name="action_send_noti_email" type="object" icon="fa-envelope-o" string="Send email"/>
+                <field name="departments" column_invisible="1"/>
+                <field name="ats" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_attendance_manager_request_search" model="ir.ui.view">
+        <field name="name">hr.attendance.manager.request.search</field>
+        <field name="model">hr.attendance.manager.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="manager_id"/>
+            </search>
+        </field>
+    </record>
+    
+    
+    <!-- Attendance WT Request Wizard -->
+    <record id="hr_attendance_wt_request_wizard_form" model="ir.ui.view">
+        <field name="name">hr.attendance.wt.request.wizard.form</field>
+        <field name="model">hr.attendance.request.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Working Requests">
+                <header>
+                </header>
+                <sheet>
+                    <group col="4">
+                        <field name="request_date_from" string="From"/>
+                        <field name="request_date_to" string="To"/>
+                        <field name="department_id" string="Section/Project"/>
+                        <field name="sub_request_type_id" string="Reason" domain="[('request_type', '=', 'working_time')]" required="1"/>
+                        <field name="name" required="need_description"/>
+                        <field name="need_description" invisible="1"/>
+                        <field name="request_detail_ids" colspan="4">
+                            <list string="Detail" editable="top">
+                                <field name="employee_id" string="Staff Name"/>
+                                <field name="request_time_fr" string="Check-in time" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;defaultTime&quot;: &quot;08:00&quot;, &quot;stepping&quot;: 15}}"/>
+                                <field name="request_time_to" string="Check-out time" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;defaultTime&quot;: &quot;17:00&quot;, &quot;stepping&quot;: 15}}"/>
+                                <field name="request_id" column_invisible="1"/>
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="save" type="object" string="Save" class="oe_highlight"/>
+                    <!-- <button name="save_multi" type="object" string="Save" class="oe_highlight" attrs="{'invisible': [('multi_request_mode', '=', False)]}" /> -->
+                    <button name="submit" type="object" string="Submit" class="btn-info"/>
+                    <button special="cancel" string="Cancel"/>
+                    <!-- <button name="reset" type="object" string="Reset all" class="btn-danger" 
+                        attrs="{'invisible': [('multi_request_mode', '=', False), ('show_buttons', '=', False), ('at_state', '!=', 'draft')]}" /> -->
+                    <!-- <field name="show_buttons" invisible="1" /> -->
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Attendance OT Request Wizard -->
+    <record id="hr_attendance_ot_request_wizard_form" model="ir.ui.view">
+        <field name="name">hr.attendance.ot.request.wizard.form</field>
+        <field name="model">hr.attendance.request.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Overtime Requests">
+                <header>
+                </header>
+                <sheet>
+                    <group col="4">
+                        <field name="request_date_from" string="Date"/>
+                        <field name="request_date_to" string="To" readonly="1"/>
+                        <field name="department_id" string="Section/Project"/>
+                        <field name="request_detail_ids" colspan="4">
+                            <list string="Detail" editable="top">
+                                <field name="employee_id" string="Staff Name"/>
+                                <field name="name" string="Detail OT works" required="1"/>
+                                <field name="sub_request_type_id" string="For" required="1"/>
+                                <field name="request_time_fr" string="From" required="1" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;defaultTime&quot;: &quot;08:00&quot;, &quot;stepping&quot;: 15}}"/>
+                                <field name="request_time_to" string="To" required="1" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;defaultTime&quot;: &quot;17:00&quot;, &quot;stepping&quot;: 15}}"/>
+                                <field name="request_id" column_invisible="1"/>
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="save" type="object" string="Save" class="oe_highlight"/>
+                    <button name="submit" type="object" string="Submit" class="btn-info"/>
+                    <button special="cancel" string="Cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Attendance OT Hoilday -->
+    <!-- OT Holidays Tree view -->
+    <record id="list_hr_attendance_ot_holiday" model="ir.ui.view">
+        <field name="name">hr.attendance.ot.holiday.tree</field>
+        <field name="model">hr.attendance.ot.holiday</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="is_locked==True">
+                <field name="employee_id"/>
+                <field name="at_month_dsp"/>
+                <field name="ot_detail_ids"/>
+                <field name="at_year"/>
+                <field name="at_month"/>
+                <!-- <field name="ot_refuse" /> -->
+                <field name="state" column_invisible="1"/>
+                <field name="is_locked" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- OT Holidays Search view -->
+    <record id="search_hr_attendance_ot_holiday" model="ir.ui.view">
+        <field name="name">hr.attendance.ot.holiday.search</field>
+        <field name="model">hr.attendance.ot.holiday</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="employee_id"/>
+                <field name="department_id" string="Section"/>
+                <field name="at_month_dsp" string="Month Year"/>
+                <field name="at_year"/>
+                <field name="at_month"/>
+                <filter name="my_records" string="My records" domain="[('employee_id.user_id.id', '=', uid)]"/>
+                <separator/>
+                <filter name="current" string="Show current" domain="[('is_current', '=', True)]"/>
+                <!-- <filter name="uncompleted" string="Uncompleted" domain="[('state', '=', 'draft')]" /> -->
+                <!-- <filter name="completed" string="Completed" domain="[('state', '=', 'completed')]" /> -->
+                <group>
+                    <filter name="groupby_year_month" string="Month-Year" context="{'group_by': 'at_month_dsp'}"/>
+                    <filter name="groupby_section" string="Section" context="{'group_by': 'department_id'}"/>
+                    <filter name="groupby_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                    <filter name="groupby_year" string="Year" context="{'group_by': 'at_year'}"/>
+                    <filter name="groupby_month" string="Month" context="{'group_by': 'at_month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- OT Holidays Form view -->
+    <record id="form_hr_attendance_ot_holiday" model="ir.ui.view">
+        <field name="name">hr.attendance.ot.holiday.form</field>
+        <field name="model">hr.attendance.ot.holiday</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_submit" type="object" string="Submit" icon="fa-paper-plane text-success" invisible="is_locked"/>
+                    <button name="sync_ot_request" type="object" string="Sync OT Requests" icon="fa-check text-success" invisible="is_locked"/>
+                    
+                    <!-- <field name="state" widget="statusbar" statusbar_visible="draft,completed" /> -->
+                </header>
+                <group col="4">
+                    <field name="employee_id"/>
+                    <field name="department_id" string="Section"/>
+                    <field name="at_year"/>
+                    <field name="at_month"/>
+                    <field name="is_locked" invisible="1"/>
+                    <field name="is_current" invisible="1"/>
+                </group>
+                <group>
+                    <field name="ot_detail_ids" string="OT Details" readonly="is_locked">
+                        <list editable="bottom" create="0" delete="0" decoration-muted="state=='done' or not is_apply" decoration-danger="state=='refuse' or holiday_type=='Sun' or holiday_type=='H'" decoration-success="holiday_type=='Sat'" decoration-warning="holiday_type=='SH' or holiday_type=='OH'">
+                            <field name="ot_holiday_reg_id" column_invisible="1"/>
+                            <field name="at_date" readonly="not is_admin"/>
+                            <field name="holiday_type" readonly="1"/>
+                            <field name="ot_register" widget="boolean_toggle_safe_readonly" readonly="not is_admin and state == 'done'" invisible="not is_apply"/>
+                            <field name="ot_detail" required="ot_register" readonly="not ot_register"/>
+                            <!-- <field name="ot_refuse" attrs="{'readonly': [('ot_register', '=', False)]}" groups="hr_attendance.group_hr_attendance_user,base.group_system"/> -->
+                            <field name="ot_refuse" readonly="not is_admin"/>
+                            <field name="ot_request_id" readonly="1"/>
+                            <field name="state" readonly="1" invisible="not is_apply"/>
+                            <field name="is_apply" column_invisible="1"/>
+                            <field name="employee_id" column_invisible="1"/>
+                            <field name="at_year" column_invisible="1"/>
+                            <field name="at_month" column_invisible="1"/>
+                            <field name="is_admin" column_invisible="1"/>
+                        </list>
+                    </field>
+                </group>
+
+                <chatter/></form>
+        </field>
+
+    </record>
+
+    <!-- OT Holiday line tree view -->
+    <record id="list_hr_attendance_ot_holiday_line" model="ir.ui.view">
+        <field name="name">hr.attendance.ot.holiday.line.tree</field>
+        <field name="model">hr.attendance.ot.holiday.line</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="is_admin==False or not is_apply">
+                <field name="ot_holiday_reg_id"/>
+                <field name="at_date" readonly="not is_admin"/>
+                <field name="holiday_type" readonly="1"/>
+                <field name="ot_register" widget="boolean_toggle_safe_readonly" readonly="not is_admin and state == 'done'"/>
+                <field name="ot_detail" required="ot_register" readonly="not ot_register"/>
+                <!-- <field name="ot_refuse" attrs="{'readonly': [('ot_register', '=', False)]}" groups="hr_attendance.group_hr_attendance_user,base.group_system"/> -->
+                <field name="ot_refuse" readonly="not is_admin"/>
+                <field name="ot_request_id" readonly="1"/>
+                <field name="state" readonly="1"/>
+                <field name="employee_id" column_invisible="1"/>
+                <field name="at_year" column_invisible="1"/>
+                <field name="at_month" column_invisible="1"/>
+                <field name="is_admin" column_invisible="1"/>
+                <field name="is_apply" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+    
+    <record id="form_hr_attendance_ot_holiday_manager" model="ir.ui.view">
+        <field name="name">hr.attendance.ot.holiday.manager.form</field>
+        <field name="model">hr.attendance.ot.holiday.manager</field>
+        <field name="arch" type="xml">
+            <form>
+                    <header>
+                        <!-- <button name="download_excel_file" type="object" string="Download" class="btn btn-info" /> -->
+                        <field name="header_dsp" widget="html"/>
+                    </header>
+                    <group>
+                        <group string="Sections">
+                            <field name="managed_section_ids" widget="many2many_tags" string="Sections" nolabel="1" readonly="1"/>
+                        </group>
+                        <group string="Filter data">
+                            <field name="manager_id"/>
+                            <field name="at_year"/>
+                            <field name="at_month"/>
+                            <separator string="Advanced filter" colspan="4"/>
+                            <field name="employee_id"/>
+                            <field name="waiting_for" string="State"/>
+                            <group col="4">
+                                <field name="wait_for_approve" widget="boolean_toggle"/>
+                                <field name="no_sat_working" widget="boolean_toggle"/>
+                            </group>
+                        </group>
+                        <group colspan="4">
+                            <field name="ot_holiday_ids" widget="ot_holiday" nolabel="1"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <!-- <button name="action_approve" type="object" string="Approve" class="btn btn-info" confirm="This function is in testing phase!"/> -->
+                        <!-- <button special="cancel" string="Close" class="btn btn-success" /> -->
+                    </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- OT Holidays Manager requests -->
+    <record id="view_hr_attendance_ot_holiday_manager_request" model="ir.ui.view">
+        <field name="name">hr.attendance.ot.holiday.manager.request.tree</field>
+        <field name="model">hr.attendance.ot.holiday.manager.request</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" create="0" edit="0" default_order="manager_id">
+                <field name="manager_id" options="{'open': False}"/>
+                <!-- <field name="state" /> -->
+                <field name="total_requests"/>
+                <button name="action_open_records" type="object" icon="fa-folder-open-o" string="Open records"/>
+                <button name="action_send_noti_email" type="object" icon="fa-envelope-o" string="Send email"/>
+                <field name="departments" column_invisible="1"/>
+                <field name="othls" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_attendance_ot_holiday_manager_request_search" model="ir.ui.view">
+        <field name="name">hr.attendance.ot.holiday.manager.request.search</field>
+        <field name="model">hr.attendance.ot.holiday.manager.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="manager_id"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- <record id="form_hr_attendance_ot_holiday_refuse" model="ir.ui.view">
+        <field name="name">hr.attendance.ot.holiday.refuse.form</field>
+        <field name="model">hr.attendance.ot.holiday.refuse</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="ot_holiday_reg_id" />
+                    <field name="sm_refuse" />
+                    <field name="gm_refuse" />
+                    <field name="gd_refuse" />
+                </group>
+                <footer>
+                    <button name="action_save" type="object" string="Save" class="btn btn-info" confirm="This function is in testing phase!" />
+                    <button special="cancel" string="Close" class="btn btn-success" />
+                </footer>
+            </form>
+        </field>
+    </record> -->
+
+
+    <!-- Wizard actions -->
+    <record id="hr_attendance_wizard_ot" model="ir.actions.act_window"><field name="name">OT Request</field><field name="res_model">hr.attendance.wizard</field><field name="view_mode">form</field><field name="target">new</field><field name="context">{'default_request_mode': 'ot'}</field><field name="binding_model_id" ref="hr_attendance.model_hr_attendance"/><field name="group_ids" eval="[(6, 0, [ref('kdvn_hr_attendance.group_hr_attendance_menu_staff')])]"/></record>
+
+    <record id="hr_attendance_wizard_wt" model="ir.actions.act_window"><field name="name">WT Request</field><field name="res_model">hr.attendance.wizard</field><field name="view_mode">form</field><field name="target">new</field><field name="context">{'default_request_mode': 'wt'}</field><field name="binding_model_id" ref="hr_attendance.model_hr_attendance"/><field name="group_ids" eval="[(6, 0, [ref('kdvn_hr_attendance.group_hr_attendance_menu_staff')])]"/></record>
+
+    <record id="hr_attendance_wizard_multi_mode_ot" model="ir.actions.act_window"><field name="name">OT Request</field><field name="res_model">hr.attendance.wizard</field><field name="view_mode">form</field><field name="target">new</field><field name="context">{'default_multi_request_mode': True, 'default_request_mode': 'ot'}</field></record>
+
+    <record id="hr_attendance_wizard_multi_mode_wt" model="ir.actions.act_window"><field name="name">Working Time Request</field><field name="res_model">hr.attendance.wizard</field><field name="view_mode">form</field><field name="target">new</field><field name="context">{'default_multi_request_mode': True, 'default_request_mode': 'wt'}</field></record>
+
+    <record id="hr_attendance_wt_request_wizard" model="ir.actions.act_window"><field name="name">Working Time Request</field><field name="res_model">hr.attendance.request.wizard</field><field name="view_mode">list,form</field><field name="target">new</field></record>
+    <record id="form_view_for_wt_request" model="ir.actions.act_window.view">
+        <field name="sequence" eval="0"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="kdvn_hr_attendance.hr_attendance_wt_request_wizard_form"/>
+        <field name="act_window_id" ref="kdvn_hr_attendance.hr_attendance_wt_request_wizard"/>
+    </record>
+
+    <record id="hr_attendance_ot_request_wizard" model="ir.actions.act_window"><field name="name">Overtime Request</field><field name="res_model">hr.attendance.request.wizard</field><field name="view_mode">form</field><field name="target">new</field></record>
+    <record id="form_view_for_ot_request" model="ir.actions.act_window.view">
+        <field name="sequence" eval="0"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="kdvn_hr_attendance.hr_attendance_ot_request_wizard_form"/>
+        <field name="act_window_id" ref="kdvn_hr_attendance.hr_attendance_ot_request_wizard"/>
+    </record>
+
+    <record id="action_hr_attendance_admin_control_wizard" model="ir.actions.act_window"><field name="name">HR Admin Control</field><field name="res_model">hr.attendance.admin.control.wizard</field><field name="view_mode">form</field><field name="target">new</field></record>
+
+    <record id="hr_attendance_manager_request_report" model="ir.actions.act_window"><field name="name">Manager Requests</field><field name="res_model">hr.attendance.manager.request</field><field name="view_mode">list,form</field></record>
+    
+    <record id="action_hr_attendance_ot_holiday" model="ir.actions.act_window"><field name="name">OT Holidays</field><field name="res_model">hr.attendance.ot.holiday</field><field name="view_mode">list,form</field><field name="context">{'search_default_my_records':1, 'search_default_current':1}</field></record>
+
+    <record id="action_hr_attendance_ot_holiday_all" model="ir.actions.act_window"><field name="name">OT Holidays</field><field name="res_model">hr.attendance.ot.holiday</field><field name="view_mode">list,form</field><field name="context">{'search_default_current':1, 'search_default_groupby_year_month': 1, 'search_default_groupby_section': 1}</field></record>
+
+    <record id="action_hr_attendance_ot_holiday_line" model="ir.actions.act_window"><field name="name">OT Holiday Lines</field><field name="res_model">hr.attendance.ot.holiday.line</field><field name="view_mode">list,form</field></record>
+
+    <record id="action_hr_attendance_ot_holiday_manager" model="ir.actions.act_window"><field name="name">OT on holidays plan</field><field name="res_model">hr.attendance.ot.holiday.manager</field><field name="view_mode">form</field><field name="target">new</field></record>
+    
+    <record id="action_hr_attendance_ot_holiday_gm" model="ir.actions.act_window"><field name="name">OT on holidays plan for GM</field><field name="res_model">hr.attendance.ot.holiday.manager</field><field name="view_mode">form</field><field name="target">new</field><field name="context">{'ot_holiday_gm': True}</field></record>
+
+    <record id="hr_attendance_ot_holiday_manager_request" model="ir.actions.act_window"><field name="name">OT Holidays Manager Requests</field><field name="res_model">hr.attendance.ot.holiday.manager.request</field><field name="view_mode">list,form</field></record>
+
+    <!-- <act_window
+        id="action_hr_attendance_ot_holiday_refuse"
+        name="OT Holidays Refuse"
+        res_model="hr.attendance.ot.holiday.refuse"
+        view_mode="form"
+        target="new"
+        
+        /> -->
+    
+    <!-- Menus -->
+    <!-- <menuitem id="menu_hr_attendance_managers" name="Manage Attendances" parent="hr_attendance.menu_hr_attendance_root" sequence="20" groups="base.group_user"/> -->
+    <menuitem id="menu_hr_attendance_requests_ot" name="OT Requests" parent="kdvn_hr_attendance.menu_hr_attendance_new_requests" sequence="10" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff" action="kdvn_hr_attendance.hr_attendance_wizard_multi_mode_ot"/>
+
+    <menuitem id="menu_hr_attendance_requests_wt" name="WT Requests" parent="kdvn_hr_attendance.menu_hr_attendance_new_requests" sequence="20" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff" action="kdvn_hr_attendance.hr_attendance_wizard_multi_mode_wt"/>
+
+    <menuitem id="menu_hr_attendance_manager_request" name="03.2 Manager Requests" parent="menu_hr_attendance_reports_hr_group" sequence="3002" action="kdvn_hr_attendance.hr_attendance_manager_request_report"/>
+
+    <menuitem id="menu_hr_attendance_ot_holiday_manager_request" name="03.3 OT Holiday Man. Requests" parent="menu_hr_attendance_reports_hr_group" sequence="3003" action="kdvn_hr_attendance.hr_attendance_ot_holiday_manager_request"/>
+
+    <menuitem id="menu_hr_attendance_admin_control" name="03.4 Admin Control" parent="menu_hr_attendance_reports_hr_group" sequence="3006" groups="hr_attendance.group_hr_attendance_manager,hr_attendance.group_hr_attendance_user" action="action_hr_attendance_admin_control_wizard"/>
+
+    
+    <menuitem id="menu_hr_attendance_ot_holiday" name="OT Holidays" parent="kdvn_hr_attendance.menu_hr_attendance_my_records" sequence="90" action="kdvn_hr_attendance.action_hr_attendance_ot_holiday" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff"/>
+
+    <menuitem id="menu_hr_attendance_ot_holiday_manager" name="OT Holidays Plan" parent="kdvn_hr_attendance.menu_hr_attendance_to_section_separator" sequence="95" action="kdvn_hr_attendance.action_hr_attendance_ot_holiday_manager" groups="kdvn_hr_attendance.group_hr_attendance_section_manager"/>
+
+    <!-- For HR Admin but not only HR Manager -->
+    <menuitem id="menu_hr_attendance_ot_holiday_hr_admin" name="OT Holidays Plan" parent="kdvn_hr_attendance.menu_hr_attendance_hr_separator" sequence="105" action="kdvn_hr_attendance.action_hr_attendance_ot_holiday_manager" groups="hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_director"/>
+    
+    <menuitem id="menu_hr_attendance_ot_holiday_line" name="Holiday Lines" parent="kdvn_hr_attendance.menu_hr_attendance_hr_separator" sequence="110" action="kdvn_hr_attendance.action_hr_attendance_ot_holiday_line" groups="hr_attendance.group_hr_attendance_user"/>
+
+    <menuitem id="menu_hr_attendance_ot_holiday_gm" name="OT Holidays Plan" parent="kdvn_hr_attendance.menu_hr_attendance_to_gm_separator" sequence="95" action="kdvn_hr_attendance.action_hr_attendance_ot_holiday_gm" groups="kdvn_hr_attendance.group_hr_attendance_gm"/>
+
+    <menuitem id="menu_hr_attendance_ot_holiday_all" name="OT Holidays" parent="kdvn_hr_attendance.menu_hr_attendance_all_separator" sequence="95" action="kdvn_hr_attendance.action_hr_attendance_ot_holiday_all" groups="kdvn_hr_attendance.group_hr_attendance_section_manager,hr_attendance.group_hr_attendance_manager,kdvn_hr_attendance.group_hr_attendance_gm,kdvn_hr_attendance.group_hr_attendance_director,hr_attendance.group_hr_attendance_user"/>
+
+    <!-- <menuitem id="menu_hr_attendance_ot_holiday_refuse" name="OT Holidays Refuse" parent="kdvn_hr_attendance.menu_hr_attendance_my_records" 
+        sequence="98" action="kdvn_hr_attendance.action_hr_attendance_ot_holiday_refuse"/> -->
+
+    <!-- Reserve for future consideration -->
+    <menuitem id="menu_hr_attendance_wt_requests" name="Future/Multi WT requests" parent="menu_hr_attendance_managers" sequence="80" groups="base.group_system" action="kdvn_hr_attendance.hr_attendance_wt_request_wizard"/>
+
+    <menuitem id="menu_hr_attendance_ot_requests" name="Future/Multi OT requests" parent="menu_hr_attendance_managers" sequence="90" groups="base.group_system" action="kdvn_hr_attendance.hr_attendance_ot_request_wizard"/>
+
+</odoo>

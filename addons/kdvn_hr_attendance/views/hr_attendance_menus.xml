@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><!-- Odoo 19 core entries that KDVN does not use (own overtime engine, no kiosk): administrators only -->
+    <!-- menus -->
+    <!-- Manage Attendances -->
+    <menuitem id="menu_hr_attendance_view_attendances" name="Attendances" parent="menu_hr_attendance_my_records" sequence="10" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff" action="hr_attendance_action"/>
+        <menuitem id="menu_hr_attendance_current_attendance_pdf" name="Attendance record (pdf)" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff" action="print_current_attendance" parent="menu_hr_attendance_my_records" sequence="90"/>
+        <menuitem id="menu_hr_attendance_summary" name="Attendance Summary" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff" action="hr_summary_action" parent="menu_hr_attendance_my_records" sequence="100"/>
+
+    <menuitem id="menu_hr_attendance_view_attendances_for_manager" name="Attendances" parent="kdvn_hr_attendance.menu_hr_attendance_to_section_separator" sequence="5" groups="kdvn_hr_attendance.group_hr_attendance_section_manager" action="kdvn_hr_attendance.hr_attendance_action_for_manager"/>
+
+        <menuitem id="menu_hr_attendance_view_attendances_for_manager_gm" name="Attendances" parent="kdvn_hr_attendance.menu_hr_attendance_to_gm_separator" sequence="5" groups="kdvn_hr_attendance.group_hr_attendance_gm" action="kdvn_hr_attendance.hr_attendance_action_for_manager_gm"/>
+        
+        <menuitem id="menu_hr_attendance_view_attendances_for_manager_all" name="Attendances" parent="kdvn_hr_attendance.menu_hr_attendance_all_separator" sequence="5" action="kdvn_hr_attendance.hr_attendance_action_for_manager_all" groups="kdvn_hr_attendance.group_hr_attendance_section_manager,hr_attendance.group_hr_attendance_manager,kdvn_hr_attendance.group_hr_attendance_gm,kdvn_hr_attendance.group_hr_attendance_director,hr_attendance.group_hr_attendance_user"/>
+
+        <menuitem id="menu_hr_attendance_view_all" name="All Attendance" parent="kdvn_hr_attendance.menu_hr_attendance_hr_separator" action="kdvn_hr_attendance.hr_attendance_action_for_hr_all" groups="hr_attendance.group_hr_attendance_manager,hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_director"/>
+            <menuitem id="menu_hr_attendance_validate" name="Validate" parent="kdvn_hr_attendance.menu_hr_attendance_hr_separator" action="kdvn_hr_attendance.hr_attendance_action_for_hr_validate" groups="hr_attendance.group_hr_attendance_manager,hr_attendance.group_hr_attendance_user"/>
+    
+    <!-- <menuitem id="menu_hr_attendance_managers" name="Manage Attendances" parent="hr_attendance.menu_hr_attendance_root" 
+        sequence="20" groups="base.group_user" /> -->
+
+    <!-- Reporting -->
+    <!-- Overtime Group -->
+        <!-- Attendance -->
+        <!-- HR -->
+        <menuitem id="hr_attendance.menu_hr_attendance_hours_report" name="Attendance hours" parent="hr_attendance.menu_hr_attendance_reporting" sequence="10" groups="base.group_system" action="hr_attendance_action_graph"/>
+        <menuitem id="hr_attendance.menu_hr_employee_gender_graph" name="Employee gender" parent="hr_attendance.menu_hr_attendance_reporting" sequence="30" groups="base.group_system" action="hr_employee_gender_graph_action"/>
+        <menuitem id="menu_hr_attendance_overtime_summary_tree" name="01.2 Overtime Summary" groups="hr_attendance.group_hr_attendance_manager,hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_section_manager" action="hr_attendance_action_graph" parent="menu_hr_attendance_reports_overtime_group" sequence="1002"/>
+        <menuitem id="menu_hr_attendance_estimate_overtime_summary_tree" name="01.4 Estimate Overtime" groups="hr_attendance.group_hr_attendance_manager,hr_attendance.group_hr_attendance_user" action="kdvn_hr_attendance.hr_attendance_estimate_ot_summary" parent="menu_hr_attendance_reports_overtime_group" sequence="1004"/>
+        <!-- <menuitem id="menu_hr_attendance_manager_overtime_summary_tree" name="Manager View Overtime" groups="base.group_system"
+            action="kdvn_hr_attendance.hr_attendance_manager_ot_summary" parent="hr_attendance.menu_hr_attendance_reporting" sequence="15"/> -->
+        <menuitem id="menu_hr_attendance_summary_for_admin" name="02.1 Attendance Summary" groups="hr_attendance.group_hr_attendance_user" action="hr_summary_action_for_admin" parent="menu_hr_attendance_reports_attendance_group" sequence="2001"/>
+        <menuitem id="menu_hr_attendance_ot_holiday_summary_for_admin" name="01.3 OT Monthly Summary" groups="hr_attendance.group_hr_attendance_manager,hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_section_manager" action="hr_attendance_ot_holiday_summary" parent="menu_hr_attendance_reports_overtime_group" sequence="1003"/>
+        
+
+    <!-- Help: the guide category `attendance` of kderp_knowledge (server action, like kderp_e_approval). Last item of the menu bar.
+         This module does not depend on kderp_knowledge: the entry says "No guide page" until it is installed. -->
+    <record id="action_guide_attendance_srv" model="ir.actions.server">
+        <field name="name">Attendance Guide</field>
+        <field name="model_id" ref="base.model_res_users"/>
+        <field name="state">code</field>
+        <field name="code">action = env['document.page'].kderp_action_open_guide('attendance')</field>
+    </record>
+    <menuitem id="menu_hr_attendance_help_guide" name="Attendance Guide" parent="menu_hr_attendance_help" action="action_guide_attendance_srv" sequence="10"/>
+
+    <!-- Configuration -->
+    <menuitem id="menu_hr_attendance_configuration_attendance_location" name="Attendance Location" parent="menu_hr_attendance_settings_group" sequence="30" groups="hr_attendance.group_hr_attendance_manager,hr_attendance.group_hr_attendance_user" action="hr_attendance_location_action"/>
+    <menuitem id="menu_hr_attendance_configuration_attendance_raw" name="Attendance Raw" parent="menu_hr_attendance_settings_group" sequence="40" groups="hr_attendance.group_hr_attendance_manager,hr_attendance.group_hr_attendance_user" action="hr_attendance_raw_action"/>
+    <menuitem id="menu_hr_attendance_configuration_attendance_raw_data_staus" name="Data Status" parent="menu_hr_attendance_settings_group" sequence="45" groups="hr_attendance.group_hr_attendance_manager,hr_attendance.group_hr_attendance_user" action="hr_attendance_raw_data_status_action"/>
+    
+    <menuitem id="menu_hr_attendance_configuration_public_holidays" name="Public Holidays" parent="menu_hr_leave_settings_group" sequence="50" groups="hr_attendance.group_hr_attendance_manager,hr_attendance.group_hr_attendance_user" action="open_holidays_public_view"/>
+    <menuitem id="menu_hr_attendance_refuse" name="AT Refuse" parent="menu_hr_attendance_settings_group" sequence="60" groups="hr_attendance.group_hr_attendance_manager,hr_attendance.group_hr_attendance_user" action="hr_attendance_refuse_action"/>
+
+    <!-- replace the menu groups -->
+
+    <!-- Remove/Hide some Apps and Menus -->
+
+    <!-- App: Announcement -->
+    <!-- Menu: Employee/Challenges -->
+    <!-- Hide Kiosk Mode menu -->
+    </odoo>
