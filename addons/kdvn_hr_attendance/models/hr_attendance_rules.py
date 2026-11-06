@@ -5,6 +5,7 @@ import time as _time
 from dateutil.relativedelta import relativedelta
 
 from odoo import api, fields, models, _
+from odoo.fields import Domain
 
 
 class HrAttendanceRules(models.Model):
@@ -14,6 +15,17 @@ class HrAttendanceRules(models.Model):
     _inherit = ['hr.attendance', 'hr.mixin']   # methods ported literally from kderp_hr_attendance 12.0.1.0.11
 
     at_date = fields.Date('AT date', index=True, help='Attendance day (day starts at the policy hour, see hr.mixin.get_at_date)')
+
+    # ===== Odoo 19 core overtime engine: not used =====
+    # Odoo 19 hr_attendance keeps its own overtime lines (hr.attendance.overtime.line) and recomputes them on every create / write /
+    # unlink from check_in and check_out. KDVN computes overtime itself (_compute_ot_hour, rules, requests), and its attendance records
+    # are one per employee and day, with an empty check_in/check_out for an absent day: the core engine would crash on them.
+    @api.model
+    def _update_overtime(self, attendance_domain=None):
+        return
+
+    def _get_overtimes_to_update_domain(self):
+        return Domain.FALSE
 
     # ===== holidays =====
     def _is_holiday(self, a_date):
@@ -116,6 +128,15 @@ class HrAttendanceRules(models.Model):
         rule_defaults = ['actual', 0, 0, False, 0, True, 0,0, 0, 0, 0, None, None, False, default_rc_rule, 0, False, False]
         # at_policy = dict(zip(policy_keys, poicy_defaults))
         at_rules = dict(zip(list(map(lambda k: k[0], rule_keys)), rule_defaults))
+        # kdvn deviation D5: Odoo 12 took the policy values (day_start, working_start, late_in...) only from the first applicable
+        # rule, so a database without any rule raised KeyError. Start from the company policy: with a rule present the first rule
+        # overwrites these values with the same numbers (rule policy fields = company policy + that rule's overrides).
+        _company = self.env.user.company_id
+        if _company:
+            _policy = _company.at_policy()
+            for _key in ('date_start', 'day_start', 'working_start', 'late_in', 'early_out', 'absence'):
+                at_rules[_key] = _policy[_key]
+            at_rules['special_ot_hour'] = list(_policy['special_ot'])
 
         if not at_date or type(at_date) is not datetime.date:
             at_date = self.at_date or fields.Date.context_today(self)

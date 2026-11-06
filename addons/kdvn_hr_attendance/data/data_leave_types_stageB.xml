@@ -1,0 +1,56 @@
+<odoo>
+<!-- Overrides of core hr_holidays leave type records (Odoo 12 ids). NOT loaded yet: stage B maps them to Odoo 19 hr.leave.type. -->
+    <data noupdate="1">
+        <!-- Utilize from original model hr.leave.type -->
+        <!-- Casual leave -->
+        <record id="hr_holidays.holiday_status_cl" model="hr.leave.type">
+            <field name="name" eval="'Annual Leave '+time.strftime('%Y')"/>
+            <field name="allocation_type">fixed</field>
+            <field name="color_name">black</field>
+            <field name="validity_start" eval="time.strftime('%Y-01-01')"/>
+            <field name="validity_stop" eval="time.strftime('%Y-12-21')"/>
+            <field name="category">other</field>
+        </record>
+
+        <!-- Sick leave -->
+        <record id="hr_holidays.holiday_status_sl" model="hr.leave.type">
+            <field name="name">Sick Leaves</field>
+            <field name="allocation_type">no</field>
+            <field name="color_name">red</field>
+            <field name="validity_start" eval="time.strftime('%Y-01-01')"/>
+            <field name="category">other</field>
+        </record>
+
+        <!-- Compensatory Days -->
+        <record id="hr_holidays.holiday_status_comp" model="hr.leave.type">
+            <field name="name">Compensatory Days</field>
+            <field name="allocation_type">fixed</field>
+            <field name="request_unit">day</field>
+            <field name="color_name">lavender</field>
+            <field name="validity_start" eval="time.strftime('%Y-01-01')"/>
+            <field name="validity_stop" eval="time.strftime('%Y-12-21')"/>
+            <field name="category">other</field>
+        </record>
+
+        <!--Unpaid Leave -->
+        <record id="hr_holidays.holiday_status_unpaid" model="hr.leave.type">
+            <field name="name">Absence</field>
+            <field name="allocation_type">fixed</field>
+            <!-- <field name="validation_type">both</field> -->
+            <field name="color_name">brown</field>
+            <field name="unpaid" eval="True"/>
+            <field name="validity_start" eval="time.strftime('%Y-01-01')"/>
+            <field name="category">other</field>
+        </record>
+
+        <!-- Add new types -->
+        <!-- <record id="holiday_status_ah" model="hr.leave.type">
+            <field name="name" eval="'AH '+time.strftime('%m-%Y')" />
+            <field name="allocation_type">fixed</field>
+            <field name="is_ah" eval="True" />
+            <field name="validity_start" eval="time.strftime('%Y-%m-21')"/>
+            <field name="category">other</field>
+        </record> -->
+
+    </data>
+</odoo>

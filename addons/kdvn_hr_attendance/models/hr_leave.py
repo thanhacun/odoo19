@@ -362,7 +362,7 @@ class KderpHolidayRequestCover(models.Model):
         user = self.env['res.users'].search([('id', '=', uid)])
         if user and user.employee_id:
             employee_id = user.employee_id.id
-            view = self.env.ref('kderp_hr_attendance.allocation_summary')
+            view = self.env.ref('kdvn_hr_attendance.allocation_summary')
             allocations = self._compute_allocation(employee_id=employee_id)
             # return allocations
             return view.render(allocations, engine="ir.qweb") if allocations['summary'] else None
@@ -371,7 +371,7 @@ class KderpHolidayRequestCover(models.Model):
 
     @api.onchange('employee_id')
     def _compute_allocation_summary(self):
-        view = self.env.ref('kderp_hr_attendance.allocation_summary')
+        view = self.env.ref('kdvn_hr_attendance.allocation_summary')
         for c in self:
             values = c._compute_allocation()
             html = view.render(values, engine="ir.qweb")
@@ -516,7 +516,7 @@ class KderpHolidayRequestCover(models.Model):
         # TODO []: OdooBot can approve
         for c in self:
 
-            is_manager = c.env.user.has_group('kderp_hr_attendance.group_hr_attendance_section_admin')
+            is_manager = c.env.user.has_group('kdvn_hr_attendance.group_hr_attendance_section_admin')
             is_odoo_bot = self.env.uid == 1
             is_hr_admin = c.groups()['hr_staff']
             if not any([is_manager, is_odoo_bot, is_hr_admin]):
@@ -747,7 +747,7 @@ class KderpHolidayRequestCover(models.Model):
         self.ensure_one()
         if self._name == 'hr.leave.cover':
             if 'state' in init_values and self.state == 'waiting_fhr':
-                return 'kderp_hr_attendance.cover_manager_approved'
+                return 'kdvn_hr_attendance.cover_manager_approved'
 
             return super()._track_subtype(init_values)
 
@@ -2695,11 +2695,11 @@ class KderpHolidaysAllocation(models.Model):
         al_message = self.env.context.get('al_message', None)
         if 'number_of_days' in init_values and not self.holiday_status_id.is_ah and self.employee_id.working:
             if al_message == 'recompute_ot_compensation_by_year':
-                return 'kderp_hr_attendance.number_of_days_change_by_yearly_recompute'
+                return 'kdvn_hr_attendance.number_of_days_change_by_yearly_recompute'
             elif al_message == 'add_ot_compensation':
-                return 'kderp_hr_attendance.number_of_days_change_by_ot_compensation'
+                return 'kdvn_hr_attendance.number_of_days_change_by_ot_compensation'
             else:
-                return 'kderp_hr_attendance.number_of_days_change'
+                return 'kdvn_hr_attendance.number_of_days_change'
         else:
             return False
 

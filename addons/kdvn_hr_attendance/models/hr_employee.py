@@ -119,12 +119,12 @@ class Employee(models.Model):
 
             # create user rights/groups
             manual_at = self.sudo().env.ref('hr_attendance.group_hr_attendance')
-            kdvn_staff = self.env.ref('kderp_hr_attendance.group_hr_attendance_menu_staff')
+            kdvn_staff = self.env.ref('kdvn_hr_attendance.group_hr_attendance_menu_staff')
             at_officer = self.sudo().env.ref('hr_attendance.group_hr_attendance_user')
             at_manager = self.sudo().env.ref('hr_attendance.group_hr_attendance_manager')
-            at_section_manager = self.sudo().env.ref('kderp_hr_attendance.group_hr_attendance_section_manager')
-            admin_director = self.sudo().env.ref('kderp_hr_attendance.group_hr_attendance_director')
-            gm = self.env.ref('kderp_hr_attendance.group_hr_attendance_gm')
+            at_section_manager = self.sudo().env.ref('kdvn_hr_attendance.group_hr_attendance_section_manager')
+            admin_director = self.sudo().env.ref('kdvn_hr_attendance.group_hr_attendance_director')
+            gm = self.env.ref('kdvn_hr_attendance.group_hr_attendance_gm')
 
             # reset just created user groups similar to sample_user
             groups_id = sample_user.all_group_ids.mapped('id')
@@ -282,9 +282,9 @@ class Employee(models.Model):
     def check_user_function(self):
         uid = request.session.uid
         user = self.env['res.users'].sudo().search([('id', '=', uid)], limit=1)
-        if user and user.has_group('kderp_hr_attendance.group_hr_attendance_gm'):
+        if user and user.has_group('kdvn_hr_attendance.group_hr_attendance_gm'):
             return 'GM'
-        if user and user.has_group('kderp_hr_attendance.group_hr_attendance_section_manager'):
+        if user and user.has_group('kdvn_hr_attendance.group_hr_attendance_section_manager'):
             return 'SM'
         return 'STAFF'
     

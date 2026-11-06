@@ -309,7 +309,7 @@ class KderpHrAttendanceSummary(models.Model):
 
     def _compute_at_monthly_summary(self):
         # self.ensure_one()
-        view = self.env.ref('kderp_hr_attendance.at_monthly_summary')
+        view = self.env.ref('kdvn_hr_attendance.at_monthly_summary')
         for s in self:
             values = {'monthly_summary': [], 'allocation_summary': {'summary': []}}
             categories = [

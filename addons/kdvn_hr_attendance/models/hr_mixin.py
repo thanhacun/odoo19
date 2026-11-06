@@ -288,7 +288,7 @@ class HrMixin(models.AbstractModel):
 
     def _set_draft(self, record):
         if record._name == 'hr.attendance':
-            record.with_context(set_draft=True).state_id = self.env.ref('kderp_hr_attendance.state_draft').id
+            record.with_context(set_draft=True).state_id = self.env.ref('kdvn_hr_attendance.state_draft').id
         if record._name in ['hr.attendance.request', 'hr.leave.cover']:
             record.with_context(set_draft=True).state = 'draft'
 
@@ -546,10 +546,10 @@ class HrMixin(models.AbstractModel):
             res['at_staff'] = (self.employee_id.user_id == self.env.user) if len(self) == 1 else False
         # res['at_staff'] = self.env.ref('hr_attendance.group_hr_attendance_manual') in user_groups
         res['hr_staff'] = self.env.ref('hr_attendance.group_hr_attendance_user') in user_groups
-        res['section_manager'] = self.env.ref('kderp_hr_attendance.group_hr_attendance_section_manager') in user_groups
+        res['section_manager'] = self.env.ref('kdvn_hr_attendance.group_hr_attendance_section_manager') in user_groups
         res['hr_manager'] = self.env.user.has_group('hr_attendance.group_hr_attendance_manager')
-        res['gm'] = self.env.user.has_group('kderp_hr_attendance.group_hr_attendance_gm')
-        res['director'] = self.env.user.has_group('kderp_hr_attendance.group_hr_attendance_director')
+        res['gm'] = self.env.user.has_group('kdvn_hr_attendance.group_hr_attendance_gm')
+        res['director'] = self.env.user.has_group('kdvn_hr_attendance.group_hr_attendance_director')
         return res
 
     def at_start_day(self):

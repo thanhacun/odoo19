@@ -1,0 +1,318 @@
+<odoo>
+
+    <!--Attendance Status code  -->
+    <data noupdate="1">
+        <record model="kderp.base.code" id="at_status_work">
+            <field name="name">O</field>
+            <field name="code">O</field>
+            <field name="sequence">1</field>
+            <field name="type_code">at_status</field>
+            <field name="color">10</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        </record>
+
+        <record model="kderp.base.code" id="at_status_work_half">
+            <field name="name">1/2 O</field>
+            <field name="code">1/2 O</field>
+            <field name="sequence">3</field>
+            <field name="type_code">at_status</field>
+            <field name="color">10</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        </record>
+
+        <record model="kderp.base.code" id="at_status_absence">
+            <field name="name">X</field>
+            <field name="code">X</field>
+            <field name="sequence">5</field>
+            <field name="type_code">at_status</field>
+            <field name="default_code">1</field>
+            <field name="color">5</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        </record>
+
+        <record model="kderp.base.code" id="at_status_absence_half">
+            <field name="name">1/2 X</field>
+            <field name="code">1/2 X</field>
+            <field name="sequence">8</field>
+            <field name="type_code">at_status</field>
+            <field name="color">5</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        </record>
+
+        <record model="kderp.base.code" id="at_status_leave">
+            <field name="name">L</field>
+            <field name="code">L</field>
+            <field name="sequence">10</field>
+            <field name="type_code">at_status</field>
+            <field name="color">7</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        </record>
+
+        <record model="kderp.base.code" id="at_status_leave_half">
+            <field name="name">1/2 L</field>
+            <field name="code">1/2 L</field>
+            <field name="sequence">13</field>
+            <field name="type_code">at_status</field>
+            <field name="color">7</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        </record>
+
+        <record model="kderp.base.code" id="at_status_holiday">
+            <field name="name">H</field>
+            <field name="code">H</field>
+            <field name="sequence">15</field>
+            <field name="type_code">at_status</field>
+            <field name="color">1</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        </record>
+
+        <record model="kderp.base.code" id="at_status_holiday_half">
+            <field name="name">1/2 H</field>
+            <field name="code">1/2 H</field>
+            <field name="sequence">18</field>
+            <field name="type_code">at_status</field>
+            <field name="color">1</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        </record>
+
+        <record model="kderp.base.code" id="at_status_ah">
+            <field name="name">AH</field>
+            <field name="code">AH</field>
+            <field name="sequence">20</field>
+            <field name="type_code">at_status</field>
+            <field name="color">2</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        </record>        
+
+        <record model="kderp.base.code" id="at_status_ah_half">
+            <field name="name">1/2 AH</field>
+            <field name="code">1/2 AH</field>
+            <field name="sequence">23</field>
+            <field name="type_code">at_status</field>
+            <field name="color">2</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        </record>        
+
+        <record model="kderp.base.code" id="at_status_sh">
+            <field name="name">SH</field>
+            <field name="code">SH</field>
+            <field name="sequence">25</field>
+            <field name="type_code">at_status</field>
+            <field name="color">1</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        </record>        
+
+        <record model="kderp.base.code" id="at_status_sh_half">
+            <field name="name">1/2 SH</field>
+            <field name="code">1/2 SH</field>
+            <field name="sequence">28</field>
+            <field name="type_code">at_status</field>
+            <field name="color">1</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        </record>        
+
+        <record model="kderp.base.code" id="at_status_oh">
+            <field name="name">OH</field>
+            <field name="code">OH</field>
+            <field name="sequence">30</field>
+            <field name="type_code">at_status</field>
+            <field name="color">1</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        </record>
+
+        <record model="kderp.base.code" id="at_status_oh_half">
+            <field name="name">1/2 OH</field>
+            <field name="code">1/2 OH</field>
+            <field name="sequence">33</field>
+            <field name="type_code">at_status</field>
+            <field name="color">1</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        </record>
+    </data>
+
+    <!-- Attendance Request Type -->
+    <data>
+        <!-- Working time -->
+        <record model="hr.attendance.request.type" id="biz_trip">
+            <field name="name">Business trip</field>
+            <field name="code">biz_trip</field>
+            <field name="request_type">working_time</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <record model="hr.attendance.request.type" id="meet_out">
+            <field name="name">Meeting outside</field>
+            <field name="code">meet_out</field>
+            <field name="request_type">working_time</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <record model="hr.attendance.request.type" id="work_out">
+            <field name="name">Working outside</field>
+            <field name="code">work_out</field>
+            <field name="request_type">working_time</field>
+            <field name="sequence">30</field>
+        </record>
+
+        <record model="hr.attendance.request.type" id="forget_in">
+            <field name="name">Forget check in</field>
+            <field name="code">forget_in</field>
+            <field name="request_type">working_time</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <record model="hr.attendance.request.type" id="forget_out">
+            <field name="name">Forget check out</field>
+            <field name="code">forget_out</field>
+            <field name="request_type">working_time</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <record model="hr.attendance.request.type" id="wfh">
+            <field name="name">Work from home</field>
+            <field name="code">wfh</field>
+            <field name="request_type">working_time</field>
+            <field name="sequence">60</field>
+        </record>
+
+        <record model="hr.attendance.request.type" id="others">
+            <field name="name">Others</field>
+            <field name="code">others</field>
+            <field name="request_type">working_time</field>
+            <field name="sequence">90</field>
+        </record>
+
+        <!-- Over time -->
+        <record model="hr.attendance.request.type" id="overtime_am">
+            <field name="name">Early AM</field>
+            <field name="code">am</field>
+            <field name="request_type">over_time</field>
+            <field name="sequence">100</field>
+        </record>
+
+        <record model="hr.attendance.request.type" id="overtime_pm">
+            <field name="name">Late PM</field>
+            <field name="code">pm</field>
+            <field name="request_type">over_time</field>
+            <field name="sequence">110</field>
+        </record>
+
+        <record model="hr.attendance.request.type" id="overtime_both">
+            <field name="name">Both</field>
+            <field name="code">both</field>
+            <field name="request_type">over_time</field>
+            <field name="sequence">190</field>
+        </record>                
+    </data>
+
+    <!-- Leave cover reasons -->
+    <data noupdate="1">
+        <record model="hr.leave.cover.reason" id="reason_private">
+            <field name="name">Private matter</field>
+            <field name="code">private</field>
+            <field name="sequence" eval="1" />
+        </record>
+
+        <record model="hr.leave.cover.reason" id="reason_marriage_ceremony">
+            <field name="name">Applicant's Marriage Ceremony</field>
+            <field name="code">marriage_ceremony</field>
+            <field name="sequence" eval="10" />
+        </record>
+
+        <record model="hr.leave.cover.reason" id="reason_child_marriage">
+            <field name="name">Applicant Child's Marriage Ceremony</field>
+            <field name="code">child_marriage</field>
+            <field name="sequence" eval="20" />
+        </record>
+        
+        <record model="hr.leave.cover.reason" id="reason_summer_vacation">
+            <field name="name">Summer Vacation</field>
+            <field name="code">summer_vacation</field>
+            <field name="sequence" eval="30" />
+        </record>
+
+        <record model="hr.leave.cover.reason" id="reason_death_of_parents">
+            <field name="name">Death of parents</field>
+            <field name="code">death_of_parents</field>
+            <field name="sequence" eval="40" />
+        </record>
+
+        <record model="hr.leave.cover.reason" id="reason_death_of_spouse">
+            <field name="name">Death of spouse</field>
+            <field name="code">death_of_spouse</field>
+            <field name="sequence" eval="50" />
+        </record>
+
+        <record model="hr.leave.cover.reason" id="reason_death_of_sibling">
+            <field name="name">Death of brother/sister</field>
+            <field name="code">death_of_sibling</field>
+            <field name="sequence" eval="60" />
+        </record>
+
+        <record model="hr.leave.cover.reason" id="reason_death_of_maternity">
+            <field name="name">Maternity Leave (female applicant)</field>
+            <field name="code">maternity</field>
+            <field name="sequence" eval="70" />
+        </record>
+
+        <record model="hr.leave.cover.reason" id="reason_child_birth">
+            <field name="name">Child birth (male applicant)</field>
+            <field name="code">child_birth</field>
+            <field name="sequence" eval="80" />
+        </record>
+
+        <record model="hr.leave.cover.reason" id="reason_absence">
+            <field name="name">Absence</field>
+            <field name="code">absence</field>
+            <field name="sequence" eval="90" />
+        </record>
+
+        <record model="hr.leave.cover.reason" id="reason_suspension">
+            <field name="name">Suspension from work</field>
+            <field name="code">suspension</field>
+            <field name="sequence" eval="100" />
+        </record>
+
+        <record model="hr.leave.cover.reason" id="reason_ah">
+            <field name="name">AH</field>
+            <field name="code">ah</field>
+            <field name="sequence" eval="200" />
+        </record>
+    </data>
+
+    <!-- Leave types -->
+
+    <!-- Subtype -->
+    <data>
+        <!-- Leave Cover -->
+        <record id="cover_manager_approved" model="mail.message.subtype">
+            <field name="name">Manager Approved</field>
+            <field name="res_model">hr.leave.cover</field>
+            <field name="default" eval="True" />
+            <field name="description">Leave approved by the section manager!</field>
+        </record>
+
+        <!-- Leave Allocation number_of_days change -->
+        <record id="number_of_days_change" model="mail.message.subtype">
+            <field name="name">Allocation number of days change</field>
+            <field name="res_model">hr.leave.allocation</field>
+            <field name="default" eval="True" />
+            <field name="description">Number of days change!</field>
+        </record>
+
+        <record id="number_of_days_change_by_yearly_recompute" model="mail.message.subtype">
+            <field name="name">Allocation number of days change</field>
+            <field name="res_model">hr.leave.allocation</field>
+            <field name="default" eval="True" />
+            <field name="description">Number of days changed by yearly recompute method!</field>
+        </record>
+
+        <record id="number_of_days_change_by_ot_compensation" model="mail.message.subtype">
+            <field name="name">Allocation number of days change</field>
+            <field name="res_model">hr.leave.allocation</field>
+            <field name="default" eval="True" />
+            <field name="description">Number of days changed by OT compensation!</field>
+        </record>
+    </data>
+
+</odoo>

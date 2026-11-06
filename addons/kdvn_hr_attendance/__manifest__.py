@@ -14,6 +14,8 @@ The computation code is ported literally: payroll depends on its results. See do
     'data': [
         'security/hr_attendance_security.xml',
         'security/ir.model.access.csv',
+        'data/data_state.xml',
+        'data/data_code.xml',
         'views/hr_attendance_rule_view.xml',
         'views/hr_holidays_public_view.xml',
     ],

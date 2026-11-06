@@ -3,6 +3,7 @@ from . import hr_holidays_public
 from . import hr_attendance_rule
 from . import hr_mixin
 from . import hr_attendance_rules
+from . import resource_calendar
 from . import hr_employee
 from . import hr_attendance_location
 from . import hr_attendance_raw

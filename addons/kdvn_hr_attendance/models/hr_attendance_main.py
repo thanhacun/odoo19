@@ -344,7 +344,7 @@ class KderpHrAttendance(models.Model):
             user_groups = self.env.user.all_group_ids
             res['at_staff'] = at.employee_id.user_id == self.env.user
             res['hr_staff'] = self.env.ref('hr_attendance.group_hr_attendance_user') in user_groups
-            res['section_manager'] = self.env.ref('kderp_hr_attendance.group_hr_attendance_section_manager') in user_groups
+            res['section_manager'] = self.env.ref('kdvn_hr_attendance.group_hr_attendance_section_manager') in user_groups
             res['hr_manager'] = self.env.user.has_group('hr_attendance.group_hr_attendance_manager')
         return res
 
@@ -469,7 +469,7 @@ class KderpHrAttendance(models.Model):
     # override
     def button_previous_state(self):
         for at in self:
-            at.state_id = self.env.ref('kderp_hr_attendance.state_refuse')
+            at.state_id = self.env.ref('kdvn_hr_attendance.state_refuse')
         return True
 
     # ===== ACTIONS =====
@@ -483,7 +483,7 @@ class KderpHrAttendance(models.Model):
                     at.leave_cover_ids.filtered(lambda r: r.state == at.state).action_submit()
                 # if not at.at_request_ids:
                     # at._compute_related_states()
-                # at.update({'state_id': self.env.ref('kderp_hr_attendance.state_waiting_fman')})
+                # at.update({'state_id': self.env.ref('kdvn_hr_attendance.state_waiting_fman')})
 
     def action_approve(self):
         # if any([at.state_id.code != 'waiting_fman' for at in self]):
@@ -495,7 +495,7 @@ class KderpHrAttendance(models.Model):
             if at.approve_manager_id:
                 can_approve_users |= at.sudo().approve_manager_id
             if at.view_user_ids:
-                other_mans = at.sudo().view_user_ids.filtered(lambda u: u.has_group('kderp_hr_attendance.group_hr_attendance_section_manager')).mapped('employee_id')
+                other_mans = at.sudo().view_user_ids.filtered(lambda u: u.has_group('kdvn_hr_attendance.group_hr_attendance_section_manager')).mapped('employee_id')
                 if other_mans and not at.sudo().department_id.manager_id in other_mans:
                     can_approve_users |= other_mans
             user_can_approve = self.env.uid in can_approve_users.mapped('user_id.id')
@@ -520,7 +520,7 @@ class KderpHrAttendance(models.Model):
                         at._compute_ot_request()
                 # if not at.at_request_ids:
                     # at._compute_related_states()
-                # at.update({'state_id': self.env.ref('kderp_hr_attendance.state_waiting_fhr')})
+                # at.update({'state_id': self.env.ref('kdvn_hr_attendance.state_waiting_fhr')})
 
     def action_validate(self):
         for at in self:
@@ -541,7 +541,7 @@ class KderpHrAttendance(models.Model):
                 at.leave_cover_ids.filtered(lambda r: r.state == at.state).action_approve_man2()
             # if not at.at_request_ids:
                 # at._compute_related_states()
-            # at.update({'state_id': self.env.ref('kderp_hr_attendance.state_done')})
+            # at.update({'state_id': self.env.ref('kdvn_hr_attendance.state_done')})
 
     # @api.multi
     # def action_refuse_backup(self):
@@ -622,13 +622,13 @@ class KderpHrAttendance(models.Model):
 
     def action_leave_request(self):
         self.ensure_one()
-        default_reason_id = self.env.ref('kderp_hr_attendance.reason_private').id
+        default_reason_id = self.env.ref('kdvn_hr_attendance.reason_private').id
         if self.at_day == 'Sat':
             LeaveType = self.env['hr.leave.type'].with_context(employee_id=self.employee_id.id, default_date_from=self.at_date)
             lt = LeaveType.search([('valid', '=', True)])
             for t in lt:
                 if t.is_ah and t.remaining_leaves > 0:
-                    default_reason_id = self.env.ref('kderp_hr_attendance.reason_ah').id
+                    default_reason_id = self.env.ref('kdvn_hr_attendance.reason_ah').id
                     
         action_context = {
             'default_reason_id': default_reason_id,
@@ -660,9 +660,9 @@ class KderpHrAttendance(models.Model):
         # ats = self.env['hr.attendance'].search([('state', 'not in', ['done', 'refuse'])])
         for at in self:
             if at.state not in ['done', 'refuse'] and at.data_enough:
-                at.with_context(do_not_run_at_status=True).update({'state_id': self.env.ref('kderp_hr_attendance.state_done').id})
+                at.with_context(do_not_run_at_status=True).update({'state_id': self.env.ref('kdvn_hr_attendance.state_done').id})
 
-        # ats.with_context(do_not_run_at_status=True).filtered('data_enough').update({'state_id': self.env.ref('kderp_hr_attendance.state_done').id})
+        # ats.with_context(do_not_run_at_status=True).filtered('data_enough').update({'state_id': self.env.ref('kdvn_hr_attendance.state_done').id})
 
     # ! NOTE: for fixing past auto_done errors, will not be used in production mode
     @api.model
@@ -1404,7 +1404,7 @@ class KderpHrAttendance(models.Model):
         # TODO [X]: do not count leave with number_of_days == 0 (register AH leave in Public holiday for example)
         for at in self:
             ah = False
-            count_draft_ah = at._context.get('count_draft_ah', False)
+            count_draft_ah = at.env.context.get('count_draft_ah', False)
             not_in_states = ['refuse'] if count_draft_ah else ['refuse', 'draft']
             if at.leave_ids:
                 ah_leave = at.leave_ids.filtered(lambda leave: leave.holiday_status_id.is_ah and leave.state not in not_in_states and leave.number_of_days > 0)
@@ -1540,20 +1540,20 @@ class KderpHrAttendance(models.Model):
             return
         
         # statuses
-        L = self.env.ref('kderp_hr_attendance.at_status_leave')
-        O = self.env.ref('kderp_hr_attendance.at_status_work')
-        X = self.env.ref('kderp_hr_attendance.at_status_absence')
-        half_L = self.env.ref('kderp_hr_attendance.at_status_leave_half')
-        half_O = self.env.ref('kderp_hr_attendance.at_status_work_half')
-        half_X = self.env.ref('kderp_hr_attendance.at_status_absence_half')
-        H = self.env.ref('kderp_hr_attendance.at_status_holiday')
-        SH = self.env.ref('kderp_hr_attendance.at_status_sh')
-        OH = self.env.ref('kderp_hr_attendance.at_status_oh')
-        AH = self.env.ref('kderp_hr_attendance.at_status_ah')
-        half_H = self.env.ref('kderp_hr_attendance.at_status_holiday_half')
-        half_SH = self.env.ref('kderp_hr_attendance.at_status_sh_half')
-        half_OH = self.env.ref('kderp_hr_attendance.at_status_oh_half')
-        half_AH = self.env.ref('kderp_hr_attendance.at_status_ah_half')
+        L = self.env.ref('kdvn_hr_attendance.at_status_leave')
+        O = self.env.ref('kdvn_hr_attendance.at_status_work')
+        X = self.env.ref('kdvn_hr_attendance.at_status_absence')
+        half_L = self.env.ref('kdvn_hr_attendance.at_status_leave_half')
+        half_O = self.env.ref('kdvn_hr_attendance.at_status_work_half')
+        half_X = self.env.ref('kdvn_hr_attendance.at_status_absence_half')
+        H = self.env.ref('kdvn_hr_attendance.at_status_holiday')
+        SH = self.env.ref('kdvn_hr_attendance.at_status_sh')
+        OH = self.env.ref('kdvn_hr_attendance.at_status_oh')
+        AH = self.env.ref('kdvn_hr_attendance.at_status_ah')
+        half_H = self.env.ref('kdvn_hr_attendance.at_status_holiday_half')
+        half_SH = self.env.ref('kdvn_hr_attendance.at_status_sh_half')
+        half_OH = self.env.ref('kdvn_hr_attendance.at_status_oh_half')
+        half_AH = self.env.ref('kdvn_hr_attendance.at_status_ah_half')
         delay_duration = self.env.user.company_id.at_policy()['delay_duration'] or 2
 
         # !NOTE: directly use rc for better performance
@@ -1575,7 +1575,7 @@ class KderpHrAttendance(models.Model):
                 return False
 
         for at in self:
-            if at._context.get('do_not_run_at_status', False):
+            if at.env.context.get('do_not_run_at_status', False):
                 continue
             at_rules = at._at_rules(employee_id=at.employee_id.id, at_date=at.at_date)
             rc = self.env['resource.calendar'].browse(at_rules.get('resource_calendar_id', (default_rc.id, default_rc.name))[0])
@@ -1686,7 +1686,7 @@ class KderpHrAttendance(models.Model):
                 work_month_sats = at.monthly_working_weekday(at.at_date)
 
                 create_ah_leave = False
-                ah_reason_id = self.env.ref('kderp_hr_attendance.reason_ah')
+                ah_reason_id = self.env.ref('kdvn_hr_attendance.reason_ah')
                 no_ah_employee = ({'House Maid', 'Driver', 'Outsource'} & set(at.employee_id.category_ids.mapped('name'))) or not ah_leave_allocation
 
                 # is_last_sat = (at.end_date - at.at_date).days <= 7
@@ -1779,7 +1779,7 @@ class KderpHrAttendance(models.Model):
 
                     if not skip_create_ah:
                         # Setting AH request to draft => skip creating AH
-                        if at._context.get('set_draft', False) and at.leave_ids.filtered(lambda h: h.holiday_status_id.is_ah):
+                        if at.env.context.get('set_draft', False) and at.leave_ids.filtered(lambda h: h.holiday_status_id.is_ah):
                             skip_create_ah = True
                         # SAT having WT requests waiting for approve => skip creating AH
                         if have_wt_request and have_wt_request.filtered(lambda r: r.state == 'waiting_fman'):
@@ -1811,7 +1811,7 @@ class KderpHrAttendance(models.Model):
                                 # FIXED: modify hr.leave _onchange_request_parameters() method
                                 # !NOTE: cover action_submit and action_approve will call this method _compute_at_status again: check LOOP!
                                 # !NOTE: using break here ensuring this method _compute_at_status run once!
-                                if cover and not cover._context.get('set_draft', False):
+                                if cover and not cover.env.context.get('set_draft', False):
                                     # TODO [X]: will not submit if running action_revise to prevent from looping creating leave
                                     cover.sudo().action_submit()
                                     cover.sudo().action_approve()
@@ -2161,7 +2161,7 @@ class KderpHrAttendance(models.Model):
         # Double check OT Holidays Plan if having wd_as_hd = 'hd_ot'
         if wd_as_hd == 'hd_ot':
             ot_holiday_line = self.env['hr.attendance.ot.holiday.line'].search([('employee_id', '=', at.employee_id.id), ('at_date', '=', at.at_date), ('ot_register', '=', True), ('state', '=', 'done')])
-            if not ot_holiday_line and not ot_holiday_line._context.get('set_draft', False):
+            if not ot_holiday_line and not ot_holiday_line.env.context.get('set_draft', False):
                 # !NOTE: raise error here will break for loop calling from other method
                 _logger.error(_(f'OT on holidays without register for the OT schedule in advance! Please contact HR for instruction! REF.: {at.code}'))
                 wd_as_hd = 'wd_ot'
@@ -2441,7 +2441,7 @@ class KderpHrAttendance(models.Model):
     def _compute_at_rules(self):
         # generate current at_rules to show in UI (form view)
         # the view is defined in data/mail_templates.xml
-        at_view = self.env.ref('kderp_hr_attendance.at_rules')
+        at_view = self.env.ref('kdvn_hr_attendance.at_rules')
         at_rules = self._at_rules()
         rule_desc = self._at_rules(get_rule_desc=True)
         rules = []
@@ -2554,7 +2554,7 @@ class KderpHrAttendance(models.Model):
                    'at_id': at.id, 'default_employee_id': at.employee_id.id, 'is_readonly': False, 
                 #    'form_view_initial_mode': 'edit'
                    }
-        view_id = self.env.ref('kderp_hr_attendance.hr_leave_cover_form').id
+        view_id = self.env.ref('kdvn_hr_attendance.hr_leave_cover_form').id
         action = {
             'res_model': 'hr.leave.cover',
             
@@ -2956,17 +2956,17 @@ class KderpHrAttendance(models.Model):
     #     print('=====', type(manager))
     #     qweb_values = {}
     #     if manager.manager:
-    #         if manager.user_id.has_group('kderp_hr_attendance.group_hr_attendance_section_manager'):
+    #         if manager.user_id.has_group('kdvn_hr_attendance.group_hr_attendance_section_manager'):
     #             # app_url = self.get_full_url(model_name='hr.attendance', 
     #             #                                menu_id=self.env.ref('hr_attendance.menu_hr_attendance_view_attendances_for_manager').id,
-    #             #                                action_id=self.env.ref('kderp_hr_attendance.hr_attendance_action_for_manager').id)
-    #             app_url = self.get_full_url(model_name='hr.attendance', action_id=self.env.ref('kderp_hr_attendance.hr_attendance_action_for_manager').id)
+    #             #                                action_id=self.env.ref('kdvn_hr_attendance.hr_attendance_action_for_manager').id)
+    #             app_url = self.get_full_url(model_name='hr.attendance', action_id=self.env.ref('kdvn_hr_attendance.hr_attendance_action_for_manager').id)
     #         else:  # GM view
     #             # app_url = self.get_full_url(model_name='hr.attendance', 
     #             #                                menu_id=self.env.ref('hr_attendance.menu_hr_attendance_view_attendances_for_manager_gm').id,
-    #             #                                action_id=self.env.ref('kderp_hr_attendance.hr_attendance_action_for_manager_gm').id)
+    #             #                                action_id=self.env.ref('kdvn_hr_attendance.hr_attendance_action_for_manager_gm').id)
     #             app_url = self.get_full_url(model_name='hr.attendance', 
-    #                                         action_id=self.env.ref('kderp_hr_attendance.hr_attendance_action_for_manager_gm').id)
+    #                                         action_id=self.env.ref('kdvn_hr_attendance.hr_attendance_action_for_manager_gm').id)
 
     #         man_requests = requests.filtered(lambda r: r.manager_id.id == e.id)
     #         effected_ids = json.loads(man_requests.ats) if man_requests else []
@@ -2978,7 +2978,7 @@ class KderpHrAttendance(models.Model):
     #                 'company_id': manager.company_id.id or 1,
     #                 'company_name': manager.company_id.name or '',
     #                 'app_url': app_url,
-    #                 'pre': 'Mr.' if manager.gender == 'male' else 'Mrs.' if manager.gender == 'female' else 'Mr/Mrs.',
+    #                 'pre': 'Mr.' if manager.sex == 'male' else 'Mrs.' if manager.sex == 'female' else 'Mr/Mrs.',
     #                 'today': fields.Date.context_today(self).strftime('%d-%m-%Y'),
     #                 'now': datetime.datetime.now().astimezone(vn_tz).strftime('%d-%m-%Y %H:%M'),
     #                 'extra_data': [{
@@ -3033,14 +3033,14 @@ class KderpHrAttendance(models.Model):
             managers = self.env['hr.employee'].browse(manager_ids)
         
         for e in managers:
-            if e.user_id.has_group('kderp_hr_attendance.group_hr_attendance_section_manager'):
-                app_url = self.get_full_url(model_name='hr.attendance', action_id=self.env.ref('kderp_hr_attendance.hr_attendance_action_for_manager').id)
+            if e.user_id.has_group('kdvn_hr_attendance.group_hr_attendance_section_manager'):
+                app_url = self.get_full_url(model_name='hr.attendance', action_id=self.env.ref('kdvn_hr_attendance.hr_attendance_action_for_manager').id)
             else:  # GM view
                 app_url = self.get_full_url(model_name='hr.attendance', 
-                                            action_id=self.env.ref('kderp_hr_attendance.hr_attendance_action_for_manager_gm').id)
+                                            action_id=self.env.ref('kdvn_hr_attendance.hr_attendance_action_for_manager_gm').id)
             
-            ot_holidays_url = self.get_full_url(model_name='hr.attendance.ot.holiday.manager', action_id=self.env.ref('kderp_hr_attendance.action_hr_attendance_ot_holiday_manager').id)
-            ot_warning_url = self.get_full_url(model_name='hr.attendance.ot.holiday.summary', action_id=self.env.ref('kderp_hr_attendance.hr_attendance_ot_holiday_summary').id)
+            ot_holidays_url = self.get_full_url(model_name='hr.attendance.ot.holiday.manager', action_id=self.env.ref('kdvn_hr_attendance.action_hr_attendance_ot_holiday_manager').id)
+            ot_warning_url = self.get_full_url(model_name='hr.attendance.ot.holiday.summary', action_id=self.env.ref('kdvn_hr_attendance.hr_attendance_ot_holiday_summary').id)
 
             man_requests = requests.filtered(lambda r: r.manager_id.id == e.id)
             effected_ids = json.loads(man_requests.ats) if man_requests else []
@@ -3059,7 +3059,7 @@ class KderpHrAttendance(models.Model):
                     'app_url': app_url,
                     'ot_holidays_url': ot_holidays_url,
                     'ot_warning_url': ot_warning_url,
-                    'pre': 'Mr.' if e.gender == 'male' else 'Mrs.' if e.gender == 'female' else 'Mr/Mrs.',
+                    'pre': 'Mr.' if e.sex == 'male' else 'Mrs.' if e.sex == 'female' else 'Mr/Mrs.',
                     'today': fields.Date.context_today(self).strftime('%d-%m-%Y'),
                     'now': datetime.datetime.now().astimezone(vn_tz).strftime('%H:%M %d-%m-%Y'),
                     'extra_data': [{
@@ -3083,8 +3083,8 @@ class KderpHrAttendance(models.Model):
                     }
                 }
                 subject = _('Attendance App Notification to %s' % e.name)
-                # body_html = self._prepare_noti_email(e, 'kderp_hr_attendance.noti_email_for_manager', values=qweb_values)
-                body_html = self._prepare_noti_email(e, 'kderp_hr_attendance.combined_noti_email_for_manager', values=qweb_values)
+                # body_html = self._prepare_noti_email(e, 'kdvn_hr_attendance.noti_email_for_manager', values=qweb_values)
+                body_html = self._prepare_noti_email(e, 'kdvn_hr_attendance.combined_noti_email_for_manager', values=qweb_values)
 
                 # Only create email if app_url does NOT contain internal ipaddress
                 if self.url_contain_ip(app_url):
@@ -3124,13 +3124,13 @@ class KderpHrAttendance(models.Model):
             if not e.working:
                 continue
             employee_at_url = self.get_full_url(model_name='hr.attendance', 
-                                               menu_id=self.env.ref('hr_attendance.menu_hr_attendance_view_attendances').id,
+                                               menu_id=self.env.ref('hr_attendance.menu_hr_attendance_root').id,
                                                action_id=self.env.ref('hr_attendance.hr_attendance_action').id)
             qweb_values = {
                 'name': e.name,
                 'company_id': e.company_id.id or 1,
                 'company_name': e.company_id.name or '',
-                'pre':  'Mr.' if e.gender == 'male' else 'Mrs.' if e.gender == 'female' else 'Mr/Mrs.',
+                'pre':  'Mr.' if e.sex == 'male' else 'Mrs.' if e.sex == 'female' else 'Mr/Mrs.',
                 'today': fields.Date.context_today(self).strftime('%d-%m-%Y'),
                 'now': datetime.datetime.now().astimezone(vn_tz).strftime('%d-%m-%Y %H:%M'),
                 'app_url': employee_at_url,
@@ -3144,7 +3144,7 @@ class KderpHrAttendance(models.Model):
                     } for at in refuse_ats.filtered(lambda r: r.employee_id.id == e.id).sorted(key='at_date')]
             }
             subject = _("%s's attendance requests refused." % e.name)
-            body_html = self._prepare_noti_email(e, 'kderp_hr_attendance.noti_email_for_refuse_request', values=qweb_values)
+            body_html = self._prepare_noti_email(e, 'kdvn_hr_attendance.noti_email_for_refuse_request', values=qweb_values)
             
             # Only create email if app_url does NOT contain internal ipaddress
             if self.url_contain_ip(employee_at_url):
@@ -3188,7 +3188,7 @@ class KderpHrAttendance(models.Model):
                 'name': e.name,
                 'company_id': e.company_id.id or 1,
                 'company_name': e.company_id.name or '',
-                'pre':  'Mr.' if e.gender == 'male' else 'Mrs.' if e.gender == 'female' else 'Mr/Mrs.',
+                'pre':  'Mr.' if e.sex == 'male' else 'Mrs.' if e.sex == 'female' else 'Mr/Mrs.',
                 'today': fields.Date.context_today(self).strftime('%d-%m-%Y'),
                 'now': datetime.datetime.now().astimezone(vn_tz).strftime('%d-%m-%Y %H:%M'),
                 'app_url': employee_at_url,
@@ -3202,7 +3202,7 @@ class KderpHrAttendance(models.Model):
                     } for at in ats.filtered(lambda r: r.employee_id.id == e.id).sorted(key='at_date')]
             }
             subject = _("%s's States unsynced attendances." % e.name)
-            body_html = self._prepare_noti_email(e, 'kderp_hr_attendance.noti_email_for_states_unsync', values=qweb_values)
+            body_html = self._prepare_noti_email(e, 'kdvn_hr_attendance.noti_email_for_states_unsync', values=qweb_values)
             # Only create email if app_url does NOT contain internal ipaddress
             if self.url_contain_ip(employee_at_url):
                 _logger.warn(_('App URL contains ip address, will NOT process sending email!'))
@@ -3236,7 +3236,7 @@ class KderpHrAttendance(models.Model):
                 'name': m.name,
                 'company_id': m.company_id.id or 1,
                 'company_name': m.company_id.name or '',
-                'pre':  'Mr.' if m.gender == 'male' else 'Mrs.' if m.gender == 'female' else 'Mr/Mrs.',
+                'pre':  'Mr.' if m.sex == 'male' else 'Mrs.' if m.sex == 'female' else 'Mr/Mrs.',
                 'today': fields.Date.context_today(self).strftime('%d-%m-%Y'),
                 'now': datetime.datetime.now().astimezone(vn_tz).strftime('%d-%m-%Y %H:%M'),
                 'app_url': manager_at_url,
@@ -3278,10 +3278,10 @@ class KderpHrAttendance(models.Model):
                 m_ots = monthly_ots.filtered(lambda o: o[manager_field].id == m.id).sorted(key=lambda r: (r[sorted_field].code, r.employee_id.code))
                 manager_at_url = self.get_full_url(model_name='hr.attendance', 
                                                 menu_id=self.env.ref('hr_attendance.menu_hr_attendance_root').id,
-                                                action_id=self.env.ref('kderp_hr_attendance.hr_attendance_ot_holiday_summary').id)
+                                                action_id=self.env.ref('kdvn_hr_attendance.hr_attendance_ot_holiday_summary').id)
                 qweb_values = _gen_qweb_values(ots=m_ots, sm=is_sm)
                 subject = _(f'Overtime warnings of {at_month}-{at_year} need your attention - {m.name}')
-                body_html = self._prepare_noti_email(m, 'kderp_hr_attendance.ot_warning_for_manager', values=qweb_values)
+                body_html = self._prepare_noti_email(m, 'kdvn_hr_attendance.ot_warning_for_manager', values=qweb_values)
                 if self.url_contain_ip(manager_at_url):
                     _logger.warning(_('App URL contains ip address, will NOT process sending email!'))
                     continue
@@ -3316,7 +3316,7 @@ class KderpHrAttendance(models.Model):
     # @api.multi
     # def _send_noti_email2(self):
     #     self.ensure_one()
-    #     self.message_post_with_view('kderp_hr_attendance.noti_email', values={'extra_data': 'Test'}, author_id=2, email_from='kindenvietnam@gmail.com')
+    #     self.message_post_with_view('kdvn_hr_attendance.noti_email', values={'extra_data': 'Test'}, author_id=2, email_from='kindenvietnam@gmail.com')
 
 
 # class KderpHrAttendanceMonthSummary(models.Model):
@@ -3479,7 +3479,7 @@ class KderpHrAttendance(models.Model):
 #             summary.update(counts)
 
 #     def _compute_at_monthly_summary(self):
-#         view = self.env.ref('kderp_hr_attendance.at_monthly_summary')
+#         view = self.env.ref('kdvn_hr_attendance.at_monthly_summary')
 #         for s in self:
 #             values = {'monthly_summary': []}
 #             categories = [

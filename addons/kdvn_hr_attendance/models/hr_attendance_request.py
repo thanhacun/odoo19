@@ -439,7 +439,7 @@ class KderpHrAttendanceRequest(models.Model):
                     raise ValidationError(_(f'You can NOT request Working Time after [{wt_before.strftime("%d-%h-%Y %H:%M")}] - Please contact HR for instruction!'))
 
                 # OT request no further than 7 days for request OT for holidays
-                set_draft_context = r._context.get('set_draft', False)
+                set_draft_context = r.env.context.get('set_draft', False)
                 if r.request_type == 'over_time' and r.at_id and (r.at_id.at_date - relativedelta(days=days_before)) >= fields.Date.context_today(self):
                     if not set_draft_context:
                         raise ValidationError(_(f'Please only request Overtime no further than {days_before} days from today!'))

@@ -100,3 +100,9 @@ class KderpHrAttendanceLocation(models.Model):
     #     return result
 
 
+
+
+class KderpBaseCode(models.Model):
+    _inherit = 'kderp.base.code'
+
+    type_code = fields.Selection(selection_add=[('at_status', 'Attendance status')], ondelete={'at_status': 'cascade'})
