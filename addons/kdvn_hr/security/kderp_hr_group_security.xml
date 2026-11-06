@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_kderp_hr_app" model="res.groups.privilege">
+        <field name="name">KDERP HR</field>
+        <field name="sequence">20</field>
+        <field name="category_id" ref="base.module_category_human_resources"/>
+    </record>
+
+    <record id="group_kderp_hr_menu_open" model="res.groups">
+        <field name="name">User View</field>
+        <field name="privilege_id" ref="module_category_kderp_hr_app"/>
+    </record>
+
+    <record id="group_kderp_hr_user_input" model="res.groups">
+        <field name="name">User Input</field>
+        <field name="privilege_id" ref="module_category_kderp_hr_app"/>
+        <field name="implied_ids" eval="[(4, ref('group_kderp_hr_menu_open'))]"/>
+    </record>
+
+    <record id="group_kderp_hr_admin" model="res.groups">
+        <field name="name">Admin</field>
+        <field name="privilege_id" ref="module_category_kderp_hr_app"/>
+        <field name="implied_ids" eval="[(4, ref('group_kderp_hr_user_input'))]"/>
+    </record>
+</odoo>
