@@ -1,0 +1,35 @@
+# Porting KDERP (Odoo 12) to Odoo 19
+
+Status file for the port. Odoo 12 code is reference only (~/odoo12/addons, never changed from here). Update this file at the end of every module.
+Odoo 19 core addons for checks live in the container: `docker exec odoo19 ls /usr/lib/python3/dist-packages/odoo/addons` (~/odoo19-src has no addons folder).
+
+## Decisions (Thanh, 6 Nov 2026)
+- Test data: a re-runnable import in Odoo 19 reads the Odoo 12 dev DB (`att18mar`, container `kdvn.odoo12.db.dev`) read-only with SQL and writes through the ORM.
+  Every imported record is tagged with its Odoo 12 id (external id `legacy12.<table>_<id>`), so a second run updates instead of duplicating; limit by date range / employees. The same tool becomes the go-live data migration.
+- Real names and details are copied (dev only); an anonymise switch can be added later.
+- Order: foundation -> attendance (in stages) -> e-approval and its procedures.
+- Naming: `kderp_x` becomes `kdvn_x`.
+
+## Dependencies on Odoo 19 (checked 6 Nov 2026)
+| Odoo 12 dependency | Odoo 19 |
+|---|---|
+| hr, hr_attendance, hr_org_chart, mail, bus | core (hr_holidays and hr_holidays_attendance too) |
+| base_tier_validation (+ _formula, _forward, ...) | OCA `tier-validation` 19.0, copied to extra-addons (git-ignored) |
+| web_notify, web_widget_numeric_step, web_ir_actions_act_window_message, queue_job, queue_job_batch, report_py3o, document_page(_approval), web_m2x_options, web_responsive, web_dialog_size | OCA 19.0 exists |
+| hr_holidays_public | NO 19.0 branch, no open PR. Our own `hr.holidays.public` models are already inside kderp_hr_attendance: port them into our module, drop the OCA dependency |
+| web_widget_timepicker | NO 19.0. Use native time/float_time widgets, or a small widget of ours |
+| kderp_base, kderp_web, kderp_web_theme (Odoo 12 web client) | Odoo 12 JS/QWeb does not port; only the data helpers we really use |
+
+## Modules, simple to complicated
+| Step | Odoo 12 module (py lines) | Odoo 19 module | State |
+|---|---|---|---|
+| 1 | kderp_remote_integration (307) | kdvn_remote_integration; kdvn_remote_sync switches from n8n push to direct pull (Odoo 12 version: kderp_remote_sync 12.0.1.5.0) | todo |
+| 2 | kderp_hr_ext (1014) | kdvn_hr_ext (department / manager / project history) | todo |
+| 3 | import tool | kdvn_legacy_import (employees, departments, users first) | todo |
+| 4 | kderp_hr_attendance (16763) | kdvn_hr_attendance, in stages: A records, machines, locations, rules; B time off, allocations, public holidays; C requests (working time, overtime, leave) with approval; D summaries and reports; E face-machine feed (not needed in dev, raw data comes from the import) | todo |
+| 5 | kderp_e_approval (2872) | kdvn_e_approval on OCA base_tier_validation 19.0 (mixin, refusal log, special rules, settings) | todo |
+| 6 | kderp_entertainment_procedures (1339), kderp_hr_procedures (1851), kderp_procurement_procedures (2033) | kdvn_* | todo |
+| 7 | kderp_dashboard (559), kderp_knowledge (815) | kdvn_dashboard, kdvn_knowledge (guides) | todo |
+
+For each module: read the Odoo 12 module's CLAUDE.md / readme first, port models, then views (Odoo 17+ syntax: `<list>`, `invisible=` expressions, no `attrs`), security, then tests; run
+`docker exec odoo19 odoo -c /etc/odoo/odoo.conf -d kdvn_test -u <module> --test-tags /<module> --stop-after-init --http-port=8079 --gevent-port=8082`.
