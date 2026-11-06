@@ -18,6 +18,17 @@
                             </div>
                         </setting>
                     </block>
+                    <block title="Direct pull from the KDERP server (alternative to n8n)" name="kdvn_remote_sync_pull">
+                        <setting id="kdvn_remote_sync_pull" string="Direct pull"
+                                 help="Odoo reads jobs, budgets and customers from the KDERP server itself (Reader login of Remote Server Connection). Switch on the two scheduled actions 'Remote server: pull ...' (Settings > Technical > Scheduled Actions): changed customers every 5 minutes, everything hourly.">
+                            <field name="kdvn_pull_status"/>
+                            <div class="mt8">
+                                <button name="action_kdvn_pull_now" type="object" string="Pull from remote now"
+                                        icon="fa-refresh" class="btn-secondary"
+                                        confirm="Read jobs, budgets and customers from the KDERP server now? Reads only."/>
+                            </div>
+                        </setting>
+                    </block>
                     <block title="n8n automation" name="kdvn_remote_sync_n8n">
                         <setting id="kdvn_n8n_server_url" string="n8n Server URL">
                             <field name="kdvn_n8n_server_url" placeholder="http://192.168.1..."/>

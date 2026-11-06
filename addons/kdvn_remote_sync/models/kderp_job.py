@@ -103,21 +103,22 @@ class KderpJobLookup(models.Model):
     # ------------------------------------------------------------------
 
     @api.model
-    def execute_master_sync_pipeline(self, jobs_data=None, budgets_data=None, customers_data=None):
+    def execute_master_sync_pipeline(self, jobs_data=None, budgets_data=None, customers_data=None, purge=True):
         """Upsert + purge the three caches. Same order and rules as Odoo 12:
         customers, then jobs (they link to customers), then budgets (they link
         to jobs). A list that is empty or missing leaves that cache unchanged.
         Cached records still used by other documents are never purged.
+        purge=False (customers changed since the last pull, a partial list) never deletes anything.
         Returns {"jobs_synced", "budgets_synced", "customers_synced"}."""
         self = self.sudo()
         return {
-            'customers_synced': self._sync_customers(customers_data or []),
+            'customers_synced': self._sync_customers(customers_data or [], purge=purge),
             'jobs_synced': self._sync_jobs(jobs_data or []),
             'budgets_synced': self._sync_budgets(budgets_data or []),
         }
 
     @api.model
-    def _sync_customers(self, customers_data):
+    def _sync_customers(self, customers_data, purge=True):
         if not customers_data:
             return 0
         Customer = self.env['kderp.customer.cache'].sudo()
@@ -139,7 +140,8 @@ class KderpJobLookup(models.Model):
             else:
                 to_create.append(vals)
         Customer.create(to_create)
-        self._purge(Customer.search([('external_id', 'not in', list(incoming))]), 'name')
+        if purge:
+            self._purge(Customer.search([('external_id', 'not in', list(incoming))]), 'name')
         return len(incoming)
 
     @api.model

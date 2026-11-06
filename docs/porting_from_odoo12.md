@@ -24,7 +24,7 @@ Odoo 19 core addons for checks live in the container: `docker exec odoo19 ls /us
 | Step | Odoo 12 module (py lines) | Odoo 19 module | State |
 |---|---|---|---|
 | 1a | kderp_remote_integration (307) | kdvn_remote_integration 19.0.1.0.0: DONE 6 Nov, 18 tests pass on kdvn_test, install clean. Settings page = Settings > Remote Server Connection (app block). Not yet tried against the real remote: fill the page on odoo19_dev and press Test. |
-| 1b | kderp_remote_sync 12.0.1.5.0 direct pull | kdvn_remote_sync: add the direct pull (crons inactive) next to the n8n push | todo |
+| 1b | kderp_remote_sync 12.0.1.5.0 direct pull | kdvn_remote_sync 19.0.1.3.0: direct pull added (crons inactive) next to the n8n push, `purge=False` on the pipeline; DONE 6 Nov, 19 tests pass (11 old + 8 new). Not yet tried against the real remote. | done |
 | 2 | kderp_hr_ext (1014) | kdvn_hr_ext (department / manager / project history) | todo |
 | 3 | import tool | kdvn_legacy_import (employees, departments, users first) | todo |
 | 4 | kderp_hr_attendance (16763) | kdvn_hr_attendance, in stages: A records, machines, locations, rules; B time off, allocations, public holidays; C requests (working time, overtime, leave) with approval; D summaries and reports; E face-machine feed (not needed in dev, raw data comes from the import) | todo |

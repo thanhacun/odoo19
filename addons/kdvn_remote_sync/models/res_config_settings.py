@@ -3,7 +3,7 @@ import secrets
 
 import requests
 
-from odoo import _, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
@@ -23,6 +23,34 @@ class ResConfigSettings(models.TransientModel):
         'Sync API Key', config_parameter=PARAM_API_KEY,
         help="n8n must send this key in the X-API-Key header when posting to /api/v1/sync_jobs. "
              "Without a key the endpoint refuses all data.")
+
+    kdvn_pull_status = fields.Char('Last direct pull', readonly=True)
+
+    @api.model
+    def get_values(self):
+        res = super().get_values()
+        res['kdvn_pull_status'] = (self.env['ir.config_parameter'].sudo().get_param('kdvn_remote_sync.pull_status')
+                                   or _('Never run'))
+        return res
+
+    def action_kdvn_pull_now(self):
+        """Direct pull (no n8n): a full run, same as the hourly cron. Reads only."""
+        self.ensure_one()
+        result = self.env['kderp.remote.pull'].run_full()
+        if result.get('skipped'):
+            raise UserError(_("Another pull is running right now. Try again in a minute."))
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _("Direct pull finished"),
+                'message': _("Jobs: %(jobs)s, budgets: %(budgets)s, customers: %(customers)s",
+                             jobs=result.get('jobs_synced', 0), budgets=result.get('budgets_synced', 0),
+                             customers=result.get('customers_synced', 0)),
+                'type': 'success',
+                'sticky': False,
+            },
+        }
 
     def action_kdvn_generate_api_key(self):
         """Create a new random key (n8n must then be updated with it)."""
