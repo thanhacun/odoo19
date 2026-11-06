@@ -1,0 +1,62 @@
+<odoo>
+    <data noupdate="1">
+        <record model="kderp.base.state" id="state_draft">
+            <field name="name">Draft</field>
+            <field name="code">draft</field>
+            <field name="sequence">1</field>
+            <field name="default_code">1</field>
+            <field name="button_label">Submit</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        </record>
+
+        <record model="kderp.base.state" id="state_waiting_fman">
+            <field name="name">Manager Approve</field>
+            <field name="code">waiting_fman</field>
+            <field name="sequence">5</field>
+            <field name="button_label">Approve</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+            <field name="previous_id" ref="state_draft"/>
+        </record>
+
+        <record model="kderp.base.state" id="state_waiting_fhr">
+            <field name="name">HR validate</field>
+            <field name="code">waiting_fhr</field>
+            <field name="sequence">10</field>
+            <field name="button_label">Confirm</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+            <field name="previous_id" ref="state_waiting_fman"/>
+            <field name="group_id" ref="group_hr_attendance_section_manager"/>
+            <!-- -->
+        </record>
+
+        <record model="kderp.base.state" id="state_waiting_fman2">
+            <field name="name">GM Approve</field>
+            <field name="code">waiting_fman2</field>
+            <field name="sequence">15</field>
+            <field name="button_label">Approve</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+            <field name="previous_id" ref="state_waiting_fhr"/>
+            <field name="group_id" ref="hr_attendance.group_hr_attendance_user"/>
+        </record>
+
+        <record model="kderp.base.state" id="state_done">
+            <field name="name">Done</field>
+            <field name="code">done</field>
+            <field name="sequence">20</field>
+            <field name="button_label">Confirm</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+            <field name="previous_id" ref="state_waiting_fman2"/>
+            <field name="group_id" ref="hr_attendance.group_hr_attendance_user"/>
+        </record>
+
+        <record model="kderp.base.state" id="state_refuse">
+            <field name="name">Refuse</field>
+            <field name="code">refuse</field>
+            <field name="sequence">40</field>
+            <!-- <field name="button_label">Refuse</field> -->
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+            <!-- <field name="previous_id" ref="state_waiting_fman2"/> -->
+            <!-- <field name="group_id" ref="hr_attendance.group_hr_attendance_user"/> -->
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,191 @@
+<odoo>
+    <!-- Server actions -->
+    <data noupdate="1">
+        <!-- AT Status -->
+        <record id="at_status_update" model="ir.actions.server">
+            <field name="name">AT: Status</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance" />
+            <field name="state">code</field>
+            <field name="code">records._compute_at_status()</field>
+            <field name="group_ids" eval="[(4, ref('hr_attendance.group_hr_attendance_manager'))]" />
+        </record>
+
+        <!-- AT Request Description -->
+        <record id="at_request_description" model="ir.actions.server">
+            <field name="name">AT: Request Des.</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance" />
+            <field name="state">code</field>
+            <field name="code">records._compute_request_description()</field>
+            <field name="group_ids" eval="[(4, ref('hr_attendance.group_hr_attendance_manager'), 0)]" />
+        </record>
+
+        <!-- AT HR validate - for HR only -->
+        <record id="at_hr_validate" model="ir.actions.server">
+            <field name="name">AT: HR Validate</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance" />
+            <field name="state">code</field>
+            <field name="code">records.action_validate()</field>
+            <field name="group_ids" eval="[(4, ref('hr_attendance.group_hr_attendance_manager'), 0)]" />
+        </record>
+
+        <!-- AT GM Approve - for GM only -->
+        <record id="at_gm_approve" model="ir.actions.server">
+            <field name="name">AT: GM Approve</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance" />
+            <field name="state">code</field>
+            <field name="code">records.action_approve_man2()</field>
+            <field name="group_ids" eval="[(6, 0, [ref('group_hr_attendance_gm')])]" />
+        </record>
+
+        <!-- AT Manager Approve - for Manager only -->
+        <record id="at_manager_approve" model="ir.actions.server">
+            <field name="name">AT: Manager Approve</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance" />
+            <field name="state">code</field>
+            <field name="code">records.action_approve()</field>
+            <field name="group_ids" eval="[(6, 0, [ref('group_hr_attendance_section_manager'), ref('hr_attendance.group_hr_attendance_user')])]" />
+
+        </record>
+
+        <!-- AT Submit - for every staff owned at records -->
+        <record id="at_submit" model="ir.actions.server">
+            <field name="name">AT: Submit</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance" />
+            <field name="state">code</field>
+            <field name="code">records.action_submit()</field>
+            <field name="group_ids" eval="[(6, 0, [ref('group_hr_attendance_menu_staff'), ref('hr_attendance.group_hr_attendance_user')])]" />
+        </record>
+
+        <!-- LEAVE COVER Manager actions -->
+        <!-- LEAVE validate - for HR only -->
+        <record id="leave_hr_validate" model="ir.actions.server">
+            <field name="name">LEAVE: HR Validate</field>
+            <field name="model_id" ref="model_hr_leave_cover" />
+            <field name="state">code</field>
+            <field name="code">records.action_validate()</field>
+            <field name="group_ids" eval="[(4, ref('hr_attendance.group_hr_attendance_user'), 0)]" />
+        </record>
+
+        <!-- LEAVE GM Approve - for GM only -->
+        <record id="leave_gm_approve" model="ir.actions.server">
+            <field name="name">LEAVE: GM Approve</field>
+            <field name="model_id" ref="model_hr_leave_cover" />
+            <field name="state">code</field>
+            <field name="code">records.action_approve_man2()</field>
+            <field name="group_ids" eval="[(6, 0, [ref('group_hr_attendance_gm')])]" />
+        </record>
+
+        <!-- LEAVE Manager Approve - for Section Manager only -->
+        <record id="leave_manager_approve" model="ir.actions.server">
+            <field name="name">LEAVE: Manager Approve</field>
+            <field name="model_id" ref="model_hr_leave_cover" />
+            <field name="state">code</field>
+            <field name="code">records.action_approve()</field>
+            <field name="group_ids" eval="[(6, 0, [ref('group_hr_attendance_section_manager'), ref('hr_attendance.group_hr_attendance_user')])]" />
+        </record>
+        
+        <!-- LEAVE Update allocation to new members -->
+        <record id="leave_cover_update_allocation" model="ir.actions.server">
+            <field name="name">LEAVE: Update allocation</field>
+            <field name="model_id" ref="model_hr_leave_allocation" />
+            <field name="state">code</field>
+            <field name="code">records.action_update_allocation_to_new_member()</field>
+            <field name="group_ids" eval="[(4, ref('hr_attendance.group_hr_attendance_user'), 0)]" />
+        </record>
+
+        <!-- Create/Update related user -->
+        <record id="at_update_user" model="ir.actions.server">
+            <field name="name">EMP: Create|Update user</field>
+            <field name="model_id" ref="hr.model_hr_employee" />
+            <field name="state">code</field>
+            <field name="code">records.create_users()</field>
+            <field name="group_ids" eval="[(4, ref('hr_attendance.group_hr_attendance_user'), 0)]" />
+        </record>
+
+    </data>
+    
+    <!-- Scheduled actions -->
+    <data noupdate="1">
+        <!-- Get raw data from Bizone -->
+        <record id="at_get_raw_data" model="ir.cron">
+            <field name="active" eval="False"/>
+            <field name="name">AT: Get raw data HR Server</field>
+            <field name="model_id" ref="model_hr_attendance_raw" />
+            <field name="interval_number" eval="6" />
+            <field name="interval_type">hours</field>
+            <field name="priority" eval="7" />
+            <field name="state">code</field>
+            <field name="nextcall" eval="time.strftime('%Y-%m-%d 01:10:00')" />
+            <field name="code">
+at_date = datetime.date.today() - dateutil.relativedelta.relativedelta(days=2)
+model._get_raw_data(at_date=at_date, servers=['CMC'])
+            </field>
+        </record>
+        <!-- Sync raw data to attendance -->
+        <record id="at_sync_raw_data" model="ir.cron">
+            <field name="active" eval="False"/>
+            <field name="name">AT: Sync raw data to attendance</field>
+            <field name="model_id" ref="model_hr_attendance_raw" />
+            <field name="interval_number" eval="90" />
+            <field name="interval_type">minutes</field>
+            <field name="priority" eval="5" />
+            <field name="state">code</field>
+            <field name="nextcall" eval="time.strftime('%Y-%m-%d 01:15:00')" />
+            <field name="code">
+at_date = datetime.date.today() - dateutil.relativedelta.relativedelta(days=2)
+model._sync_attendance_record(at_date=at_date)
+            </field>
+        </record>
+        <!-- Sync raw data to attendance -->
+        <record id="at_get_raw_data_continue_mode" model="ir.cron">
+            <field name="active" eval="False"/>
+            <field name="name">AT: Get raw data continuously</field>
+            <field name="model_id" ref="model_hr_attendance_raw" />
+            <field name="interval_number" eval="5" />
+            <field name="interval_type">minutes</field>
+            <field name="priority" eval="10" />
+            <field name="state">code</field>
+            <field name="nextcall" eval="time.strftime('%Y-%m-%d 01:02:00')" />
+            <field name="code">
+model._get_raw_data(servers=['CMC'], continue_mode=True)
+            </field>
+        </record>
+        <!-- Staff location (kderp_hr Location History) from the face-id machines, first day of the attendance month -->
+        <record id="at_update_staff_locations" model="ir.cron">
+            <field name="active" eval="False"/>
+            <field name="name">AT: Update staff locations from face-id machines</field>
+            <field name="model_id" ref="kdvn_hr.model_kderp_hr_employee_location" />
+            <field name="interval_number" eval="1" />
+            <field name="interval_type">days</field>
+            <field name="priority" eval="15" />
+            <field name="state">code</field>
+            <field name="nextcall" eval="time.strftime('%Y-%m-%d 04:30:00')" />
+            <field name="code">model._cron_update_from_attendance()</field>
+        </record>
+        <!-- Send the staff locations to the remote server through n8n with the mapping saved by the wizard. Shipped INACTIVE: a person must
+             first check machine names and mapping with the Admin Control wizard. Runs daily but acts only on the attendance start day. -->
+        <record id="at_push_staff_locations" model="ir.cron">
+            <field name="name">AT: Send staff locations to remote server (n8n)</field>
+            <field name="model_id" ref="kdvn_hr.model_kderp_hr_employee_location" />
+            <field name="interval_number" eval="1" />
+            <field name="interval_type">days</field>
+            <field name="priority" eval="15" />
+            <field name="active" eval="False" />
+            <field name="state">code</field>
+            <field name="nextcall" eval="time.strftime('%Y-%m-%d 05:00:00')" />
+            <field name="code">model._cron_push_to_remote()</field>
+        </record>
+        <!-- Remind HR Admin (e-mail) about face-id machines without location name / area. Daily, each machine again after 7 days. -->
+        <record id="at_remind_machine_setup" model="ir.cron">
+            <field name="active" eval="False"/>
+            <field name="name">AT: Remind HR Admin to complete face-id machines</field>
+            <field name="model_id" ref="model_hr_attendance_location" />
+            <field name="interval_number" eval="1" />
+            <field name="interval_type">days</field>
+            <field name="priority" eval="15" />
+            <field name="state">code</field>
+            <field name="nextcall" eval="time.strftime('%Y-%m-%d 02:30:00')" />
+            <field name="code">model._cron_remind_setup()</field>
+        </record>
+    </data>
+</odoo>

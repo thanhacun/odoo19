@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_attendance_rules_filter" model="ir.ui.view">
+        <field name="name">hr.attendance.rules.filter</field>
+        <field name="model">hr.attendance.rule</field>
+        <field name="arch" type="xml">
+            <search string="Attendance Rules">
+                <field name="name"/>
+                <field name="employee_ids"/>
+                <filter name="is_active_filter" string="Active Rules" domain="[('is_active', '=', True)]"/>
+                <filter name="draft_dated" string="Draft but already dated" help="Not applied (draft) although its start date is in the past: probably replaced or forgotten"
+                        domain="[('state', '=', 'draft'), ('valid_start', '&lt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="ended" string="Ended" domain="[('state', '=', 'done'), ('valid_stop', '!=', False), ('valid_stop', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter name="by_employee" string="By employee" domain="[('apply_mode', '=', 'by_employee')]"/>
+                <filter name="by_section" string="By department" domain="[('apply_mode', '=', 'by_section')]"/>
+                <filter name="by_company" string="By company" domain="[('apply_mode', '=', 'by_company')]"/>
+                <separator/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter name="group_apply_mode" string="Apply mode" context="{'group_by': 'apply_mode'}"/>
+                    <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_attendance_rules_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.rules.list</field>
+        <field name="model">hr.attendance.rule</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <list string="Category of rules" decoration-danger="not is_active">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="apply_mode"/>
+                <field name="state"/>
+                <field name="is_active"/>
+                <field name="valid_start"/>
+                <field name="valid_stop"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_attendance_rules_form" model="ir.ui.view">
+        <field name="name">hr.attendance.rules.form</field>
+        <field name="model">hr.attendance.rule</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <form string="Attendance Rules">
+                <header>
+                    <button string="Apply" name="action_submit" invisible="state != 'draft'" type="object" class="oe_highlight"
+                            groups="hr_attendance.group_hr_attendance_user"/>
+                    <button string="Retire" name="action_retire" type="object" class="btn-secondary" invisible="not can_retire"
+                            confirm="Retire ends this rule at the end of the current attendance month. Past dates keep the rule, later dates will not get it. Do not retire a rule that is meant to run until changed (empty Valid Stop). Continue?"
+                            groups="hr_attendance.group_hr_attendance_user"/>
+                    <button string="Cancel" name="action_cancel" type="object" class="btn-danger" invisible="state != 'done' or is_active"
+                            groups="hr_attendance.group_hr_attendance_user"/>
+                    <button string="Cancel (rule in force)" name="action_cancel" type="object" class="btn-danger" invisible="state != 'done' or not is_active"
+                            confirm="This rule is IN FORCE. Cancelling it changes OT limits, working calendars and early offsets every time its period is recomputed (a request change, a leave, a recompute action). To end a rule, use Retire instead. Cancel anyway?"
+                            groups="hr_attendance.group_hr_attendance_manager"/>
+                    <field name="is_active" invisible="1"/>
+                    <field name="can_retire" invisible="1"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-warning" role="alert" invisible="state != 'done'">
+                        <strong>This rule is applied.</strong>
+                        It covers <field name="affected_employee_count" class="oe_inline"/> working employee(s);
+                        <field name="done_attendance_count" class="oe_inline"/> attendance(s) in its period are already Done.
+                        Their stored values do not change by themselves, but the next recompute of those days uses the rules as they are now.
+                        An empty Valid Stop means the rule applies until someone changes it.
+                    </div>
+                    <group col="4">
+                        <field name="sequence" help="Can change by dragging in list view."/>
+                        <field name="name"/>
+                        <field name="active"/>
+                        <field name="apply_mode"/>
+                        <field name="employee_ids" required="apply_mode == 'by_employee'" invisible="apply_mode != 'by_employee'" widget="many2many_tags" string="Employees"/>
+                        <field name="department_ids" required="apply_mode == 'by_section'" invisible="apply_mode != 'by_section'" widget="many2many_tags" string="Departments"/>
+                        <field name="company_id" required="apply_mode == 'by_company'" invisible="apply_mode != 'by_company'"/>
+                    </group>
+                    <group string="Attendance Policy">
+                        <group string="Working date circle">
+                            <field name="date_start"/>
+                            <field name="day_start"/>
+                            <field name="working_start"/>
+                            <field name="special_ot_hour"/>
+                        </group>
+                        <group string="Late in/Early out and Absence">
+                            <field name="late_in" decoration-danger="override_late_in"/>
+                            <field name="early_out" decoration-danger="override_early_out"/>
+                            <field name="absence" decoration-danger="override_absence"/>
+                        </group>
+                    </group>
+                    <group string="Rules that can apply for each employee">
+                        <group string="Overtime rule">
+                            <field name="ot_apply_rule"/>
+                            <field name="wd_allowed_ot"/>
+                            <field name="hd_allowed_ot"/>
+                            <field name="ot_hour_allowed"/>
+                        </group>
+                        <group string="Validity">
+                            <field name="valid_start"/>
+                            <field name="valid_stop"/>
+                            <field name="force_apply"/>
+                        </group>
+                        <group string="Other">
+                            <field name="child_care_period"/>
+                            <label for="early_offset" string="Early Offset"/>
+                            <div>
+                                <field name="early_offset" nolabel="1" class="oe_inline"/>
+                                <span class="ms-1">minutes</span>
+                            </div>
+                            <field name="allow_morning_ot"/>
+                            <field name="no_need_check"/>
+                            <field name="no_checkin"/>
+                        </group>
+                        <group string="Override Rules">
+                            <field name="override_day_start"/>
+                            <field name="override_working_start"/>
+                            <field name="override_late_in"/>
+                            <field name="override_early_out"/>
+                            <field name="override_absence"/>
+                        </group>
+                        <group string="Working Hours">
+                            <field name="resource_calendar_id"/>
+                            <button name="action_update_resource_calendar_id" type="object" string="Update Employee Working Calendar" class="btn-danger"
+                                    invisible="state != 'done' or not resource_calendar_id"/>
+                        </group>
+                        <group string="Actions">
+                            <button name="action_update_early_cases" type="object" string="Update early cases" class="btn-danger"
+                                    invisible="not early_offset"/>
+                            <button name="action_open_related_records" type="object" string="Open related cases"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_attendance_rules_action" model="ir.actions.act_window">
+        <field name="name">Attendance Rules</field>
+        <field name="res_model">hr.attendance.rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{"search_default_is_active_filter": 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">No attendance rule records found</p>
+            <p>The attendance rules will be defined here.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_hr_attendance_configuration_rules" name="AT Rules" parent="hr_attendance.menu_hr_attendance_configuration"
+              sequence="10" groups="hr_attendance.group_hr_attendance_manager,hr_attendance.group_hr_attendance_user" action="hr_attendance_rules_action"/>
+</odoo>

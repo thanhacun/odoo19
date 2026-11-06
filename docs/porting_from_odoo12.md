@@ -35,3 +35,34 @@ Odoo 19 core addons for checks live in the container: `docker exec odoo19 ls /us
 
 For each module: read the Odoo 12 module's CLAUDE.md / readme first, port models, then views (Odoo 17+ syntax: `<list>`, `invisible=` expressions, no `attrs`), security, then tests; run
 `docker exec odoo19 odoo -c /etc/odoo/odoo.conf -d kdvn_test -u <module> --test-tags /<module> --stop-after-init --http-port=8079 --gevent-port=8082`.
+
+
+## Step 4: kdvn_hr_attendance (read 7 Nov 2026)
+Source: ~/odoo12/addons/kderp_hr_attendance (15.7k py lines; read its CLAUDE.md and attendance_rules.md first: rule ids TM-, RW-, ST-, AH-, OT-, AL-, RQ-, LV-).
+**Payroll depends on the results (status marks, OT hours, allowance, leave days, allocations): the computation code is ported literally, only the Odoo API is adapted. Nothing is "improved" while porting.**
+Proof of equality (the real test): the Odoo 12 module has `scripts/at_baseline.py` (+ compare). When stages A-C are in, the same period and the same employees are computed in Odoo 12 and in Odoo 19 (data from kdvn_legacy_import) and the results compared; every difference is explained before the stage is called done. Unit tests per rule id come first.
+
+Decisions:
+- `hr.attendance` stays `_inherit = 'hr.attendance'` (same table/model name). Odoo 19 core also has its own overtime engine (`hr.attendance.overtime.line`, `overtime_hours`...): ours does not use it; core constraints that clash with one-record-per-employee-per-day are overridden where needed (noted below).
+- Public holidays: Odoo 19 has no hr_holidays_public. Our module defines the two OCA models itself (`hr.holidays.public`, `hr.holidays.public.line`: year, country, lines, variable date, states) plus our additions (company day, substitute, calendar, memo).
+- Optional python libs: `lunarcalendar` and `pyodbc` are NOT in the Odoo 19 image. `to_lunar` imports lazily; the SQL Server (bizone) link is stage E.
+- Attendance approvals stay on the attendance state machine (not tier validation), as in Odoo 12.
+- Groups: our groups live in kdvn_hr_attendance with the same names; Odoo 12 changed core group records (`hr_attendance.group_hr_attendance_user` name/implied); in Odoo 19 we add implied ids instead of renaming core records.
+
+Stages (each: port, unit tests from the rule doc, commit, update this table):
+| Stage | Content | State |
+|---|---|---|
+| A1 | DONE 7 Nov (19.0.0.1.0, 32 tests; deviations D1-D4 in the module CLAUDE.md): module, company policy (`res.company` fields, `at_policy`), groups, `hr.attendance.rule` (+ `_at_rules`, merge by sequence, memo), public holidays (own models), `hr.mixin` time helpers (AT month/year, AT day start, early offset, holidays, Saturday rules), `is_no_sat_working`, `_is_holiday` | done |
+| A0 | `kdvn_base` 19.0.1.0.0 DONE 7 Nov (5 tests): subset of kderp_base the attendance port needs: `kderp.base.model` (code/name), `kderp.base.code`, `kderp.base.state`, `kderp.base.state.model`. Not ported: Odoo 12 view-editing hacks, code suggestion, QR. `color` is an Integer (Odoo 19 selections need str keys). | done |
+| A2/A3 | DONE as a literal port, 7 Nov (19.0.0.1.0): all models of kderp_hr_attendance load in Odoo 19 (attendance, raw, raw status, locations, requests, summary SQL views, refuse, OT holiday plan, wizards); states + status codes + inactive crons; views converted with `tools/port_view.py`. **Parity proof so far (Odoo 12 HR case sheets, `tests/cases/*.csv`):** status sheet: every non-leave case passes (38 of 54; the other 16 need time off); OT sheet: **50 of 50**; raw checks, settings, summary key tests pass. Not yet green: 49 tests that need time off (below) | done except time off |
+| B | IN PROGRESS: time off: `hr.leave.cover` / `hr.leave` / types / allocations on Odoo 19 `hr_holidays` (core was rewritten: durations, allocation flow), AH allocations, annual leave, OT compensation | todo |
+| C | requests (`hr.attendance.request`: working time, overtime), workflow buttons of `hr.mixin`, refuse log, OT holiday plan, GM approval settings, notification emails | todo |
+| D | reports, wizards, summaries, dashboards | todo |
+| E | face-machine feed, remote staff sync, bizone SQL Server | todo (not needed for dev data) |
+| Import | kdvn_legacy_import steps for each stage's tables (raw checks, attendance, requests, leaves, allocations) | follows each stage |
+
+
+### Step 4 status, 7 Nov 2026 (end of session part 1)
+Module `kdvn_hr_attendance` (19.0.0.1.0) + `kdvn_base` (19.0.1.0.0) on branch `feature/kdvn_hr_attendance` (`.worktrees/attendance`), 11 commits. Tests: `docker exec odoo19 odoo -c <conf with worktree path> -d kdvn_test -u kdvn_hr_attendance --test-tags /kdvn_hr_attendance ...` : 219 tests, 170 pass, 49 fail (all need leave: LS 11, SB 4, AH 8-10, LV 12, GM/leave 7, OT-on-AH 2, ST-07-04 Saturday AH).
+What I learned (all in the module CLAUDE.md): Odoo 19 core hr.attendance has its own overtime engine and requires check_in: neutralised (`_update_overtime`, `_get_overtimes_to_update_domain`); `create` overrides must take a list (`@api.model_create_multi`, legacy body kept as `_legacy_create`); selections need str keys (int `color`/`at_month` became Integer); `resource.calendar` Odoo 12 methods are re-created in `models/resource_calendar.py`; OCA web_notify / hr_holidays_public have no 19 build here: replaced by `res_users.py` (notify_*) and own models; company working calendar must use timezone Asia/Ho_Chi_Minh (the Odoo 12 production data does; the legacy import must bring the calendars).
+Next (stage B, leave): the 49 failures are all in `hr_leave.py` (2800 lines) against Odoo 19 `hr_holidays`: fix `hr.leave.create` path (rights check, durations), `hr.leave.allocation` flow (no action_confirm/validate), type fields moved (`valid`, `validity_*`, `allocation_type` shimmed), leave report SQL view (not loaded), employee `leaves_count`, then views (`hr_leave_views.xml`, `hr_views.xml`, `res_users_views.xml`, settings, mail templates, reports) and the data of leave types (`data/data_leave_types_stageB.xml`). Then stage C polish (notifications/emails, QWeb reports), D reports, E feed, and the importer steps for attendance/requests/leave/allocations (then the baseline comparison against Odoo 12 on the same employees).

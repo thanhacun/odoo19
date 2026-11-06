@@ -1,0 +1,1253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- assets -->
+    <!-- views -->
+    <!-- Attendance -->
+    <record id="view_attendance_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.tree</field>
+        <field name="model">hr.attendance</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <list string="Attendances" edit="false" create="false" decoration-danger="state in ['refuse']" decoration-muted="state=='done'"><field name="employee_id"/>
+                <field name="at_day_str" string="Date" decoration-danger="wd_block_no==0"/>
+                <field name="wd_block_no" invisible="1"/>
+                <field name="at_date" string="Date" invisible="1"/>
+                <field name="code" invisible="1"/>
+                <field name="is_holiday" invisible="1"/>
+                <field name="is_public_holiday" invisible="1"/>
+                <field name="is_other_holiday" invisible="1"/>
+                <field name="single_mode" invisible="1"/>
+            <field name="check_in" column_invisible="1"/><field name="check_out" column_invisible="1"/><field name="compute_in" string="IN" decoration-danger="late_in == True"/>
+                <field name="compute_out" string="OUT" decoration-danger="early_out == True"/>
+                <field name="status_ids" widget="many2many_tags" options="{'color_field': 'color', 'create_edit': True}" string="AT marks"/>
+                <field name="request_description" widget="html"/>
+                <!-- <field name="ot_am" attrs="{'invisible': ['|', ('ot_am', '=', False), ('ot_am', '=', 0)]}" groups="hr_attendance.group_hr_attendance_user" /> -->
+                <!-- <field name="ot_pm" attrs="{'invisible': ['|', ('ot_pm', '=', False), ('ot_pm', '=', 0)]}" groups="hr_attendance.group_hr_attendance_user" /> -->
+                <field name="admin_manager_id" invisible="1"/>
+                <field name="admin_gm_id" invisible="1"/>
+                <field name="ot_wd" string="WD OT" invisible="1"/>
+                <field name="ot_hd" string="HD OT" invisible="1"/>
+                <field name="ot_total" string="Total OT" invisible="ot_total == 0"/>
+                <field name="ot_warning" invisible="not ot_warning" decoration-danger="ot_warning"/>
+                <button name="action_ot_request" type="object" icon="fa-desktop text-success" string="Overtime Request" invisible="not can_request_ot"/>
+                <button name="action_wt_request" type="object" icon="fa-clock-o text-success" string="Working time Request" invisible="not can_request_wt"/>
+                <button name="action_leave_request" type="object" icon="fa-bed text-success" string="Leave Request" context="{'at_date': at_date}" invisible="not can_request_leave"/>
+                <field name="check_in_location_id" string="IN location"/>
+                <field name="check_out_location_id" string="OUT location"/>
+                <field name="area_id"/>
+                <field name="check_in_manual" string="Request IN" invisible="1"/>
+                <field name="check_out_manual" string="Request OUT" invisible="1"/>
+                <field name="state" string="State"/>
+                <button name="action_submit" string="Submit" icon="fa-paper-plane" type="object" invisible="((next_button_visible != 'submit' or not request_description) or request_description == '')"/>
+                <button name="action_approve" string="Approve" icon="fa-arrow-right text-success" type="object" invisible="next_button_visible != 'approve'"/>
+                <button name="action_validate" string="Validate" icon="fa-check text-success" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="next_button_visible != 'validate'"/>
+                <button name="action_need_director" string="Need GM" icon="fa-user-plus text-danger" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="state != 'waiting_fhr'"/>
+                <button name="action_approve_man2" string="GM Approve" icon="fa-check text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_gm" invisible="next_button_visible != 'approve2'"/>
+                <button name="action_refuse" string="Refuse" type="object" icon="fa-hand-stop-o text-danger" invisible="not refuse_button_visible"/>
+                <button name="action_revise" string="Revise" icon="fa-pencil text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff,hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_section_manager" invisible="not revise_button_visible"/>
+                <!-- <button name="button_next_state" string="Next state"  
+                    icon="fa-arrow-right text-success" type="object" attrs="{'invisible': [('next_button_visible', '=', False)]}" /> -->
+                <field name="name" invisible="1"/> 
+                <field name="next_button_visible" invisible="1"/>
+                <field name="refuse_button_visible" invisible="1"/>
+                <field name="revise_button_visible" invisible="1"/>
+                <field name="can_request_leave" invisible="1"/>
+                <field name="leave_cover_ids" invisible="1"/>
+                <field name="can_request_ot" invisible="1"/>
+                <field name="can_request_wt" invisible="1"/>
+                <field name="late_in" invisible="1"/>
+                <field name="early_out" invisible="1"/>
+            </list>
+        </field>
+
+    </record>
+
+    <record id="hr_attendance_view_form" model="ir.ui.view">
+        <field name="name">hr.attendance.form</field>
+        <field name="model">hr.attendance</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <form string="Attendance" edit="false" create="false"><header>
+                    <!-- <button name="button_next_state" help="Change the attendance to the next state!"  
+                        icon="fa-arrow-right" type="object" class="btn-primary" attrs="{'invisible': [('next_button_visible', '=', False)]}" /> -->
+                    <!-- <button name="action_refuse" string="Refuse" type="object" attrs="{'invisible': [('refuse_button_visible', '=', False)]}" 
+                        icon="fa-hand-stop-o" class="btn-danger" /> -->
+                    <button name="action_submit" string="Submit All" icon="fa-paper-plane" type="object" invisible="((next_button_visible != 'submit' or not request_description) or request_description == '')"/>
+                    <button name="action_approve" string="Approve All" icon="fa-arrow-right text-success" type="object" invisible="next_button_visible != 'approve'"/>
+                    <button name="action_validate" string="Validate All" icon="fa-check text-success" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="next_button_visible != 'validate'"/>
+
+                    <button name="action_need_director" string="Need director" type="object" icon="fa-user-plus" class="btn-info" groups="hr_attendance.group_hr_attendance_user" invisible="not need_director_button_visible"/>
+                    <button name="action_approve_man2" string="GM Approve All" icon="fa-check text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_gm" invisible="next_button_visible != 'approve2'"/>
+
+                    <button name="action_refuse" string="Refuse" type="object" icon="fa-hand-stop-o text-danger" invisible="not refuse_button_visible"/>
+                    <button name="action_change_approve_manager" string="Change Manager" type="object" icon="fa-exchange" groups="hr_attendance.group_hr_attendance_user" invisible="state != 'waiting_fman'"/>
+                    <button name="action_revise" string="Revise/Reset" type="object" icon="fa-refresh" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff,hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_section_manager" invisible="not revise_button_visible"/>
+                    
+                    <field name="state" invisible="1"/>
+                    <field name="state_gm" widget="statusbar" statusbar_visible="draft,waiting_fman,waiting_fhr,waiting_fman2,done" invisible="not man2_approve"/>
+                    <field name="state_no_gm" widget="statusbar" statusbar_visible="draft,waiting_fman,waiting_fhr,done" invisible="man2_approve"/>
+                    <!-- <field name="state" widget="statusbar" statusbar_visible="draft,waiting_fman,waiting_fhr,done" /> -->
+                    <field name="state_id" invisible="1"/>
+                    <field name="next_button_visible" invisible="1"/>
+                    <field name="refuse_button_visible" invisible="1"/>
+                    <field name="revise_button_visible" invisible="1"/>
+                    <field name="need_director_button_visible" invisible="1"/>
+                </header>
+            <sheet>
+                    <div class="oe_button_box d-none d-md-block" name="button_box">
+                        <field name="show_leaves" invisible="1"/>
+                        <button name="action_leaves_form" type="object" class="oe_stat_button" icon="fa-calendar" groups="base.group_user" context="{'at_date': at_date}" help="Remaining leaves" invisible="not show_leaves">
+                            <field string="Leaves Left" name="leaves_count" widget="statinfo"/>
+                        </button>
+
+                        <!-- <button name="action_leaves_form"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-calendar"
+                                attrs="{'invisible': [('show_leaves','=', False)]}"
+                                context="{'ah_leave': True}"
+                                groups="base.group_user"
+                                help="Remaining AH">
+                            <field string="AH Left" name="ah_leaves_count" widget="statinfo" />
+                        </button> -->
+
+                        <button name="action_related_leaves_form" type="object" class="oe_stat_button" icon="fa-hotel" groups="base.group_user" help="Related leaves" invisible="not leave_cover_ids">
+                            <field string="Related leaves" name="related_leaves_count" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <group col="4" string="Employee">
+                        <field name="employee_id" string="Staff No." readonly="1"/>
+                        <field name="department_id" string="Section/Prj" readonly="1"/>
+                        <field name="admin_manager_id" readonly="1"/>
+                        <field name="area_id" readonly="1"/>
+                        <field name="approve_manager_id" string="Approve manager" decoration-danger="approve_manager_id != False" invisible="not approve_manager_id"/>
+                    </group>
+
+                    <group col="4" string="Attendance">
+                        <field name="compute_in" options="{&quot;inputmask&quot;: {&quot;noSecond&quot;: True}}" readonly="True" string="IN"/>
+                        <field name="compute_out" options="{&quot;inputmask&quot;: {&quot;noSecond&quot;: True}}" readonly="True" string="OUT"/>
+                        <!-- Using like below to hide these elements in mobile view -->
+                        <label for="check_in_location_id" string="IN location" class="d-none d-md-block"/>
+                        <field name="check_in_location_id" readonly="1" string="IN location" class="d-none d-md-block" nolabel="1"/>
+                        <label for="check_out_location_id" string="OUT location" class="d-none d-md-block"/>
+                        <field name="check_out_location_id" readonly="1" string="OUT location" class="d-none d-md-block" nolabel="1"/>
+
+                        <field name="late_in"/>
+                        <field name="early_out"/>
+                        <field name="status_ids" widget="many2many_tags" options="{'color_field': 'color'}" readonly="1" string="AT marks"/>
+                        <field name="man2_approve" groups="hr_attendance.group_hr_attendance_user" readonly="1" string="GM approve"/>
+                        <!-- <field name="early_offset" attrs="{'invisible': [('early_offset', '=', 0)]}" /> -->
+                        <field name="status_codes" invisible="1"/>
+                    </group>
+
+                    <group string="Requests" col="4">
+                        <!-- <field name="check_in_manual" options='{"inputmask": {"noSecond": True}, "datepicker": {"stepping": 15, "sideBySide": True}}'
+                            attrs="{'invisible': False}" string="Request IN" readonly="True" />
+                        <field name="check_out_manual" options='{"inputmask": {"noSecond": True}, "datepicker": {"stepping": 15, "sideBySide": True}}' 
+                            attrs="{'invisible': False}" string="Request OUT" readonly="True" /> -->
+                        <!-- <field name="request_description" string="Summary" /> -->
+                        <field name="at_request_ids" string="OT/WT" colspan="4" readonly="1" context="{'request_single_mode': True}" widget="many2many">
+                            <!-- <tree decoration-success="state == 'waiting_fman'" decoration-info="state == 'waiting_fhr'" 
+                                decoration-warning="state == 'waiting_fman2'" decoration-muted="state == 'done'" decoration-danger="state == 'refuse'" editable="bottom">
+                                <field name="request_type" string="Type" />
+                                <field name="sub_request_type_id" string="Detail" />
+                                <field name="name" string="Reason" />
+                                <field name="state" />
+                                <button name="action_submit" string="Submit" icon="fa-paper-plane" type="object" attrs="{'invisible': [('next_button_visible', '!=', 'submit')]}"/>
+                                <button name="action_approve" string="Approve" icon="fa-arrow-right text-success" type="object" attrs="{'invisible': [('next_button_visible', '!=', 'approve')]}"/>
+                                <button name="action_validate" string="Validate" icon="fa-check text-success" type="object" attrs="{'invisible': [('next_button_visible', '!=', 'validate')]}" 
+                                        groups="hr_attendance.group_hr_attendance_manager" />
+                                <button name="action_approve_man2" string="GM Approve" icon="fa-check text-success" type="object" attrs="{'invisible': [('next_button_visible', '!=', 'approve2')]}"
+                                        groups="hr_attendance.group_hr_attendance_manager" />
+                                <button name="action_need_director" string="Need GM" icon="fa-user-plus text-danger" type="object" attrs="{'invisible': [('state', '!=', 'waiting_fhr')]}"
+                                        groups="hr_attendance.group_hr_attendance_manager" />
+                                <button name="action_refuse" string="Refuse" type="object" 
+                                    icon="fa-hand-stop-o text-danger" attrs="{'invisible': [('refuse_button_visible', '=', False)]}" />
+                                <button name="action_revise" string="Revise" icon="fa-pencil text-success" type="object" attrs="{'invisible': [('revise_button_visible', '=', False)]}" />
+                                <field name="next_button_visible" invisible="1" />
+                                <field name="refuse_button_visible" invisible="1" />
+                                <field name="revise_button_visible" invisible="1" />
+                                <field name="man2_approve" invisible="1" />
+                            </tree> -->
+                        </field>
+                        <!-- <field name="leave_cover_ids" colspan="4" widget="many2many_tags" options="{'open': True}" /> -->
+                        <field name="leave_cover_ids" colspan="4" string="Leaves">
+                            <list decoration-success="state == 'waiting_fman'" decoration-info="state ==  'waiting_fhr'" decoration-warning="state == 'waiting_fman2'" decoration-muted="state == 'done'" decoration-danger="state == 'refuse'" editable="top">
+                                <field name="name"/>
+                                <field name="date_from" string="From"/>
+                                <field name="date_from_period" string="Half"/>
+                                <field name="date_to" string="To"/>
+                                <field name="date_to_period" string="Half"/>
+                                <field name="number_of_days" string="Duration"/>
+                                <field name="state" string="State"/>
+                                
+                                <button name="action_submit" string="Submit" icon="fa-paper-plane" type="object" invisible="next_button_visible != 'submit'"/>
+                                <button name="action_approve" string="Approve" icon="fa-arrow-right text-success" type="object" invisible="next_button_visible != 'approve'"/>
+                                <button name="action_validate" string="Validate" icon="fa-check text-success" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="next_button_visible != 'validate'"/>
+                                <button name="action_need_director" string="Need GM" icon="fa-user-plus text-danger" type="object" groups="hr_attendance.group_hr_attendance_manager" invisible="state != 'waiting_fhr'"/>
+                                <button name="action_approve_man2" string="GM Approve" icon="fa-check text-success" type="object" groups="hr_attendance.group_hr_attendance_manager" invisible="next_button_visible != 'approve2'"/>
+                                <button name="action_refuse" string="Refuse" type="object" icon="fa-hand-stop-o text-danger" invisible="not refuse_button_visible"/>
+                                <button name="action_revise" string="Revise" icon="fa-pencil text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff,hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_section_manager" invisible="not revise_button_visible"/>
+                                <button name="action_unlink" string="Delete" type="object" icon="fa-trash text-danger" confirm="Are you sure to delete this request?" invisible="next_button_visible not in ['submit', 'delete']"/>
+                                <button name="action_sync_status" string="Sync Status" icon="fa-refresh text-danger" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="status_sync"/>
+                                <field name="next_button_visible" column_invisible="1"/>
+                                <field name="refuse_button_visible" column_invisible="1"/>
+                                <field name="revise_button_visible" column_invisible="1"/>
+                                <field name="man2_approve" column_invisible="1"/>
+                                <field name="status_sync" column_invisible="1"/>
+                            </list>
+                        </field>
+                        <field name="request_description" widget="html"/>
+                        <field name="refuse_comment" string="Refuse comment" decoration-danger="refuse_comment and state == 'refuse'" decoration-bf="refuse_comment and state == 'refuse'" decoration-muted="refuse_comment and state != 'refuse'"/>
+                        <field name="allow_late_ot"/>
+                        <field name="ot_warning" string="OT Warning" decoration-danger="ot_warning"/>
+                    </group>
+                    <notebook>
+                        <page name="overtime" string="Today Overtime" invisible="not show_ot">
+                            <group col="4">
+                                <field name="wd_ot"/>
+                                <field name="wd_st"/>
+                                <field name="hd_ot"/>
+                                <field name="hd_st"/>
+                                <field name="ph_ot"/>
+                                <field name="ph_st"/>
+                            </group>
+                            <field name="ot_apply" invisible="1"/>
+                            <field name="show_ot" invisible="1"/>
+                        </page>
+                        <!-- <page string="Month Summary" invisible="1">
+                            <field name="summary_html" nolabel="1" />
+                        </page> -->
+
+                        <!-- <page string="Month Summary" >
+                            <group col="2" >
+                                <group>
+                                    <field name="late_in_count" />
+                                    <field name="early_out_count" />
+                                    <field name="forget_count" string="Forget In-Out" />
+                                </group>
+                                <group>
+                                    <field name="attendance_count" string="Attendance" />
+                                    <field name="absence_count" string="Absence" />
+                                    <field name="requested_leaves_count" />
+                                    <field name="oh_count" string="OH"/>
+                                    <field name="sh_count" string="SH"/>
+                                    <field name="working_days_sum" string="Working days total" />
+                                </group>
+                                <group string="Exceed OT" attrs="{'invisible': [('show_ot', '=', False)]}">
+                                    <field name="exceed_ot_to_leave" string="Exceed OT to leave(s)" />
+                                    <field name="exceed_ot_subtitude" string="Exceed OT substitute day(s)" />
+                                </group>
+                            </group>
+                            <group col="2" string="OT summary" invisible="1" >
+                                <group>
+                                    <field name="wd_ot_sum" string="Weekday OT Total" />
+                                    <field name="wd_st_sum" string="Weekday ST Total" />
+                                    <field name="wd_sum" string="Weekday Total" />
+                                </group>
+                                <group>
+                                    <field name="hd_ot_sum" string="Holiday OT Total" />
+                                    <field name="hd_st_sum" string="Holiday ST Total" />
+                                    <field name="ph_ot_sum" string="P. Holiday OT Total" />
+                                    <field name="ph_st_sum" string="P. Holiday ST Total" />
+                                    <field name="hd_sum" string="Holiday Total" />
+                                </group>
+                            </group>
+                            <group col="2" string="Allowed Overtime" invisible="1" >
+                                <group>
+                                    <field name="allow_wd_ot" string="Weekday OT allow" />
+                                    <field name="allow_wd_st" string="Weekday ST allow" />
+                                    <field name="allow_wd_overtime" string="Weekday Allow" />
+                                    <field name="exceed_wd_overtime" string="Weekday Exceed" />
+                                </group>
+                                <group>
+                                    <field name="allow_hd_ot" string="Holiday OT allow" />
+                                    <field name="allow_hd_st" string="Holiday ST allow" />
+                                    <field name="allow_ph_ot" string="P. Holiday OT allow" />
+                                    <field name="allow_ph_st" string="P. Holiday ST allow" />
+                                    <field name="allow_hd_overtime" string="Holiday Allow" />
+                                    <field name="exceed_hd_overtime" string="Holiday Exceed" />
+                                </group>
+                            </group>
+                        </page> -->
+
+                        <page name="rules" string="Attendance Rules" class="d-none d-md-block">
+                            <group col="2">
+                                <group string="All AT Rules">
+                                    <field name="at_rule_ids" nolabel="1" context="{'at_date': at_date}"/>
+                                </group>
+                                <group string="Applying rules">
+                                    <field name="at_rules" nolabel="1"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page name="other_detail" string="For HR/Admin Only" readonly="1" groups="hr_attendance.group_hr_attendance_user">
+                            <group string="Actual attendance">
+                                <group>
+                                    <field name="code" string="AT code"/>
+                                    <field name="check_in"/>
+                                    <field name="check_out"/>
+                                    <!-- <field name="leave_ids" /> -->
+                                    <field name="summary_id"/>
+                                    <field name="at_raw_id"/>
+                                </group>
+                                <group>
+                                    <field name="ah" string="AH"/>
+                                    <field name="work_on_holiday" string="Work on holiday"/>
+                                    <field name="absence" string="Absence status"/>
+                                    <field name="data_enough" string="Data enough"/>
+                                    <field name="view_user_ids" widget="many2many_tags"/>
+                                    <!-- <field name="sub_leave_ids" /> -->
+                                    <field name="on_current_month_at"/>
+                                    <field name="at_date" invisible="1"/>
+                                </group>
+                                <!-- <field name="leave_cover_ids" /> -->
+                            </group>
+                            <group col="2">
+                                <group string="Attendance data" col="2">
+                                    <!-- <field name="check_in" string="Check in" /> -->
+                                    <!-- <field name="check_out" string="Check out" /> -->
+                                    <field name="check_in_manual" string="Manual in"/>
+                                    <field name="check_out_manual" string="Manual out"/>
+                                    <field name="compute_in" string="Compute in"/>
+                                    <field name="compute_out" string="Compute out"/>
+                                </group>
+                                <group string="OT data" col="4">
+                                    <field name="ot_am"/>
+                                    <field name="ot_pm"/>
+                                    <field name="e_ot_am"/>
+                                    <field name="e_ot_pm"/>
+                                    <field name="ot_wd"/>
+                                    <field name="ot_hd"/>
+                                    <field name="ot_total"/>
+                                    <field name="wd_block_no"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+        
+    </record>
+
+    <record id="hr_attendance_view_filter" model="ir.ui.view">
+        <field name="name">hr_attendance_view_filter</field>
+        <field name="model">hr.attendance</field>
+        <field name="arch" type="xml">
+            <search string="Attendance Search"><field name="employee_id"/><field name="department_id" operator="child_of"/><field name="at_date"/>
+                <field name="at_month"/>
+                <field name="at_year"/>
+                <field name="check_in_location_id" string="Location" filter_domain="['|', ('check_in_location_id', 'ilike', self), ('check_out_location_id', 'ilike', self)]"/>
+                <field name="admin_manager_id" string="SM"/>
+                <field name="admin_gm_id" string="GM"/>
+                <field name="area_id" string="Area"/>
+                <!-- <field name="on_current_month_at" string="Current AT" /> -->
+            <filter string="My Attendances" name="myattendances" domain="[('employee_id.user_id', '=', uid)]"/><filter name="filter_current_month_at" string="Show Current" domain="[('on_current_month_at', '=', uid)]"/>
+                <filter name="late_early" string="Late in | Early out" domain="['|', ('late_in', '=', True), ('early_out', '=', True)]"/>
+                <filter name="absence" string="Absence" domain="[('status_ids.code', 'ilike', 'X')]"/>
+                <filter name="absence_today" string="Absence Today" domain="[('compute_in', '=', False), ('at_date', '=', current_date  )]" groups="kdvn_hr_attendance.group_hr_attendance_section_admin,hr_attendance.group_hr_attendance_user"/>
+                <filter name="filter_request_only" string="Request only" domain="[('request_description', '!=', '')]"/>
+                <filter name="special_leave" string="Special Leave" domain="[('leave_cover_ids.special_leave', '=', True)]"/>
+
+                <separator/>
+                <filter name="wait_for_gm" string="GM Approve" domain="[('state', 'in', ['waiting_fman2']), '|', ('at_request_ids', '!=', False), ('leave_cover_ids', '!=', False)]" groups="kdvn_hr_attendance.group_hr_attendance_gm"/>
+                <filter name="wait_for_hr" string="HR Validate" domain="[('state', 'in', ['waiting_fhr']), '|', ('at_request_ids', '!=', False), ('leave_cover_ids', '!=', False)]" groups="hr_attendance.group_hr_attendance_user"/>
+                <filter name="wait_for_manager" string="Manager Approve" domain="[('state', 'in', ['waiting_fman'])]" groups="hr_attendance.group_hr_attendance_user"/>
+                <filter name="not_submit" string="Not submit yet" domain="[('state', 'in', ['draft', 'refuse']), '|', ('at_request_ids', '!=', False), ('leave_cover_ids', '!=', False)]" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff"/>
+                <filter name="states_not_sync" string="States unsynced" domain="[('states_sync', '=', False)]" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff"/>
+                <separator/>
+                <filter name="show_inactive" string="Show Archive" domain="['|', ('active', '=', True), ('active', '=', False)]" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff"/>
+            <group><filter string="Employee" name="employee" context="{'group_by': 'employee_id'}"/><filter name="groupby_area" string="Area" context="{'group_by':'area_id'}" groups="kdvn_hr_attendance.group_hr_attendance_section_admin,hr_attendance.group_hr_attendance_user"/>
+                <filter name="groupby_department" string="Section" context="{'group_by':'department_id'}" groups="kdvn_hr_attendance.group_hr_attendance_section_admin,hr_attendance.group_hr_attendance_user"/>
+            <filter name="groupby_at_date" string="AT Date" context="{'group_by': 'at_date'}"/>
+                <filter name="groupby_state" string="Status" context="{'group_by': 'state'}" groups="kdvn_hr_attendance.group_hr_attendance_section_admin,hr_attendance.group_hr_attendance_user"/>
+                <filter name="groupby_at_month" string="AT Year" context="{'group_by': 'at_year'}" groups="kdvn_hr_attendance.group_hr_attendance_section_admin,hr_attendance.group_hr_attendance_user"/>
+                <filter name="groupby_at_month" string="AT Month" context="{'group_by': 'at_month'}" groups="kdvn_hr_attendance.group_hr_attendance_section_admin,hr_attendance.group_hr_attendance_user"/>
+            </group></search>
+        </field>
+    </record>
+
+    <!-- Attendance Monthly Views -->
+    <record id="view_attendance_summary_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.summary.tree</field>
+        <field name="model">hr.attendance.summary</field>
+        <field name="arch" type="xml">
+            <list edit="0" decoration-danger="need_hr_action" default_order="display_name">
+                <field name="employee_id"/>
+                <field name="month_dsp"/>
+                <field name="at_year" column_invisible="1"/>
+                <field name="at_month" column_invisible="1"/>
+                <field name="late_in_count" string="Late-in"/>
+                <field name="early_out_count" string="Early-out"/>
+                <field name="forget_count" string="Forget in/out"/>
+                <field name="absence_count"/>
+                <field name="wd_sum"/>
+                <field name="hd_sum"/>
+                <field name="exceed_ot_subtitude" string="OT compensation"/>
+                <field name="bonus_ot_hours"/>
+                <field name="bonus_ot_level"/>
+                <field name="need_hr_action_explain" string="Need HR action" groups="hr_attendance.group_hr_attendance_user" invisible="not need_hr_action"/>
+                <field name="need_hr_action" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_attendance_summary_form" model="ir.ui.view">
+        <field name="name">hr.attendance.summary.form</field>
+        <field name="model">hr.attendance.summary</field>
+        <field name="arch" type="xml">
+            <form edit="0">
+                <sheet>
+                    <group string="General Info">
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="month_dsp"/>
+                            <field name="need_hr_action" invisible="1"/>
+                            <field name="need_hr_action_explain" string="Need HR action" class="text-danger" groups="hr_attendance.group_hr_attendance_user" invisible="not need_hr_action"/>
+                            <!-- <field name="at_year" string="Year" /> -->
+                            <!-- <field name="at_month" string="Month" /> -->
+                            <!-- <field name="sat_leave" /> -->
+                            <!-- <field name="sat_status" /> -->
+                        </group>
+                        <group>
+                            <field name="late_in_count" string="Late-in"/>
+                            <field name="early_out_count" string="Early-out"/>
+                            <field name="forget_count" string="Forget in/out"/>
+                            <field name="exceed_ot_subtitude" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Attendances">
+                        <!-- <field name="at_ids" string="Attendances" context="{'attendance_single_mode': True}" nolabel="1" /> -->
+                        <field name="at_ids" nolabel="1">
+                            <list decoration-danger="is_holiday==True or is_other_holiday==True or state in ['refuse']" decoration-warning="is_public_holiday==True" decoration-bf="state in ['refuse']" decoration-muted="state=='done'">
+                                <field name="at_date_str" string="Date"/>
+                                <field name="at_day_dsp" string="Day"/>
+                                <field name="status_ids" string="AT Marks" widget="many2many_tags" options="{'color_field': 'color', 'create_edit': True}"/>
+                                <field name="compute_in" string="IN" decoration-danger="late_in == True"/>
+                                <field name="compute_out" string="OUT" decoration-danger="early_out == True"/>
+                                <field name="wd_ot" string="WD OT" sum="total" invisible="wd_ot == 0.0"/>
+                                <field name="wd_st" string="WD ST" sum="total" invisible="wd_st == 0.0"/>
+                                <field name="hd_ot" string="HD OT" sum="total" invisible="hd_ot == 0.0"/>
+                                <field name="hd_st" string="HD ST" sum="total" invisible="hd_st == 0.0"/>
+                                <field name="ph_ot" string="PH OT" sum="total" invisible="ph_ot == 0.0"/>
+                                <field name="ph_st" string="PH ST" sum="total" invisible="ph_st == 0.0"/>
+                                <field name="check_in_location_id" string="IN location"/>
+                                <field name="check_out_location_id" string="OUT location"/>
+                                <button name="action_ot_request" type="object" icon="fa-desktop text-success" string="Overtime Request" invisible="not can_request_ot"/>
+                                <button name="action_wt_request" type="object" icon="fa-clock-o text-success" string="Working time Request" invisible="not can_request_wt"/>
+                                <button name="action_leave_request" type="object" icon="fa-bed text-success" string="Leave Request" context="{'at_date': at_date}" invisible="not can_request_leave"/>
+                                <field name="request_description" string="Description" widget="html"/>
+                                <field name="state"/>
+                                <button name="action_submit" string="Submit" icon="fa-paper-plane" type="object" invisible="((next_button_visible != 'submit' or not request_description) or request_description == '')"/>
+                                <button name="action_approve" string="Approve" icon="fa-arrow-right text-success" type="object" invisible="next_button_visible != 'approve'"/>
+                                <button name="action_validate" string="Validate" icon="fa-check text-success" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="next_button_visible != 'validate'"/>
+                                <button name="action_need_director" string="Need GM" icon="fa-user-plus text-danger" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="state != 'waiting_fhr'"/>
+                                <button name="action_approve_man2" string="GM Approve" icon="fa-check text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_gm" invisible="next_button_visible != 'approve2'"/>
+                                <button name="action_refuse" string="Refuse" type="object" icon="fa-hand-stop-o text-danger" invisible="not refuse_button_visible"/>
+                                <button name="action_revise" string="Revise" icon="fa-pencil text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff,hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_section_manager" invisible="not revise_button_visible"/>
+                                <field name="next_button_visible" column_invisible="1"/>
+                                <field name="refuse_button_visible" column_invisible="1"/>
+                                <field name="revise_button_visible" column_invisible="1"/>
+                                <field name="can_request_leave" column_invisible="1"/>
+                                <field name="leave_cover_ids" column_invisible="1"/>
+                                <field name="can_request_ot" column_invisible="1"/>
+                                <field name="can_request_wt" column_invisible="1"/>
+                                <field name="is_holiday" column_invisible="1"/>
+                                <field name="is_other_holiday" column_invisible="1"/>
+                                <field name="is_public_holiday" column_invisible="1"/>
+                                <field name="at_date" column_invisible="1"/>
+                                <field name="late_in" column_invisible="1"/>
+                                <field name="early_out" column_invisible="1"/>
+                            </list>
+                        </field>
+                    </group>
+                    <group string="Summary" col="12">
+                        <field name="summary_for_at" string="Other summary" colspan="12" nolabel="1"/>
+                        <!-- <button name="action_ot_compensation" type="object" string="OT Compensation" icon="fa-desktop text-danger" class="oe_inline" colspan="2" 
+                                attrs="{'invisible': [('exceed_ot_subtitude', '=', 0)]}" /> -->
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_attendance_summary_search" model="ir.ui.view">
+        <field name="name">view.hr.attendance.summary.search</field>
+        <field name="model">hr.attendance.summary</field>
+        <field name="arch" type="xml">
+            <search string="Attendance Summary Search">
+                <field name="employee_id"/>
+                <field name="at_month" string="AT month"/>
+                <field name="at_year" string="AT year"/>
+                <filter name="show_current" string="Show Current" domain="[('show_current', '=', True)]"/>
+                <separator/>
+                <field name="exceed_ot_subtitude" string="Exceed OT"/>
+                <filter name="many_forget" string="Many forget" domain="[('forget_count', '&gt;', 1)]"/>
+                <filter name="overtime" string="Overtime" domain="['|', ('wd_sum', '&gt;', 0), ('hd_sum', '&gt;', 0)]"/>
+                <filter name="overtime" string="Exceed OT" domain="[('exceed_ot_subtitude', '&gt;', 0)]"/>
+                <filter name="need_hr_action" string="Need HR action" domain="[('need_hr_action', '=', True)]"/>
+                <group>
+                    <filter name="groupby_section" string="Section" context="{'group_by': 'department_id'}"/>
+                    <filter name="groupby_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Views: attendance raw data -->
+    <record id="view_hr_attendance_raw_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.raw.tree</field>
+        <field name="model">hr.attendance.raw</field>
+        <field name="arch" type="xml">
+            <list editable="top">
+                <field name="employee_id" readonly="1"/>
+                <field name="check_in"/>
+                <field name="check_out"/>
+                <field name="check_date"/>
+                <field name="at_code"/>
+                <field name="first_location_id"/>
+                <field name="last_location_id"/>
+                <field name="write_date" readonly="1"/>
+                <field name="raw_checks" readonly="1"/>
+                <field name="manual_mode" widget="boolean_toggle"/>
+                <field name="is_delete" widget="boolean_toggle"/>
+                <!-- <field name="sync_state" /> -->
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_attendance_raw_form" model="ir.ui.view">
+        <field name="name">hr.attendance.raw.form</field>
+        <field name="model">hr.attendance.raw</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="employee_id"/>
+                        <field name="check_in"/>
+                        <field name="check_out"/>
+                        <field name="check_date"/>
+                        <field name="at_code"/>
+                        <field name="first_location_id"/>
+                        <field name="last_location_id"/>
+                        <field name="manual_mode" widget="boolean_toggle"/>
+                        <field name="is_delete" widget="boolean_toggle"/>
+                    </group>
+                    <group>
+                        <field name="write_date"/>
+                        <field name="raw_checks" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_attendance_raw_search" model="ir.ui.view">
+        <field name="name">view.hr.attendance.raw.search</field>
+        <field name="model">hr.attendance.raw</field>
+        <field name="arch" type="xml">
+            <search string="Hr Attendance Raw Search">
+                <field name="employee_id"/>
+                <field name="check_date" string="AT Date"/>
+                <field name="first_location_id" string="In Location"/>
+                <field name="last_location_id" string="Out Location"/>
+                <filter name="show_archive" string="Show Archive" domain="['|', ('active', '=', True), ('active', '=', False)]"/>
+                <group>
+                    <filter name="groupby_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                    <separator/>
+                    <filter name="groupby_in_location" string="In Location" context="{'group_by': 'first_location_id'}"/>
+                    <filter name="groupby_out_location" string="Out Location" context="{'group_by': 'last_location_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Views: Locations -->
+    <record id="view_hr_attendance_location_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.location.tree</field>
+        <field name="model">hr.attendance.location</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" decoration-danger="setup_missing">
+                <field name="code" readonly="1"/>
+                <field name="name" readonly="1"/>
+                <field name="setup_missing" column_invisible="1"/>
+                <field name="is_local"/>
+                <field name="note"/>
+                <field name="active"/>
+                <field name="inactive_date" required="not active"/>
+                <field name="show_name"/>
+                <button name="action_use_shown_name" type="object" icon="fa-arrow-right" title="Use the shown name" invisible="show_name not in [False, '']"/>
+                <field name="area_id" options="{'no_create': True, 'no_open': True}"/>
+                <field name="ignore_location"/>
+                <field name="terminal_id" readonly="1"/>
+                <field name="static_ip"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Views: Data Status -->
+    <record id="view_hr_attendance_raw_data_status_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.raw.data.status.tree</field>
+        <field name="model">hr.attendance.raw.data.status</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" create="0" edit="0">
+                <field name="at_date"/>
+                <field name="machine_location_id"/>
+                <field name="data_status"/>
+                <field name="last_updated_dt" string="Last update"/>
+                <field name="name"/>
+                <button name="compute_data_status" type="object" icon="fa-refresh text-success" string="Refresh"/>
+                <button name="action_get_machine_data" string="Get Data" icon="fa-download text-danger" type="object"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_attendance_raw_data_status_search" model="ir.ui.view">
+        <field name="name">hr.attendance.raw.data.status.search</field>
+        <field name="model">hr.attendance.raw.data.status</field>
+        <field name="arch" type="xml">
+            <search string="Data Status">
+                <field name="at_date"/>
+                <field name="machine_location_id"/>
+                <field name="data_status"/>
+                <filter name="show_archive" string="Show Archive" domain="['|', ('active', '=', True), ('active', '=', False)]"/>
+                <group>
+                    <filter name="group_machine_location" string="Location" domain="[]" context="{'group_by': 'machine_location_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="hr_attendance_raw_data-staus_pivot" model="ir.ui.view">
+        <field name="name">hr.attendance.raw.data.status.pivot</field>
+        <field name="model">hr.attendance.raw.data.status</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="at_date" type="row" interval="day"/>
+                <field name="machine_location_id" type="col"/>
+                <field name="data_status" type="col"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Views: Refuse comments -->
+    <record id="view_hr_attendance_refuse_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.refuse.tree</field>
+        <field name="model">hr.attendance.refuse</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="employee_id"/>
+                <field name="related_request_id"/>
+                <field name="related_leave_cover_id"/>
+                <field name="name"/>
+                <field name="at_ids" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+    
+    <record id="view_hr_attendance_refuse_form" model="ir.ui.view">
+        <field name="name">hr.attendance.refuse.form</field>
+        <field name="model">hr.attendance.refuse</field>
+        <field name="arch" type="xml">
+            <form string="Refuse comment">
+                <group>
+                    <field name="employee_id"/>
+                    <field name="related_request_id" string="AT Request"/>
+                    <field name="multiple_refuse" widget="boolean_toggle" invisible="not related_request_batch_id"/>
+                    <field name="related_leave_cover_id" string="Leave"/>
+                    <field name="name"/>
+                    <field name="at_ids" string="Attendance" invisible="1"/>
+                    <field name="related_request_batch_id" invisible="1"/>
+                </group>
+                <footer>
+                    <button name="save" type="object" string="Save" class="oe_highlight"/>
+                    <button name="discard" type="object" string="Discard" class="btn-danger"/>
+                    <!-- <button special="cancel" string="Cancel"/> -->
+                </footer>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- Views: Approve Manager -->
+    <!-- <record id="view_hr_attendance_approve_manager_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.approve.manager.tree</field>
+        <field name="model">hr.attendance.approve.manager</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="at_id" string="Attendance" />
+                <field name="name" />
+            </tree>
+        </field>
+    </record>
+    
+    <record id="view_hr_attendance_approve_manager_form" model="ir.ui.view">
+        <field name="name">hr.attendance.approve.manager.form</field>
+        <field name="model">hr.attendance.approve.manager</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="at_id" string="Attendance" />
+                    <field name="name" />
+                </group>
+                <footer>
+                    <button name="save" type="object" string="Save" class="oe_highlight" />
+                    <button name="discard" type="object" string="Discard" class="btn-danger" />
+                </footer>
+            </form>
+        </field>
+    </record> -->
+
+    <record id="view_hr_attendance_change_approve_manager" model="ir.ui.view">
+        <field name="name">hr.attendance.change.approve.manager.form</field>
+        <field name="model">hr.attendance</field>
+        <field name="priority">999</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="code"/>
+                    <field name="approve_manager_id"/>
+                    <field name="state" invisible="1"/>
+                </group>
+                <footer>
+                    <button special="save" string="Save"/>
+                    <button special="cancel" string="Cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    
+    <!-- graphs, pivots -->
+    <record id="hr_employee_gender_graph" model="ir.ui.view">
+        <field name="name">hr.employee.sex.graph</field>
+        <field name="model">hr.employee</field>
+        <field name="arch" type="xml">
+            <graph string="Gender structure" type="pie">
+                <field name="sex" string="Gender"/>
+                <field name="id" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="hr_attendance_overtime_pivot" model="ir.ui.view">
+        <field name="name">hr.attendance.overtime_pivot</field>
+        <field name="model">hr.attendance</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <pivot string="OT Summary">
+                    <field name="employee_id" type="row"/>
+                    <field name="at_date" type="col" interval="day"/>
+                    <field name="at_day" type="col"/>
+                    <field name="ot_wd" type="measure" string="WD"/>
+                    <field name="ot_hd" type="measure" string="HD"/>
+                    <field name="ot_total" type="measure" string="Total"/>
+                </pivot>
+        </field>
+    </record>
+
+    <record id="hr_attendance_estimate_overtime_pivot" model="ir.ui.view">
+        <field name="name">hr.attendance.estimate.overtime_pivot</field>
+        <field name="model">hr.attendance</field>
+        <!-- <field name="inherit_id" ref="hr_attendance.hr_attendance_view_pivot" /> -->
+        <field name="priority">40</field>
+        <field name="arch" type="xml">
+            <pivot string="OT Summary">
+                <field name="employee_id" type="row"/>
+                <field name="at_date" type="col" interval="day"/>
+                <field name="at_day" type="col"/>
+                <field name="ot_am" type="measure" string="AM"/>
+                <field name="ot_pm" type="measure" string="PM"/>
+                <field name="e_ot_am" type="measure" string="E_AM"/>
+                <field name="e_ot_pm" type="measure" string="E_PM"/>
+            </pivot>
+        </field>
+    </record>
+
+
+    <record id="hr_attendance_manager_overtime_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.manager.overtime_tree</field>
+        <field name="model">hr.attendance</field>
+        <field name="priority">40</field>
+        <field name="arch" type="xml">
+            <list string="OT List View">
+                <field name="employee_id"/>
+                <field name="at_day_str"/>
+                <field name="at_date" column_invisible="1"/>
+                <field name="at_day" column_invisible="1"/>
+                <field name="request_description" widget="html" invisible="ot_wd == 0 and ot_hd == 0"/>
+                <field name="admin_manager_id" string="SM"/>
+                <field name="admin_gm_id" string="GM"/>
+                <!-- <field name="ot_wd_allow" attrs="{'invisible': [('ot_wd_allow', '=', 0)]}" /> -->
+                <!-- <field name="ot_hd_allow" attrs="{'invisible': [('ot_hd_allow', '=', 0)]}"/> -->
+                <field name="ot_wd" invisible="ot_wd == 0" decoration-danger=" ot_wd &gt; 4"/>
+                <field name="ot_hd" invisible="ot_hd == 0" decoration-danger=" ot_hd &gt; 12"/>
+                <field name="ot_wd_remain" invisible="ot_wd == 0 or wd_block_no == 0" decoration-danger=" ot_wd_remain &lt; 0"/>
+                <field name="ot_hd_remain" invisible="ot_hd == 0 or wd_block_no != 0" decoration-danger=" ot_hd_remain &lt; 0"/>
+                <field name="weekly_wd_remain" invisible="ot_wd == 0 or wd_block_no == 0" decoration-danger=" weekly_wd_remain &lt; 0"/>
+                <field name="ot_wd_ratio" widget="percentage" invisible="wd_block_no == 0"/>
+                <field name="ot_hd_ratio" widget="percentage" invisible="wd_block_no != 0"/>
+                <field name="weekly_wd_ratio" widget="percentage" invisible="weekly_wd_ratio == 0"/>
+                <field name="ot_total" column_invisible="1"/>
+                <field name="wd_block_no" column_invisible="1"/>
+                <field name="state" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_attendance_ot_holiday_summary_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.ot.holiday.summary.tree</field>
+        <field name="model">hr.attendance.ot.holiday.summary</field>
+        <field name="arch" type="xml">
+            <list string="OT Monthly Summary" decoration-danger="ot_wd_remain &lt; 0 or ot_hd_remain &lt; 0 or weekly_over or day_over">
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="area_id"/>
+                <field name="admin_manager_id"/>
+                <field name="admin_gm_id"/>
+                <field name="at_month_dsp"/>
+                <field name="at_year" column_invisible="1"/>
+                <field name="at_month" column_invisible="1"/>
+                <field name="ot_wd" invisible="ot_wd == 0"/>
+                <field name="ot_hd" invisible="ot_hd == 0"/>
+                <field name="ot_wd_allow"/>
+                <field name="ot_hd_allow"/>
+                <field name="ot_wd_remain" options="{&quot;bg_color&quot;: &quot;orange: ot_wd_remain &lt; 0&quot;}"/>
+                <field name="ot_hd_remain" options="{&quot;bg_color&quot;: &quot;orange: ot_hd_remain &lt; 0&quot;}"/>
+                <field name="ot_wd_ratio" widget="percentage"/>
+                <field name="ot_hd_ratio" widget="percentage"/>
+                <field name="ot_wd_over" string="Weekday Over limit" options="{&quot;bg_color&quot;: &quot;orange: ot_wd_over&quot;}" class="thcn-test"/>
+                <field name="ot_hd_over" string="Holiday Over limit" options="{&quot;bg_color&quot;: &quot;orange: ot_hd_over&quot;}"/>
+                <field name="weekly_over" string="Weekly Over limit" options="{&quot;bg_color&quot;: &quot;orange: weekly_over&quot;}"/>
+                <field name="day_over" string="Daily Over limit" options="{&quot;bg_color&quot;: &quot;orange: day_over&quot;}"/>
+                <field name="at_ids" string="Attendances"/>
+
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_attendance_ot_holiday_summary_form" model="ir.ui.view">
+        <field name="name">hr.attendance.ot.holiday.summary.form</field>
+        <field name="model">hr.attendance.ot.holiday.summary</field>
+        <field name="arch" type="xml">
+            <form string="OT Monthly Detail">
+                <group col="4">
+                    <field name="employee_id"/>
+                    <field name="department_id"/>
+                    <field name="area_id"/>
+                    <field name="at_month_dsp"/>
+                    <field name="admin_manager_id"/>
+                    <field name="admin_gm_id"/>
+                    <field name="at_year" invisible="1"/>
+                    <field name="at_month" invisible="1"/>
+                    <field name="ot_wd_over" invisible="1"/>
+                    <field name="ot_hd_over" invisible="1"/>
+                    <field name="weekly_over" invisible="1"/>
+                </group>
+                <group col="4" string="OT Overview">
+                    <field name="ot_wd"/>
+                    <field name="ot_hd"/>
+                    <field name="ot_wd_allow"/>
+                    <field name="ot_hd_allow"/>
+                    <field name="ot_wd_remain" decoration-danger=" ot_wd_remain &lt; 0"/>
+                    <field name="ot_hd_remain" decoration-danger=" ot_hd_remain &lt; 0"/>
+                    <field name="ot_wd_ratio" widget="percentage"/>
+                    <field name="ot_hd_ratio" widget="percentage"/>
+                </group>
+                <group string="OT Detail">
+                    <field name="at_ids" nolabel="1">
+                        <list>
+                            <field name="employee_id"/>
+                            <field name="at_day_str" decoration-danger=" wd_block_no == 0"/>
+                            <field name="request_description" widget="html" invisible="ot_wd == 0 and ot_hd == 0"/>
+                            <field name="admin_manager_id" string="SM"/>
+                            <field name="admin_gm_id" string="GM"/>
+                            <!-- <field name="ot_wd_allow" attrs="{'invisible': [('ot_wd_allow', '=', 0)]}" /> -->
+                            <!-- <field name="ot_hd_allow" attrs="{'invisible': [('ot_hd_allow', '=', 0)]}"/> -->
+                            <field name="ot_wd" invisible="ot_wd == 0" decoration-danger=" ot_wd &gt; 4"/>
+                            <field name="ot_hd" invisible="ot_hd == 0" decoration-danger=" ot_hd &gt; 12"/>
+                            <field name="ot_wd_remain" min="WD" invisible="wd_block_no == 0" decoration-danger=" ot_wd_remain &lt; 0"/>
+                            <field name="ot_hd_remain" min="HD" invisible="wd_block_no != 0" decoration-danger=" ot_hd_remain &lt; 0"/>
+                            <field name="weekly_wd_remain" invisible="wd_block_no == 0" decoration-danger=" weekly_wd_remain &lt; 0"/>
+                            <field name="ot_wd_ratio" widget="percentage" invisible="wd_block_no == 0 or ot_wd == 0"/>
+                            <field name="ot_hd_ratio" widget="percentage" invisible="wd_block_no != 0 or ot_hd == 0"/>
+                            <field name="weekly_wd_ratio" widget="percentage" invisible="weekly_wd_ratio == 0"/>
+                            <field name="at_day" column_invisible="1"/>
+                            <field name="at_date" column_invisible="1"/>
+                            <field name="ot_total" column_invisible="1"/>
+                            <field name="wd_block_no" column_invisible="1"/>
+                            <field name="state" column_invisible="1"/>
+                        </list>
+                    </field>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_attendance_ot_holiday_summary_graph" model="ir.ui.view">
+        <field name="name">hr.attendance.ot.holiday.summary.graph</field>
+        <field name="model">hr.attendance.ot.holiday.summary</field>
+        <field name="arch" type="xml">
+            <graph stacked="True">
+                <field name="ot_total" type="measure" context="{'measures_sorted_by_help': True}"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="hr_attendance_ot_holiday_summary_search" model="ir.ui.view">
+        <field name="name">hr.attendance.ot.holiday.summary.search</field>
+        <field name="model">hr.attendance.ot.holiday.summary</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="employee_id"/>
+                <field name="admin_manager_id"/>
+                <field name="admin_gm_id"/>
+                <field name="at_year"/>
+                <field name="at_month"/>
+                <field name="area_id"/>
+                <field name="department_id"/>
+                <!-- Filter -->
+                <filter name="filter_current_month" domain="[('current_month', '=', True)]" string="Current Month"/>
+                <filter name="filter_last_month" domain="[('last_month', '=', True)]" string="Last Month"/>
+                <separator/>
+                <filter name="Weekday Over" domain="[('ot_wd_over', '=', True)]"/>
+                <filter name="Holiday Over" domain="[('ot_hd_over', '=', True)]"/>
+                <filter name="Weekly Over" domain="[('weekly_over', '=', True)]"/>
+                <filter name="Daily Over" domain="[('day_over', '=', True)]"/>
+                <separator/>
+                <filter name="hide_no_ot" domain="[('ot_total', '&gt;', 0)]" string="Hide No OT"/>
+                <!-- Group By -->
+                <filter name="groupby_area" string="Area" context="{'group_by': 'area_id'}"/>
+                <filter name="groupby_section" string="Section" context="{'group_by': 'department_id'}"/>
+                <filter name="groupby_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                <separator/>
+                <filter name="groupby_gm" string="GM" context="{'group_by': 'admin_gm_id'}"/>
+                <filter name="groupby_sm" string="SM" context="{'group_by': 'admin_manager_id'}"/>
+                <separator/>
+                <filter name="groupby_month" string="Month" context="{'group_by': 'at_month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Have to use inherit in order for [options] working -->
+    <record id="manager_overtime_tree_colorized" model="ir.ui.view">
+        <field name="name">hr.attendance.manager.overtime_tree_colorized</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="kdvn_hr_attendance.hr_attendance_manager_overtime_tree"/>
+        <field name="arch" type="xml">
+            <field name="at_day_str" position="attributes">
+                <attribute name="options">{
+                    "fg_color": "red: wd_block_no == 0"
+                }</attribute>
+            </field>
+        </field>
+
+    </record>
+
+    <record id="hr_attendance_manager_overtime_pivot" model="ir.ui.view">
+        <field name="name">hr.attendance.manager.overtime_pivot</field>
+        <field name="model">hr.attendance</field>
+        <!-- <field name="inherit_id" ref="hr_attendance.hr_attendance_view_pivot" /> -->
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <pivot string="OT Summary">
+                <field name="employee_id" type="row"/>
+                <field name="at_date" type="col" interval="day"/>
+                <field name="at_day" type="col"/>
+                <field name="ot_pm" type="measure" string="Total"/>
+            </pivot>
+            <!-- <graph string="OT Summary" type="pie">
+                <field name="at_date" interval="day" attrs="{'format': 'mm'}" />
+                <field name="ot_pm" type="measure"/>
+
+            </graph> -->
+        </field>
+    </record>
+
+    <!-- REPORT PAPERFORMAT -->
+    <record id="paperformat_a3_landscape" model="report.paperformat">
+        <field name="name">A3 landscape</field>
+        <field name="default" eval="False"/>
+        <field name="format">A3</field>
+        <!-- <field name="page_height">80</field> -->
+        <!-- <field name="page_width">175</field> -->
+        <field name="orientation">Landscape</field>
+        <!-- <field name="margin_top">3</field> -->
+        <!-- <field name="margin_bottom">3</field> -->
+        <!-- <field name="margin_left">3</field> -->
+        <!-- <field name="margin_right">3</field> -->
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">3</field>
+        <field name="dpi">90</field>
+    </record>
+    
+    <!-- REPORT TEMPLATES -->
+    <template id="ot_on_holidays_form">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <t t-foreach="docs" t-as="o">
+                        <p>The staff name is <span t-field="o.name"/></p>
+                    </t>
+                </div>
+            </t>
+        </t>
+
+    </template>
+
+    <!-- ACTIONS -->
+
+    <!-- Modified -->
+    <record id="hr_attendance_action" model="ir.actions.act_window">
+        <field name="res_model">hr.attendance</field>
+        <field name="name">My Attendances</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{
+            "search_default_filter_current_month_at":1,
+            "attendance_single_mode": True
+            }</field>
+        <field name="domain">[["employee_id.user_id", "=", uid]]</field>
+    </record>
+
+    <record id="hr_summary_action" model="ir.actions.act_window">
+        <field name="name">My AT Summary</field>
+        <field name="res_model">hr.attendance.summary</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[["employee_id.user_id", "=", uid]]</field>
+        <field name="context">{"attendance_single_mode": True, "search_default_show_current": 1}</field>
+    </record>
+
+    <record id="hr_summary_action_for_admin" model="ir.actions.act_window">
+        <field name="name">AT Summary</field>
+        <field name="res_model">hr.attendance.summary</field>
+        <field name="view_mode">list,form</field>
+        <!-- <field name="domain">[["employee_id.user_id", "=", uid]]</field> -->
+        <field name="context">{"attendance_single_mode": True, "search_default_show_current": 1}</field>
+    </record>
+
+
+    <record id="hr_attendance_action_for_manager" model="ir.actions.act_window">
+        <field name="name">Section Attendance</field>
+        <field name="res_model">hr.attendance</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{
+            "search_default_filter_current_month_at": 1,
+            "search_default_employee": 1,
+            "search_default_wait_for_manager": 1
+            }</field>
+        <!-- <field name="domain">
+            ["|", "|", "&amp;", ["approve_manager_id", "=", False], ["employee_id.admin_manager_id.user_id", "=", uid], 
+            ["approve_manager_id.user_id", "=", uid], ["view_user_ids", "=", uid]]
+        </field> -->
+        <field name="domain">
+            ["|", "&amp;", ["approve_manager_id", "=", False], ["employee_id.admin_manager_id.user_id", "=", uid], 
+            ["approve_manager_id.user_id", "=", uid]]
+        </field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No request found! Please come back later.
+            </p>
+        </field>
+    </record>
+
+    <record id="hr_attendance_action_for_manager_gm" model="ir.actions.act_window">
+        <field name="name">GM's Sections Attendance</field>
+        <field name="res_model">hr.attendance</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{
+            "search_default_filter_current_month_at": 1,
+            "search_default_groupby_department": 1,
+            "search_default_employee": 1,
+            "search_default_wait_for_gm": 1
+            }</field>
+        <!-- <field name="domain">['|', ['employee_id.admin_manager_user_ids','=',uid], ['employee_id.parent_user_ids','=',uid]]</field> -->
+        <!-- <field name="domain">['|', ['employee_id.admin_gm_id.user_id','=',uid], ['employee_id.gm_id.user_id','=',uid]]</field> -->
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No request found! Please come back later.
+            </p>
+        </field>
+        
+    </record>
+
+    <record id="hr_attendance_action_for_manager_all" model="ir.actions.act_window">
+        <field name="name">All Attendances</field>
+        <field name="res_model">hr.attendance</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{
+            "search_default_filter_current_month_at": 1,
+            "search_default_groupby_department": 1,
+            "search_default_employee": 1
+            }</field>
+        <field name="domain">[["view_user_ids", "=", uid]]</field>
+        <!-- <field name="groups_id" eval="[(4,ref('kdvn_hr_attendance.group_hr_attendance_gm'))]"/> -->
+    </record>
+
+    <record id="hr_attendance_action_for_hr_all" model="ir.actions.act_window">
+        <field name="name">All Records (HR Only)</field>
+        <field name="res_model">hr.attendance</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{
+            "search_default_filter_current_month_at": 1,
+            "search_default_groupby_department": 1,
+            "search_default_employee": 1
+            }</field>
+        <!-- <field name="domain">[["employee_id.admin_manager_id.user_id", "=", uid]]</field> -->
+        <field name="group_ids" eval="[(4,ref('hr_attendance.group_hr_attendance_user'))]"/>
+    </record>
+
+    <record id="hr_attendance_action_for_hr_validate" model="ir.actions.act_window">
+        <field name="name">For Validate</field>
+        <field name="res_model">hr.attendance</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{
+            "search_default_filter_current_month_at": 1,
+            "search_default_groupby_department": 1,
+            "search_default_employee": 1,
+            "search_default_wait_for_hr": 1
+            }</field>
+        <!-- <field name="domain">[["employee_id.admin_manager_id.user_id", "=", uid]]</field> -->
+    </record>
+
+
+    <record id="hr_attendance_raw_action" model="ir.actions.act_window">
+        <field name="name">HR Attendance Raw</field>
+        <field name="res_model">hr.attendance.raw</field>
+        <field name="view_mode">list,form</field>
+        <!-- <field name="context">{"search_default_today":1}</field> -->
+        <!-- <field name="search_view_id" ref="hr_attendance_view_filter" /> -->
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                No attendance raw found
+            </p><p>
+                Please import/sync data.
+            </p>
+        </field>
+    </record>
+
+    <record id="hr_attendance_location_action" model="ir.actions.act_window">
+        <field name="name">HR Attendance Location</field>
+        <field name="res_model">hr.attendance.location</field>
+        <field name="view_mode">list,form</field>
+        <!-- <field name="context">{"search_default_today":1}</field> -->
+        <!-- <field name="search_view_id" ref="hr_attendance_view_filter" /> -->
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                No attendance location found
+            </p><p>
+                Please import/sync data.
+            </p>
+        </field>
+    </record>
+
+    <record id="hr_attendance_raw_data_status_action" model="ir.actions.act_window">
+        <field name="name">HR Attendance Raw Data Status</field>
+        <field name="res_model">hr.attendance.raw.data.status</field>
+        <field name="view_mode">list,pivot,form</field>
+        <!-- <field name="context">{"search_default_today":1}</field> -->
+        <!-- <field name="search_view_id" ref="hr_attendance_view_filter" /> -->
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                No data status found
+            </p><p>
+                Please ask IT to import/sync data.
+            </p>
+        </field>
+    </record>
+
+    <record id="hr_employee_gender_graph_action" model="ir.actions.act_window">
+        <field name="name">Employee gender</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">graph</field>
+        <field name="view_id"/>
+    </record>
+
+    <record id="hr_attendance_refuse_action" model="ir.actions.act_window">
+        <field name="name">Attendance refuse</field>
+        <field name="res_model">hr.attendance.refuse</field>
+        <field name="view_mode">list,form</field>
+        <!-- <field name="view_id"></field> -->
+    </record>
+
+    <record id="hr_attendance_action_graph" model="ir.actions.act_window">
+        <field name="res_model">hr.attendance</field>
+        <field name="name">Overtime Summary</field>
+        <field name="view_mode">pivot</field>
+        <field name="context">{'search_default_filter_current_month_at':1, 'ot_summary': True}</field>
+        <field name="domain">[["view_user_ids", "=", uid]]</field>
+        <!-- <field name="domain">[()]</field> -->
+    </record>
+
+    <record id="hr_attendance_ot_holiday_summary" model="ir.actions.act_window">
+        <field name="name">OT Monthly Summary</field>
+        <field name="res_model">hr.attendance.ot.holiday.summary</field>
+        <field name="view_mode">list,form,graph</field>
+        <field name="context">{
+            'search_default_filter_current_month': 1, 'search_default_groupby_section': 1, 'search_default_hide_no_ot': 1,
+            'graph_measures': {
+                'ot_total': {'description': '01.1 Total'},
+                'ot_hd_allow': {'description': '03.1 Holiday Limit'},
+                'avg_area_ot': {'description': '01.2 Avg. Area OT'},
+                'avg_section_ot': {'description': '01.3 Avg. Section OT'},
+                'ot_wd_allow': {'description': '02.1 Weekday Limit'},
+                'ot_wd': {'description': '02.2 Weekday Used'},
+                'ot_wd_remain': {'description': '02.3 Weekday Remain'},
+                'ot_wd_ratio': {'description': '02.4 Weekday Ratio'},
+                'ot_hd': {'description': '03.2 Holiday Used'},
+                'ot_hd_remain': {'description': '03.3 Holiday Remain'},
+                'ot_hd_ratio': {'description': '03.4 Holiday Ratio'},
+            }
+            }</field>
+        <field name="domain">[('employee_id.ot_apply', '=', True)]</field>
+    </record>
+
+    <record id="hr_attendance_estimate_ot_summary" model="ir.actions.act_window"><field name="name">Estimate Overtime</field><field name="res_model">hr.attendance</field><field name="view_mode">pivot,graph</field><field name="context">{'search_default_filter_current_month_at':1, 'ot_summary': True}</field></record>
+    <record id="pivot_view_for_estimate_ot" model="ir.actions.act_window.view">
+        <field name="sequence" eval="0"/>
+        <field name="view_mode">pivot</field>
+        <field name="view_id" ref="kdvn_hr_attendance.hr_attendance_estimate_overtime_pivot"/>
+        <field name="act_window_id" ref="kdvn_hr_attendance.hr_attendance_estimate_ot_summary"/>
+    </record>
+
+    <record id="hr_attendance_manager_ot_summary" model="ir.actions.act_window"><field name="name">Manager View Overtime</field><field name="res_model">hr.attendance</field><field name="view_mode">list,pivot,graph</field><field name="context">{             'search_default_filter_current_month_at':1, 'ot_summary': True,             'search_default_groupby_area':1, 'search_default_groupby_department': 1, 'search_default_employee': 1             }</field></record>
+    <record id="tree_view_for_manager_ot" model="ir.actions.act_window.view">
+        <field name="sequence" eval="0"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="kdvn_hr_attendance.hr_attendance_manager_overtime_tree"/>
+        <field name="act_window_id" ref="kdvn_hr_attendance.hr_attendance_manager_ot_summary"/>
+    </record>
+    <record id="pivot_view_for_manager_ot" model="ir.actions.act_window.view">
+        <field name="sequence" eval="5"/>
+        <field name="view_mode">pivot</field>
+        <field name="view_id" ref="kdvn_hr_attendance.hr_attendance_manager_overtime_pivot"/>
+        <field name="act_window_id" ref="kdvn_hr_attendance.hr_attendance_manager_ot_summary"/>
+    </record>
+
+    <!-- Reports actions -->
+    <record id="print_current_attendance" model="ir.actions.server">
+        <field name="name">Current Attendance</field>
+        <field name="model_id" ref="kdvn_hr_attendance.model_hr_attendance_admin_control_wizard"/>
+        <field name="state">code</field>
+        <field name="code">
+action=model.action_print_current_attendance()
+        </field>
+    </record>
+
+    <!-- hr_attendance_action_employee action -->
+    <record id="hr_attendance_action_employee" model="ir.actions.act_window">
+        <field name="name">Hr Attendance Action Employee</field>
+        <field name="res_model">hr.attendance</field>
+        <field name="context">{
+            'search_default_employee_id': active_id,
+            'default_employee_id': active_id,
+            'search_default_filter_current_month_at': 1
+        }</field>
+        <field name="domain">[["employee_id.user_id", "=", user.id]]</field>
+    </record>
+    
+    <!-- Form register OT on Holidays -->
+    <record id="ot_on_holidays_register_form" model="ir.actions.report"><field name="name">OT ON Holidays</field><field name="model">hr.employee</field><field name="report_type">qweb-html</field><field name="report_name">kdvn_hr_attendance.ot_on_holidays_form</field><field name="report_file">kdvn_hr_attendance.ot_on_holidays_form</field><field name="paperformat_id" ref="kdvn_hr_attendance.paperformat_a3_landscape"/><field name="binding_model_id" ref="hr.model_hr_employee"/><field name="binding_type">report</field></record>
+
+
+    </odoo>

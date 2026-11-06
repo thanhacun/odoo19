@@ -1,0 +1,11 @@
+id,rule,basis,title,saturdays,allocation,expect_marks,known_gap
+AH-01,AH-01,rules,"4 Saturdays, all worked: the last two become AH (2 AH in the month)","w,w,w,w",yes,O|O|AH|AH,
+AH-02,AH-01,code,Absent on Saturday 1: Sat 1 becomes AH and only one of Sat 3/4 is AH (the code picks Sat 3),"x,w,w,w",yes,AH|O|AH|O,
+AH-03,AH-01,rules,"Absent on Saturday 3: it is the AH, plus the last Saturday (2 AH in total)","w,w,x,w",yes,O|O|AH|AH,
+AH-04,AH-01,rules,Absent on Saturday 4: Sat 3 and Sat 4 are AH,"w,w,w,x",yes,O|O|AH|AH,
+AH-05,AH-01,rules,Absent on Saturday 3 and 4: still exactly 2 AH,"w,w,x,x",yes,O|O|AH|AH,
+AH-06,AH-01,rules,"Absent on Saturday 1 and 2: those 2 are the AH, the last two are worked","x,x,w,w",yes,AH|AH|O|O,
+AH-07,AH-04,rules,Only the morning of Saturday 1 worked: 1/2 AH for the absent half; the month must still end with 2 AH,"am,w,w,w",yes,1/2 AH+1/2 O|O|AH|1/2 AH+1/2 O,"The system leaves Saturday 4 as O, so the month ends with 1.5 AH instead of 2 (it should give 1/2 AH pm on Sat 4). To check with HR."
+AH-08,AH-04,rules,Only the afternoon of Saturday 2 worked: 1/2 AH; the month must still end with 2 AH,"w,pm,w,w",yes,O|1/2 AH+1/2 O|AH|1/2 AH+1/2 O,Same as AH-07: the system ends the month with 1.5 AH.
+AH-09,AH-16,code,Saturday 4 only half worked: near month end the AH becomes a full day,"w,w,w,am",yes,O|O|AH|AH,
+AH-10,AH-11,rules,No AH allocation for the month: no AH is created,"w,w,w,w",no,O|O|O|O,

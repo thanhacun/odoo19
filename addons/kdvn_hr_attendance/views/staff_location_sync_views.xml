@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kderp_staff_location_sync_wizard" model="ir.ui.view">
+        <field name="name">kderp.staff.location.sync.wizard.form</field>
+        <field name="model">kderp.staff.location.sync.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Send staff locations to the remote server">
+                <field name="state" invisible="1"/>
+                <field name="live" invisible="1"/>
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="machines,mapping,confirm"/>
+                </header>
+                <sheet>
+                    <div invisible="state != 'machines'">
+                        <p>Machines of the same site must have the same <b>Location name</b> (staff locations come from the face-id machine used most
+                            in the month). Fill the <b>Location name</b> of every machine, or tick <b>Ignore</b> for a test machine (red rows are still empty; you cannot go on until
+                            they are filled). A new name is used from the next attendance month on; the existing history is not changed.
+                            Fill the <b>Area</b> only for a machine standing in a main office (Head Office, Hai Phong...); leave it empty for a customer site.
+                            A staff whose main office is not that area gets the main office name in front of the location name.</p>
+                        <button name="action_fill_names" type="object" class="btn-secondary mb-2" string="Use the shown name where Location name is empty" help="Copies the column 'Shown now' into every empty Location name. You can still change any row afterwards."/>
+                        <field name="machine_line_ids" nolabel="1">
+                            <list editable="bottom" create="false" delete="false" limit="500" decoration-danger="not ignore_location and not show_name" decoration-muted="ignore_location" decoration-italic="not is_active">
+                                <field name="machine_name"/>
+                                <field name="terminal_id"/>
+                                <field name="usage"/>
+                                <field name="last_use"/>
+                                <field name="is_local"/>
+                                <field name="is_active"/>
+                                <field name="display_name_now"/>
+                                <field name="show_name"/>
+                                <field name="area_id" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="ignore_location"/>
+                                <field name="original_show_name" column_invisible="1"/>
+                                <field name="original_area_id" column_invisible="1"/>
+                                <field name="original_ignore" column_invisible="1"/>
+                            </list>
+                        </field>
+                    </div>
+                    <div invisible="state != 'mapping'">
+                        <p>The remote server has its own location names. For each of our locations choose the one on the remote server
+                            (rows marked <i>Suggested</i> were filled because the names look alike: please check them).
+                            Staff of a location with no remote location are not sent. Your choices are kept for next month.</p>
+                        <field name="map_line_ids" nolabel="1">
+                            <list editable="bottom" create="false" delete="false" limit="500" decoration-warning="not remote_id" decoration-info="suggested">
+                                <field name="location_id"/>
+                                <field name="staff_count"/>
+                                <field name="remote_id" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="suggested"/>
+                            </list>
+                        </field>
+                    </div>
+                    <div invisible="state != 'confirm'">
+                        <field name="confirm_html" nolabel="1"/>
+                    </div>
+                    <div invisible="state != 'done'">
+                        <field name="result_html" nolabel="1"/>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_next_machines" type="object" string="Next: remote locations" class="btn-primary" invisible="state != 'machines'"/>
+                    <button name="action_next_mapping" type="object" string="Next: confirm" class="btn-primary" invisible="state != 'mapping'"/>
+                    <button name="action_send" type="object" string="Confirm and send (dry run)" class="btn-primary" invisible="state != 'confirm' or live"/>
+                    <button name="action_send" type="object" string="Confirm and send to the remote server" class="btn-danger" confirm="Update the staff locations on the remote server now?" invisible="state != 'confirm' or not live"/>
+                    <button name="action_back" type="object" string="Back" invisible="state == 'machines'"/>
+                    <button special="cancel" string="Close"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_kderp_staff_location_update_wizard" model="ir.ui.view">
+        <field name="name">kderp.staff.location.update.wizard.form</field>
+        <field name="model">kderp.staff.location.update.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Update staff locations">
+                <field name="state" invisible="1"/>
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="machines,preview,confirm,done"/>
+                </header>
+                <sheet>
+                    <div invisible="state != 'machines'">
+                        <p>The location of a staff in one attendance month is the face-id machine he/she used most. Machines of the same site must have the same
+                            <b>Location name</b>. Fill the red rows, or tick <b>Ignore</b> for a test machine (its records are not used): you cannot go on until every other machine has a name.
+                            Set the <b>Area</b> only for a machine standing in a main office (Head Office, Hai Phong...); leave it empty for a customer site.
+                            A staff whose main office is another area gets the main office name in front of the location name (Head Office staff at the Head Office machine = "Head Office";
+                            at the Kyocera machine = "Head Office Kyocera"). Nothing is written to the staff yet.</p>
+                        <button name="action_fill_names" type="object" class="btn-secondary mb-2" string="Use the shown name where Location name is empty" help="Copies the column 'Shown now' into every empty Location name. You can still change any row afterwards."/>
+                        <field name="machine_line_ids" nolabel="1">
+                            <list editable="bottom" create="false" delete="false" limit="500" decoration-danger="not ignore_location and not show_name" decoration-muted="ignore_location" decoration-italic="not is_active">
+                                <field name="machine_name"/>
+                                <field name="terminal_id"/>
+                                <field name="usage"/>
+                                <field name="last_use"/>
+                                <field name="is_local"/>
+                                <field name="is_active"/>
+                                <field name="display_name_now"/>
+                                <field name="show_name"/>
+                                <field name="area_id" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="ignore_location"/>
+                                <field name="original_show_name" column_invisible="1"/>
+                                <field name="original_area_id" column_invisible="1"/>
+                                <field name="original_ignore" column_invisible="1"/>
+                            </list>
+                        </field>
+                    </div>
+                    <div invisible="state != 'preview'">
+                        <field name="preview_html" nolabel="1"/>
+                    </div>
+                    <div invisible="state != 'confirm'">
+                        <p>Ready. The Location History lines shown in the preview will be created for every finished attendance month. Existing lines are never changed or deleted.
+                            Press <b>Update now</b> to write them.</p>
+                    </div>
+                    <div invisible="state != 'done'">
+                        <field name="result_html" nolabel="1"/>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_next_machines" type="object" string="Next: preview" class="btn-primary" invisible="state != 'machines'"/>
+                    <button name="action_next_preview" type="object" string="Next: confirm" class="btn-primary" invisible="state != 'preview'"/>
+                    <button name="action_run" type="object" string="Update now" class="btn-danger" confirm="Create the staff location lines now?" invisible="state != 'confirm'"/>
+                    <button name="action_back" type="object" string="Back" invisible="state in ['machines', 'done']"/>
+                    <button special="cancel" string="Close"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Machines to complete: opened from the HR dashboard and the warning in the top bar -->
+    <record id="hr_attendance_location_to_complete_action" model="ir.actions.act_window">
+        <field name="name">Face-id machines to complete</field>
+        <field name="res_model">hr.attendance.location</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('setup_missing', '=', True)]</field>
+    </record>
+</odoo>

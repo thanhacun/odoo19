@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- HR Employee Form View -->
+    <record id="hr_employee_view_form" model="ir.ui.view">
+        <field name="name">hr.employee.form</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <page name="family_info" position="attributes">
+                <attribute name="groups">base.group_system</attribute>
+            </page>
+
+            <!-- <xpath expr="//page[@string='Received Badges']" position="attributes" >
+                <attribute name="groups">base.group_system</attribute>
+            </xpath>  -->
+
+            <!-- main office follows the administrative section's area (computed); never typed by hand -->
+            <field name="work_location" position="attributes">
+                <attribute name="readonly">1</attribute>
+            </field>
+
+            <field name="image" position="before">
+                <div class="alert alert-danger" role="status" invisible="not need_action">
+                    <h4 class="alert-heading" role="alert">Need Hr Actions</h4>
+                    <field name="need_action_explain"/>
+                </div>
+            </field>
+            <field name="joining_date" position="after">
+                <field name="official_working_date"/>
+                <field name="ot_apply"/>
+            </field>
+
+            <xpath expr="//group[@name='hr_location']" position="after">
+                <group name="hr_leaves_balances" string="Leaves">
+                    <field name="leaves_bal"/>
+                    <field name="leaves_carry_forward_bal"/>
+                    <field name="ot_compensation_leave_bal"/>
+                    <field name="special_leaves_0"/>
+                    <field name="special_leaves_1"/>
+                    <field name="special_leaves_2"/>
+                </group>
+                <group name="need_hr_action" string="Need HR Action">
+                    <field name="need_action"/>
+                    <field name="need_action_explain"/>
+                </group>
+            </xpath>
+
+            <field name="ot_apply" position="after">
+                <field name="remote_code"/>
+            </field>
+
+        </field>
+    </record>
+
+    <!-- Completely replaced the view hr_attendance.view_employee_kanban_inherit_hr_attendance
+        for easier understand the purpose
+     -->
+    <record id="hr_attendance.view_employee_kanban_inherit_hr_attendance" model="ir.ui.view">
+        <field name="name">hr.employee</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.hr_kanban_view_employees"/>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <templates position="before">
+                <field name="attendance_state"/>
+            </templates>
+            <field name="name" position="replace">
+                <div id="textbox">
+                    <div class="float-right" t-if="record.attendance_state.raw_value == 'checked_in'">
+                        <span id="oe_hr_attendance_status" class="fa fa-sign-in oe_hr_attendance_status_green" role="img" aria-label="In" title="In"/>
+                    </div>
+                    <div class="float-right" t-if="record.attendance_state.raw_value == 'checked_out'">
+                        <span id="oe_hr_attendance_status" class="fa fa-sign-out oe_hr_attendance_status_red" role="img" aria-label="Out" title="Out"/>
+                    </div>
+                    <div class="float-right" t-if="!record.attendance_state.raw_value">
+                        <span id="oe_hr_attendance_status" class="fa fa-question-circle oe_hr_attendance_status_red" role="img" aria-label="Not sure" title="Not sure"/>
+                    </div>
+                    <strong>
+                        <field name="name" placeholder="Employee's Name"/>
+                    </strong>
+                </div>
+            </field>
+        </field>
+    </record>
+
+    <!-- Compleltely replaced the view  hr_holidays.hr_department_view_kanban -->
+    <record id="hr_leave_action_action_approve_department" model="ir.actions.act_window">
+        <field name="name">Department Leaves</field>
+        <field name="res_model">hr.leave.cover</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{
+            'search_default_approve': 1,
+            'search_default_validate': 1,
+            'search_default_group_employee': 1
+        }
+        </field>
+        <field name="domain">[('department_id', 'in', active_ids)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new leave cover request
+            </p>
+        </field>
+    </record>
+
+    <record id="hr_department_form_view" model="ir.ui.view">
+        <field name="name">hr.department.form.view</field>
+        <field name="model">hr.department</field>
+        <field name="inherit_id" ref="kdvn_hr.inherited_hr_department_view_form_inherit_kderp_hr"/>
+        <field name="arch" type="xml">
+            <field name="area_id" position="after">
+                <field name="section_ot_staff"/>
+                <field name="area_ot_staff"/>
+            </field>
+        </field>
+    </record>
+    
+    <record id="hr_holidays.hr_department_view_kanban" model="ir.ui.view">
+        <field name="name">hr.department.kanban.inherit</field>
+        <field name="model">hr.department</field>
+        <field name="inherit_id" ref="hr.hr_department_view_kanban"/>
+        <field name="groups_id" eval="[(4,ref('hr_holidays.group_hr_holidays_user'))]"/>
+        <field name="arch" type="xml">
+            <data>
+                <xpath expr="//templates" position="before">
+                    <field name="leave_to_approve_count"/>
+                    <field name="allocation_to_approve_count"/>
+                    <field name="total_employee"/>
+                    <field name="absence_of_today"/>
+                </xpath>
+
+                <xpath expr="//div[hasclass('o_kanban_primary_right')]" position="inside">
+                    <div t-if="record.leave_to_approve_count.raw_value &gt; 0" class="row">
+                        <div class="col-9">
+                            <a name="%(kdvn_hr_attendance.hr_leave_action_action_approve_department)d" type="action">
+                                Leave Requests
+                            </a>
+                        </div>
+                        <div class="col-3">
+                            <field name="leave_to_approve_count"/>
+                        </div>
+                    </div>
+                </xpath>
+
+                <xpath expr="//div[hasclass('o_kanban_primary_right')]" position="after">
+                    <div class="col-12 o_kanban_primary_bottom bottom_block">
+                        <div class="row">
+                            <div class="col-3">
+                                <a name="%(hr_holidays.hr_employee_action_from_department)d" type="action" title="Absent Employee(s), Whose leaves request are either confirmed or validated on today">Absence</a>
+                            </div>
+                            <div class="col-9">
+                                <field name="absence_of_today" widget="progressbar" options="{'current_value': 'absence_of_today', 'max_value': 'total_employee', 'editable': false}"/>
+                            </div>
+                        </div>
+                    </div>
+                </xpath>
+
+                <xpath expr="//div[hasclass('o_kanban_manage_to_approve')]" position="inside">
+                    <div class="row">
+                        <div class="col-12 text-left">
+                            <a name="%(kdvn_hr_attendance.hr_leave_action_action_approve_department)d" type="action">
+                                <t t-esc="record.leave_to_approve_count.raw_value or 0"/> Leave Requests
+                            </a>
+                        </div>
+                    </div>
+
+                </xpath>
+
+                <xpath expr="//div[hasclass('o_kanban_manage_reports')]" position="inside">
+                    <div class="row">
+                        <div class="col-12 text-left">
+                            <a name="%(hr_holidays.hr_leave_action_action_department)d" type="action">
+                                Leaves
+                            </a>
+                        </div>
+                    </div>
+                </xpath>
+
+            </data>
+        </field>
+    </record>
+</odoo>
