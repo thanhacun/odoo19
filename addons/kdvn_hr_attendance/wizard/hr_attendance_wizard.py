@@ -3406,6 +3406,7 @@ class KderpHrAttendanceOTHolidayLine(models.Model):
         created_ids = super().create(values)
         for ot_line in created_ids:
             ot_line.write_ot_request()
+        return created_ids   # Odoo 12 returned None here (not allowed by Odoo 19 create)
 
     def write(self, values):
         # [TODO: ]: any changes should trigger UI to refresh

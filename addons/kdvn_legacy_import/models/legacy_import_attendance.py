@@ -208,7 +208,7 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
         self._copy_table('hr_attendance', 'hr.attendance', where=where,
                          filter_row=lambda row: row['employee_id'] in legacy_emp,
                          natural=lambda row, vals: [('code', '=', row['code'])],
-                         context={'do_not_run_at_status': True, 'kdvn_no_compute': True},
+                         context={'do_not_run_at_status': True, 'kdvn_no_compute': True, 'kdvn_skip_checkin_check': True},
                          skip=('state', 'status_codes', 'request_leave', 'leave_cover_ids', 'related_leaves_count'))
         ats = {t[1]: v for t, v in self._state['tags'].items() if t[0] == 'hr_attendance'}
         if not ats:
@@ -236,7 +236,7 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
         ats = {t[1] for t in self._state['tags'] if t[0] == 'hr_attendance'}
         self._copy_table('hr_attendance_request_type', 'hr.attendance.request.type', natural=lambda row, vals: [('code', '=', row['code'])])
         self._copy_table('hr_attendance_request', 'hr.attendance.request', filter_row=lambda row: row['at_id'] in ats,
-                         context={'do_not_run_at_status': True, 'kdvn_no_compute': True},
+                         context={'do_not_run_at_status': True, 'kdvn_no_compute': True, 'kdvn_skip_checkin_check': True},
                          skip=('state_gm', 'state_no_gm'))
 
     def _step_at_ot_plans(self):
