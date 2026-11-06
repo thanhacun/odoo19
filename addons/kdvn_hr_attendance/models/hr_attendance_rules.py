@@ -24,6 +24,13 @@ class HrAttendanceRules(models.Model):
     def _update_overtime(self, attendance_domain=None):
         return
 
+    @api.constrains('check_in', 'check_out')
+    def _check_validity_check_in_check_out(self):
+        """Core 19 constraint (check_out earlier than check_in). Odoo 12 data contains such days; the legacy import sets kdvn_skip_checkin_check."""
+        if self.env.context.get('kdvn_skip_checkin_check'):
+            return
+        return super()._check_validity_check_in_check_out()
+
     def _get_overtimes_to_update_domain(self):
         return Domain.FALSE
 
