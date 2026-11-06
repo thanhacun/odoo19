@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_manager_history_full,hr.manager.history.full,model_hr_manager_history,kdvn_hr.group_kderp_hr_user_input,1,1,1,1
+access_hr_manager_history_read,hr.manager.history.read,model_hr_manager_history,base.group_user,1,0,0,0
+access_hr_employee_department_history_full,hr.employee.department.history.full,model_hr_employee_department_history,kdvn_hr.group_kderp_hr_user_input,1,1,1,1
+access_hr_employee_department_history_read,hr.employee.department.history.read,model_hr_employee_department_history,base.group_user,1,0,0,0
+access_hr_employee_project_history_full,hr.employee.project.history.full,model_hr_employee_project_history,kdvn_hr.group_kderp_hr_user_input,1,1,1,1
+access_hr_employee_project_history_read,hr.employee.project.history.read,model_hr_employee_project_history,base.group_user,1,0,0,0

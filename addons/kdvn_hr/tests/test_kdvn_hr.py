@@ -11,7 +11,7 @@ class TestKdvnHr(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.emp = self.env['hr.employee'].create({'name': 'Nguyen Van An', 'code': 'T001'})
+        self.emp = self.env['hr.employee'].create({'name': 'Nguyen Van An', 'code': 'T001', 'working': True})
         self.site_a = self.env['kderp.employee.location.code'].create({'name': 'Site A'})
         self.site_b = self.env['kderp.employee.location.code'].create({'name': 'Site B'})
 
@@ -23,7 +23,7 @@ class TestKdvnHr(TransactionCase):
 
     def test_code_unique(self):
         with self.assertRaises(IntegrityError), mute_logger('odoo.sql_db'), self.cr.savepoint():
-            self.env['hr.employee'].create({'name': 'Other', 'code': 'T001'})
+            self.env['hr.employee'].create({'name': 'Other', 'code': 'T001', 'working': True})
 
     def test_current_location_follows_dates(self):
         today = date.today()
@@ -49,7 +49,7 @@ class TestKdvnHr(TransactionCase):
 
     def test_department_code_type_and_new_manager(self):
         dtype = self.env['hr.department.type'].create({'name': 'Section', 'code': 'section'})
-        boss = self.env['hr.employee'].create({'name': 'Boss', 'code': 'T002'})
+        boss = self.env['hr.employee'].create({'name': 'Boss', 'code': 'T002', 'working': True})
         dept = self.env['hr.department'].create({'name': 'Design', 'code': 'DSG', 'type_id': dtype.id, 'manager_id': self.emp.id})
         dept.write({'new_manager': boss.id, 'new_man_effective_date': date.today() + timedelta(days=3)})
         dept._change_to_effective_manager()
