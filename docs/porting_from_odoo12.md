@@ -77,3 +77,10 @@ Real-data findings fixed: Odoo 19 core refuses check_out < check_in (the import 
 
 ### Stage B (time off) logic, 7 Nov 2026
 All 219 module tests pass. What Odoo 19 needed: core computes leave dates (half days via periods set from our morning/afternoon boxes; `request_unit_half` always on); `_onchange_leave_dates` / `action_draft` / `holiday_type` / `remaining_leaves` / `valid` kept as compat; allocations need dates (default = leave type validity) and keep their name (Odoo 19 renames on every change); `sudo(uid)` is `with_user(uid)`; SQL-view summary needs a flush before reading; fixture calendar must have Saturday. Not yet: leave views/menus (`views/hr_leave_views.xml`, `hr_views.xml`, `res_users_views.xml` are converted but not loaded), leave type data (`data/data_leave_types_stageB.xml`), `hr.leave.report` SQL view, `leaves_count` compute, mail templates and QWeb reports.
+
+
+### Leave import (7 Nov 2026) - state
+`kdvn_legacy_import` has the steps lv_reasons, lv_types, lv_allocations, lv_leaves (covers, leaves, calendar entries), lv_links. On a fresh scratch DB they created 81 leave types, 1,177 allocations and 10 covers/leaves/calendar entries for 2 staff (21 Jun - 20 Jul). Known issues, NOT solved yet:
+1. A RE-RUN on a database that already holds imported covers stops in step `organisation` with "OdooBot doesn't have read access to hr.leave.cover" (path: kdvn_hr_ext `_compute_1st_manager` -> employee write -> hr.leave write -> `related_at_ids`). First runs on an empty database work. Next: make the nested reads superuser (or give OdooBot read ACL on the cover model).
+2. 30 allocations failed in the first run because of Odoo 19's "duration > 0" check (fixed by `_duration_check` override, not yet re-verified after the fix).
+3. The Saturday AH days of the trial staff still differ (10 of 65 compared days) because their AH leaves/allocations were not imported in the same run; re-check once issue 1 is fixed.

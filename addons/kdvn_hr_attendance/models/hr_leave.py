@@ -636,7 +636,7 @@ class KderpHolidayRequestCover(models.Model):
         return records
 
     def _legacy_create(self, values):
-        if not values.get('leave_request_ids'):
+        if not values.get('leave_request_ids') and not self.env.context.get('kdvn_legacy_import'):   # the legacy import creates the cover first, its leaves after
             raise ValidationError(_('Leave cover without leaves! Please check your data!'))
         cover_ids = super(KderpHolidayRequestCover, self.with_context(mail_create_nolog=True)).create(values)
         for c in cover_ids:
@@ -1143,8 +1143,8 @@ class KderpHolidaysRequest(models.Model):
         # Update Leave cover dates
         for h in self:
             if date_changed or period_changed:
-                h.leave_cover_id._compute_date()
-            effected_at_ids |= h.leave_cover_id.related_at_ids()
+                h.sudo().leave_cover_id._compute_date()
+            effected_at_ids |= h.sudo().leave_cover_id.related_at_ids()
 
         # Update related_at_ids leave_cover_ids, leave_ids
         if date_changed:
@@ -1784,6 +1784,9 @@ class KderpHolidaysAllocation(models.Model):
     _description = "KDERP Leave Allocation"
     _inherit = ['hr.leave.allocation']
 
+    # Odoo 19 refuses allocations of 0 days; Odoo 12 had expired grants with 0 days (kept as history)
+    _duration_check = models.Constraint("CHECK( number_of_days >= 0 OR allocation_type != 'regular' )", 'The duration cannot be negative.')
+
     holiday_type = fields.Selection([('employee', 'By Employee')], default='employee', string='Allocation Mode')   # Odoo 12 core field
 
     @api.depends('holiday_status_id', 'number_of_days')
@@ -2074,7 +2077,7 @@ class KderpHolidaysAllocation(models.Model):
             # Special Leave yyyy-1, yyyy-2, yyyy-3: NO changes
             new_lt = LT.search(year_lt_domain + [('validity_start', '=', start_dt)])
             if not new_lt:
-                new_lt = LT.with_user(self.env.uid).create({
+                new_lt = LT.sudo(self.env.uid == 1).create({
                         'name': 'Annual Leave',
                         'allocation_type': 'fixed',  # as default
                         'exclude_public_holidays': True,  # as default
@@ -2090,7 +2093,7 @@ class KderpHolidaysAllocation(models.Model):
             if last_lt:
                 last_lt.name = 'Last Year Leave'
                 related_allocations = AL.search(la_domain + [('holiday_status_id', '=', last_lt.id), ('name', 'in', ['Annual Leave', 'Last Year Leave'])])
-                for a in related_allocations.filtered(lambda r: r.employee_id.working).with_user(self.env.uid):  # Only allocations of working employees
+                for a in related_allocations.filtered(lambda r: r.employee_id.working).sudo(self.env.uid == 1):  # Only allocations of working employees
                     a.name = 'Last Year Leave'
                     related_ot_allocation = AL.search(la_domain + [('employee_id', '=', a.employee_id.id), ('holiday_status_id', '=', last_lt.id), ('name', '=', 'OT Compensation')])
                     if related_ot_allocation:
@@ -2102,7 +2105,7 @@ class KderpHolidaysAllocation(models.Model):
                 # Create Annual Leave (new year)
                 for e in employees:
                     if not AL.search(la_domain + [('employee_id', '=', e.id), ('holiday_status_id', '=', new_lt.id), ('name', '=', 'Annual Leave')]):
-                        new_la = AL.with_user(self.env.uid).create({
+                        new_la = AL.sudo(self.env.uid == 1).create({
                             'name': new_lt.name,
                             'holiday_status_id': new_lt.id,
                             'holiday_type': 'employee',
@@ -2114,7 +2117,7 @@ class KderpHolidaysAllocation(models.Model):
                 # Create OT Compensation if needed
                 for e in employees:
                     if not AL.search(la_domain + [('employee_id', '=', e.id), ('holiday_status_id', '=', new_lt.id), ('name', '=', 'OT Compensation')]):
-                        new_ot = AL.with_user(self.env.uid).create({
+                        new_ot = AL.sudo(self.env.uid == 1).create({
                             'name': 'OT Compensation', 
                             'holiday_status_id': new_lt.id,
                             'holiday_type': 'employee',
@@ -2127,7 +2130,7 @@ class KderpHolidaysAllocation(models.Model):
             
             # if not LT.search(year_lt_domain + [('validity_start', '=', start_dt)]):
             #     try:
-            #         new_lt = LT.with_user(self.env.uid).create({
+            #         new_lt = LT.sudo(self.env.uid == 1).create({
             #             'name': 'Annual Leave',
             #             'allocation_type': 'fixed',  # as default
             #             'exclude_public_holidays': True,  # as default
@@ -2246,13 +2249,13 @@ class KderpHolidaysAllocation(models.Model):
         if add_to_last_year:
             last_al = self.env['hr.leave.allocation'].search([('name', '=', 'Last Year Leave'), ('holiday_status_id', '=', last_lt.id), ('employee_id', '=', employee.id)])
             if last_lt and (not last_al.ot_last_update or (last_al.ot_last_update < at_start_dt)):
-                last_al.with_user(self.env.uid).number_of_days += add_duration
-                last_al.with_user(self.env.uid).ot_last_update = at_start_dt
+                last_al.sudo(self.env.uid == 1).number_of_days += add_duration
+                last_al.sudo(self.env.uid == 1).ot_last_update = at_start_dt
             else:
                 _logger.warning(_('Do not have Last Year Leave!'))
         else:
             if not ot_al:
-                ot_al = self.with_user(self.env.uid).create({
+                ot_al = self.sudo(self.env.uid == 1).create({
                             'name': 'OT Compensation',
                             'holiday_status_id': annual_lt.id,
                             'holiday_type': 'employee',
@@ -2263,8 +2266,8 @@ class KderpHolidaysAllocation(models.Model):
                 ot_al.action_approve()
             else:
                 if not ot_al.ot_last_update or (ot_al.ot_last_update < at_start_dt) or (ot_al.ot_last_update > at_start_dt and allow_past_update):
-                    ot_al.with_user(self.env.uid).with_context(al_message='add_ot_compensation').number_of_days += add_duration
-                    ot_al.with_user(self.env.uid).ot_last_update = at_start_dt if (not ot_al.ot_last_update or ot_al.ot_last_update < at_start_dt) else ot_al.ot_last_update
+                    ot_al.sudo(self.env.uid == 1).with_context(al_message='add_ot_compensation').number_of_days += add_duration
+                    ot_al.sudo(self.env.uid == 1).ot_last_update = at_start_dt if (not ot_al.ot_last_update or ot_al.ot_last_update < at_start_dt) else ot_al.ot_last_update
 
     @api.model
     def recompute_ot_compensation_by_year(self, employee_id, at_year):
@@ -2313,8 +2316,8 @@ class KderpHolidaysAllocation(models.Model):
             - force_update=True: will update number_of_days form hr.employee allocation related fields
             - TODO [X]: update balance must consider remaining leaves for correctioness
         """
-        LT = self.env['hr.leave.type'].with_context(no_filter_leave_type=True).with_user(self.env.uid)
-        AL = self.env['hr.leave.allocation'].with_user(self.env.uid)
+        LT = self.env['hr.leave.type'].with_context(no_filter_leave_type=True).sudo(self.env.uid == 1)
+        AL = self.env['hr.leave.allocation'].sudo(self.env.uid == 1)
         if not employee_ids:
             employees = self.env['hr.employee'].search([('active', '=', True), ('working', '=', True)])
         else:
@@ -2368,7 +2371,7 @@ class KderpHolidaysAllocation(models.Model):
                     })
                     annual_al.action_approve()
                 elif annual_al and force_update:
-                    annual_al.with_user(self.env.uid).update({'number_of_days': annual_days})
+                    annual_al.sudo(self.env.uid == 1).update({'number_of_days': annual_days})
 
                 if not ot_al:
                     if ot_days:
@@ -2487,16 +2490,16 @@ class KderpHolidaysAllocation(models.Model):
                 number_of_days = sum(ot_al.mapped('number_of_days'))
                 keep_ot_al = ot_al.filtered(lambda a: a.ot_last_update == ot_last_update)
                 if keep_ot_al:
-                    keep_ot_al.with_user(self.env.uid).number_of_days = number_of_days
-                    keep_ot_al.with_user(self.env.uid).action_approve()
-                    for a in (ot_al - keep_ot_al).with_user(self.env.uid):
+                    keep_ot_al.sudo(self.env.uid == 1).number_of_days = number_of_days
+                    keep_ot_al.sudo(self.env.uid == 1).action_approve()
+                    for a in (ot_al - keep_ot_al).sudo(self.env.uid == 1):
                         a.action_refuse()
                         a.action_draft()
                         a.unlink()
             if ot_al.ot_last_update:
                 last_al = self.env['hr.leave.allocation'].search([('employee_id', '=', e.id), ('name', '=', 'Last Year Leave')])
                 if last_al:
-                    last_al.with_user(self.env.uid).ot_last_update = ot_al.ot_last_update
+                    last_al.sudo(self.env.uid == 1).ot_last_update = ot_al.ot_last_update
     
     @api.model
     def fix_ot_compensation_3(self, employee_ids = []):
