@@ -2,3 +2,9 @@ from . import test_foundation
 from . import test_status_cases
 from . import test_ot_cases
 from . import test_ah_cases
+from . import test_raw_checks
+from . import test_settings
+from . import test_ot_ah
+from . import test_gm_special_warning
+from . import test_leave_balance
+from . import test_staff_location_push

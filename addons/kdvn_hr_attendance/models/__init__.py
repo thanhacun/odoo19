@@ -5,6 +5,7 @@ from . import hr_mixin
 from . import hr_attendance_rules
 from . import resource_calendar
 from . import hr_employee
+from . import res_users
 from . import hr_attendance_location
 from . import hr_attendance_raw
 from . import hr_attendance_request
