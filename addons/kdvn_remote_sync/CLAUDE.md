@@ -9,3 +9,8 @@ notes: design/kdvn_remote_sync/README.md.
 - Budgets are matched by (job, budget code). Migrations are in migrations/.
 - Not for the website: do not add closed jobs to this sync.
 - Tests: tests/test_sync_pipeline.py, tests/test_sync_endpoint.py.
+
+## Direct pull (19.0.1.3.0)
+Port of kderp_remote_sync 12.0.1.5.0 `models/remote_pull.py` (see ~/odoo12/addons/kderp_remote_sync/CLAUDE.md "Direct pull" for the design and measured load). Reads with the Reader login of kdvn_remote_integration,
+feeds the same pipeline, so n8n and the pull can run together. Two crons (full hourly, changed customers every 5 minutes) ship INACTIVE. Params `kdvn_remote_sync.customer_since` / `kdvn_remote_sync.pull_status`.
+Failure handling uses a savepoint (no cr.rollback). Tests: tests/test_remote_pull.py (8, fake remote).

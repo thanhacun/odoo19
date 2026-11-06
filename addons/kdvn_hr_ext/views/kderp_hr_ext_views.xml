@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_employee_form_kderp_hr_ext" model="ir.ui.view">
+        <field name="name">hr.employee.form.kderp.hr.ext</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="kdvn_hr.inherited_hr_employee_view_form_inherit_kderp_hr"/>
+        <field name="arch" type="xml">
+            <field name="working" position="after">
+                <field name="stop_working_date"/>
+                <field name="official_working_date"/>
+            </field>
+            <xpath expr="//page[@name='kderp_location']" position="after">
+                <page name="kderp_organisation" string="Organisation">
+                    <group>
+                        <group>
+                            <field name="department_id" string="Functional Dept." readonly="1"/>
+                            <field name="parent_id" string="Functional Manager" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="admin_dept_id"/>
+                            <field name="admin_manager_id"/>
+                        </group>
+                    </group>
+                    <group string="Department history">
+                        <field name="department_history_ids" nolabel="1" colspan="2">
+                            <list editable="bottom">
+                                <field name="department_id"/>
+                                <field name="effective_date"/>
+                                <field name="admin_dept_id"/>
+                                <field name="admin_effv_date"/>
+                            </list>
+                        </field>
+                    </group>
+                    <group string="Project history">
+                        <field name="project_history_ids" nolabel="1" colspan="2">
+                            <list editable="bottom">
+                                <field name="project_name"/>
+                                <field name="project_description"/>
+                                <field name="effective_date"/>
+                            </list>
+                        </field>
+                    </group>
+                    <group string="Managers">
+                        <field name="parent_users_dsp" string="Functional users"/>
+                        <field name="admin_manager_users_dsp"/>
+                        <field name="gm_id" string="Functional GM"/>
+                        <field name="admin_gm_id" string="Admin GM"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_department_form_kderp_hr_ext" model="ir.ui.view">
+        <field name="name">hr.department.form.kderp.hr.ext</field>
+        <field name="model">hr.department</field>
+        <field name="inherit_id" ref="hr.view_department_form"/>
+        <field name="arch" type="xml">
+            <field name="manager_id" position="attributes">
+                <attribute name="readonly">1</attribute>
+            </field>
+            <xpath expr="//sheet" position="inside">
+                <notebook>
+                    <page string="Manager history" name="manager_history">
+                        <field name="manager_history_ids">
+                            <list editable="bottom">
+                                <field name="manager_id"/>
+                                <field name="effective_date"/>
+                            </list>
+                        </field>
+                    </page>
+                    <page string="Members" name="members">
+                        <field name="member_ids" widget="many2many"/>
+                        <separator string="Administrative members"/>
+                        <field name="admin_member_ids" widget="many2many"/>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_department_filter_kderp_hr_ext" model="ir.ui.view">
+        <field name="name">hr.department.search.kderp.hr.ext</field>
+        <field name="model">hr.department</field>
+        <field name="inherit_id" ref="hr.view_department_filter"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="code" string="Section Code"/>
+            </field>
+            <xpath expr="//search" position="inside">
+                <filter name="groupby_type" string="Type" context="{'group_by': 'type_id'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

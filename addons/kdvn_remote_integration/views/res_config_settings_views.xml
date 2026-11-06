@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.kdvn.remote.integration</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Remote Server" string="Remote Server" name="kdvn_remote_integration" groups="base.group_system">
+                    <block title="Remote server" name="kderp_remote_server">
+                        <setting id="kderp_remote_server" string="Server"
+                                 help="The KDERP (Odoo 12) server that holds jobs, advance requests and staff. One server, two logins below.">
+                            <div class="mb8">
+                                <label for="kderp_remote_url" class="o_form_label"/>
+                                <field name="kderp_remote_url" placeholder="http://host:8169"/>
+                            </div>
+                            <div class="mb8">
+                                <label for="kderp_remote_db" class="o_form_label"/>
+                                <field name="kderp_remote_db"/>
+                            </div>
+                        </setting>
+                    </block>
+                    <block title="Logins" name="kderp_remote_logins">
+                        <setting id="kderp_remote_writer" string="Writer"
+                                 help="The only login that writes (advance requests, staff locations) and that reads what needs wide visibility. It needs create rights on advance requests and on staff location lines.">
+                            <div class="mb8">
+                                <label for="kderp_remote_writer_login" class="o_form_label"/>
+                                <field name="kderp_remote_writer_login"/>
+                            </div>
+                            <field name="kderp_remote_writer_password_saved" invisible="1"/>
+                            <div class="mb8">
+                                <label for="kderp_remote_writer_password" class="o_form_label"/>
+                                <field name="kderp_remote_writer_password" password="True" placeholder="New password" autocomplete="new-password"/>
+                                <div class="mt4">
+                                    <span class="badge text-bg-success" invisible="not kderp_remote_writer_password_saved"><i class="fa fa-check" role="img" title="Saved"/> Saved</span>
+                                    <span class="badge text-bg-warning" invisible="kderp_remote_writer_password_saved">Not set yet</span>
+                                    <span class="text-muted ms-1">Type a new one only to change it.</span>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting id="kderp_remote_reader" string="Reader"
+                                 help="For plain reads only. Odoo never writes with it. Optional: without a Reader the Writer is used for reads too.">
+                            <div class="mb8">
+                                <label for="kderp_remote_reader_login" class="o_form_label"/>
+                                <field name="kderp_remote_reader_login"/>
+                            </div>
+                            <field name="kderp_remote_reader_password_saved" invisible="1"/>
+                            <div class="mb8">
+                                <label for="kderp_remote_reader_password" class="o_form_label"/>
+                                <field name="kderp_remote_reader_password" password="True" placeholder="New password" autocomplete="new-password"/>
+                                <div class="mt4">
+                                    <span class="badge text-bg-success" invisible="not kderp_remote_reader_password_saved"><i class="fa fa-check" role="img" title="Saved"/> Saved</span>
+                                    <span class="badge text-bg-warning" invisible="kderp_remote_reader_password_saved">Not set yet</span>
+                                    <span class="text-muted ms-1">Type a new one only to change it.</span>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting id="kderp_remote_test" string="Test"
+                                 help="Tests what is typed here (nothing is saved) and reports each login's rights.">
+                            <button name="action_kderp_remote_test_connection" type="object" icon="fa-plug"
+                                    string="Test connection (read only)" class="btn-secondary"/>
+                        </setting>
+                    </block>
+                    <block title="Real writes (one switch per task)" name="kderp_remote_live">
+                        <setting id="kderp_remote_live_advance" string="Advance requests"
+                                 help="OFF = dry run: the advance request is only previewed, never created. Production only; never on dev or on a database copy.">
+                            <field name="kderp_remote_live_advance"/>
+                        </setting>
+                        <setting id="kderp_remote_live_staff_location" string="Staff locations"
+                                 help="OFF = dry run: the staff location send only reports what it would change. Production only; never on dev or on a database copy.">
+                            <field name="kderp_remote_live_staff_location"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_kderp_remote_test_result_form" model="ir.ui.view">
+        <field name="name">kderp.remote.test.result.form</field>
+        <field name="model">kderp.remote.test.result</field>
+        <field name="arch" type="xml">
+            <form string="Remote server connection">
+                <field name="message" nolabel="1"/>
+                <footer>
+                    <button string="Close" class="btn-primary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_kderp_remote_integration_settings" model="ir.actions.act_window">
+        <field name="name">Remote Server Connection</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'module': 'kdvn_remote_integration', 'bin_size': False}</field>
+    </record>
+
+    <menuitem id="menu_kderp_remote_integration_settings" name="Remote Server Connection" parent="base.menu_administration"
+              action="action_kderp_remote_integration_settings" sequence="55" groups="base.group_system"/>
+</odoo>

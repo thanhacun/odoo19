@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="inherited_hr_employee_view_form_inherit_kderp_hr" model="ir.ui.view">
+        <field name="name">hr.employee.form.kderp.hr</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_title')]/h1" position="after">
+                <h5 class="d-flex align-items-baseline mb-0">
+                    <i class="fa fa-id-badge fa-fw me-1 text-primary" title="Staff Code"/>
+                    <field name="code" placeholder="Staff code" required="True" class="w-100 w-sm-75"/>
+                </h5>
+            </xpath>
+            <xpath expr="//page[@name='hr_settings']//group[@name='settings_group']" position="inside">
+                <group string="KDERP" name="kderp_hr">
+                    <field name="working"/>
+                </group>
+            </xpath>
+            <xpath expr="//page[@name='hr_settings']" position="after">
+                <page name="kderp_location" string="Location">
+                    <group>
+                        <field name="current_location_id"/>
+                        <field name="location_ids" nolabel="1" colspan="2">
+                            <list editable="top">
+                                <field name="date"/>
+                                <field name="location_id"/>
+                            </list>
+                        </field>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="inherited_hr_employee_view_tree_inherit_kderp_hr" model="ir.ui.view">
+        <field name="name">hr.employee.list.kderp.hr</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_tree"/>
+        <field name="arch" type="xml">
+            <field name="name" position="before">
+                <field name="code"/>
+            </field>
+            <field name="name" position="after">
+                <field name="current_location_id" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_employee_filter_kderp_inherit" model="ir.ui.view">
+        <field name="name">hr.employee.search.kderp.hr</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_filter"/>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="string">Code/Name/Email</attribute>
+                <attribute name="filter_domain">['|', '|', ('code', 'ilike', self), ('work_email', 'ilike', self), ('name', 'ilike', self)]</attribute>
+            </field>
+            <filter name="message_needaction" position="before">
+                <filter string="Working" name="kderp_working" domain="[('working', '=', True)]"/>
+            </filter>
+        </field>
+    </record>
+
+    <record id="inherited_hr_department_view_form_inherit_kderp_hr" model="ir.ui.view">
+        <field name="name">hr.department.form.kderp.hr</field>
+        <field name="model">hr.department</field>
+        <field name="inherit_id" ref="hr.view_department_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_title')]" position="inside">
+                <field name="code" placeholder="Department code"/>
+            </xpath>
+            <field name="parent_id" position="after">
+                <field name="manager_2nd_id"/>
+                <field name="new_manager"/>
+                <field name="new_man_effective_date" invisible="not new_manager"/>
+                <field name="type_id" options="{'no_quick_create': True}"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="inherited_hr_department_view_tree_inherit_kderp_hr" model="ir.ui.view">
+        <field name="name">hr.department.list.kderp.hr</field>
+        <field name="model">hr.department</field>
+        <field name="inherit_id" ref="hr.view_department_tree"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="code"/>
+            </field>
+            <field name="manager_id" position="after">
+                <field name="manager_2nd_id" optional="show"/>
+            </field>
+        </field>
+    </record>
+</odoo>

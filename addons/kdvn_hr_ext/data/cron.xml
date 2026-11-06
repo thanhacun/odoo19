@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Inactive: switch on when the organisation data is live. Applies history lines that became effective today. -->
+    <record id="cron_sync_current_dept" model="ir.cron">
+        <field name="name">KDERP HR: apply department and manager changes that became effective</field>
+        <field name="model_id" ref="hr.model_hr_employee"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_sync_organisation()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="False"/>
+    </record>
+</odoo>

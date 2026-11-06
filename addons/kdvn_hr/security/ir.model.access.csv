@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_kderp_employee_location_code_read,kderp.employee.location.code.read,model_kderp_employee_location_code,base.group_user,1,0,0,0
+access_kderp_hr_employee_location_read,kderp.hr.employee.location.read,model_kderp_hr_employee_location,base.group_user,1,0,0,0
+access_hr_department_full,hr.department.full,hr.model_hr_department,group_kderp_hr_user_input,1,1,1,1
+access_hr_employee_full,hr.employee.full,hr.model_hr_employee,group_kderp_hr_user_input,1,1,1,1
+access_hr_employee_category_full,hr.employee.category.full,hr.model_hr_employee_category,group_kderp_hr_user_input,1,1,1,1
+access_hr_job_full,hr.job.full,hr.model_hr_job,group_kderp_hr_user_input,1,1,1,1
+access_kderp_employee_location_code_full,kderp.employee.location.code.full,model_kderp_employee_location_code,group_kderp_hr_user_input,1,1,1,1
+access_kderp_hr_employee_location_full,kderp.hr.employee.location.full,model_kderp_hr_employee_location,group_kderp_hr_user_input,1,1,1,1
+access_hr_department_type,hr.department.type,model_hr_department_type,base.group_user,1,0,0,0
+access_hr_departrment_type_full,hr.department.type.full,model_hr_department_type,group_kderp_hr_user_input,1,1,1,1

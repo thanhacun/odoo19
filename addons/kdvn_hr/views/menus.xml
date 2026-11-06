@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <menuitem id="menu_hr_location_code" action="action_kderp_view_hr_location_code"
+              parent="hr.menu_config_employee" sequence="50"/>
+    <menuitem id="menu_hr_employee_location" action="action_kderp_view_hr_employee_location"
+              parent="hr.menu_config_employee" sequence="51"/>
+    <menuitem id="menu_hr_department_type" action="action_kderp_hr_department_type"
+              parent="hr.menu_config_employee" sequence="52"/>
+</odoo>
