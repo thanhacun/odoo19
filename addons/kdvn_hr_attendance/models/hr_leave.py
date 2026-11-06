@@ -744,7 +744,11 @@ class KderpHolidayRequestCover(models.Model):
         """
             - Handling show_ah search
         """
-        if not self.env.context.get('show_ah'):
+        # Odoo 19 reads a record's fields through _search([('id', 'in', ids)]) (Odoo 12 did not): such a lookup
+        # must never hide an AH cover, or reading it fails with a false access error.
+        is_id_lookup = (isinstance(domain, (list, tuple)) and len(domain) == 1
+                        and isinstance(domain[0], (list, tuple)) and tuple(domain[0][:2]) == ('id', 'in'))
+        if not self.env.context.get('show_ah') and not is_id_lookup:
             domain = Domain([('reason_id.code', '!=', 'ah')]) & Domain(domain)
         return super()._search(domain, offset=offset, limit=limit, order=order, **kwargs)
 

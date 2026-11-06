@@ -84,3 +84,8 @@ All 219 module tests pass. What Odoo 19 needed: core computes leave dates (half 
 1. A RE-RUN on a database that already holds imported covers stops in step `organisation` with "OdooBot doesn't have read access to hr.leave.cover" (path: kdvn_hr_ext `_compute_1st_manager` -> employee write -> hr.leave write -> `related_at_ids`). First runs on an empty database work. Next: make the nested reads superuser (or give OdooBot read ACL on the cover model).
 2. 30 allocations failed in the first run because of Odoo 19's "duration > 0" check (fixed by `_duration_check` override, not yet re-verified after the fix).
 3. The Saturday AH days of the trial staff still differ (10 of 65 compared days) because their AH leaves/allocations were not imported in the same run; re-check once issue 1 is fixed.
+
+
+### Leave import issues 1 and 2 (7 Nov 2026)
+1. FIXED. Cause was not OdooBot rights: `hr.leave.cover._search` hides covers with reason `ah` unless `show_ah`, and Odoo 19 reads fields through `_search([('id','in',ids)])` (Odoo 12 did not), so reading an AH cover raised a false access error. Id lookups now skip the filter. Re-run on `kdvn_att_try` (264 staff, 21 Jun - 20 Jul) passes every step.
+2. Allocation "duration > 0": 0 allocation failures (15,048 created, 1,207 updated). New: 2 leave types fail to update ("This modification is not allowed in the current state": type 90 Annual Leave, 96 AH for Jul. 2026) and 1 employee (S1429, still manages sections: data). To look at next.
