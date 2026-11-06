@@ -13,9 +13,395 @@ vn_tz = pytz.timezone(' '.join(pytz.country_timezones('vn')))
 utc_diff = 7
 
 
+class HrMixinManager(models.TransientModel):
+    _name = 'hr.mixin.manager'
+    _description = 'Wizard to pick a manager/employee'
+
+    active_id = fields.Integer()
+    active_model = fields.Char()
+    employee_id = fields.Many2one('hr.employee')
+
+    @api.model
+    def default_get(self, fields_list):
+        defaults = super().default_get(fields_list)
+
+        active_model = self.env.context.get('active_model', False)
+        active_id = self.env.context.get('active_id', False)
+        defaults['active_model'] = active_model
+        defaults['active_id'] = active_id
+
+        return defaults
+
+    @api.onchange('active_id', 'active_model')
+    def compute_employee_domain(self):
+        related_record = False
+        employee_domain = []
+        if self.active_id and self.active_model:
+            related_record = self.env[self.active_model].browse([self.active_id])
+        if related_record:
+            manager_ids = self.env['hr.employee'].sudo().search([]).mapped('admin_manager_id.id')
+            employee_domain = [('id', 'not in', [related_record.employee_id.id, related_record.employee_id.parent_id.id]), ('id', 'in', manager_ids)]
+
+        return {
+            'domain': {'employee_id': employee_domain}
+        }
+
+    def action_save(self):
+        self.ensure_one()
+        related_record = False
+        if self.active_id and self.active_model:
+            related_record = self.env[self.active_model].browse([self.active_id])
+        if related_record and 'approve_manager_id' in related_record:
+            related_record.approve_manager_id = self.employee_id.id
+
+
+class HrMixinRevise(models.TransientModel):
+    _name = 'hr.mixin.revise'
+    _description = 'Wizard to revise a request'
+
+    active_id = fields.Integer()
+    active_model = fields.Char()
+    revise_reason = fields.Char()
+
+
+
 class HrMixin(models.AbstractModel):
     _name = 'hr.mixin'
     _description = 'Sharing class for KDVN Attendance App'
+
+    next_button_visible = fields.Char(compute='_compute_buttons_visible')
+    refuse_button_visible = fields.Boolean(compute='_compute_buttons_visible')
+    revise_button_visible = fields.Boolean(compute='_compute_buttons_visible')
+    need_director_button_visible = fields.Boolean(compute='_compute_buttons_visible')
+    man2_approve = fields.Boolean('Director Approve', default=False)
+    approve_manager_id = fields.Many2one('hr.employee', default=False)
+    refuse_comment = fields.Text(compute='_get_refuse_comment')
+
+    single_mode = fields.Boolean(compute='_compute_single_mode', help='Whether the user is staff or admin/manager?')
+    active = fields.Boolean(default=True, groups='hr_attendance.group_hr_attendance_user')
+
+    # Odoo 12 fields_view_get removed some list columns (employee, request times...) in 'single mode' (staff see only their own rows).
+    # Odoo 19: the list views hide those columns themselves with column_invisible="context.get('attendance_single_mode')" etc.
+
+    def _compute_buttons_visible(self):
+        for r in self:
+            user_groups = r.groups()  # one lookup per record, not one per role
+            # user_groups = self.env.user.all_group_ids
+            user_is_at_staff = user_groups.get('at_staff', False)
+            user_is_hr_staff = user_groups.get('hr_staff', False)
+
+            # TODO [X]: Allow past managers to approve based on view_user_ids
+            user_is_section_man = user_groups.get('section_manager', False) and (r.sudo().employee_id.admin_manager_id.user_id.id == self.env.uid 
+                                                                                or r.sudo().approve_manager_id.user_id.id == self.env.uid 
+                                                                                or r._name == 'hr.attendance' and self.env.uid in r.sudo().view_user_ids.mapped('id'))
+            user_is_hr_manager = user_groups.get('hr_manager', False)
+            user_is_gm = user_groups.get('gm', False) and self.env.uid in r.sudo().employee_id.admin_manager_user_ids.mapped('id')
+            user_is_director = user_groups.get('director', False)
+
+            next_button_visible = False
+            refuse_button_visible = False
+            revise_button_visible = False
+            need_director_button_visible = False
+
+            user_is_employee = r.employee_id.user_id.id == self.env.uid if 'employee_id' in r else False
+
+            if user_is_at_staff:
+                refuse_button_visible = False
+                if r.state == 'draft':
+                    next_button_visible = 'submit'
+                if r.state in ['waiting_fman', 'refuse']:
+                    # next_button_visible = False
+                    revise_button_visible = True
+
+            if user_is_section_man:
+                # submit self request
+                if r.state == 'draft' and user_is_employee:
+                    next_button_visible = 'submit'
+                if r.state == 'waiting_fman':
+                    if not user_is_employee:
+                        refuse_button_visible = True
+                        next_button_visible = 'approve'
+                        # if r._name == 'hr.leave.cover' or (r._name == 'hr.attendance' and (r.leave_cover_ids or r.at_request_ids.filtered(lambda r: r.request_type == 'working_time'))):
+                        #     revise_button_visible = True
+                    else:
+                        revise_button_visible = True
+                if r.state == 'waiting_fhr':
+                    revise_button_visible = True
+
+            if user_is_hr_staff or user_is_hr_manager or self.env.uid == 1:
+                if r.state != 'draft':
+                    revise_button_visible = True
+                else:
+                    revise_button_visible = False
+
+                if r.state == 'draft':
+                    next_button_visible = 'submit'
+                    # if r.employee_id.user_id.id == self.env.uid:
+                    #     next_button_visible = 'submit'
+                    # else:
+                    #     next_button_visible = 'delete'
+
+                if r.state == 'waiting_fman' and user_is_section_man and not user_is_employee:
+                    refuse_button_visible = True
+                    next_button_visible = 'approve'
+
+                if r.state == 'waiting_fhr':
+                    next_button_visible = 'validate'
+                    if not user_is_employee:
+                        refuse_button_visible = True
+                    if user_is_hr_staff or user_is_hr_manager:
+                        need_director_button_visible = True
+
+                related_refuse = self.env['hr.attendance.refuse'].search(['|', ('related_request_id', '=', r.id), ('related_leave_cover_id', '=', r.id)])
+                if related_refuse:
+                    if not user_is_employee:
+                        refuse_button_visible = True
+
+            if user_is_gm:
+                if r.state == 'waiting_fman2':
+                    next_button_visible = 'approve2'
+                    refuse_button_visible = True
+
+            # TODO [X]: for hr.attendance revise and refuse button should only show when there is ONLY ONE request or no request at all
+            if r._name == 'hr.attendance':
+                if not all([not r.at_request_ids and (r.leave_cover_ids and len(r.leave_cover_ids) == 1), not r.leave_cover_ids and (r.at_request_ids and len(r.at_request_ids) == 1)]) <= 1:
+                    revise_button_visible = False
+                    refuse_button_visible = False
+
+            # TODO [X]: for hr.leave, hr.leave.cover: show revise button for AH Leave created by OdooBot so that user can make change
+            if r._name == 'hr.leave.cover':
+                if revise_button_visible == False and len(r) == 1 and len(r.leave_request_ids) == 1 and r.leave_request_ids.holiday_status_id.is_ah and r.create_uid.id == 1 and r.state in ['done'] and user_is_at_staff:
+                    revise_button_visible = True
+
+            r.update({'next_button_visible': next_button_visible, 'refuse_button_visible': refuse_button_visible,
+                      'revise_button_visible': revise_button_visible, 'need_director_button_visible': need_director_button_visible})
+
+    def _compute_single_mode(self):
+        for r in self:
+            user_groups = r.groups()
+            is_at_staff = user_groups['at_staff']
+            is_admin_or_manager = any([user_groups['hr_staff'], user_groups['hr_manager'], 
+                                       user_groups['section_admin'], user_groups['section_manager'], user_groups['director']])
+            r.single_mode = is_at_staff and not is_admin_or_manager
+
+    def _get_refuse_comment(self):
+        for r in self:
+            refuse_domain = []
+            if r._name == 'hr.attendance.request':
+                refuse_domain = [('related_request_id', '=', r.id)]
+            if r._name == 'hr.leave.cover':
+                refuse_domain = [('related_leave_cover_id', '=', r.id)]
+            r.refuse_comment = self.env['hr.attendance.refuse'].search(refuse_domain, limit=1).name or ''
+
+    # ====== ACTIONS ======
+    def action_need_director(self):
+        if any([r.state != 'waiting_fhr' for r in self]):
+            raise UserError(_('Only records in the state [HR validate] can ask for Director approve!'))
+        for r in self:
+            r.man2_approve = True
+            r.action_validate()
+
+    def action_validate(self):
+        # if any([r.state != 'waiting_fhr' for r in self]):
+        #     raise UserError(_('Only records in [Waiting for HR] state can validate!'))
+
+        is_odoo_bot = self.env.uid == 1
+        for r in self:
+            if r.state != 'waiting_fhr' and not is_odoo_bot:
+                raise UserError(_('Only records in [HR validated] state can be validated! REF.: {}').format(r))
+            if not r.man2_approve and not is_odoo_bot:
+                reasons = r._gm_reasons()
+                if reasons:
+                    r._set_need_gm(reasons)
+            if r.man2_approve:
+                r.state = 'waiting_fman2'
+            else:
+                r.state = 'done'
+
+    def _gm_reasons(self):
+        """Why this leave cover / OT-WT request needs the GM (RQ-12): company limits that have a value (0 = off). [] = HR alone."""
+        self.ensure_one()
+        company = self.env.user.company_id
+        reasons = []
+        if self._name == 'hr.leave.cover':
+            limit = company.gm_leave_days_limit
+            if limit and self.number_of_days > limit:
+                reasons.append(_('leave of %s days (limit %s)') % (self.number_of_days, limit))
+            limit = company.gm_absence_days_limit
+            if limit:
+                absence = sum(self.leave_request_ids.filtered(lambda l: l.holiday_status_id.category == 'absence').mapped('number_of_days'))
+                if absence > limit:
+                    reasons.append(_('%s Absence days (limit %s)') % (absence, limit))
+        elif self._name == 'hr.attendance.request' and self.at_id:
+            limit = company.gm_ot_over_hours_limit
+            if limit and self.request_type == 'over_time':
+                summary = self.at_id.sudo().summary_id
+                over = (summary.exceed_wd_overtime or 0) + (summary.exceed_hd_overtime or 0)
+                if over > limit:
+                    reasons.append(_('OT %s hours over the allowed OT of the month (limit %s)') % (over, limit))
+            if company.gm_late_request and self.create_date:
+                ot_before, wt_before, _days = self._request_cutoffs()
+                before = ot_before if self.request_type == 'over_time' else wt_before
+                created = pytz.utc.localize(self.create_date).astimezone(vn_tz).replace(tzinfo=None)
+                if before and created > before:
+                    reasons.append(_('request registered after the cutoff (%s)') % before.strftime('%d-%b-%Y %H:%M'))
+        return reasons
+
+    def _set_need_gm(self, reasons):
+        """Same effect as the HR button 'Need director': the record (and its attendance) waits for the GM."""
+        for r in self:
+            r.man2_approve = True
+            ats = r.at_id if r._name == 'hr.attendance.request' else r.related_at_ids()
+            ats.sudo().write({'man2_approve': True})
+            target = r if hasattr(r, 'message_post') else ats[:1]
+            if target:
+                target.sudo().message_post(body=_('Sent to the GM automatically: %s') % '; '.join(reasons))
+
+    # @api.multi
+    # def action_set_done(self):
+    #     """
+    #         - Force state=done
+    #         - ! only for hr admin
+    #     """
+    #     for r in self:
+    #         r.state = 'done'
+
+    def action_change_approve_manager(self):
+        """
+            - Common action to change approve manager for temporary short time
+            - Using wizard to pick the manager employee_id
+        """
+        # [X] TODO STILL cannot change domain for field here
+        # Using onchange method
+        self.ensure_one()
+
+        action = {
+            "type": "ir.actions.act_window",
+            "name": "Change approve manager",
+            "res_model": "hr.mixin.manager",
+            "views": [(False, "form")],
+            "view_mode": "tree,form",
+            "target": "new"
+        }
+
+        return action
+
+    def _set_draft(self, record):
+        if record._name == 'hr.attendance':
+            record.with_context(set_draft=True).state_id = self.env.ref('kderp_hr_attendance.state_draft').id
+        if record._name in ['hr.attendance.request', 'hr.leave.cover']:
+            record.with_context(set_draft=True).state = 'draft'
+
+    def action_revise(self):
+        for r in self:
+            user_is_at_staff = r.groups().get('at_staff', False)
+            user_is_hr_staff = r.groups().get('hr_staff', False)
+            user_is_section_man = r.groups().get('section_manager', False) and r.sudo().employee_id.admin_manager_id.user_id.id == self.env.uid
+            user_is_hr_manager = r.groups().get('hr_manager', False)
+            user_is_employee = r.employee_id.user_id.id == self.env.uid if 'employee_id' in r else False
+            if user_is_at_staff:
+                if r.state in ['refuse', 'waiting_fman']:
+                    self._set_draft(r)
+                elif r.state == 'done' and r.create_uid.id == 1:
+                    self._set_draft(r)
+            if user_is_section_man and r.state in ['refuse', 'waiting_fman', 'waiting_fhr']:
+                self._set_draft(r)
+            if user_is_hr_staff or user_is_hr_manager and r.state not in ['draft']:
+                self._set_draft(r)
+            if r.state == 'draft' and r.man2_approve:
+                r.man2_approve = False
+
+    def action_refuse(self):
+        # [X] TODO: recalculate ot => move to hr.attendance.refuse save method
+        # TODO [X]: open comment/refuse 
+        # TODO []: refuse in attendance
+        self.ensure_one()
+        refuse_model_id = False
+        refuse_record_id = False
+        if self._name == 'hr.attendance.request':
+            refuse_model_id = 'related_request_id'
+            refuse_record_id = self.id
+        if self._name == 'hr.leave.cover':
+            refuse_model_id = 'related_leave_cover_id'
+            refuse_record_id = self.id
+        if self._name == 'hr.attendance':
+            if self.at_request_ids and len(self.at_request_ids) == 1 and not self.leave_cover_ids:
+                refuse_model_id = 'related_request_id'
+                refuse_record_id = self.at_request_ids.id
+            elif self.leave_cover_ids and len(self.leave_cover_ids) == 1 and not self.at_request_ids:
+                refuse_model_id = 'related_leave_cover_id'
+                refuse_record_id = self.leave_cover_ids.id
+            else:
+                return False
+
+        refuse = self.env['hr.attendance.refuse']
+        if refuse_model_id:
+            refuse = self.env['hr.attendance.refuse'].search([(refuse_model_id, '=', self.id)], limit=1)
+
+        action = {
+            "type": "ir.actions.act_window",
+            "name": "Open refuse comment",
+            "res_model": "hr.attendance.refuse",
+            "views": [(False, "form")],
+            "view_mode": "tree,form",
+            "domain": [],
+            # "res_id": refuse.id if refuse else self.env['hr.attendance.refuse'].create({refuse_model_id: self.id}).id,
+            "res_id": refuse.id if refuse else False,
+            "target": "new",
+            "context": {'default_%s' %refuse_model_id: refuse_record_id}
+        }
+
+        return action
+
+    def action_unlink(self):
+        """
+            - !NOTE: DANGER SHOULD use with care (need confirm)
+        """
+        for r in self:
+            user_is_employee = r.employee_id.user_id.id == self.env.uid if 'employee_id' in r else False
+            user_is_hr_staff = r.groups().get('hr_staff', False)
+            user_is_hr_manager = r.groups().get('hr_manager', False)
+            if r._name in ['hr.attendance.request', 'hr.leave.cover'] and r.state == 'draft' and (user_is_employee or user_is_hr_staff or user_is_hr_manager):
+                r.unlink()
+
+    def action_toggle_active(self):
+        for r in self:
+            r.active = not r.active
+
+    # ====== CRUD Methods =====
+    def write(self, values):
+        result = super().write(values)
+        # Sync approve_manager_id (only when it is written)
+        if self._name == 'hr.attendance' and 'approve_manager_id' in values:
+            for a in self:
+                if not a.approve_manager_id and 'approve_manager_id' in values:
+                    # Clear approve_manager_id
+                    for c in a.leave_cover_ids:
+                        if c.approve_manager_id:
+                            c.approve_manager_id = False
+                        other_at_ids = c.related_at_ids() - a
+                        if other_at_ids:
+                            for at in other_at_ids:
+                                if at.approve_manager_id:
+                                    at.approve_manager_id = False
+                    for r in a.at_request_ids:
+                        if r.approve_manager_id:
+                            r.approve_manager_id = False
+                if a.approve_manager_id:
+                    # Set approve_manager_id
+                    for c in a.leave_cover_ids:
+                        if not c.approve_manager_id:
+                            c.approve_manager_id = a.approve_manager_id
+                        other_at_ids = c.related_at_ids() - a
+                        if other_at_ids:
+                            for at in other_at_ids:
+                                if not at.approve_manager_id:
+                                    at.approve_manager_id = a.approve_manager_id
+                    for r in a.at_request_ids:
+                        if not r.approve_manager_id:
+                            r.approve_manager_id = a.approve_manager_id
+
+        return result
 
     # ====== COMMON Methods =====
     @api.model

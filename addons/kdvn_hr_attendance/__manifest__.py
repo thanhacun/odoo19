@@ -10,7 +10,7 @@ The computation code is ported literally: payroll depends on its results. See do
     'category': 'Human Resources/Attendances',
     'author': 'Kinden Vietnam',
     'license': 'LGPL-3',
-    'depends': ['hr_attendance', 'hr_holidays', 'kdvn_hr_ext'],
+    'depends': ['hr_attendance', 'hr_holidays', 'hr_org_chart', 'kdvn_base', 'kdvn_hr_ext'],
     'data': [
         'security/hr_attendance_security.xml',
         'security/ir.model.access.csv',

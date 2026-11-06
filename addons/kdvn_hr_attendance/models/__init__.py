@@ -3,3 +3,14 @@ from . import hr_holidays_public
 from . import hr_attendance_rule
 from . import hr_mixin
 from . import hr_attendance_rules
+from . import hr_employee
+from . import hr_attendance_location
+from . import hr_attendance_raw
+from . import hr_attendance_request
+from . import hr_attendance_main
+from . import hr_attendance_summary
+from . import hr_leave
+from . import hr_employee_location
+from . import hr_attendance_location_setup
+from . import res_config_settings
+from . import staff_location_sync
