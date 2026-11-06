@@ -155,6 +155,20 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
         default = self._state.get('policy_calendar')
         if default and self._tags_get('resource_calendar', default):
             self.env.company.resource_calendar_id = self._tags_get('resource_calendar', default)
+        # employees keep the working calendar and time zone they had in Odoo 12. Otherwise an adopted employee stays on Odoo 19's
+        # default calendar / UTC, working hours are read as UTC and leaves created on the company calendar never reduce them.
+        resources = {r['id']: r for r in self._legacy_rows('resource_resource', ['id', 'calendar_id', 'tz'])}
+        for row in self._legacy_rows('hr_employee', ['id', 'resource_id']):
+            employee = self._record('hr.employee', 'hr_employee', row['id'])
+            res = resources.get(row['resource_id']) or {}
+            calendar_id = self._tags_get('resource_calendar', res.get('calendar_id'))
+            vals = {}
+            if calendar_id and employee and employee.resource_calendar_id.id != calendar_id:
+                vals['resource_calendar_id'] = calendar_id
+            if res.get('tz') and employee and employee.resource_id.tz != res['tz']:
+                vals['tz'] = res['tz']
+            if vals:
+                self._safe('hr_employee', row['id'], 'calendar', lambda employee=employee, vals=vals: employee.write(vals))
 
     def _step_at_holidays(self):
         self._load_countries()

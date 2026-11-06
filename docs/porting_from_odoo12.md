@@ -92,3 +92,9 @@ All 219 module tests pass. What Odoo 19 needed: core computes leave dates (half 
 
 BUSINESS RULE (Thanh, 7 Nov 2026): the payroll system (third party) does not accept a day with two leave types. Technically Odoo can create them, but we must not allow or produce them; any day with two types in an import or parity run is to be explained. Also in addons/kdvn_hr_attendance/CLAUDE.md.
 Leave types 90 (Annual Leave) / 96 (AH Jul. 2026) re-run update failure: the type write recomputes durations of their VALIDATED leaves in an env that lost the skip flag (`leave_skip_state_check` set on run and step did not help); only metadata of those 2 types stays stale on a re-run, nothing else is lost. Not solved; low priority.
+
+
+### Parity, 21 Oct - 20 Nov 2026 (7 Nov 2026): 4,488 of 4,488 days identical
+284 working staff, full import of the window incl. covers, leaves, allocations and calendar entries into `kdvn_att_try`, then every imported attendance day recomputed in Odoo 19 (`tools/parity_attendance.py`, rolled back) and compared with the stored Odoo 12 values (status marks, absence, OT hours, working/holiday hours, late/early): **0 differences** (before the fix: 15, all Saturday AH days).
+Cause of the 15: the importer left adopted employees on Odoo 19's default calendar / time zone UTC, so their working hours were read as UTC and the AH leave (on the company calendar, Asia/Ho_Chi_Minh) never removed the Saturday work. The calendars step (`at_calendars`) now copies each employee's Odoo 12 calendar and time zone. Tests 232/232 (attendance + import).
+Earlier parity window 21 Jun - 20 Jul (the 11 differences) should be re-run the same way. Stage B logic is therefore proven against real data for this window; the open stage B items are screens, leave type data, leave report, mail templates (see table).
