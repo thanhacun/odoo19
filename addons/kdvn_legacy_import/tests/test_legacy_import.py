@@ -22,7 +22,7 @@ FIXTURE = {
                     {'id': 102, 'name': 'Staff One', 'email': 'staff@x.test'}, {'id': 103, 'name': 'Leaver One', 'email': None}],
     'ir_model_data': [{'module': 'kderp_hr', 'name': 'group_kderp_hr_user_input', 'model': 'res.groups', 'res_id': 501},
                       {'module': 'base', 'name': 'group_system', 'model': 'res.groups', 'res_id': 502},
-                      {'module': 'kderp_hr_attendance', 'name': 'group_hr_attendance_gm', 'model': 'res.groups', 'res_id': 503}],
+                      {'module': 'kderp_hr_procedures', 'name': 'group_peak_time_functional_manager', 'model': 'res.groups', 'res_id': 503}],
     'res_groups_users_rel': [{'gid': 501, 'uid': 11}, {'gid': 502, 'uid': 11}, {'gid': 503, 'uid': 10}],
     'hr_employee': [
         {'id': 20, 'code': 'IB001', 'name': 'Boss One', 'working': True, 'active': True, 'user_id': 10, 'parent_id': None, 'admin_manager_id': None, 'coach_id': None,
@@ -51,6 +51,8 @@ class TestLegacyImport(TransactionCase):
         data = self.data
 
         def fake(model, table, columns, where=None):
+            if columns is None:
+                return [dict(row) for row in data.get(table, [])]
             return [dict({c: None for c in columns}, **{k: v for k, v in row.items() if k in columns}) for row in data.get(table, [])]
         patcher = mock.patch.object(type(self.env['kdvn.legacy.import']), '_legacy_rows', fake)
         patcher.start()
@@ -151,7 +153,7 @@ class TestLegacyImport(TransactionCase):
         user = self.env['res.users'].search([('login', '=', 'imp_staff')])
         self.assertIn(self.env.ref('kdvn_hr.group_kderp_hr_user_input'), user.group_ids)
         self.assertFalse(user.has_group('base.group_system'), 'base groups are never copied')
-        self.assertEqual(out['stats'][('legacy group not mapped', 'kderp_hr_attendance.group_hr_attendance_gm')], 1)
+        self.assertEqual(out['stats'][('legacy group not mapped', 'kderp_hr_procedures.group_peak_time_functional_manager')], 1)
 
     def test_password_option(self):
         self.imp.run(password='dev-pass-1')

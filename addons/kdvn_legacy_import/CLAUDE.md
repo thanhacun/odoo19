@@ -10,3 +10,8 @@ Re-runnable import of Odoo 12 data (dev test data now, go-live migration later).
 - `password` option (dev only) sets one password on all imported users. Never use it on a real database.
 - Wizard: Settings > Technical > Import from Odoo 12 (system admins). From code / shell: `env['kdvn.legacy.import'].run(employee_codes=[...], working_only=True, password='...', dry_run=True)`.
 - Tests use a small fake snapshot (no `legacy12` needed): `-u kdvn_legacy_import --test-tags /kdvn_legacy_import` (12 tests).
+
+## Attendance data (7 Nov 2026)
+`models/legacy_import_attendance.py` adds steps when kdvn_hr_attendance is installed: company policy, calendars, public holidays, face machines, state/status code mapping, rules (+ members), attendance days of the window (+ status marks), raw checks, requests, OT holiday plans. Window = wizard/`run(date_from=, date_to=)`; staff = the selected employees. Stored Odoo 12 values are copied as they are (`do_not_run_at_status`): nothing is recomputed.
+Not imported yet: leave covers, leaves, allocations (stage B), refuse log, summaries (SQL views, follow the data), photos.
+Trial (scratch DB, 8 staff + managers = 34 staff, 21 Oct - 20 Nov 2026): 408 attendance days, 271 raw checks, 259 rules in ~35 s. Parity check (recompute in Odoo 19 vs Odoo 12 stored): 381 of 408 identical, OT hours 100 % identical; the 27 differences are Saturday AH days (need stage B).

@@ -63,6 +63,8 @@ class KdvnLegacyImport(models.AbstractModel):
                 existing = {r['column_name'] for r in cr.fetchall()}
                 if not existing:
                     return []
+                if columns is None:
+                    columns = sorted(existing)
                 wanted = [c for c in columns if c in existing]
                 cr.execute('SELECT %s FROM "%s"%s' % (', '.join('"%s"' % c for c in wanted), table, ' WHERE ' + where if where else ''
                 ) + (' ORDER BY id' if 'id' in existing else ''))
@@ -142,14 +144,14 @@ class KdvnLegacyImport(models.AbstractModel):
 
     # ------------------------------------------------------------------ run
     @api.model
-    def run(self, employee_codes=None, working_only=False, password=None, dry_run=False, steps=None):
+    def run(self, employee_codes=None, working_only=False, password=None, dry_run=False, steps=None, date_from=None, date_to=None):
         """Import the selected employees with everything they need. Returns {'stats': {...}, 'errors': [...], 'log': text}.
         employee_codes: list of staff codes (None / empty = everybody); their managers are always added.
         working_only: skip leavers. password: set on every imported user (dev only; None = no password).
         dry_run: do everything, then roll back."""
         self = self.with_context(tracking_disable=True, mail_notrack=True, mail_create_nolog=True, no_reset_password=True,
                                  kdvn_defer_org_refresh=True, kdvn_skip_working_check=True)
-        state = {'tags': {}, 'stats': Counter(), 'errors': [], 'options': {'password': password}, 'legacy_employees': {}, 'department_rows': []}
+        state = {'tags': {}, 'stats': Counter(), 'errors': [], 'options': {'password': password, 'date_from': date_from, 'date_to': date_to}, 'legacy_employees': {}, 'department_rows': []}
         self = self.with_context(kdvn_import_state=state)
         state['tags'] = {(name.rsplit('_', 1)[0], int(name.rsplit('_', 1)[1])): res_id for name, res_id in self._tag_map().items()}
         self._select_employees(employee_codes, working_only)
