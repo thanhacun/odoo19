@@ -35,3 +35,28 @@ Odoo 19 core addons for checks live in the container: `docker exec odoo19 ls /us
 
 For each module: read the Odoo 12 module's CLAUDE.md / readme first, port models, then views (Odoo 17+ syntax: `<list>`, `invisible=` expressions, no `attrs`), security, then tests; run
 `docker exec odoo19 odoo -c /etc/odoo/odoo.conf -d kdvn_test -u <module> --test-tags /<module> --stop-after-init --http-port=8079 --gevent-port=8082`.
+
+
+## Step 4: kdvn_hr_attendance (read 7 Nov 2026)
+Source: ~/odoo12/addons/kderp_hr_attendance (15.7k py lines; read its CLAUDE.md and attendance_rules.md first: rule ids TM-, RW-, ST-, AH-, OT-, AL-, RQ-, LV-).
+**Payroll depends on the results (status marks, OT hours, allowance, leave days, allocations): the computation code is ported literally, only the Odoo API is adapted. Nothing is "improved" while porting.**
+Proof of equality (the real test): the Odoo 12 module has `scripts/at_baseline.py` (+ compare). When stages A-C are in, the same period and the same employees are computed in Odoo 12 and in Odoo 19 (data from kdvn_legacy_import) and the results compared; every difference is explained before the stage is called done. Unit tests per rule id come first.
+
+Decisions:
+- `hr.attendance` stays `_inherit = 'hr.attendance'` (same table/model name). Odoo 19 core also has its own overtime engine (`hr.attendance.overtime.line`, `overtime_hours`...): ours does not use it; core constraints that clash with one-record-per-employee-per-day are overridden where needed (noted below).
+- Public holidays: Odoo 19 has no hr_holidays_public. Our module defines the two OCA models itself (`hr.holidays.public`, `hr.holidays.public.line`: year, country, lines, variable date, states) plus our additions (company day, substitute, calendar, memo).
+- Optional python libs: `lunarcalendar` and `pyodbc` are NOT in the Odoo 19 image. `to_lunar` imports lazily; the SQL Server (bizone) link is stage E.
+- Attendance approvals stay on the attendance state machine (not tier validation), as in Odoo 12.
+- Groups: our groups live in kdvn_hr_attendance with the same names; Odoo 12 changed core group records (`hr_attendance.group_hr_attendance_user` name/implied); in Odoo 19 we add implied ids instead of renaming core records.
+
+Stages (each: port, unit tests from the rule doc, commit, update this table):
+| Stage | Content | State |
+|---|---|---|
+| A1 | module, company policy (`res.company` fields, `at_policy`), groups, `hr.attendance.rule` (+ `_at_rules`, merge by sequence, memo), public holidays (own models), `hr.mixin` time helpers (AT month/year, AT day start, early offset, holidays, Saturday rules), `is_no_sat_working`, `_is_holiday` | in progress |
+| A2 | `hr.attendance.location` (machines), `hr.attendance.raw` + status, raw -> `hr.attendance` sync, `hr.attendance` fields and state model, record views | todo |
+| A3 | `_compute_in_out`, `_compute_at_status` (marks), `_compute_ot_hour`, OT allowance, `hr.attendance.summary` | todo |
+| B | time off: `hr.leave.cover` / `hr.leave` / types / allocations on Odoo 19 `hr_holidays` (core was rewritten: durations, allocation flow), AH allocations, annual leave, OT compensation | todo |
+| C | requests (`hr.attendance.request`: working time, overtime), workflow buttons of `hr.mixin`, refuse log, OT holiday plan, GM approval settings, notification emails | todo |
+| D | reports, wizards, summaries, dashboards | todo |
+| E | face-machine feed, remote staff sync, bizone SQL Server | todo (not needed for dev data) |
+| Import | kdvn_legacy_import steps for each stage's tables (raw checks, attendance, requests, leaves, allocations) | follows each stage |
