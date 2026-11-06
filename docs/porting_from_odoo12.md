@@ -8,7 +8,7 @@ Odoo 19 core addons for checks live in the container: `docker exec odoo19 ls /us
   Every imported record is tagged with its Odoo 12 id (external id `legacy12.<table>_<id>`), so a second run updates instead of duplicating; limit by date range / employees. The same tool becomes the go-live data migration.
 - Real names and details are copied (dev only); an anonymise switch can be added later.
 - Order: foundation -> attendance (in stages) -> e-approval and its procedures.
-- Naming: `kderp_x` becomes `kdvn_x`.
+- Naming: module `kderp_x` becomes `kdvn_x`; model technical names and config parameter keys stay `kderp.*` / `kderp_remote.*` (as already done in kdvn_remote_sync), so data and later Odoo 12 changes map 1:1.
 
 ## Dependencies on Odoo 19 (checked 6 Nov 2026)
 | Odoo 12 dependency | Odoo 19 |
@@ -23,7 +23,8 @@ Odoo 19 core addons for checks live in the container: `docker exec odoo19 ls /us
 ## Modules, simple to complicated
 | Step | Odoo 12 module (py lines) | Odoo 19 module | State |
 |---|---|---|---|
-| 1 | kderp_remote_integration (307) | kdvn_remote_integration; kdvn_remote_sync switches from n8n push to direct pull (Odoo 12 version: kderp_remote_sync 12.0.1.5.0) | todo |
+| 1a | kderp_remote_integration (307) | kdvn_remote_integration 19.0.1.0.0: DONE 6 Nov, 18 tests pass on kdvn_test, install clean. Settings page = Settings > Remote Server Connection (app block). Not yet tried against the real remote: fill the page on odoo19_dev and press Test. |
+| 1b | kderp_remote_sync 12.0.1.5.0 direct pull | kdvn_remote_sync: add the direct pull (crons inactive) next to the n8n push | todo |
 | 2 | kderp_hr_ext (1014) | kdvn_hr_ext (department / manager / project history) | todo |
 | 3 | import tool | kdvn_legacy_import (employees, departments, users first) | todo |
 | 4 | kderp_hr_attendance (16763) | kdvn_hr_attendance, in stages: A records, machines, locations, rules; B time off, allocations, public holidays; C requests (working time, overtime, leave) with approval; D summaries and reports; E face-machine feed (not needed in dev, raw data comes from the import) | todo |
