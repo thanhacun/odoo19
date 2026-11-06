@@ -149,7 +149,7 @@ class KdvnLegacyImport(models.AbstractModel):
         employee_codes: list of staff codes (None / empty = everybody); their managers are always added.
         working_only: skip leavers. password: set on every imported user (dev only; None = no password).
         dry_run: do everything, then roll back."""
-        self = self.with_context(tracking_disable=True, mail_notrack=True, mail_create_nolog=True, no_reset_password=True,
+        self = self.sudo().with_context(tracking_disable=True, mail_notrack=True, mail_create_nolog=True, no_reset_password=True,
                                  kdvn_defer_org_refresh=True, kdvn_skip_working_check=True)
         state = {'tags': {}, 'stats': Counter(), 'errors': [], 'options': {'password': password, 'date_from': date_from, 'date_to': date_to}, 'legacy_employees': {}, 'department_rows': []}
         self = self.with_context(kdvn_import_state=state)

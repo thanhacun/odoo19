@@ -44,6 +44,11 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
                 ('at_raw', self._step_at_raw),
                 ('at_requests', self._step_at_requests),
                 ('at_ot_plans', self._step_at_ot_plans),
+                ('lv_reasons', self._step_lv_reasons),
+                ('lv_types', self._step_lv_types),
+                ('lv_allocations', self._step_lv_allocations),
+                ('lv_leaves', self._step_lv_leaves),
+                ('lv_links', self._step_lv_links),
             ]
         return steps
 
@@ -97,6 +102,8 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
             field = fields_.get(column)
             if not field or not field.store or field.type in ('one2many', 'many2many', 'binary', 'html') or field.compute and not field.store:
                 continue
+            if value is None and field.required:
+                continue   # an empty Odoo 12 value must not blank a required Odoo 19 field (dates of allocations...)
             if field.type == 'many2one':
                 value = self._map_m2o(field.comodel_name, value)
             elif value is not None and field.type == 'integer':
@@ -250,3 +257,94 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
         plans = {t[1] for t in self._state['tags'] if t[0] == 'hr_attendance_ot_holiday'}
         self._copy_table('hr_attendance_ot_holiday_line', 'hr.attendance.ot.holiday.line', filter_row=lambda row: row['ot_holiday_reg_id'] in plans,
                          natural=lambda row, vals: [('ot_holiday_reg_id', '=', vals.get('ot_holiday_reg_id')), ('at_date', '=', row['at_date'])])
+
+    # ------------------------------------------------------------------ time off
+    def _set_state(self, record, state):
+        """Copy the Odoo 12 state without running the Odoo 19 approval flow (no mails, no balance checks, no calendar entries)."""
+        if state and record.state != state:
+            record._write({'state': state})
+
+    def _step_lv_reasons(self):
+        self._copy_table('hr_leave_cover_reason', 'hr.leave.cover.reason', natural=lambda row, vals: [('code', '=', row['code'])] if row.get('code') else [('name', '=', row['name'])])
+
+    def _step_lv_types(self):
+        def extra(row, vals):
+            res = {'leave_validation_type': row.get('validation_type') if row.get('validation_type') in ('no_validation', 'hr', 'manager', 'both') else 'hr',
+                    'allocation_validation_type': 'hr',
+                    'request_unit': row.get('request_unit') if row.get('request_unit') in ('day', 'half_day', 'hour') else 'half_day'}
+            if not self._tags_get('hr_leave_type', row['id']):   # Odoo 19 refuses to change it once leaves exist
+                res['requires_allocation'] = row.get('allocation_type') != 'no'
+            return res
+        self._copy_table('hr_leave_type', 'hr.leave.type', extra=extra, skip=('validation_type', 'request_unit'),
+                         natural=lambda row, vals: [('name', '=', row['name']), ('validity_start', '=', row.get('validity_start') or False)],
+                         context={'no_filter_leave_type': True})
+
+    def _step_lv_allocations(self):
+        legacy_emp = set(self._state['legacy_employees'])
+        self._copy_table('hr_leave_allocation', 'hr.leave.allocation', filter_row=lambda row: row['employee_id'] in legacy_emp,
+                         natural=lambda row, vals: None, skip=('state', 'holiday_type'), context={'no_filter_leave_type': True, 'leave_skip_state_check': True})
+        states = {r['id']: r['state'] for r in self._legacy_rows('hr_leave_allocation', ['id', 'state'])}
+        for legacy_id, state in states.items():
+            res_id = self._tags_get('hr_leave_allocation', legacy_id)
+            if res_id:
+                self._set_state(self.env['hr.leave.allocation'].browse(res_id), state)
+
+    def _step_lv_leaves(self):
+        legacy_emp = set(self._state['legacy_employees'])
+        where = None
+        opts = self._state['options']
+        parts = []
+        if opts.get('date_from'):
+            parts.append("date(date_to) >= '%s'" % _iso(opts['date_from']))
+        if opts.get('date_to'):
+            parts.append("date(date_from) <= '%s'" % _iso(opts['date_to']))
+        where = ' AND '.join(parts) or None
+        leaves = [r for r in self._legacy_rows('hr_leave', None, where=where) if r['employee_id'] in legacy_emp]
+        covers = {r['leave_cover_id'] for r in leaves if r.get('leave_cover_id')}
+        ctx = {'kdvn_legacy_import': True, 'do_not_run_at_status': True, 'leave_skip_state_check': True, 'leave_skip_date_check': True, 'do_not_update_at_leave_ids': True,
+               'no_filter_leave_type': True}
+        self._copy_table('hr_leave_cover', 'hr.leave.cover', filter_row=lambda row: row['id'] in covers, skip=('state', 'leave_request_ids'), context=ctx)
+        leave_ids = {r['id'] for r in leaves}
+        self._copy_table('hr_leave', 'hr.leave', where=where, filter_row=lambda row: row['id'] in leave_ids, skip=('state',), context=ctx)
+        for row in leaves:
+            res_id = self._tags_get('hr_leave', row['id'])
+            if res_id:
+                self._set_state(self.env['hr.leave'].browse(res_id), row['state'])
+        cover_states = {r['id']: r['state'] for r in self._legacy_rows('hr_leave_cover', ['id', 'state']) if r['id'] in covers}
+        for legacy_id, state in cover_states.items():
+            res_id = self._tags_get('hr_leave_cover', legacy_id)
+            if res_id:
+                cover = self.env['hr.leave.cover'].browse(res_id)
+                if cover.state != state:
+                    cover._write({'state': state})
+        # calendar entries of the validated leaves (the status computation reads them)
+        resource_of = {r['id']: r['resource_id'] for r in self._legacy_rows('hr_employee', ['id', 'resource_id'])}
+        emp_of_resource = {}
+        for legacy_emp_id, resource in resource_of.items():
+            emp = self._tags_get('hr_employee', legacy_emp_id)
+            if emp:
+                emp_of_resource[resource] = self.env['hr.employee'].browse(emp).resource_id.id
+        done = 0
+        for row in self._legacy_rows('resource_calendar_leaves', None, where="holiday_id IS NOT NULL"):
+            leave = self._tags_get('hr_leave', row['holiday_id'])
+            if not leave:
+                continue
+            vals = {'name': row['name'], 'date_from': row['date_from'], 'date_to': row['date_to'], 'holiday_id': leave,
+                    'resource_id': emp_of_resource.get(row['resource_id'], False), 'time_type': row.get('time_type') or 'leave',
+                    'calendar_id': self._tags_get('resource_calendar', row['calendar_id']) or self.env.company.resource_calendar_id.id}
+            self._safe('resource_calendar_leaves', row['id'], '', lambda row=row, vals=vals: self._upsert(
+                'resource.calendar.leaves', 'resource_calendar_leaves', row['id'], vals))
+            done += 1
+        self._state['stats'][('resource_calendar_leaves', 'rows read')] += done
+
+    def _step_lv_links(self):
+        """hr.attendance.leave_cover_ids (which covers touch an attendance day)."""
+        ats = {t[1]: v for t, v in self._state['tags'].items() if t[0] == 'hr_attendance'}
+        covers = {t[1]: v for t, v in self._state['tags'].items() if t[0] == 'hr_leave_cover'}
+        links = {}
+        for r in self._legacy_rows('hr_attendance_hr_leave_cover_rel', None):
+            if r['hr_attendance_id'] in ats and r['hr_leave_cover_id'] in covers:
+                links.setdefault(ats[r['hr_attendance_id']], []).append(covers[r['hr_leave_cover_id']])
+        for at_id, cover_ids in links.items():
+            self._safe('hr_attendance', at_id, 'leave covers', lambda at_id=at_id, cover_ids=cover_ids: self.env['hr.attendance'].browse(at_id).with_context(
+                do_not_run_at_status=True).write({'leave_cover_ids': [(6, 0, cover_ids)]}))

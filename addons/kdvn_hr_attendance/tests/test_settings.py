@@ -71,21 +71,21 @@ class TestGMLimitsAndCutoff(ATCase):
     def test_rq12_default_all_limits_off_hr_validates_alone(self):
         emp = self.new_employee()
         cover = self.new_leave(emp, datetime.date(2026, 3, 11), state='waiting_fhr')
-        cover.sudo(2).action_validate()
+        cover.with_user(2).action_validate()
         self.assertEqual((cover.state, cover.man2_approve), ('done', False))
 
     def test_rq12_leave_days_over_limit_goes_to_gm(self):
         self.env.user.company_id.gm_leave_days_limit = 0.5
         emp = self.new_employee()
         cover = self.new_leave(emp, datetime.date(2026, 3, 11), state='waiting_fhr')   # 1 day > 0.5
-        cover.sudo(2).action_validate()
+        cover.with_user(2).action_validate()
         self.assertEqual((cover.state, cover.man2_approve), ('waiting_fman2', True))
 
     def test_rq12_leave_within_limit_stays_with_hr(self):
         self.env.user.company_id.gm_leave_days_limit = 5
         emp = self.new_employee()
         cover = self.new_leave(emp, datetime.date(2026, 3, 11), state='waiting_fhr')
-        cover.sudo(2).action_validate()
+        cover.with_user(2).action_validate()
         self.assertEqual(cover.state, 'done')
 
     def test_rq12_late_request_goes_to_gm(self):
@@ -97,7 +97,7 @@ class TestGMLimitsAndCutoff(ATCase):
         self.new_rule(emp)
         at = self.new_at(emp, datetime.date(2026, 3, 11), (8, 0), (19, 0))
         req = self.new_ot(at, 'pm', (17, 0), (19, 0), state='waiting_fhr')
-        req.sudo(2).action_validate()
+        req.with_user(2).action_validate()
         self.assertEqual((req.state, req.man2_approve), ('waiting_fman2', True))
 
     def test_rq12_late_request_flag_off_hr_validates_alone(self):
@@ -107,7 +107,7 @@ class TestGMLimitsAndCutoff(ATCase):
         self.new_rule(emp)
         at = self.new_at(emp, datetime.date(2026, 3, 11), (8, 0), (19, 0))
         req = self.new_ot(at, 'pm', (17, 0), (19, 0), state='waiting_fhr')
-        req.sudo(2).action_validate()
+        req.with_user(2).action_validate()
         self.assertEqual(req.state, 'done')
 
     def test_rq12_ot_over_monthly_limit_goes_to_gm(self):
@@ -118,7 +118,7 @@ class TestGMLimitsAndCutoff(ATCase):
         at = self.new_at(emp, datetime.date(2026, 3, 11), (8, 0), (19, 0))
         req = self.new_ot(at, 'pm', (17, 0), (19, 0), state='waiting_fhr')
         at._compute_at_status(force_run=True)
-        req.sudo(2).action_validate()
+        req.with_user(2).action_validate()
         self.assertEqual((req.state, req.man2_approve), ('waiting_fman2', True))
 
     def test_rq12_ot_within_monthly_limit_stays_with_hr(self):
@@ -128,7 +128,7 @@ class TestGMLimitsAndCutoff(ATCase):
         at = self.new_at(emp, datetime.date(2026, 3, 11), (8, 0), (19, 0))
         req = self.new_ot(at, 'pm', (17, 0), (19, 0), state='waiting_fhr')
         at._compute_at_status(force_run=True)
-        req.sudo(2).action_validate()
+        req.with_user(2).action_validate()
         self.assertEqual(req.state, 'done')
 
 

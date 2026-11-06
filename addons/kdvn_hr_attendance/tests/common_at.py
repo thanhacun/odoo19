@@ -33,7 +33,12 @@ class ATCase(common.TransactionCase):
         self.AT.clear_at_rules_memo()
         self._ensure_leave_types()
         # production calendars use the Vietnam timezone: the attendance code reads working hours from the calendar in its timezone
-        self.env.company.resource_calendar_id.tz = 'Asia/Ho_Chi_Minh'
+        cal = self.env.company.resource_calendar_id
+        cal.tz = 'Asia/Ho_Chi_Minh'
+        # KDVN default calendar: Monday to Saturday 08:00-12:00 and 13:00-17:00 (the 44/48-hour week); Odoo 19's demo calendar has no Saturday
+        if not cal.attendance_ids.filtered(lambda a: a.dayofweek == '5'):
+            cal.write({'attendance_ids': [(0, 0, {'name': 'Saturday %s' % period, 'dayofweek': '5', 'hour_from': frm, 'hour_to': to, 'day_period': period})
+                                          for period, frm, to in (('morning', 8.0, 12.0), ('afternoon', 13.0, 17.0))]})
         # Sequences are not rolled back, so every test run burns employee ids. The summary index on hr_attendance is
         # (employee_id * 1000000 + year * 100 + month)::integer and overflows above employee id 2147 ("integer out of
         # range" on any attendance write). Put the sequence back to the real maximum before each test (test databases only).

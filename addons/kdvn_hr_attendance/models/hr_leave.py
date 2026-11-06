@@ -636,7 +636,7 @@ class KderpHolidayRequestCover(models.Model):
         return records
 
     def _legacy_create(self, values):
-        if not values.get('leave_request_ids'):
+        if not values.get('leave_request_ids') and not self.env.context.get('kdvn_legacy_import'):   # the legacy import creates the cover first, its leaves after
             raise ValidationError(_('Leave cover without leaves! Please check your data!'))
         cover_ids = super(KderpHolidayRequestCover, self.with_context(mail_create_nolog=True)).create(values)
         for c in cover_ids:
@@ -857,12 +857,10 @@ class KderpHolidaysRequest(models.Model):
     holiday_status_id = fields.Many2one(domain=[])
 
     # request type
+    holiday_type = fields.Selection([('employee', 'By Employee')], default='employee', string='Allocation Mode')   # Odoo 12 core field
     request_date_from_pm = fields.Boolean('Afternoon', default=False)
     request_date_from_period = fields.Selection(default=False)
     request_date_to_am = fields.Boolean('Morning', default=False)
-    request_unit_half = fields.Boolean(default=False)
-    request_unit_hours = fields.Boolean(default=False)
-    request_unit_custom = fields.Boolean(default=False)
     same_request_date = fields.Boolean(compute='_is_same_request_date')
     # duration
     date_from = fields.Datetime(tracking=False)
@@ -1145,8 +1143,8 @@ class KderpHolidaysRequest(models.Model):
         # Update Leave cover dates
         for h in self:
             if date_changed or period_changed:
-                h.leave_cover_id._compute_date()
-            effected_at_ids |= h.leave_cover_id.related_at_ids()
+                h.sudo().leave_cover_id._compute_date()
+            effected_at_ids |= h.sudo().leave_cover_id.related_at_ids()
 
         # Update related_at_ids leave_cover_ids, leave_ids
         if date_changed:
@@ -1389,92 +1387,52 @@ class KderpHolidaysRequest(models.Model):
 
     @api.onchange('request_date_from_pm', 'request_date_to_am')
     def onchange_period(self):
-        """
-            - Running this method as onchange decoration trigger save dialog in subform
-            => use constrains instead
-        """
+        """Morning / afternoon tick boxes -> request_date_from_period / request_date_to_period (read by the Odoo 19 core date computation).
+        Same day: morning only = am/am, afternoon only = pm/pm. Several days: first day afternoon only (from=pm), last day morning only (to=am)."""
         for holiday in self:
             if holiday.same_request_date:
                 if holiday.request_date_from_pm and not holiday.request_date_to_am:
-                    holiday.request_date_from_period = 'pm'
-                    holiday._onchange_request_parameters()
+                    holiday.request_date_from_period = holiday.request_date_to_period = 'pm'
                 elif holiday.request_date_to_am and not holiday.request_date_from_pm:
-                    holiday.request_date_from_period = 'am'
-                    holiday._onchange_request_parameters()
-                else:   # not holiday.request_date_from_pm and not holiday.request_date_to_am
-                    holiday.request_date_from_period = False
-                    holiday._onchange_request_parameters()
+                    holiday.request_date_from_period = holiday.request_date_to_period = 'am'
+                else:
+                    holiday.request_date_from_period = holiday.request_date_to_period = False
             else:
                 holiday.request_date_from_period = 'pm' if holiday.request_date_from_pm else False
                 holiday.request_date_to_period = 'am' if holiday.request_date_to_am else False
-                holiday._onchange_request_parameters()
 
-    
+    @api.depends('leave_type_request_unit')
+    def _compute_request_unit_half(self):
+        """KDVN leave is always counted in days and half days."""
+        for holiday in self:
+            holiday.request_unit_half = True
+
+    @api.depends('leave_type_request_unit')
+    def _compute_request_unit_hours(self):
+        for holiday in self:
+            holiday.request_unit_hours = False
+
     # ###################################
     # APIS
     # ###################################
 
-    @api.onchange('request_date_from_period', 'request_date_to_period',
-                  'request_hour_from', 'request_hour_to', 'request_date_from', 'request_date_to',
-                  'employee_id')
     def _onchange_request_parameters(self):
-        # override
-        # Not use request_unit_hours, request_unit_custom here
-        # [X] TODO: calculate halfday without request_unit_half
+        """Odoo 12 computed date_from / date_to here. In Odoo 19 core `_compute_date_from_to` does (it supports half days through the periods)."""
+        return
 
-        if not self.request_date_from:
-            self.date_from = False
-            return
+    def action_draft(self):
+        """Odoo 12 'To Submit' state does not exist in Odoo 19 (states: confirm, refuse, validate1, validate, cancel): back to 'confirm'."""
+        return self.with_context(leave_skip_state_check=True).write({'state': 'confirm'})
 
-        if self.request_unit_half or self.request_unit_hours:
-            self.request_date_to = self.request_date_from
-
-        if not self.request_date_to:
-            self.date_to = False
-            return
-
-        domain = [('calendar_id', '=', self.employee_id.resource_calendar_id.id or self.env.user.company_id.resource_calendar_id.id)]
-        attendances = self.env['resource.calendar.attendance'].read_group(domain, ['ids:array_agg(id)', 'hour_from:min(hour_from)', 'hour_to:max(hour_to)', 'dayofweek', 'day_period'], ['dayofweek', 'day_period'], lazy=False)
-
-        # Must be sorted by dayofweek ASC and day_period DESC
-        attendances = sorted([DummyAttendance(group['hour_from'], group['hour_to'], group['dayofweek'], group['day_period']) for group in attendances], key=lambda att: (att.dayofweek, att.day_period != 'morning'))
-
-        default_value = DummyAttendance(0, 0, 0, 'morning')
-
-        # find first attendance coming after first_day
-        attendance_from = next((att for att in attendances if int(att.dayofweek) >= self.request_date_from.weekday()), attendances[0] if attendances else default_value)
-        # find last attendance coming before last_day
-        attendance_to = next((att for att in reversed(attendances) if int(att.dayofweek) <= self.request_date_to.weekday()), attendances[-1] if attendances else default_value)
-
-        # Compute for halfday cases
-        # !NOTE: if self.request_date_to_period is set, it's always 'am'
-        # TODO []: not enough cases for hour_from, hour_to causing assign before use error
-        if self.request_date_from_period and not self.request_date_to_period:
-            if self.request_date_from_period == 'am':
-                hour_from = float_to_time(attendance_from.hour_from)
-                hour_to = float_to_time(attendance_from.hour_to)
+    def _onchange_leave_dates(self):
+        """Odoo 12 core method (set number_of_days from date_from/date_to), gone in Odoo 19 where the duration is a compute."""
+        for leave in self:
+            if leave.date_from and leave.date_to:
+                days, hours = leave._get_durations()[leave.id]
+                leave.number_of_days = days
+                leave.number_of_hours = hours
             else:
-                hour_from = float_to_time(attendance_to.hour_from)
-                hour_to = float_to_time(attendance_to.hour_to)
-        elif self.request_date_from_period and self.request_date_to_period:
-            if self.request_date_to_period == 'am':
-                self.request_date_to_period == 'pm'
-            if self.request_date_from_period == 'pm' and self.request_date_to_period == 'am':
-                hour_from = float_to_time(attendance_to.hour_from)
-                hour_to = float_to_time(attendance_from.hour_to)
-
-        elif not self.request_date_from_period and self.request_date_to_period:
-            hour_from = float_to_time(attendance_from.hour_from)
-            hour_to = float_to_time(attendance_from.hour_to)
-
-        else:
-            hour_from = float_to_time(attendance_from.hour_from)
-            hour_to = float_to_time(attendance_to.hour_to)
-
-        self.date_from = timezone(self.tz).localize(datetime.datetime.combine(self.request_date_from, hour_from)).astimezone(utc).replace(tzinfo=None)
-        self.date_to = timezone(self.tz).localize(datetime.datetime.combine(self.request_date_to, hour_to)).astimezone(utc).replace(tzinfo=None)
-
-        self._onchange_leave_dates()
+                leave.number_of_days = 0
 
     # override
     def _onchange_employee_id(self):
@@ -1826,6 +1784,19 @@ class KderpHolidaysAllocation(models.Model):
     _description = "KDERP Leave Allocation"
     _inherit = ['hr.leave.allocation']
 
+    # Odoo 19 refuses allocations of 0 days; Odoo 12 had expired grants with 0 days (kept as history)
+    _duration_check = models.Constraint("CHECK( number_of_days >= 0 OR allocation_type != 'regular' )", 'The duration cannot be negative.')
+
+    holiday_type = fields.Selection([('employee', 'By Employee')], default='employee', string='Allocation Mode')   # Odoo 12 core field
+
+    @api.depends('holiday_status_id', 'number_of_days')
+    def _compute_description(self):
+        """Odoo 19 renames an allocation every time its days change ('Annual Leave (2.5 day(s))'). KDVN finds allocations by their name
+        ('OT Compensation', 'Last Year Leave') and Odoo 12 never renamed them: only give a name when there is none."""
+        for allocation in self:
+            if not allocation.name:
+                allocation.name = allocation._get_title()
+
     @api.model_create_multi
     def create(self, vals_list):
         """Odoo 19 allocations have their own validity dates (date_from defaults to today) and a leave needs an allocation that covers its
@@ -1842,7 +1813,6 @@ class KderpHolidaysAllocation(models.Model):
     # name = fields.Char(states={'draft': [('readonly', False)], 'confirm': [('readonly', False)], 'validate': [('readonly', False)]})
     # override to allow choosing holiday type in the future (next month AH for example)
     holiday_status_id = fields.Many2one(domain=[])
-    number_of_days_display = fields.Float()
     validity_start = fields.Date(related='holiday_status_id.validity_start')
     validity_stop = fields.Date(related='holiday_status_id.validity_stop')
     leaves_taken_past = fields.Float('Past leaves', compute='_compute_remaining_leaves', help='Compute by leave type.')
@@ -1868,7 +1838,8 @@ class KderpHolidaysAllocation(models.Model):
     def _search_is_expired(self, operator, value):
         today = fields.Date.context_today(self)
         expired = ('holiday_status_id.is_special', '=', True), ('holiday_status_id.category', '=', 'other'), ('valid_to', '<', today)
-        positive = (operator == '=') == bool(value)
+        wanted = (True in value) if operator in ('in', 'not in') else bool(value)   # Odoo 19 rewrites '=' into 'in'
+        positive = wanted if operator in ('=', 'in') else not wanted
         if positive:
             return ['&', '&'] + list(expired)
         return ['|', '|', ('holiday_status_id.is_special', '=', False), ('holiday_status_id.category', '!=', 'other'), '|', ('valid_to', '=', False), ('valid_to', '>=', today)]
@@ -2106,7 +2077,7 @@ class KderpHolidaysAllocation(models.Model):
             # Special Leave yyyy-1, yyyy-2, yyyy-3: NO changes
             new_lt = LT.search(year_lt_domain + [('validity_start', '=', start_dt)])
             if not new_lt:
-                new_lt = LT.sudo(self.env.uid).create({
+                new_lt = LT.sudo(self.env.uid == 1).create({
                         'name': 'Annual Leave',
                         'allocation_type': 'fixed',  # as default
                         'exclude_public_holidays': True,  # as default
@@ -2122,7 +2093,7 @@ class KderpHolidaysAllocation(models.Model):
             if last_lt:
                 last_lt.name = 'Last Year Leave'
                 related_allocations = AL.search(la_domain + [('holiday_status_id', '=', last_lt.id), ('name', 'in', ['Annual Leave', 'Last Year Leave'])])
-                for a in related_allocations.filtered(lambda r: r.employee_id.working).sudo(self.env.uid):  # Only allocations of working employees
+                for a in related_allocations.filtered(lambda r: r.employee_id.working).sudo(self.env.uid == 1):  # Only allocations of working employees
                     a.name = 'Last Year Leave'
                     related_ot_allocation = AL.search(la_domain + [('employee_id', '=', a.employee_id.id), ('holiday_status_id', '=', last_lt.id), ('name', '=', 'OT Compensation')])
                     if related_ot_allocation:
@@ -2134,7 +2105,7 @@ class KderpHolidaysAllocation(models.Model):
                 # Create Annual Leave (new year)
                 for e in employees:
                     if not AL.search(la_domain + [('employee_id', '=', e.id), ('holiday_status_id', '=', new_lt.id), ('name', '=', 'Annual Leave')]):
-                        new_la = AL.sudo(self.env.uid).create({
+                        new_la = AL.sudo(self.env.uid == 1).create({
                             'name': new_lt.name,
                             'holiday_status_id': new_lt.id,
                             'holiday_type': 'employee',
@@ -2146,7 +2117,7 @@ class KderpHolidaysAllocation(models.Model):
                 # Create OT Compensation if needed
                 for e in employees:
                     if not AL.search(la_domain + [('employee_id', '=', e.id), ('holiday_status_id', '=', new_lt.id), ('name', '=', 'OT Compensation')]):
-                        new_ot = AL.sudo(self.env.uid).create({
+                        new_ot = AL.sudo(self.env.uid == 1).create({
                             'name': 'OT Compensation', 
                             'holiday_status_id': new_lt.id,
                             'holiday_type': 'employee',
@@ -2159,7 +2130,7 @@ class KderpHolidaysAllocation(models.Model):
             
             # if not LT.search(year_lt_domain + [('validity_start', '=', start_dt)]):
             #     try:
-            #         new_lt = LT.sudo(self.env.uid).create({
+            #         new_lt = LT.sudo(self.env.uid == 1).create({
             #             'name': 'Annual Leave',
             #             'allocation_type': 'fixed',  # as default
             #             'exclude_public_holidays': True,  # as default
@@ -2278,13 +2249,13 @@ class KderpHolidaysAllocation(models.Model):
         if add_to_last_year:
             last_al = self.env['hr.leave.allocation'].search([('name', '=', 'Last Year Leave'), ('holiday_status_id', '=', last_lt.id), ('employee_id', '=', employee.id)])
             if last_lt and (not last_al.ot_last_update or (last_al.ot_last_update < at_start_dt)):
-                last_al.sudo(self.env.uid).number_of_days += add_duration
-                last_al.sudo(self.env.uid).ot_last_update = at_start_dt
+                last_al.sudo(self.env.uid == 1).number_of_days += add_duration
+                last_al.sudo(self.env.uid == 1).ot_last_update = at_start_dt
             else:
                 _logger.warning(_('Do not have Last Year Leave!'))
         else:
             if not ot_al:
-                ot_al = self.sudo(self.env.uid).create({
+                ot_al = self.sudo(self.env.uid == 1).create({
                             'name': 'OT Compensation',
                             'holiday_status_id': annual_lt.id,
                             'holiday_type': 'employee',
@@ -2295,8 +2266,8 @@ class KderpHolidaysAllocation(models.Model):
                 ot_al.action_approve()
             else:
                 if not ot_al.ot_last_update or (ot_al.ot_last_update < at_start_dt) or (ot_al.ot_last_update > at_start_dt and allow_past_update):
-                    ot_al.sudo(self.env.uid).with_context(al_message='add_ot_compensation').number_of_days += add_duration
-                    ot_al.sudo(self.env.uid).ot_last_update = at_start_dt if (not ot_al.ot_last_update or ot_al.ot_last_update < at_start_dt) else ot_al.ot_last_update
+                    ot_al.sudo(self.env.uid == 1).with_context(al_message='add_ot_compensation').number_of_days += add_duration
+                    ot_al.sudo(self.env.uid == 1).ot_last_update = at_start_dt if (not ot_al.ot_last_update or ot_al.ot_last_update < at_start_dt) else ot_al.ot_last_update
 
     @api.model
     def recompute_ot_compensation_by_year(self, employee_id, at_year):
@@ -2345,8 +2316,8 @@ class KderpHolidaysAllocation(models.Model):
             - force_update=True: will update number_of_days form hr.employee allocation related fields
             - TODO [X]: update balance must consider remaining leaves for correctioness
         """
-        LT = self.env['hr.leave.type'].with_context(no_filter_leave_type=True).sudo(self.env.uid)
-        AL = self.env['hr.leave.allocation'].sudo(self.env.uid)
+        LT = self.env['hr.leave.type'].with_context(no_filter_leave_type=True).sudo(self.env.uid == 1)
+        AL = self.env['hr.leave.allocation'].sudo(self.env.uid == 1)
         if not employee_ids:
             employees = self.env['hr.employee'].search([('active', '=', True), ('working', '=', True)])
         else:
@@ -2400,7 +2371,7 @@ class KderpHolidaysAllocation(models.Model):
                     })
                     annual_al.action_approve()
                 elif annual_al and force_update:
-                    annual_al.sudo(self.env.uid).update({'number_of_days': annual_days})
+                    annual_al.sudo(self.env.uid == 1).update({'number_of_days': annual_days})
 
                 if not ot_al:
                     if ot_days:
@@ -2519,16 +2490,16 @@ class KderpHolidaysAllocation(models.Model):
                 number_of_days = sum(ot_al.mapped('number_of_days'))
                 keep_ot_al = ot_al.filtered(lambda a: a.ot_last_update == ot_last_update)
                 if keep_ot_al:
-                    keep_ot_al.sudo(self.env.uid).number_of_days = number_of_days
-                    keep_ot_al.sudo(self.env.uid).action_approve()
-                    for a in (ot_al - keep_ot_al).sudo(self.env.uid):
+                    keep_ot_al.sudo(self.env.uid == 1).number_of_days = number_of_days
+                    keep_ot_al.sudo(self.env.uid == 1).action_approve()
+                    for a in (ot_al - keep_ot_al).sudo(self.env.uid == 1):
                         a.action_refuse()
                         a.action_draft()
                         a.unlink()
             if ot_al.ot_last_update:
                 last_al = self.env['hr.leave.allocation'].search([('employee_id', '=', e.id), ('name', '=', 'Last Year Leave')])
                 if last_al:
-                    last_al.sudo(self.env.uid).ot_last_update = ot_al.ot_last_update
+                    last_al.sudo(self.env.uid == 1).ot_last_update = ot_al.ot_last_update
     
     @api.model
     def fix_ot_compensation_3(self, employee_ids = []):
