@@ -1433,7 +1433,7 @@ class KderpHrAttendance(models.Model):
 
         ats = self.search([])
 
-        for at in ats.sudo(self.env.uid):
+        for at in ats.with_user(self.env.uid):
             if at.check_in_manual and at.check_in and at.check_in_manual == at.check_in:
                 # reset check_in_manual
                 at.check_in_manual = False
@@ -1887,7 +1887,7 @@ class KderpHrAttendance(models.Model):
                     
                     if update_ah:  # to 1/2 AH or either full AH
                         _logger.warning(f'===== Update this AH {at.at_date} to {"AH" if affected_at else "1/2 AH"}')
-                        at.leave_cover_ids.sudo(self.env.uid).with_context(do_not_run_at_status=True).action_revise()
+                        at.leave_cover_ids.with_user(self.env.uid).with_context(do_not_run_at_status=True).action_revise()
                         holiday = at.leave_cover_ids.leave_request_ids
                         holiday.update(update_ah)
                         holiday.onchange_period()

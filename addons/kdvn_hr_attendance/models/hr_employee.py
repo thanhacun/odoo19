@@ -42,7 +42,6 @@ class Employee(models.Model):
     joining_date = fields.Date(string="Start Working Date")
 
     ot_apply = fields.Boolean(compute='compute_ot_apply', store=True, readonly=True)
-    resource_calendar_id = fields.Many2one('resource.calendar')
 
     # Remote staff code for sync back attendance data for salary purpose
     remote_code = fields.Char(help='Staff code at remote working site')

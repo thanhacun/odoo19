@@ -262,7 +262,7 @@ class KderpHrEmployeeLocationFromAttendance(models.Model):
                                  [{'employee_id': l['employee_id'], 'date': l['date'], 'location_id': l['location_id']}])
                     created += 1
                 except UserError as e:
-                    failed.append({'code': l['code'], 'date': l['date'], 'error': e.name})
+                    failed.append({'code': l['code'], 'date': l['date'], 'error': str(e)})
             result.update(status='partial' if failed else 'ok', created=created, failed=failed)
         _logger.info('Staff locations: %s staff checked; remote result: %s', len(payload['staff']), {k: v for k, v in result.items() if k != 'preview'})
         return len(payload['staff']), result
@@ -311,5 +311,5 @@ class KderpHrEmployeeLocationFromAttendance(models.Model):
         try:
             self.action_push_to_remote()
         except UserError as e:
-            _logger.error('Staff locations: scheduled send failed: %s', e.name)
+            _logger.error('Staff locations: scheduled send failed: %s', e)
         return True

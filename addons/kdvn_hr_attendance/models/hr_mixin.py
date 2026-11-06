@@ -235,6 +235,8 @@ class HrMixin(models.AbstractModel):
         elif self._name == 'hr.attendance.request' and self.at_id:
             limit = company.gm_ot_over_hours_limit
             if limit and self.request_type == 'over_time':
+                self.env.flush_all()   # the monthly summary is a SQL view: Odoo 19 does not flush pending attendance writes by itself
+                self.env.invalidate_all()
                 summary = self.at_id.sudo().summary_id
                 over = (summary.exceed_wd_overtime or 0) + (summary.exceed_hd_overtime or 0)
                 if over > limit:
@@ -453,7 +455,7 @@ class HrMixin(models.AbstractModel):
             early_offset = self.env['hr.attendance']._at_rules(employee_id=employee_id, at_date=at_date)['early_offset'] or 0
         # for early checkin requested by at_date
         if not early_offset and at_date and 'hr.attendance.request' in self.env:   # the model comes with stage C
-            early_request_domain = [('sub_request_type_id.code', '=', 'early_in'), ('employee_id', '=', employee_id if isinstance(employee_id, int) else employee_id.id), ('at_id.at_date', '=', at_date)]
+            early_request_domain = [('sub_request_type_id.code', '=', 'early_in'), ('employee_id', '=', employee_id if isinstance(employee_id, int) else (employee_id.id if employee_id else 0)), ('at_id.at_date', '=', at_date)]
             early_request = self.env['hr.attendance.request'].sudo().with_context(active_test=False).search(early_request_domain)
 
             # at_domain = [('employee_id', '=', employee_id if isinstance(employee_id, int) else employee_id.id), ('at_date', '=', at_date)]
