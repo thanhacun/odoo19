@@ -23,3 +23,6 @@ Optional libs not in the Odoo 19 image: `lunarcalendar` (lazy import in `to_luna
 - Test prerequisite: the company resource calendar must be in timezone Asia/Ho_Chi_Minh (tests/common_at.py sets it); `get_at_time` reads calendar hours in the calendar's timezone.
 - Views: Odoo 12 views were converted by `tools/port_view.py` (+ `tools/primary_attendance_views.py`: the four hr.attendance views are standalone now). Dropped because they need a rewrite: kanban views (`kanban-box`/`t-raw`), Odoo 12 JS widgets and assets (timepicker, boolean_toggle variants, bus listener, systray...). Menus: `views/hr_attendance_menu_structure.xml` + `views/hr_attendance_menus.xml`; core Odoo 19 entries we do not use are limited to administrators.
 - All scheduled actions ship INACTIVE.
+
+## Business rule: ONE leave type per day (payroll)
+The salary system (third-party app, reads our results) does not accept a day that carries two different leave types. Never "fix" a conflict by letting two types coexist on one day (e.g. AH + another type, or two half-day covers of different types); keep the Odoo 12 checks that refuse it and port them literally. When a parity or import run shows a day with two types, treat it as a data/rule problem to explain, not something to allow. Noted 7 Nov 2026 (Thanh).
