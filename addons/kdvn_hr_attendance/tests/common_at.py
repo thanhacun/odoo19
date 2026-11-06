@@ -31,12 +31,29 @@ class ATCase(common.TransactionCase):
         self._n = 0
         self.ot_type = {t.code: t for t in self.env['hr.attendance.request.type'].search([])}
         self.AT.clear_at_rules_memo()
+        self._ensure_leave_types()
         # production calendars use the Vietnam timezone: the attendance code reads working hours from the calendar in its timezone
         self.env.company.resource_calendar_id.tz = 'Asia/Ho_Chi_Minh'
         # Sequences are not rolled back, so every test run burns employee ids. The summary index on hr_attendance is
         # (employee_id * 1000000 + year * 100 + month)::integer and overflows above employee id 2147 ("integer out of
         # range" on any attendance write). Put the sequence back to the real maximum before each test (test databases only).
         self.env.cr.execute("SELECT setval('hr_employee_id_seq', (SELECT max(id) FROM hr_employee))")
+
+    def _ensure_leave_types(self):
+        """Leave types that exist in the Odoo 12 database (HR created them) and that the tests look up by name or category."""
+        Type = self.env['hr.leave.type'].with_context(no_filter_leave_type=True)
+        specs = [
+            ('Annual Leave', {'category': 'annual_leave', 'validity_start': datetime.date(2025, 12, 21), 'validity_stop': datetime.date(2026, 12, 20)}),
+            ('Absence', {'category': 'absence', 'requires_allocation': False}),
+            ('Substitute Leave', {'category': 'sub_holiday', 'requires_allocation': False}),
+            ('Special Leave', {'category': 'other', 'is_special': True}),
+            ('AH for Jul. 2026', {'category': 'other', 'is_ah': True, 'validity_start': datetime.date(2026, 6, 21), 'validity_stop': datetime.date(2026, 7, 20)}),
+        ]
+        for name, extra in specs:
+            if not Type.search([('name', '=', name)], limit=1):
+                vals = {'name': name, 'leave_validation_type': 'hr', 'allocation_validation_type': 'hr', 'time_type': 'leave', 'request_unit': 'half_day'}
+                vals.update(extra)
+                Type.create(vals)
 
     # ---- fixtures -------------------------------------------------------------------------------------------------
     def new_employee(self, **extra):

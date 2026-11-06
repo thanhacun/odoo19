@@ -627,8 +627,15 @@ class KderpHolidayRequestCover(models.Model):
                 at.with_context(do_not_run_at_status=do_not_run_at_status)._compute_at_status()
 
     # ===== CRUD =====
-    @api.model
-    def create(self, values):
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Odoo 19 passes a list of dicts; the Odoo 12 body below handles one dict at a time."""
+        records = self.browse()
+        for vals in vals_list:
+            records |= self._legacy_create(vals)
+        return records
+
+    def _legacy_create(self, values):
         if not values.get('leave_request_ids'):
             raise ValidationError(_('Leave cover without leaves! Please check your data!'))
         cover_ids = super(KderpHolidayRequestCover, self.with_context(mail_create_nolog=True)).create(values)
@@ -853,7 +860,6 @@ class KderpHolidaysRequest(models.Model):
     request_date_from_pm = fields.Boolean('Afternoon', default=False)
     request_date_from_period = fields.Selection(default=False)
     request_date_to_am = fields.Boolean('Morning', default=False)
-    request_date_to_period = fields.Selection([('am', 'Morning')], string="To Date Period")
     request_unit_half = fields.Boolean(default=False)
     request_unit_hours = fields.Boolean(default=False)
     request_unit_custom = fields.Boolean(default=False)
@@ -1103,8 +1109,15 @@ class KderpHolidaysRequest(models.Model):
     #         self._validate_sub_date()
 
     # ===== CRUD =====
-    @api.model
-    def create(self, values):
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Odoo 19 passes a list of dicts; the Odoo 12 body below handles one dict at a time."""
+        records = self.browse()
+        for vals in vals_list:
+            records |= self._legacy_create(vals)
+        return records
+
+    def _legacy_create(self, values):
         holiday = super().create(values)
         for h in holiday:
             if self.env.context.get('run_holiday_onchange', False):
@@ -1687,6 +1700,16 @@ class KderpHolidaysType(models.Model):
                 new_leave_ids = new_leave_ids.filtered(lambda r: show_leave_type(r))
             return self.browse(new_leave_ids.ids[:limit])._as_query()
         return query
+
+    valid = fields.Boolean(compute='_compute_valid', search='_search_valid', help='This indicates if it is still possible to use this type of leave')   # Odoo 12 core field, gone in Odoo 19
+
+    def _search_valid(self, operator, value):
+        wanted = (True in value) if operator in ('in', 'not in') else bool(value)
+        if operator in ('!=', 'not in'):
+            wanted = not wanted
+        types = self.with_context(no_filter_leave_type=True, active_test=False).search([], order='id')
+        ids = types.filtered(lambda t: t.valid).ids
+        return [('id', 'in' if wanted else 'not in', ids)]
 
     def _compute_valid(self):
         """

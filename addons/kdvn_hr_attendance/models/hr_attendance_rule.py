@@ -249,8 +249,15 @@ class HrAttendanceRule(models.Model):
 
 
     # ====== CRUD =====
-    @api.model
-    def create(self, values):
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Odoo 19 passes a list of dicts; the Odoo 12 body below handles one dict at a time."""
+        records = self.browse()
+        for vals in vals_list:
+            records |= self._legacy_create(vals)
+        return records
+
+    def _legacy_create(self, values):
         self.env['hr.attendance'].clear_at_rules_memo()
         return super().create(values)
 
