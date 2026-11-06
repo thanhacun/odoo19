@@ -53,6 +53,7 @@ Stages (each: port, unit tests from the rule doc, commit, update this table):
 | Stage | Content | State |
 |---|---|---|
 | A1 | DONE 7 Nov (19.0.0.1.0, 32 tests; deviations D1-D4 in the module CLAUDE.md): module, company policy (`res.company` fields, `at_policy`), groups, `hr.attendance.rule` (+ `_at_rules`, merge by sequence, memo), public holidays (own models), `hr.mixin` time helpers (AT month/year, AT day start, early offset, holidays, Saturday rules), `is_no_sat_working`, `_is_holiday` | done |
+| A0 | `kdvn_base` 19.0.1.0.0 DONE 7 Nov (5 tests): subset of kderp_base the attendance port needs: `kderp.base.model` (code/name), `kderp.base.code`, `kderp.base.state`, `kderp.base.state.model`. Not ported: Odoo 12 view-editing hacks, code suggestion, QR. `color` is an Integer (Odoo 19 selections need str keys). | done |
 | A2 | `hr.attendance.location` (machines), `hr.attendance.raw` + status, raw -> `hr.attendance` sync, `hr.attendance` fields and state model, record views | todo |
 | A3 | `_compute_in_out`, `_compute_at_status` (marks), `_compute_ot_hour`, OT allowance, `hr.attendance.summary` | todo |
 | B | time off: `hr.leave.cover` / `hr.leave` / types / allocations on Odoo 19 `hr_holidays` (core was rewritten: durations, allocation flow), AH allocations, annual leave, OT compensation | todo |
