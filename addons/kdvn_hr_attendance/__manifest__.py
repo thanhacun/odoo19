@@ -10,7 +10,7 @@ The computation code is ported literally: payroll depends on its results. See do
     'category': 'Human Resources/Attendances',
     'author': 'Kinden Vietnam',
     'license': 'LGPL-3',
-    'depends': ['bus', 'hr_attendance', 'hr_holidays', 'hr_org_chart', 'kdvn_base', 'kdvn_hr_ext', 'kdvn_remote_integration'],
+    'depends': ['bus', 'hr_attendance', 'hr_holidays', 'hr_org_chart', 'kdvn_report_py3o', 'kdvn_base', 'kdvn_hr_ext', 'kdvn_remote_integration'],
     'data': [
         'security/hr_attendance_security.xml',
         'security/ir.model.access.csv',
@@ -25,6 +25,7 @@ The computation code is ported literally: payroll depends on its results. See do
         'views/hr_holidays_public_view.xml',
         'views/hr_attendance_menus.xml',
         'views/hr_leave_views.xml',
+        'report/at_reports.xml',
         'views/hr_views.xml',
         'views/res_users_views.xml',
         'views/hr_attendance_rule_view.xml',

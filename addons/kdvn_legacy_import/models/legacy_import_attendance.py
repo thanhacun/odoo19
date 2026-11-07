@@ -49,6 +49,7 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
                 ('lv_allocations', self._step_lv_allocations),
                 ('lv_leaves', self._step_lv_leaves),
                 ('lv_links', self._step_lv_links),
+                ('at_refuse', self._step_at_refuse),
             ]
         return steps
 
@@ -259,6 +260,16 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
         self._copy_table('hr_attendance_request', 'hr.attendance.request', filter_row=lambda row: row['at_id'] in ats,
                          context={'do_not_run_at_status': True, 'kdvn_no_compute': True, 'kdvn_skip_checkin_check': True},
                          skip=('state_gm', 'state_no_gm'))
+
+    def _step_at_refuse(self):
+        """Refusal comments of the imported requests and leave covers (a comment whose request or cover is outside the window is skipped)."""
+        tags = self._state['tags']
+
+        def wanted(row):
+            return ((row['related_request_id'] and ('hr_attendance_request', row['related_request_id']) in tags)
+                    or (row['related_leave_cover_id'] and ('hr_leave_cover', row['related_leave_cover_id']) in tags))
+        self._copy_table('hr_attendance_refuse', 'hr.attendance.refuse', filter_row=wanted,
+                         context={'do_not_run_at_status': True, 'kdvn_no_compute': True})
 
     def _step_at_ot_plans(self):
         months = self._window_months()

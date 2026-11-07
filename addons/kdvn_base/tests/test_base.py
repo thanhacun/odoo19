@@ -46,7 +46,7 @@ class TestKdvnBase(TransactionCase):
         b = Code.create({'name': 'Other', 'code': 'OH', 'model_id': self.model.id, 'type_code': 'state', 'sequence': 2})
         self.assertEqual(a.display_name, 'Worked', 'codes are name-only in lists (_name_only)')
         found = [r[0] for r in Code.name_search('OH')]
-        self.assertEqual(found, [b.id])
+        self.assertIn(b.id, found)   # other modules' codes (e.g. attendance 'OH') may match too
         self.assertIn(a.id, [r[0] for r in Code.name_search('Worked')])
         with self.assertRaises(Exception):   # same (type_code, code, model) twice
             with self.cr.savepoint():

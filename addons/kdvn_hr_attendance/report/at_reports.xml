@@ -1,0 +1,178 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+    <record id="at_monthly_leave_report_py3o" model="ir.actions.report">
+        <field name="name">Monthly Leave</field>
+        <field name="type">ir.actions.report</field>
+        <field name="model">hr.attendance.admin.control.wizard</field>
+        <field name="report_name">py3o_report_at_monthly_leave</field>
+        <field name="report_type">py3o</field>
+        <field name="py3o_filetype">xlsx</field>
+        <field name="py3o_multi_in_one">1</field>
+        <field name="module">kdvn_hr_attendance</field>
+        <field name="py3o_template_fallback">report/at_monthly_leave.ods</field>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="at_monthly_overtime_report_py3o" model="ir.actions.report">
+        <field name="name">Monthly Over Time</field>
+        <field name="type">ir.actions.report</field>
+        <field name="model">hr.attendance.admin.control.wizard</field>
+        <field name="report_name">py3o_report_at_monthly_overtime</field>
+        <field name="report_type">py3o</field>
+        <field name="py3o_filetype">xlsx</field>
+        <field name="py3o_multi_in_one">1</field>
+        <field name="module">kdvn_hr_attendance</field>
+        <field name="py3o_template_fallback">report/at_monthly_overtime.ods</field>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="at_monthly_estimate_overtime_report_py3o" model="ir.actions.report">
+        <field name="name">Monthly Estimate Over Time</field>
+        <field name="type">ir.actions.report</field>
+        <field name="model">hr.attendance.admin.control.wizard</field>
+        <field name="report_name">py3o_report_at_monthly_estimate_overtime</field>
+        <field name="report_type">py3o</field>
+        <field name="py3o_filetype">xlsx</field>
+        <field name="py3o_multi_in_one">1</field>
+        <field name="module">kdvn_hr_attendance</field>
+        <field name="py3o_template_fallback">report/at_monthly_estimate_overtime.ods</field>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="at_monthly_workingtime_report_py3o" model="ir.actions.report">
+        <field name="name">Monthly Working Time</field>
+        <field name="type">ir.actions.report</field>
+        <field name="model">hr.attendance.admin.control.wizard</field>
+        <field name="report_name">py3o_report_at_monthly_workingtime</field>
+        <field name="report_type">py3o</field>
+        <field name="py3o_filetype">xlsx</field>
+        <field name="py3o_multi_in_one">1</field>
+        <field name="module">kdvn_hr_attendance</field>
+        <field name="py3o_template_fallback">report/at_monthly_workingtime.ods</field>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="at_monthly_attendance_report_py3o" model="ir.actions.report">
+        <field name="name">Monthly Attendance Record</field>
+        <field name="type">ir.actions.report</field>
+        <field name="model">hr.attendance.admin.control.wizard</field>
+        <field name="report_name">py3o_report_at_monthly_attendance</field>
+        <field name="report_type">py3o</field>
+        <field name="py3o_filetype">xlsx</field>
+        <field name="py3o_multi_in_one">1</field>
+        <field name="module">kdvn_hr_attendance</field>
+        <field name="py3o_template_fallback">report/at_monthly_attendance.ods</field>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="at_yearly_ot_compensation_report_py3o" model="ir.actions.report">
+        <field name="name">Yearly OT Compensation</field>
+        <field name="type">ir.actions.report</field>
+        <field name="model">hr.attendance.admin.control.wizard</field>
+        <field name="report_name">py3o_report_at_yearly_ot_compensation</field>
+        <field name="report_type">py3o</field>
+        <field name="py3o_filetype">xlsx</field>
+        <field name="py3o_multi_in_one">1</field>
+        <field name="module">kdvn_hr_attendance</field>
+        <field name="py3o_template_fallback">report/at_yearly_ot_compensation.ods</field>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="at_yearly_performance_report_py3o" model="ir.actions.report">
+        <field name="name">Yearly AT Performance</field>
+        <field name="type">ir.actions.report</field>
+        <field name="model">hr.attendance.admin.control.wizard</field>
+        <field name="report_name">py3o_report_at_yearly_performance</field>
+        <field name="report_type">py3o</field>
+        <field name="py3o_filetype">xlsx</field>
+        <field name="py3o_multi_in_one">1</field>
+        <field name="module">kdvn_hr_attendance</field>
+        <field name="py3o_template_fallback">report/at_yearly_at_performance.ods</field>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="at_leave_allocation_remain_py3o" model="ir.actions.report">
+        <field name="name">Leave Allocation Remain</field>
+        <field name="type">ir.actions.report</field>
+        <field name="model">hr.attendance.admin.control.wizard</field>
+        <field name="report_name">py3o_report_at_leave_allocation_remain</field>
+        <field name="report_type">py3o</field>
+        <field name="py3o_filetype">xlsx</field>
+        <field name="py3o_multi_in_one">1</field>
+        <field name="module">kdvn_hr_attendance</field>
+        <field name="py3o_template_fallback">report/at_leave_allocation_remain.ods</field>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="at_location_report_py3o" model="ir.actions.report">
+        <field name="name">Attendance Location</field>
+        <field name="type">ir.actions.report</field>
+        <field name="model">hr.attendance.admin.control.wizard</field>
+        <field name="report_name">py3o_report_at_location</field>
+        <field name="report_type">py3o</field>
+        <field name="py3o_filetype">xlsx</field>
+        <field name="py3o_multi_in_one">1</field>
+        <field name="module">kdvn_hr_attendance</field>
+        <field name="py3o_template_fallback">report/at_location_report.ods</field>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="attendance_requests_report_py3o" model="ir.actions.report">
+        <field name="name">Attendance Requests</field>
+        <field name="type">ir.actions.report</field>
+        <field name="model">hr.attendance</field>
+        <field name="report_name">py3o_report_attendance_requests</field>
+        <field name="report_type">py3o</field>
+        <field name="py3o_filetype">pdf</field>
+        <field name="py3o_multi_in_one">1</field>
+        <field name="module">kdvn_hr_attendance</field>
+        <field name="py3o_template_fallback">report/request_att.odt</field>
+        <field name="binding_model_id" ref="kdvn_hr_attendance.model_hr_attendance"/>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="attendance_approved_report_py3o" model="ir.actions.report">
+        <field name="name">Attendance Records</field>
+        <field name="type">ir.actions.report</field>
+        <field name="model">hr.attendance.summary</field>
+        <field name="report_name">py3o_approved_attendance_report</field>
+        <field name="report_type">py3o</field>
+        <field name="py3o_filetype">pdf</field>
+        <field name="py3o_multi_in_one">1</field>
+        <field name="module">kdvn_hr_attendance</field>
+        <field name="py3o_template_fallback">report/approved_att.odt</field>
+        <field name="binding_model_id" ref="kdvn_hr_attendance.model_hr_attendance_summary"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">object.display_name</field>
+    </record>
+    <record id="compact_att_approved_report_py3o" model="ir.actions.report">
+        <field name="name">Compact ATT Records</field>
+        <field name="type">ir.actions.report</field>
+        <field name="model">hr.attendance.summary</field>
+        <field name="report_name">py3o_approved_compact_att_report</field>
+        <field name="report_type">py3o</field>
+        <field name="py3o_filetype">pdf</field>
+        <field name="py3o_multi_in_one">1</field>
+        <field name="module">kdvn_hr_attendance</field>
+        <field name="py3o_template_fallback">report/approved_att_less_info.odt</field>
+        <field name="binding_model_id" ref="kdvn_hr_attendance.model_hr_attendance_summary"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">object.display_name</field>
+    </record>
+    <record id="request_of_approval_attendance_report_py3o" model="ir.actions.report">
+        <field name="name">Leaves Request</field>
+        <field name="type">ir.actions.report</field>
+        <field name="model">hr.attendance</field>
+        <field name="report_name">py3o_report_request_of_approval_att</field>
+        <field name="report_type">py3o</field>
+        <field name="py3o_filetype">pdf</field>
+        <field name="py3o_multi_in_one">1</field>
+        <field name="module">kdvn_hr_attendance</field>
+        <field name="py3o_template_fallback">report/request_of_approval_att.odt</field>
+        <field name="binding_model_id" ref="kdvn_hr_attendance.model_hr_attendance"/>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="request_of_approval_leaves_report_py3o" model="ir.actions.report">
+        <field name="name">Leaves Request</field>
+        <field name="type">ir.actions.report</field>
+        <field name="model">hr.leave.cover</field>
+        <field name="report_name">py3o_report_request_of_approval_leave</field>
+        <field name="report_type">py3o</field>
+        <field name="py3o_filetype">pdf</field>
+        <field name="py3o_multi_in_one">1</field>
+        <field name="module">kdvn_hr_attendance</field>
+        <field name="py3o_template_fallback">report/request_of_approval_leave.odt</field>
+        <field name="binding_model_id" ref="kdvn_hr_attendance.model_hr_leave_cover"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

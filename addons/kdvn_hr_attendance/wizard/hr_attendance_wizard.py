@@ -1056,20 +1056,21 @@ class KderpAttendanceAdminControl(models.TransientModel):
             datas = self.read()[0]
             report_data, total_works = self.report_at_performance(at_year=self.at_year)
             datas['extra_data'] = [report_data, total_works]
-            res = self.env.ref(report_name).with_context(wizard_report=True).report_action([], data=datas)
+            res = self.env.ref(report_name).with_context(wizard_report=True).report_action(self, data=datas)  # Odoo 19: the report needs the wizard as its record
             # res["close_on_report_download"] = True
             return res
         else:
             datas = self.read()[0]
-            res = self.env.ref(report_name).with_context(wizard_report=True).report_action([], data=datas)
+            res = self.env.ref(report_name).with_context(wizard_report=True).report_action(self, data=datas)  # Odoo 19: the report needs the wizard as its record
             # res["close_on_report_download"] = True
             return res
         # datas = self.read()[0]
-        # res = self.env.ref(report_name).with_context(wizard_report=True).report_action([], data=datas)
+        # res = self.env.ref(report_name).with_context(wizard_report=True).report_action(self, data=datas)  # Odoo 19: the report needs the wizard as its record
         # res["close_on_report_download"] = True
         # return res
 
     def report_ot_by_at_date(self, at_month=None, at_year=None):
+        self.env.flush_all()   # raw SQL below: Odoo 19 does not flush pending ORM writes by itself
         if not at_year:
             at_year = self.at_year
         if not at_month:
@@ -1145,6 +1146,7 @@ class KderpAttendanceAdminControl(models.TransientModel):
         return res
 
     def report_estimate_ot_by_at_date(self, at_month=None, at_year=None):
+        self.env.flush_all()   # raw SQL below: Odoo 19 does not flush pending ORM writes by itself
         if not at_year:
             at_year = self.at_year
         if not at_month:
@@ -1312,6 +1314,7 @@ class KderpAttendanceAdminControl(models.TransientModel):
     
     @api.model
     def report_at_locations(self, at_month=None, at_year=None):
+        self.env.flush_all()   # raw SQL below: Odoo 19 does not flush pending ORM writes by itself
         if not at_year:
             at_year = self.at_year
         if not at_month:
@@ -2559,7 +2562,7 @@ class KderpHrAttendanceOTHolidayManager(models.TransientModel):
     #     datas = self.read()[0]
     #     datas['extra_data'] = self.generate_ot_holiday_values(self.at_year, self.at_month)
     #     report_name = 'kdvn_hr_attendance.ot_on_holiday_schedule_py3o'
-    #     res = self.env.ref(report_name).with_context(wizard_report=True).report_action([], data=datas)
+    #     res = self.env.ref(report_name).with_context(wizard_report=True).report_action(self, data=datas)  # Odoo 19: the report needs the wizard as its record
     #     res["close_on_report_download"] = True
     #     return res
     
