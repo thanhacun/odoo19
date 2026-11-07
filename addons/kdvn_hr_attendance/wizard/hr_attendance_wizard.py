@@ -38,7 +38,7 @@ except ImportError:
     _logger.warning("Openpyxl is not installed, Excel conversion will not work.")
 
 
-from odoo import models, fields, api, tools, _
+from odoo import models, fields, api, tools, Command, _
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.http import request
 from odoo.osv import expression
@@ -2100,7 +2100,7 @@ class KderpHrAttendanceOTHolidayManager(models.TransientModel):
         today = fields.Date.context_today(self)
         at_year, at_month = self.get_at_year_month(today)
         defaults['at_year'], defaults['at_month'] = str(at_year), at_month
-        defaults['managed_section_ids'] = self.env['hr.department'].search(self.get_section_domain()).mapped('id')
+        defaults['managed_section_ids'] = [Command.set(self.env['hr.department'].search(self.get_section_domain()).ids)]  # Odoo 19: x2many defaults are commands
         return defaults
 
     @api.onchange('manager_id', 'employee_id')

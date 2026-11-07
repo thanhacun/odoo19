@@ -92,3 +92,9 @@ class TestRealisticRows(ATCase):
         allocations = self.env['hr.leave.allocation'].search([('employee_id', '=', emp.id)])
         self.assertTrue(allocations)
         self.assertTrue(allocations.read(['max_leaves', 'virtual_remaining_leaves', 'leaves_taken']))
+
+    def test_ot_holiday_manager_defaults_are_commands(self):
+        """The onchange of a new form chokes on a bare id list for a many2many default (Odoo 19 wants commands)."""
+        defaults = self.env['hr.attendance.ot.holiday.manager'].default_get(['managed_section_ids'])
+        for command in defaults.get('managed_section_ids', []):
+            self.assertIsInstance(command, (tuple, list))
