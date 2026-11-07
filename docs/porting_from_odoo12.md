@@ -148,3 +148,14 @@ What the first comparison found and fixed (all in the import or in literal-port 
 Whole window now imports with 0 errors (7,861 days, 5,071 requests, 786 covers, 1,397 plan lines). Tests: 272 pass.
 Stray rows from earlier import runs (untagged requests / covers made by 19 automation) had to be removed from the scratch DB by hand before the final run; a clean database does not have them.
 NOT compared yet: the yearly reports (OT compensation, AT performance: need the whole year imported), the PDFs (visual check), and months with Saturday AH / holiday plan edge cases beyond Nov-Dec 2025 and Oct-Nov 2026.
+
+### Report parity, whole year 2025 (7 Nov 2026)
+Full import of 21 Dec 2024 - 20 Dec 2025 (working staff: 91,569 attendance days, 45,236 requests, 9,610 leaves, about 2 h) into the scratch DB, then the same reports printed in Odoo 12 and Odoo 19 and compared row by row (`tools/compare_reports.py`; `COMMON=1` keeps only staff printed by both sides, because leavers are not imported with `working_only`).
+RESULT:
+- Yearly OT compensation and yearly AT performance (year 2025): **identical**.
+- Attendance record (the payroll sheet), all 12 AT months of 2025: **identical** (no filter needed).
+- Monthly overtime, estimate overtime, working time and leave, months Jan-Nov 2025 (`COMMON=1`): **identical**; the only difference is the header row that counts staff (leavers).
+- Leave allocation remain (Dec 2025): 17 of 267 staff differ, all explained: Odoo 12 also counts leave taken after 20 Dec 2025 (e.g. "Last Year Leave" 31 Dec - 7 Jan) which is outside the imported window. Checked on S2144 (4 days = the 4 days after the window).
+- AT location: same rows; only the row numbers move (leavers missing).
+Importer changes for a year: every step now clears the ORM cache and, with context `kdvn_commit_steps`, commits (a first all-in-one-transaction run died with MemoryError after 2 h and rolled back; steps are re-runnable so a crash resumes). Run: `env['kdvn.legacy.import'].with_context(kdvn_commit_steps=True).run(employee_codes=[], working_only=True, date_from=..., date_to=...)`. Report scripts take `AT_DATE` and `KEYS` environment variables.
+NOT compared: PDFs (visual), Dec 2025 onwards beyond the earlier checks.
