@@ -1,0 +1,10 @@
+.ot_holiday_sticky {
+    position: sticky;
+    top: 0;
+    background-color: #fff;     // Odoo 12 had "fff" (a typo): the header stays opaque over the rows that scroll under it
+    z-index: 1;
+}
+
+.o_field_otholiday {
+    overflow-x: auto;   // the table is wider than the dialog: scroll inside the field, not the whole dialog
+}

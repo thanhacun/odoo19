@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="kdvn_hr_attendance.OTHolidayRefuseDialog">
+        <Dialog title="'Refuse dialog'" size="'md'">
+            <h4>Please briefly comment the reason to refuse for:</h4>
+            <dl class="row">
+                <dt class="col-sm-3">Staff</dt>
+                <dd class="col-sm-9" t-esc="props.staffName"/>
+                <dt class="col-sm-3">Request for</dt>
+                <dd class="col-sm-9" t-esc="props.otDetail"/>
+                <dt class="col-sm-3">Date</dt>
+                <dd class="col-sm-9" t-esc="props.atDate"/>
+            </dl>
+            <input type="text" class="form-control" placeholder="Refuse comment" aria-label="Refuse comment" t-model="state.comment" t-on-keydown.enter="confirm"/>
+            <t t-set-slot="footer">
+                <button class="btn btn-success" t-on-click="confirm">OK</button>
+                <button class="btn btn-danger" t-on-click="props.close">Cancel</button>
+            </t>
+        </Dialog>
+    </t>
+
+    <t t-name="kdvn_hr_attendance.OTHolidayField">
+        <div class="o_field_otholiday report-container">
+            <t t-if="hasData">
+                <t t-set="role" t-value="userRole"/>
+                <table class="data-table table table-striped table-bordered">
+                    <thead class="thead-light ot_holiday_sticky">
+                        <tr class="text-center align-middle ot_holiday_sticky">
+                            <th scope="col" t-att-colspan="7 + dates.length" class="align-middle">
+                                <div class="report-title d-flex align-items-center rounded bg-transparent">
+                                    <div class="d-flex flex-grow-1 py-2">
+                                        <div class="text-block flex-fill text-dark">
+                                            <h2 class="h2 text-center">Schedule OT on holidays for <t t-esc="month"/></h2>
+                                        </div>
+                                    </div>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn border-0 btn-outline-success excel_button" title="Download xlsx file" t-on-click="downloadExcel"><i class="fa fa-file-excel-o"/></button>
+                                        <button type="button" class="btn border-0 btn-outline-success pdf_button" disabled="1" title="Download pdf file"><i class="fa fa-file-pdf-o"/></button>
+                                        <button type="button" class="btn border-0 btn-outline-success refresh_button" title="Refresh to show update data" t-on-click="() => this.load()"><i class="fa fa-refresh"/></button>
+                                    </div>
+                                </div>
+                            </th>
+                        </tr>
+                        <tr class="text-center align-middle ot_holiday_sticky">
+                            <th scope="col" rowspan="2" class="align-middle">No.</th>
+                            <th scope="col" rowspan="2" class="align-middle">Staff No.</th>
+                            <th scope="col" rowspan="2" class="align-middle">Staff Name</th>
+                            <th scope="col" rowspan="2" class="align-middle">Position</th>
+                            <th scope="col" rowspan="2" class="align-middle">Project Name</th>
+                            <th scope="col" t-att-colspan="dates.length" class="align-middle">Date</th>
+                            <th scope="col" rowspan="2" class="align-middle">Actual Hours</th>
+                            <th scope="col" rowspan="2" class="align-middle">Action</th>
+                        </tr>
+                        <tr class="text-center ot_holiday_sticky">
+                            <t t-foreach="dates" t-as="d" t-key="d_index">
+                                <th scope="col"><div t-esc="d" t-att-class="dayClass(d)"/></th>
+                            </t>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="sections" t-as="section" t-key="section">
+                            <t t-set="sec" t-value="data.ot_holiday[section]"/>
+                            <tr>
+                                <th scope="col" colspan="4" class="ot_section">
+                                    <div class="d-flex align-items-center rounded bg-transparent">
+                                        <div class="d-flex flex-grow-1 py-2">
+                                            <div class="text-block flex-fill text-dark"><t t-esc="sec.name"/></div>
+                                            <div class="text-block flex-fill text-dark"><span t-if="sec.as_GM" class="text-muted"> (as GM)</span></div>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col" t-att-colspan="1 + dates.length"/>
+                                <th>
+                                    <div class="text-end"><t t-if="sec.section_ot_actual_hours > 0" t-esc="sec.section_ot_actual_hours"/></div>
+                                </th>
+                                <th>
+                                    <div class="d-flex align-items-center rounded bg-transparent">
+                                        <div class="btn-group">
+                                            <button t-if="sec.show_approve_section_button" type="button" class="btn border-0 btn-outline-warning approval_section_button"
+                                                    t-att-title="(role or 'HR') + ': approve all for ' + sec.name" t-on-click.stop="() => this.approveSection(section)"><i class="fa fa-thumbs-up"/></button>
+                                        </div>
+                                    </div>
+                                </th>
+                            </tr>
+                            <t t-foreach="sec.section_ot" t-as="o" t-key="o.staff_no">
+                                <tr class="text-success ot_employee_row">
+                                    <th scope="row"><t t-esc="o_index + 1"/></th>
+                                    <td scope="row"><t t-esc="o.staff_no"/></td>
+                                    <td scope="row"><t t-esc="o.name"/></td>
+                                    <td scope="row"><t t-esc="o.position"/></td>
+                                    <td scope="row"><t t-esc="o.project"/></td>
+                                    <t t-foreach="o.dates" t-as="d" t-key="d_index">
+                                        <td scope="row" class="ot_dates">
+                                            <t t-if="d.ot_detail and d.ot_register">
+                                                <div class="container p-0 ot_date_details">
+                                                    <div class="d-flex align-items-center rounded bg-transparent">
+                                                        <div class="d-flex flex-grow-1 py-2">
+                                                            <div t-if="!d.ot_refuse" class="text-block flex-fill text-dark" t-att-title="'State: ' + d.ot_state_name">
+                                                                <t t-esc="d.ot_detail"/>
+                                                                <span t-if="d.ot_state == 'waiting_fman'" class="badge rounded-pill text-bg-warning">SM</span>
+                                                                <span t-if="d.ot_state == 'waiting_fman2'" class="badge rounded-pill text-bg-danger">GM</span>
+                                                                <span t-if="d.ot_state == 'waiting_fhr'" class="badge rounded-pill text-bg-info">HR</span>
+                                                            </div>
+                                                            <div t-if="d.ot_refuse" class="text-block flex-fill text-danger" t-att-title="'Request for: ' + d.ot_detail"><t t-esc="d.ot_refuse"/></div>
+                                                        </div>
+                                                        <div class="btn-group">
+                                                            <button t-if="d.show_approve_button" type="button" t-att-class="'btn border-0 approval_button ' + ((role or d.ot_state == 'waiting_fhr') ? 'btn-outline-success' : 'btn-outline-danger')"
+                                                                    t-att-title="d.ot_state_name" t-on-click.stop="() => this.approve(o.staff_no, d.at_date)"><i class="fa fa-thumbs-up"/></button>
+                                                            <button t-if="d.show_approve_button" type="button" class="btn border-0 btn-outline-danger refuse_button" title="Refuse" t-on-click.stop="() => this.refuse(o, d)"><i class="fa fa-hand-paper-o"/></button>
+                                                            <button t-if="d.show_delete_button" type="button" class="btn border-0 btn-outline-danger delete_button" title="Delete" t-on-click.stop="() => this.remove(o.staff_no, d.at_date)"><i class="fa fa-trash-o"/></button>
+                                                            <button t-if="d.show_revise_button" type="button" class="btn border-0 btn-outline-info revise_button" title="Revise" t-on-click.stop="() => this.revise(o.staff_no, d.at_date)"><i class="fa fa-pencil"/></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                            <t t-if="!d.is_apply">
+                                                <div class="container p-0 ot_date_details">
+                                                    <div class="d-flex align-items-center rounded bg-transparent">
+                                                        <div class="d-flex flex-grow-1 py-2">
+                                                            <span class="text-muted">N/A</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </td>
+                                    </t>
+                                    <td scope="row"><div class="text-end"><t t-if="o.ot_actual_hours > 0" t-esc="o.ot_actual_hours"/></div></td>
+                                    <td scope="row" class="action_buttons">
+                                        <div class="d-flex align-items-center rounded bg-transparent">
+                                            <div class="d-flex flex-grow-1 py-2"/>
+                                            <div class="btn-group">
+                                                <button t-if="o.show_approve_employee_button" type="button" t-att-class="'btn border-0 approval_employee_button ' + (role ? 'btn-outline-success' : 'btn-outline-danger')"
+                                                        t-att-title="(role or 'HR') + ': approve all for ' + o.name" t-on-click.stop="() => this.approveEmployee(o)"><i class="fa fa-thumbs-up"/></button>
+                                                <button type="button" class="btn border-0 btn-outline-info at_info_button" t-att-title="'Attendance Summary for ' + o.name" t-on-click.stop="() => this.openSummary(o)"><i class="fa fa-info"/></button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </t>
+                        </t>
+                    </tbody>
+                </table>
+            </t>
+            <t t-else="">
+                <div class="alert alert-success">
+                    <span>No data available for the selected month.</span>
+                </div>
+            </t>
+        </div>
+    </t>
+
+</templates>
