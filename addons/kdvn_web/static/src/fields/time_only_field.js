@@ -5,7 +5,7 @@ import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 
 export class TimeOnlyField extends Component {
-    static template = "kdvn_hr_attendance.TimeOnlyField";
+    static template = "kdvn_web.TimeOnlyField";
     static props = { ...standardFieldProps };
 
     get formattedValue() {

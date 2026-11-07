@@ -6,11 +6,11 @@ Odoo 19 version of the Odoo 12 module kderp_hr_attendance (12.0.1.0.11), ported 
 Stage A1: company attendance policy, groups, attendance rules, public holidays, AT calendar helpers.
 The computation code is ported literally: payroll depends on its results. See docs/porting_from_odoo12.md.
 """,
-    'version': '19.0.0.9.0',
+    'version': '19.0.0.10.0',
     'category': 'Human Resources/Attendances',
     'author': 'Kinden Vietnam',
     'license': 'LGPL-3',
-    'depends': ['bus', 'hr_attendance', 'hr_holidays', 'hr_org_chart', 'kdvn_report_py3o', 'kdvn_base', 'kdvn_hr_ext', 'kdvn_remote_integration'],
+    'depends': ['bus', 'hr_attendance', 'hr_holidays', 'hr_org_chart', 'kdvn_report_py3o', 'kdvn_base', 'kdvn_web', 'kdvn_hr_ext', 'kdvn_remote_integration'],
     'data': [
         'security/hr_attendance_security.xml',
         'security/hr_attendance_record_rules.xml',
@@ -35,14 +35,8 @@ The computation code is ported literally: payroll depends on its results. See do
     ],
     'assets': {
         'web.assets_backend': [
-            'kdvn_hr_attendance/static/src/fields/time_only_field.js',
-            'kdvn_hr_attendance/static/src/fields/time_only_field.xml',
-            'kdvn_hr_attendance/static/src/chatter/chatter_layout.js',
-            'kdvn_hr_attendance/static/src/chatter/chatter_toggle.js',
-            'kdvn_hr_attendance/static/src/chatter/chatter_toggle.xml',
             'kdvn_hr_attendance/static/src/systray/machine_setup_systray.js',
             'kdvn_hr_attendance/static/src/systray/machine_setup_systray.xml',
-            'kdvn_hr_attendance/static/src/graph/graph_measures.js',
         ],
     },
     'installable': True,
