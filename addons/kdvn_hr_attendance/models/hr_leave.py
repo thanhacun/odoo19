@@ -1819,6 +1819,18 @@ class KderpHolidaysAllocation(models.Model):
     _description = "KDERP Leave Allocation"
     _inherit = ['hr.leave.allocation']
 
+    def _compute_leaves(self):
+        """Core assigns max_leaves, leaves_taken and virtual_remaining_leaves in one method. Our class computes leaves_taken
+        with its own method (_compute_remaining_leaves), which splits that group and leaves max_leaves unassigned
+        ("Compute method failed to assign"). Same as core, without leaves_taken."""
+        date_from = fields.Date.today()
+        employee_days_per_allocation = self.employee_id._get_consumed_leaves(self.holiday_status_id, date_from)[0]
+        for allocation in self:
+            origin = allocation._origin
+            virtual_leave = employee_days_per_allocation[origin.employee_id][origin.holiday_status_id][origin]
+            allocation.max_leaves = virtual_leave['max_leaves']
+            allocation.virtual_remaining_leaves = virtual_leave['virtual_remaining_leaves']
+
     # Odoo 19 refuses allocations of 0 days; Odoo 12 had expired grants with 0 days (kept as history)
     _duration_check = models.Constraint("CHECK( number_of_days >= 0 OR allocation_type != 'regular' )", 'The duration cannot be negative.')
 

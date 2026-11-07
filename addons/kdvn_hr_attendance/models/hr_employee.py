@@ -13,6 +13,24 @@ _logger = logging.getLogger(__name__)
 class Employee(models.Model):
     _inherit = 'hr.employee'
 
+    def _compute_hours_last_month(self):
+        """Core compares check_in of every attendance; our attendance days (absence, leave) may have no check_in (TypeError).
+        Same result as core, counting only the days that have check_in and check_out."""
+        import pytz
+        now_utc = pytz.utc.localize(fields.Datetime.now())
+        for timezone, employees in self.grouped('tz').items():
+            tz = pytz.timezone(timezone or 'UTC')
+            now_tz = now_utc.astimezone(tz)
+            start_naive = now_tz.replace(day=1, hour=0, minute=0, second=0, microsecond=0).astimezone(pytz.utc).replace(tzinfo=None)
+            end_naive = now_tz.astimezone(pytz.utc).replace(tzinfo=None)
+            for employee in employees:
+                atts = employee.attendance_ids.filtered(lambda att: att.check_in and att.check_out and att.check_in >= start_naive and att.check_out <= end_naive)
+                hours = sum(att.worked_hours or 0 for att in atts)
+                overtime_hours = sum(att.validated_overtime_hours or 0 for att in atts)
+                employee.hours_last_month = round(hours, 2)
+                employee.hours_last_month_display = "%g" % employee.hours_last_month
+                employee.hours_last_month_overtime = round(overtime_hours, 2)
+
     # Main office = the area of the administrative section (HR used to type it). Stored so lists/filters/exports keep working.
     work_location = fields.Char(compute='_compute_work_location', store=True, readonly=True)
 
