@@ -51,6 +51,12 @@ the static sweep (WARN rules) and this runtime list complement each other. Polic
 Odoo major upgrade; re-run both tools when Odoo 20 is released and read its `upgrade_code` scripts first.
 
 ## 4. Runtime checks that static rules cannot do (in the module tests)
+- **UI calls check** (`kdvn_base/tests/ui_calls.py`): for every window action of our modules it runs what the web client runs: `get_views`, the list/kanban read with
+  the view's `default_order` and the default filters/group-by (`search_default_*`), grouped reads, pivot/graph reads, the new-record defaults (`onchange`, only where the user
+  can create) and the first record of a form. It found: ordering by a non-stored computed field (`default_order="display_name"`), new-record crashes in compute methods.
+  In the module tests (`tests/test_ui_calls.py`, small database) and on real data, read-only:
+  `docker exec -i odoo19 odoo shell -c <conf> -d odoo19_dev --no-http --log-level=error < temp/ui_check.py` with
+  `from odoo.addons.kdvn_base.tests.ui_calls import run; print(run(env))`. Run it after every import and before asking for a UI test.
 - every window action opens (`tests/test_screens.py`), every model's computed fields read on an empty record and on many records,
 - our views are the ones `get_view` resolves for the model,
 - read the imported data field by field (script in the session notes: `temp/scan_read.py`, models x 400 records) on a real import.

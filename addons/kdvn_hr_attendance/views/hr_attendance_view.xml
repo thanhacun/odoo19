@@ -376,7 +376,7 @@
         <field name="name">hr.attendance.summary.tree</field>
         <field name="model">hr.attendance.summary</field>
         <field name="arch" type="xml">
-            <list edit="0" decoration-danger="need_hr_action" default_order="display_name">
+            <list edit="0" decoration-danger="need_hr_action" default_order="at_year desc, at_month desc, employee_id">
                 <field name="employee_id"/>
                 <field name="month_dsp"/>
                 <field name="at_year" column_invisible="1"/>

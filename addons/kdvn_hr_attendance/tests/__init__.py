@@ -13,3 +13,4 @@ from . import test_screens
 from . import test_reports
 from . import test_lunar_holidays
 from . import test_users
+from . import test_ui_calls
