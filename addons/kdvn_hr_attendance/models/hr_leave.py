@@ -1552,6 +1552,11 @@ class KderpHolidaysType(models.Model):
     #                     r[1] = f'Annual Leave {end_dt.year}'
     #             return new_res
     
+    def _compute_accrual_count(self):
+        """Core counts the accrual plans as the current user: users without read access on them (section managers) could not
+        open the leave type form. Only a number is exposed, so count as superuser."""
+        return super(KderpHolidaysType, self.sudo())._compute_accrual_count()
+
     # @api.depends('name', 'category', 'is_ah', 'is_special')
     def _compute_sort_weight(self):
         for t in self:
