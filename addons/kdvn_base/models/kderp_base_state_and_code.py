@@ -1,7 +1,7 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import AccessError, UserError, ValidationError
 
-TYPE_CODE = [('state', 'Status'), ('budget_type', 'Budget Type'), ('area_type', 'Area Type')]   # other modules add types with selection_add
+TYPE_CODE = [('state', 'Status'), ('budget_type', 'Budget Type'), ('area_type', 'Area Type'), ('user_location', 'User Location')]   # other modules add types with selection_add
 permission_warning = "KDERP Warning!\nYou don't have permission, change state of %s"
 
 
