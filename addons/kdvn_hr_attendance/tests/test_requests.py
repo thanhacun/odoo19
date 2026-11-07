@@ -6,7 +6,7 @@ import re
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import mute_logger
 from odoo.tests import tagged
-from .common_at import ATCase, WED
+from .common_at import ATCase, WED, SUN, vn
 
 
 @tagged('post_install', '-at_install', 'at_requests')
@@ -132,3 +132,112 @@ class TestRequestWorkflow(ATCase):
         self.AT._send_noti_refuse_email(at_ids=at.ids)
         new = self.env['mail.mail'].sudo().search([('id', 'not in', before), ('email_to', '=', 'staff@example.com')])
         self.assertTrue(new, 'no refusal email was created for the staff member')
+
+
+@tagged('post_install', '-at_install', 'at_wizard')
+class TestRequestWizard(ATCase):
+    """The request screen (hr.attendance.wizard): what staff do on screen creates the same requests as the tests above."""
+
+    def wizard(self, at, **vals):
+        wiz = self.env['hr.attendance.wizard'].with_context(active_model='hr.attendance', active_id=at.id).create(vals)
+        wiz.employee_id = at.employee_id
+        wiz.at_id = at
+        return wiz
+
+    def test_wt_request_created_on_screen_goes_to_the_manager(self):
+        """A new request is submitted at once (Odoo 12: "submit draft request for better user experience"): waiting_fman."""
+        emp = self.new_employee()
+        self.new_rule(emp)
+        at = self.new_at(emp, WED, None, (17, 0))
+        wiz = self.wizard(at, request_mode='wt', at_request_type_id=self.ot_type['forget_in'].id, name='forgot to check in', wt_in=vn(WED, 8, 0))
+        wiz.save()
+        req = at.at_request_ids
+        self.assertEqual((len(req), req.request_type, req.state), (1, 'working_time', 'waiting_fman'))
+
+    def test_ot_request_submitted_from_the_screen(self):
+        """An OT request typed on screen and submitted waits for the manager and carries its hours."""
+        emp = self.new_employee()
+        self.new_rule(emp)
+        at = self.new_at(emp, WED, (8, 0), (19, 0))
+        wiz = self.wizard(at, request_mode='ot', request_ot_for_id=self.ot_type['pm'].id, ot_description='finish report',
+                          ot_in=vn(WED, 17, 0), ot_out=vn(WED, 19, 0))
+        wiz.submit()
+        req = at.at_request_ids.filtered(lambda r: r.request_type == 'over_time')
+        self.assertEqual((len(req), req.state), (1, 'waiting_fman'))
+        self.assertEqual(req.request_out, vn(WED, 19, 0))
+
+    def test_submit_does_nothing_on_a_refused_attendance(self):
+        """RQ-06: an attendance that is refused cannot be submitted again from the screen (HR sets it back first)."""
+        emp = self.new_employee()
+        self.new_rule(emp)
+        at = self.new_at(emp, WED, None, (17, 0))
+        req = self.new_wt(at, 'forget_in', (8, 0), None, state='waiting_fhr')
+        self.env['hr.attendance.refuse'].create({'related_request_id': req.id, 'name': 'no'}).save()
+        at.invalidate_recordset()
+        wiz = self.wizard(at, request_mode='wt', at_request_type_id=self.ot_type['forget_in'].id, name='again', wt_in=vn(WED, 8, 0))
+        self.assertFalse(wiz.submit())
+
+
+@tagged('post_install', '-at_install', 'at_otplan')
+class TestOTHolidayPlan(ATCase):
+    """OT on holidays plan (RQ-05 / OT-07): a plan line registers OT on a holiday in advance; the approved line makes the system
+    create the OT request of that day; changing the line while the request is still open removes it again."""
+
+    def plan(self, emp):
+        return self.env['hr.attendance.ot.holiday'].generate_monthly_record(emp, at_year='2026', at_month=3) or \
+            self.env['hr.attendance.ot.holiday'].search([('employee_id', '=', emp.id), ('at_year', '=', '2026'), ('at_month', '=', 3)])
+
+    def test_monthly_record_lists_every_holiday_of_the_month(self):
+        emp = self.new_employee()
+        self.new_rule(emp)
+        plan = self.plan(emp)
+        self.assertTrue(plan, 'no OT holiday record for an employee with OT')
+        dates = plan.ot_detail_ids.mapped('at_date')
+        self.assertIn(SUN, dates)                                 # 15 Mar 2026 is a Sunday
+        self.assertTrue(all(d.month in (2, 3) for d in dates))    # AT month 3 = 21 Feb - 20 Mar
+        self.assertFalse(any(d.weekday() < 5 and not self.AT._is_holiday(d) for d in dates if False))
+
+    def test_registered_line_waits_for_the_manager_then_creates_the_request(self):
+        emp = self.new_employee()
+        self.new_rule(emp)
+        line = self.plan(emp).ot_detail_ids.filtered(lambda l: l.at_date == SUN)
+        line.write({'ot_detail': 'urgent site work', 'ot_register': True})
+        self.assertEqual(line.state, 'waiting_fman')                       # staff registered: manager decides next
+        self.assertFalse(line.ot_request_id)
+        line.write({'state': 'done'})                                      # approved
+        self.assertTrue(line.ot_request_id)
+        self.assertEqual((line.ot_request_id.request_type, line.ot_request_id.state), ('over_time', 'draft'))
+
+    def test_unregister_is_refused_once_the_ot_request_is_past_the_manager(self):
+        """Safeguard: a day whose OT request is past the manager cannot be unregistered ("modify your OT Request first")."""
+        emp = self.new_employee()
+        self.new_rule(emp)
+        line = self.plan(emp).ot_detail_ids.filtered(lambda l: l.at_date == SUN)
+        line.write({'ot_detail': 'x', 'ot_register': True})
+        line.write({'state': 'done'})
+        line.ot_request_id.write({'state': 'waiting_fhr'})
+        with self.assertRaises(ValidationError):
+            line.write({'ot_register': False})
+
+    def test_refused_line_removes_the_open_request(self):
+        emp = self.new_employee()
+        self.new_rule(emp)
+        line = self.plan(emp).ot_detail_ids.filtered(lambda l: l.at_date == SUN)
+        line.write({'ot_detail': 'x', 'ot_register': True})
+        line.write({'state': 'done'})
+        request = line.ot_request_id
+        line.write({'state': 'refuse'})
+        self.assertFalse(request.exists())
+
+    def test_refusing_the_line_keeps_a_request_that_is_already_approved(self):
+        """Once the OT request is past the manager (waiting_fhr) the plan cannot take it back: the error is logged, the data stays."""
+        emp = self.new_employee()
+        self.new_rule(emp)
+        line = self.plan(emp).ot_detail_ids.filtered(lambda l: l.at_date == SUN)
+        line.write({'ot_detail': 'x', 'ot_register': True})
+        line.write({'state': 'done'})
+        request = line.ot_request_id
+        request.write({'state': 'waiting_fhr'})
+        with self.assertRaises(UserError):
+            line.write({'state': 'refuse'})
+        self.assertTrue(request.exists())
