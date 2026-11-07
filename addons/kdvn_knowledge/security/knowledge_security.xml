@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Reviewers approve new pages and changes (OCA document_page_approval "Approver" rights). -->
+    <record id="group_knowledge_reviewer" model="res.groups">
+        <field name="name">Knowledge reviewer</field>
+        <field name="implied_ids" eval="[(4, ref('document_page_approval.group_document_approver_user'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_admin'))]"/>
+        <field name="comment">Approves new knowledge pages and changes before readers see them.</field>
+    </record>
+
+    <!-- Everyone may write pages (decision 21 Oct 2026); changes wait for a reviewer. -->
+    <record id="base.group_user" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('document_page.group_document_editor'))]"/>
+    </record>
+
+    <!-- Pages limited to roles are hidden from users without one of the roles' groups.
+         Display filter for guides, not a secret boundary (change requests keep OCA's rules). -->
+    <record id="rule_page_roles" model="ir.rule">
+        <field name="name">Knowledge page: readers of its roles</field>
+        <field name="model_id" ref="document_page.model_document_page"/>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="domain_force">['|', ('kderp_role_ids', '=', False), ('kderp_role_ids.group_ids', 'in', user.group_ids.ids)]</field>
+    </record>
+
+    <record id="rule_page_all_managers" model="ir.rule">
+        <field name="name">Knowledge page: managers and reviewers see all</field>
+        <field name="model_id" ref="document_page.model_document_page"/>
+        <field name="groups" eval="[(4, ref('document_page.group_document_manager')), (4, ref('group_knowledge_reviewer'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+</odoo>

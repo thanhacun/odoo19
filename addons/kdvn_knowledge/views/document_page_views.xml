@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Reader: what menus and /kderp/guide/<key> open. Shows the approved content for the reader's roles. -->
+    <record id="view_guide_reader_form" model="ir.ui.view">
+        <field name="name">document.page.kderp.reader</field>
+        <field name="model">document.page</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <form string="Guide" create="false" edit="false" delete="false" class="kderp_guide_reader">
+                <header>
+                    <button name="kderp_action_report_problem" type="object" string="Something wrong or outdated?"
+                            class="btn-link"/>
+                    <button name="kderp_action_open_editor" type="object" string="Propose a change"
+                            class="btn-link" groups="document_page.group_document_editor"
+                            invisible="type == 'category'"/>
+                </header>
+                <sheet>
+                    <field name="type" invisible="1"/>
+                    <!-- <field name="parent_id" readonly="1" class="kderp_guide_breadcrumb"
+                           invisible="not parent_id"/> -->
+
+                    <!-- <field name="parent_id" readonly="1" class="kderp_guide_breadcrumb"
+                        context="{'form_view_ref': 'kdvn_knowledge.view_guide_reader_form'}"
+                        invisible="not parent_id"/> -->
+
+                    <field name="parent_id" invisible="1" />
+                    <field name="kderp_breadcrumb" widget="html" readonly="1" nolabel="1"
+                        class="kderp_guide_breadcrumb"
+                        invisible="not parent_id"/>
+                    <h1><field name="name" readonly="1"/></h1>
+                    <field name="kderp_content_view" widget="html" readonly="1" nolabel="1"
+                           class="kderp_guide_content"/>
+                    <div class="kderp_guide_meta text-muted" invisible="type == 'category'">
+                        Approved <field name="approved_date" readonly="1" class="oe_inline"/>
+                        by <field name="approved_uid" readonly="1" class="oe_inline" options="{'no_open': True}"/>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_guide_reader" model="ir.actions.act_window">
+        <field name="name">Guide</field>
+        <field name="res_model">document.page</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_guide_reader_form"/>
+        <field name="target">current</field>
+    </record>
+
+    <!-- Editor form (OCA): guide settings and a warning on pages published from git -->
+    <record id="view_wiki_form_kderp" model="ir.ui.view">
+        <field name="name">document.page.form.kderp</field>
+        <field name="model">document.page</field>
+        <field name="inherit_id" ref="document_page.view_wiki_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/div[hasclass('oe_title')]" position="before">
+                <field name="kderp_managed" invisible="1"/>
+                <div class="alert alert-info" role="status" invisible="not kderp_managed">
+                    This page is published from the guide source in git (<field name="kderp_source_path" readonly="1" class="oe_inline"/>).
+                    You can still change it here, but the next publish will propose the source version again:
+                    tell the guide maintainer so the source is updated too.
+                </div>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page name="kderp_guide" string="Guide" groups="document_page.group_document_manager">
+                    <group>
+                        <field name="kderp_key"/>
+                        <field name="kderp_role_ids" widget="many2many_tags"/>
+                        <field name="kderp_source_hash" readonly="1"/>
+                        <field name="kderp_edited_after_import"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_category_form_kderp" model="ir.ui.view">
+        <field name="name">document.page.category.form.kderp</field>
+        <field name="model">document.page</field>
+        <field name="inherit_id" ref="document_page.view_category_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="Guide" groups="document_page.group_document_manager">
+                    <field name="kderp_key"/>
+                    <field name="kderp_role_ids" widget="many2many_tags"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Knowledge > User Guides: server action keeps the web client menu bar -->
+    <record id="server_action_user_guides" model="ir.actions.server">
+        <field name="name">User Guides</field>
+        <field name="model_id" ref="document_page.model_document_page"/>
+        <field name="state">code</field>
+        <field name="code">action = model.kderp_action_open_guide('user-guides')</field>
+    </record>
+    <menuitem id="menu_open_user_guides" name="User Guides"
+          parent="document_knowledge.menu_document_root"
+          action="server_action_user_guides" sequence="10"/>
+</odoo>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Root of the user guides: changes below it need a Knowledge reviewer. -->
+        <record id="page_user_guides" model="document.page">
+            <field name="name">User Guides</field>
+            <field name="type">category</field>
+            <field name="sequence">1</field>
+            <field name="kderp_key">user-guides</field>
+            <field name="approval_required" eval="True"/>
+            <field name="approver_gid" ref="group_knowledge_reviewer"/>
+            <field name="content">&lt;p&gt;&lt;br&gt;&lt;/p&gt;</field>
+        </record>
+    </data>
+</odoo>

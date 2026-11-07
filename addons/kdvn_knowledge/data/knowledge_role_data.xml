@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Roles used in guide pages (front matter "roles:" and "::: role" blocks).
+         noupdate: groups chosen in the UI survive module upgrades. -->
+    <data noupdate="1">
+        <record id="role_applicant" model="kderp.knowledge.role">
+            <field name="code">applicant</field>
+            <field name="name">Applicant (everyone)</field>
+            <field name="sequence">10</field>
+            <field name="group_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+        <record id="role_manager" model="kderp.knowledge.role">
+            <field name="code">manager</field>
+            <field name="name">Manager / approver</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="role_admin" model="kderp.knowledge.role">
+            <field name="code">admin</field>
+            <field name="name">Module admin</field>
+            <field name="sequence">30</field>
+            <field name="group_ids" eval="[(4, ref('document_page.group_document_manager'))]"/>
+        </record>
+        <!-- Add the groups of other modules when they are installed (no hard dependency). -->
+        <function model="kderp.knowledge.role" name="_link_default_groups"/>
+    </data>
+</odoo>

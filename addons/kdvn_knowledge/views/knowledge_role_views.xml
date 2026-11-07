@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kderp_knowledge_role_tree" model="ir.ui.view">
+        <field name="name">kderp.knowledge.role.list</field>
+        <field name="model">kderp.knowledge.role</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="group_ids" widget="many2many_tags"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_kderp_knowledge_role" model="ir.actions.act_window">
+        <field name="name">Reader Roles</field>
+        <field name="res_model">kderp.knowledge.role</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p>Roles used by guide pages ("roles:" in the page source and "::: role" blocks).
+               A user has a role when he is in one of its groups.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_kderp_knowledge_role" name="Reader Roles" parent="document_knowledge.menu_document_configuration"
+              action="action_kderp_knowledge_role" sequence="50" groups="document_page.group_document_manager"/>
+</odoo>
