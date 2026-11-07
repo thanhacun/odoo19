@@ -6,7 +6,7 @@ from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
-GM_GROUP = 'kderp_hr_attendance.group_hr_attendance_gm'   # defined by the attendance port; absent = nobody is a GM yet
+GM_GROUP = 'kdvn_hr_attendance.group_hr_attendance_gm'   # defined by kdvn_hr_attendance; absent = nobody is a GM yet
 
 
 class HrEmployee(models.Model):

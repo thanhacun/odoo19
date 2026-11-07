@@ -41,3 +41,4 @@ access_kderp_staff_location_update_machine,kderp.staff.location.update.machine,m
 access_kderp_staff_location_update_wizard,kderp.staff.location.update.wizard,model_kderp_staff_location_update_wizard,base.group_user,1,1,1,1
 access_hr_attendance_allocation_report,hr.allocation.report.access,model_hr_leave_allocation_report,base.group_user,1,0,0,0
 access_hr_attendance_ot_days_tracking,hr.leave.allocation.ot.days.tracking.access,model_hr_leave_allocation_ot_days_tracking,hr_attendance.group_hr_attendance_user,1,0,0,0
+access_hr_attendance_user,hr.attendance.user,model_hr_attendance,base.group_user,1,1,1,0
