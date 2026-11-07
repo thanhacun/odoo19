@@ -161,10 +161,11 @@ class Shooter:
         except Exception:
             self.error('screen did not settle (spinner or no action)')
         pg.wait_for_timeout(extra)
-        dialog = pg.locator('.o_error_dialog, .modal.o_technical_modal')
-        if dialog.count():
-            text = ' '.join(dialog.first.inner_text().split())[:300]
-            self.error('error dialog: ' + text)
+        # only real error dialogs: wizards and forms in a window (.o_technical_modal) are normal screens and stay open
+        dialog = pg.locator('.modal:visible').filter(has_text=re.compile(r'^\s*(Odoo (Server )?Error|Access Error|Validation Error|User Error|Missing Record|Invalid Operation|Warning)', re.I))
+        if pg.locator('.o_error_dialog').count() or dialog.count():
+            box = pg.locator('.o_error_dialog').first if pg.locator('.o_error_dialog').count() else dialog.first
+            self.error('error dialog: ' + ' '.join(box.inner_text().split())[:300])
             try:
                 pg.keyboard.press('Escape')
                 pg.wait_for_timeout(300)

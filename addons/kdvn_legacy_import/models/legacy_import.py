@@ -174,6 +174,7 @@ class KdvnLegacyImport(models.AbstractModel):
     def _import_steps(self):
         """(name, method) in run order. Other modules extend this with their own steps (attendance, requests...)."""
         return [
+            ('lang_formats', self._step_lang_formats),
             ('department_types', self._step_department_types),
             ('locations', self._step_locations),
             ('user_locations', self._step_user_locations),
@@ -258,6 +259,14 @@ class KdvnLegacyImport(models.AbstractModel):
             if dept and dept.parent_id != parent:
                 self._safe('hr_department', row['id'], 'parent', lambda dept=dept, parent=parent: dept.write({'parent_id': parent.id}))
         self._state['department_rows'] = rows
+
+    def _step_lang_formats(self):
+        """Date and time formats of the languages: Odoo 12 showed 25/09/2026 13:40:00 for English, Odoo 19 defaults to the US format."""
+        for row in self._legacy_rows('res_lang', ['id', 'code', 'date_format', 'time_format']):
+            lang = self.env['res.lang'].with_context(active_test=False).search([('code', '=', row['code'])], limit=1)
+            if lang and row['date_format'] and row['time_format'] and (lang.date_format, lang.time_format) != (row['date_format'], row['time_format']):
+                lang.write({'date_format': row['date_format'], 'time_format': row['time_format']})
+                self._state['stats'][('res_lang', 'updated')] += 1
 
     def _step_user_locations(self):
         """kderp_base codes of type user_location (the office of a user: H, S, P, N, all) -> kderp.base.code for res.users."""
