@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- noupdate: an upgrade must not rewrite nextcall (it used to push the next run one day ahead each time) -->
+    <data noupdate="1">
+        <record id="ir_cron_e_approval_digest_sender_am" model="ir.cron">
+            <field name="name">E-Approval: Send Consolidated Manager Digest Table (10:00)</field>
+            <field name="model_id" ref="model_res_users"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_send_all_manager_digests()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <!-- Run every at 10:00 AM everyday, localized execution times are managed inside Odoo settings -->
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
+        <record id="ir_cron_e_approval_digest_sender_pm" model="ir.cron">
+            <field name="name">E-Approval: Send Consolidated Manager Digest Table (16:00)</field>
+            <field name="model_id" ref="model_res_users"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_send_all_manager_digests()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <!-- Run every at 4:00 PM everyday, localized execution times are managed inside Odoo settings -->
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>

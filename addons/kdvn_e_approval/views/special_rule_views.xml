@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_special_rule_tree" model="ir.ui.view">
+        <field name="name">kderp.e.approval.special.rule.list</field>
+        <field name="model">kderp.e.approval.special.rule</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" create="false" delete="false">
+                <field name="sequence" widget="handle"/>
+                <field name="procedure" readonly="1"/>
+                <field name="name" readonly="1"/>
+                <field name="value"/>
+                <field name="unit" readonly="1"/>
+                <field name="action"/>
+                <field name="description" readonly="1"/>
+                <field name="manager_group_id" readonly="1" groups="kdvn_e_approval.group_e_approval_admin"/>
+                <field name="code" readonly="1" groups="base.group_no_one"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_special_rule_form" model="ir.ui.view">
+        <field name="name">kderp.e.approval.special.rule.form</field>
+        <field name="model">kderp.e.approval.special.rule</field>
+        <field name="arch" type="xml">
+            <form string="Special Case Rule" create="false" delete="false">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                        <field name="procedure" readonly="1"/>
+                    </div>
+                    <group>
+                        <group>
+                            <label for="value"/>
+                            <div class="o_row">
+                                <field name="value"/>
+                                <field name="unit" readonly="1" nolabel="1"/>
+                            </div>
+                            <field name="action"/>
+                        </group>
+                        <group>
+                            <field name="manager_group_id" readonly="1"/>
+                            <field name="code" readonly="1" groups="base.group_no_one"/>
+                        </group>
+                    </group>
+                    <field name="description" readonly="1" nolabel="1"/>
+                    <div class="text-muted">
+                        Changes apply to requests submitted from now on. Requests already submitted keep
+                        the result they were submitted with.
+                    </div>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_special_rule_search" model="ir.ui.view">
+        <field name="name">kderp.e.approval.special.rule.search</field>
+        <field name="model">kderp.e.approval.special.rule</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="procedure"/>
+                <filter name="filter_off" string="Switched off" domain="[('action', '=', 'off')]"/>
+                <group expand="1" string="Group By">
+                    <filter name="groupby_procedure" string="Procedure" context="{'group_by': 'procedure'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_special_rules" model="ir.actions.act_window">
+        <field name="name">Special Case Rules</field>
+        <field name="res_model">kderp.e.approval.special.rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_groupby_procedure': 1}</field>
+        <field name="help" type="html">
+            <p>Each approval procedure adds its special-case rules here when it is installed.</p>
+        </field>
+    </record>
+
+    <!-- Procedure modules add their editor group to this menu's groups -->
+    <menuitem id="menu_special_rules" name="Special Case Rules" parent="menu_e_approval_root"
+              action="action_special_rules" sequence="85"
+              groups="kdvn_e_approval.group_e_approval_admin"/>
+</odoo>

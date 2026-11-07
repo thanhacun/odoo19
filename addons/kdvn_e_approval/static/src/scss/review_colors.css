@@ -1,0 +1,34 @@
+/* kdvn_e_approval/static/src/scss/review_colors.css
+ * Row colours for the OCA "Reviews" panel (tier_validation widget).
+ * Same palette as approval_ribbon.scss — change both files together:
+ *   done #28a745 · current #7C7BAD · rejected #dc3545 · muted #adb5bd · line #dee2e6
+ */
+
+.o_review tr.kderp_review_approved > td { background-color: #eaf6ec; color: #495057; }
+.o_review tr.kderp_review_approved > td:first-child { border-left: 4px solid #28a745; }
+.o_review tr.kderp_review_approved > td:nth-child(4) { color: #28a745; font-weight: 600; }
+
+.o_review tr.kderp_review_rejected > td { background-color: #fdf2f2; color: #495057; }
+.o_review tr.kderp_review_rejected > td:first-child { border-left: 4px solid #dc3545; }
+.o_review tr.kderp_review_rejected > td:nth-child(4),
+.o_review tr.kderp_review_rejected > td:last-child { color: #dc3545; font-weight: 600; }
+
+/* pending, not reached yet: muted, like the waiting steps in the ribbon */
+.o_review tr.kderp_review_pending > td { background-color: #ffffff; color: #6c757d; }
+.o_review tr.kderp_review_pending > td:first-child { border-left: 4px solid #adb5bd; }
+
+/* the step the flow is waiting for right now (row also has kderp_review_pending) */
+.o_review tr.kderp_review_current > td { background-color: #efeff6; color: #495057; font-weight: bold; }
+.o_review tr.kderp_review_current > td:first-child { border-left-color: #7C7BAD; }
+.o_review tr.kderp_review_current > td:nth-child(4) { color: #7C7BAD; }
+/* Reviews panel table (kderp.tier.review.ReviewsTable) */
+.o_review .o_kderp_review_table { margin-top: 8px; font-size: 13px; }
+.o_review .o_kderp_review_table thead th {
+    border-top: 0; border-bottom: 2px solid #dee2e6;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: #6c757d;
+}
+.o_review .o_kderp_review_table td { vertical-align: middle; }
+.o_review .o_kderp_review_tag {
+    margin: 1px 4px 1px 0; padding: 2px 8px;
+    background: #f1f3f5; border: 1px solid #dee2e6; color: #495057; font-weight: 500;
+}

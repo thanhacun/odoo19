@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kderp_approval_refusal_tree" model="ir.ui.view">
+        <field name="name">kderp.approval.refusal.list</field>
+        <field name="model">kderp.approval.refusal</field>
+        <field name="arch" type="xml">
+            <list create="false" edit="false" delete="false" decoration-muted="state == 'reset'" decoration-danger="state == 'refused'">
+                <field name="refused_date"/>
+                <field name="procedure"/>
+                <field name="record_name"/>
+                <field name="step"/>
+                <field name="refused_by_name" string="Refused by"/>
+                <field name="comment"/>
+                <field name="state"/>
+                <field name="reset_by_id"/>
+                <field name="reset_date"/>
+                <button name="action_open_request" type="object" icon="fa-external-link" string="Open the request"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_kderp_approval_refusal_form" model="ir.ui.view">
+        <field name="name">kderp.approval.refusal.form</field>
+        <field name="model">kderp.approval.refusal</field>
+        <field name="arch" type="xml">
+            <form string="Refusal" create="false" edit="false" delete="false">
+                <header>
+                    <button name="action_open_request" type="object" string="Open the request" class="oe_highlight"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Refusal">
+                            <field name="procedure"/>
+                            <field name="record_name"/>
+                            <field name="step"/>
+                            <field name="refused_by_id"/>
+                            <field name="refused_by_name"/>
+                            <field name="refused_date"/>
+                        </group>
+                        <group string="Reset to draft">
+                            <field name="reset_to"/>
+                            <field name="reset_by_id"/>
+                            <field name="reset_date"/>
+                        </group>
+                    </group>
+                    <group string="Comment of the refusal">
+                        <field name="comment" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_kderp_approval_refusal_search" model="ir.ui.view">
+        <field name="name">kderp.approval.refusal.search</field>
+        <field name="model">kderp.approval.refusal</field>
+        <field name="arch" type="xml">
+            <search string="Refusal history">
+                <field name="record_name"/>
+                <field name="comment"/>
+                <field name="refused_by_id"/>
+                <field name="procedure"/>
+                <filter name="still_refused" string="Still refused" domain="[('state', '=', 'refused')]"/>
+                <filter name="reset" string="Reset to draft" domain="[('state', '=', 'reset')]"/>
+                <group expand="0" string="Group by">
+                    <filter name="group_procedure" string="Procedure" context="{'group_by': 'procedure'}"/>
+                    <filter name="group_refused_by" string="Refused by" context="{'group_by': 'refused_by_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_kderp_approval_refusal" model="ir.actions.act_window">
+        <field name="name">Refusal History</field>
+        <field name="res_model">kderp.approval.refusal</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Old refusals (made before the log existed) rebuilt from the chatter: preview first, then apply. Both are safe to repeat. -->
+    <record id="action_approval_refusal_import_preview" model="ir.actions.server">
+        <field name="name">Import old refusals (preview)</field>
+        <field name="model_id" ref="model_kderp_approval_refusal"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_backfill(False)</field>
+    </record>
+    <record id="action_approval_refusal_import_apply" model="ir.actions.server">
+        <field name="name">Import old refusals (apply)</field>
+        <field name="model_id" ref="model_kderp_approval_refusal"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_backfill(True)</field>
+    </record>
+
+    <menuitem id="menu_action_approval_refusal" name="Refusal History" parent="kdvn_e_approval.menu_sub_configuration"
+              action="action_kderp_approval_refusal" sequence="50" groups="kdvn_e_approval.group_e_approval_admin"/>
+    <menuitem id="menu_approval_refusal_import_preview" name="Import old refusals (preview)" parent="kdvn_e_approval.menu_sub_configuration"
+              action="action_approval_refusal_import_preview" sequence="51" groups="kdvn_e_approval.group_e_approval_admin"/>
+    <menuitem id="menu_approval_refusal_import_apply" name="Import old refusals (apply)" parent="kdvn_e_approval.menu_sub_configuration"
+              action="action_approval_refusal_import_apply" sequence="52" groups="kdvn_e_approval.group_e_approval_admin"/>
+</odoo>

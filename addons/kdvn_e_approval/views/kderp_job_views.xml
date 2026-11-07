@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_kderp_job_lookup_tree" model="ir.ui.view">
+        <field name="name">kderp.job.lookup.list</field>
+        <field name="model">kderp.job.lookup</field>
+        <field name="arch" type="xml">
+            <list>
+                <!-- These are physical columns, so Odoo can render them perfectly in lists! -->
+                <field name="job_no" string="Job Number / Code"/>
+                <field name="job_name" string="Full Job Title"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- 2. 🗂️ THE FORM VIEW: Displays when a user drills down or creates a budget record -->
+    <record id="view_kderp_job_lookup_form" model="ir.ui.view">
+        <field name="name">kderp.job.lookup.form</field>
+        <field name="model">kderp.job.lookup</field>
+        <field name="arch" type="xml">
+            <form string="Job Detail">
+                <sheet>
+                    <group>
+                        <group string="General Info">
+                            <field name="job_no" />
+                            <field name="job_name" />
+                            <field name="is_general_expense" string="Is GE"/>
+                            <field name="view_user_ids" string="Viewers" widget="many2many_tags"/>
+                        </group>
+                        <group string="Expense Budget Balance">
+                            <field name="budget_ids" nolabel="1">
+                                <list>
+                                    <field name="budget_code" />
+                                    <field name="name" />
+                                    <field name="balance_amt" />
+                                </list>
+                            </field>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_kderp_job_lookup_search" model="ir.ui.view">
+        <field name="name">kderp.job.lookup.search</field>
+        <field name="model">kderp.job.lookup</field>
+        <field name="arch" type="xml">
+            <search string="Job Position Search Filter">
+                <!-- 🚀 ODOO 12 FIX: Explicitly target physical database columns.
+                    This eliminates the 'Search id for' browser bug entirely -->
+                <field name="job_no" string="Job Number / Code"/>
+                <field name="job_name" string="Job Title / Name"/>
+            </search>
+        </field>
+    </record>
+
+
+</odoo>

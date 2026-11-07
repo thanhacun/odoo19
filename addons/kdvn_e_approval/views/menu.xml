@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- ================= 🌟 TOP-LEVEL MANAGEMENT PORTAL HOOKS ================= -->
+        <menuitem id="menu_e_approval_root" 
+                name="E-Approval Portal" 
+                web_icon="hr_expense,static/description/icon.png" 
+                sequence="10"/>
+
+        <menuitem id="menu_sub_my_requests" name="My Requests" parent="menu_e_approval_root" sequence="10" />
+        <menuitem id="menu_sub_my_reviews" name="My Reviews" parent="menu_e_approval_root" sequence="20" />
+        <menuitem id="menu_sub_cat_master_audit" name="Master Audit" parent="menu_sub_my_reviews" sequence="90" />
+        <!-- Help: guide pages of kderp_knowledge, opened by a server action calling document.page.kderp_action_open_guide(<key>).
+             Procedure modules add their own entries here. Help is the last item of the menu bar: keep its
+             sequence above every other child of the root (Special Case Rules 85, Configuration 90). -->
+        <menuitem id="menu_sub_help" name="Help" parent="menu_e_approval_root" sequence="1000"/>
+        <record id="action_guide_e_approval_srv" model="ir.actions.server">
+            <field name="name">E-Approval Guide</field>
+            <field name="model_id" ref="base.model_res_users"/>
+            <field name="state">code</field>
+            <field name="code">action = env['document.page'].kderp_action_open_guide('e-approval')</field>
+        </record>
+        <menuitem id="menu_help_guide_e_approval" name="E-Approval Guide" parent="menu_sub_help"
+                  action="action_guide_e_approval_srv" sequence="10"/>
+        <menuitem id="menu_sub_configuration" name="Configuration" parent="menu_e_approval_root" sequence="90" groups="kdvn_e_approval.group_e_approval_admin"/>
+
+
+        <!-- ================= 📂 CENTRAL CATEGORY SUB-MENUS (BASE ANCHORS) ================= -->
+        <!-- Section Sequences spaced out by 10s to allow seamless external file injections -->
+        <!-- <menuitem id="menu_cat_req_entertainment" name="Entertainment &amp; Expense" parent="menu_sub_my_requests" sequence="10"/> -->
+        <!-- <menuitem id="menu_cat_rev_entertainment" name="Entertainment &amp; Expense" parent="menu_sub_my_reviews" sequence="10"/> -->
+
+        <!-- ================= 🎬 ACTIONS: GLOBAL CONFIGURATION PANEL ================= -->
+        <record id="action_kderp_jobs_lookup" model="ir.actions.act_window">
+            <field name="name">Synced External Jobs</field>
+            <field name="view_mode">list,form</field>
+            <field name="res_model">kderp.job.lookup</field>
+        </record>
+
+        <record id="action_sequence_config_shortcut" model="ir.actions.act_window">
+            <field name="name">System Document Sequences</field>
+            <field name="res_model">ir.sequence</field>
+            <field name="view_mode">list,form</field>
+            <!-- <field name="domain">[('code', 'like', 'request')]</field> -->
+            <!-- <field name="domain">[('code', 'in', eval("self.env['ir.model'].search([('inherited_model_ids.model', '=', 'kderp.e.approval.mixin')]).mapped('model')"))]</field> -->
+            <!-- <field name="domain" eval="[('code', 'in', ref('kdvn_e_approval.model_kderp_e_approval_mixin').inherited_model_ids.mapped('model'))]" /> -->
+            <field name="context">{'search_mixin_sequences_only': True}</field>
+        </record>
+
+        <record id="action_tier_definition_shortcut" model="ir.actions.act_window">
+            <field name="name">Workflow Procedures Rules</field>
+            <field name="res_model">tier.definition</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <!-- ================= ⚙️ LEAF NODE BINDINGS: SYSTEM MANAGEMENT ================= -->
+        <menuitem id="menu_action_jobs_sync" name="Cached Jobs list" parent="menu_sub_configuration" action="action_kderp_jobs_lookup" sequence="10" groups="kdvn_e_approval.group_e_approval_admin"/>
+        <menuitem id="menu_action_tier_definitions_config" name="Approval Rules (Procedural Matrix)" parent="menu_sub_configuration" action="action_tier_definition_shortcut" sequence="20" groups="kdvn_e_approval.group_e_approval_admin"/>
+        <menuitem id="menu_action_sequence_settings_config" name="Document Number Sequences" parent="menu_sub_configuration" action="action_sequence_config_shortcut" sequence="30" groups="kdvn_e_approval.group_e_approval_admin"/>
+        <menuitem id="menu_action_system_parameters_config" name="System Parameter Settings" parent="menu_sub_configuration" action="kdvn_remote_sync.action_kderp_remote_sync_settings_window" sequence="40" groups="kdvn_e_approval.group_e_approval_admin"/>
+    </data>
+</odoo>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- EXTEND NATIVE TIER DEFINITION TREE VIEW -->
+        <record id="view_tier_definition_tree_inherit" model="ir.ui.view">
+            <field name="name">tier.definition.list.inherit</field>
+            <field name="model">tier.definition</field>
+            <field name="inherit_id" ref="base_tier_validation.tier_definition_view_tree"/>
+            <field name="arch" type="xml">
+                <!-- Place the Procedure Tag grouping label right after the Technical Name -->
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="procedure_tag" string="Procedure App Group"/>
+                    <field name="frontend_name" string="Staff Display Label"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- EXTEND NATIVE TIER DEFINITION FORM VIEW -->
+        <record id="view_tier_definition_form_inherit" model="ir.ui.view">
+            <field name="name">tier.definition.form.inherit</field>
+            <field name="model">tier.definition</field>
+            <field name="inherit_id" ref="base_tier_validation.tier_definition_view_form"/>
+            <field name="arch" type="xml">
+                <!-- Locate the title name and add a clean section block right underneath -->
+                <xpath expr="//field[@name='name']" position="after">
+                    <group string="KDERP E-Approval Workspace Extensions" style="background-color: #fcf8e3; padding: 10px; border-radius: 4px; border: 1px solid #fbeed5; margin-top: 10px;">
+                        <field name="procedure_tag"/>
+                        <field name="frontend_name" placeholder="e.g., Section Manager Approval"/>
+                    </group>
+                </xpath>
+                <!-- Hide has_comment field and apply the invisible attribute directly -->
+                <field name="has_comment" position="attributes">
+                    <attribute name="invisible">0</attribute>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>

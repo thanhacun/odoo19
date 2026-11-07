@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extended Inheritance Layout Patch Over kdvn_remote_sync Base Form View -->
+    <record id="view_kderp_e_approval_settings_form_inherit" model="ir.ui.view">
+        <field name="name">kderp.e.approval.config.settings.form.inherit</field>
+        <field name="model">kderp.remote.sync.config.settings</field>
+        <!-- Hard reference targeting the base module view record ID -->
+        <field name="inherit_id" ref="kdvn_remote_sync.view_kderp_remote_sync_settings_form"/>
+        <field name="arch" type="xml">
+            
+            <!-- 1. Inject Approval Endpoints straight into the core orchestration grid container -->
+            <xpath expr="//div[@id='kderp_n8n_core_container']" position="inside">
+                
+                <!-- Analytic Webhook Box Setup -->
+                <div class="col-xs-12 col-md-6 o_setting_box" id="box_n8n_analytic_webhook">
+                    <div class="o_setting_left_pane"/>
+                    <div class="o_setting_right_pane">
+                        <label for="n8n_analytic_webhook_url" string="Central Accounting Webhook Link"/>
+                        <div class="text-muted">
+                            Specify the destination URL for streaming analytic lines down to the central finance server upon settlement closeout events.
+                        </div>
+                        <div class="content-group mt8">
+                            <field name="n8n_analytic_webhook_url" placeholder="http://192.168.1..."/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- E-Approval Email Webhook Path Entry -->
+                <div class="col-xs-12 col-md-6 o_setting_box" id="box_e_approval_email_path">
+                    <div class="o_setting_left_pane"/>
+                    <div class="o_setting_right_pane">
+                        <label for="e_approval_email_webhook_path" string="n8n Email Webhook Path"/>
+                        <div class="text-muted">
+                            The webhook path in n8n workflow for email approve/reject processing.
+                        </div>
+                        <div class="content-group mt8">
+                            <field name="e_approval_email_webhook_path" placeholder="/webhook/v1/email-action"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- E-Approval Short Link Webhook Path -->
+                <div class="col-xs-12 col-md-6 o_setting_box" id="box_e_approval_short_link_path">
+                    <div class="o_setting_left_pane"/>
+                    <div class="o_setting_right_pane">
+                        <label for="e_approval_short_link_path" string="n8n Short Link Path"/>
+                        <div class="text-muted">
+                            Webhook path for short approve/reject links (e.g. ea). Leave empty to keep the long links.
+                        </div>
+                        <div class="content-group mt8">
+                            <field name="e_approval_short_link_path" placeholder="ea"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- E-Approval Cryptographic Signing Key -->
+                <div class="col-xs-12 col-md-6 o_setting_box" id="box_e_approval_secret_key">
+                    <div class="o_setting_left_pane"/>
+                    <div class="o_setting_right_pane">
+                        <label for="e_approval_secret_key" string="E-Approval Secret Key"/>
+                        <div class="text-muted">
+                            The secret key configuration used for secure token link verification encryption.
+                        </div>
+                        <div class="content-group mt8">
+                            <!-- The saved key is never sent to the browser: a badge says whether one is saved, type a new one only to change it -->
+                            <field name="e_approval_secret_key_saved" invisible="1"/>
+                            <div class="mb8">
+                                <span class="badge text-bg-success" invisible="not e_approval_secret_key_saved"><i class="fa fa-check" title="Saved"/> Saved</span>
+                                <span class="badge text-bg-warning" invisible="e_approval_secret_key_saved">Not set yet</span>
+                                <span class="text-muted ml8">Type a new key only to change it. It is never shown again.</span>
+                            </div>
+                            <div style="max-width: 420px;">
+                                <field name="e_approval_secret_key" widget="password" placeholder="New secret key" autocomplete="new-password"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+
+            <xpath expr="//sheet" position="inside">
+                <div class="app_settings_block" data-string="E-Approval" string="E-Approval Custom Settings" data-key="kdvn_e_approval">
+                    <h2>E-Approval Interface Customization Options</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="e_approval_ribbon_style" string="Workflow Progress Ribbon Style"/>
+                                <div class="text-muted">
+                                    Select how multi-step review timelines render inside header tracking panels.
+                                </div>
+                                <div class="content-group mt8">
+                                    <field name="e_approval_ribbon_style"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="app_settings_block" data-string="E-Approval" string="E-Approval Custom Settings" data-key="kdvn_e_approval">
+                    <h2>Global Notification Dispatch Profiles</h2>
+                    <div class="row mt16 o_settings_container">
+                        <!-- Left Side: System Toggles -->
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="global_notify_email"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="global_notify_email"/>
+                                <div class="text-muted">Allow system to dispatch approval alerts via email.</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="global_notify_talk"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="global_notify_talk"/>
+                                <div class="text-muted">Allow system to route real-time validation notes via Nextcloud Talk.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2>Nextcloud Talk API Connection Settings</h2>
+                    <div class="row mt16 o_settings_container" invisible="not global_notify_talk">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="nc_base_url" string="Nextcloud Server URL"/>
+                                <div class="content-group"><field name="nc_base_url" placeholder="https://kinden.com.vn"/></div>
+                                <label for="nc_bot_username" string="Bot Account Login Username"/>
+                                <div class="content-group"><field name="nc_bot_username"/></div>
+                                <label for="nc_bot_password" string="Bot Application Password Tokens"/>
+                                <div class="content-group">
+                                    <field name="nc_bot_password_saved" invisible="1"/>
+                                    <div class="mb8">
+                                        <span class="badge text-bg-success" invisible="not nc_bot_password_saved"><i class="fa fa-check" title="Saved"/> Saved</span>
+                                        <span class="badge text-bg-warning" invisible="nc_bot_password_saved">Not set yet</span>
+                                        <span class="text-muted ml8">Type a new password only to change it.</span>
+                                    </div>
+                                    <field name="nc_bot_password" widget="password" placeholder="New password" autocomplete="new-password"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+
+            <!-- 2. Clean up the placeholder section text once E-Approval handles validation rendering -->
+            <xpath expr="//div[@id='placeholder_text_node']" position="replace">
+                <div class="text-muted" id="placeholder_text_node">
+                    As we implement subsequent modules like <b>Staff Movements / Transfers</b>, fresh functional parameters will continue to safely scale out inside this container layout.
+                </div>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

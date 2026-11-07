@@ -1,0 +1,256 @@
+// kdvn_e_approval/static/src/scss/approval_ribbon.scss
+// Workflow ribbon rendered by KderpApprovalMixin._render_approval_ribbon().
+// Swap these five colours for the company palette.
+$kderp-flow-done: #28a745;
+$kderp-flow-current: #7C7BAD;   // Odoo 12 brand purple
+$kderp-flow-rejected: #dc3545;
+$kderp-flow-muted: #adb5bd;
+$kderp-flow-line: #dee2e6;
+
+.o_kderp_flow {
+    max-width: 680px;
+    margin-left: auto;
+    font-size: 12px;
+    line-height: 1.3;
+
+    .o_kderp_flow_steps {
+        display: flex;
+        list-style: none;
+        margin: 0;
+        padding: 4px 0 2px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .o_kderp_step {
+        position: relative;
+        flex: 1 0 90px;
+        min-width: 90px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 0 4px;
+
+        // connector line from the previous step
+        &:not(:first-child)::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            right: 50%;
+            width: 100%;
+            height: 2px;
+            background: $kderp-flow-line;
+        }
+        &.has-done-line::before { background: $kderp-flow-done; }
+    }
+
+    .o_kderp_step_dot {
+        position: relative;
+        z-index: 1;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 600;
+        background: #fff;
+        border: 2px solid $kderp-flow-muted;
+        color: $kderp-flow-muted;
+    }
+
+    // Icons (Font Awesome 4.7)
+    .o_kderp_icon { line-height: 1; }
+    .o_kderp_step_dot > .o_kderp_icon { font-size: 12px; }
+    &.o_kderp_flow--compact .o_kderp_step_dot > .o_kderp_icon { font-size: 10px; }
+    .o_kderp_sb_step > .o_kderp_icon,
+    .o_kderp_flow_note .o_kderp_icon,
+    .o_kderp_flow_file .o_kderp_icon { margin-right: 4px; }
+
+    .o_kderp_step_label {
+        margin-top: 4px;
+        max-width: 100%;
+        font-weight: 600;
+        color: #495057;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .o_kderp_step_meta {
+        max-width: 100%;
+        font-size: 10px;
+        color: #6c757d;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    // ---- states
+    .is-done .o_kderp_step_dot {
+        background: $kderp-flow-done;
+        border-color: $kderp-flow-done;
+        color: #fff;
+    }
+    .is-current {
+        .o_kderp_step_dot {
+            border-color: $kderp-flow-current;
+            color: $kderp-flow-current;
+            box-shadow: 0 0 0 4px rgba($kderp-flow-current, 0.18);
+        }
+        .o_kderp_step_label { color: $kderp-flow-current; }
+    }
+    .is-rejected {
+        .o_kderp_step_dot {
+            background: $kderp-flow-rejected;
+            border-color: $kderp-flow-rejected;
+            color: #fff;
+        }
+        .o_kderp_step_label { color: $kderp-flow-rejected; }
+    }
+    .is-waiting .o_kderp_step_label { color: #6c757d; font-weight: 500; }
+    .is-skipped {
+        opacity: 0.55;
+        .o_kderp_step_dot { border-style: dashed; }
+        .o_kderp_step_label { font-weight: 500; text-decoration: line-through; }
+    }
+
+    // ---- rejection note
+    .o_kderp_flow_note {
+        margin-top: 8px;
+        padding: 6px 10px;
+        border-left: 4px solid $kderp-flow-rejected;
+        border-radius: 3px;
+        background: #fdf2f2;
+        text-align: left;
+        strong { display: block; color: $kderp-flow-rejected; font-size: 11px; }
+        span { font-style: italic; color: #495057; white-space: pre-line; }
+    }
+
+    // ---- reminder of an earlier refusal (after the reset to draft)
+    .o_kderp_flow_note--history {
+        border-left-color: #e0a800;
+        background: #fff8e1;
+        strong { color: #8a6d00; }
+        small { color: #6c757d; }
+    }
+
+    // ---- attachments
+    .o_kderp_flow_files {
+        display: flex;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: 6px;
+    }
+    .o_kderp_flow_file {
+        max-width: 160px;
+        padding: 2px 8px;
+        border: 1px solid $kderp-flow-line;
+        border-radius: 12px;
+        background: #f8f9fa;
+        color: #495057;
+        font-size: 11px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        &:hover { background: #e9ecef; text-decoration: none; }
+    }
+
+    // ---- compact variant ("badge" setting): smaller dots, no names/dates
+    &.o_kderp_flow--compact {
+        .o_kderp_step { flex-basis: 70px; min-width: 70px; }
+        .o_kderp_step:not(:first-child)::before { top: 9px; }
+        .o_kderp_step_dot { width: 20px; height: 20px; font-size: 9px; }
+        .o_kderp_step_label { font-size: 10px; }
+        .o_kderp_step_meta { display: none; }
+    }
+}
+
+// ---- Odoo 12 statusbar variant ("statusbar" setting)
+// Same arrow geometry as Odoo's form header statusbar (web/static/src/scss/form_view.scss),
+// redone here because Odoo only styles .o_arrow_button inside the form header.
+$kderp-sb-height: 33px;
+$kderp-sb-arrow: 11px;          // Odoo: $o-statusbar-height / 3
+$kderp-sb-border: #dee2e6;      // gray-300
+$kderp-sb-active-bg: #e9ecef;   // gray-200
+
+.o_kderp_flow.o_kderp_flow--statusbar {
+    max-width: none;
+
+    .o_kderp_sb {
+        display: flex;
+        flex-flow: row-reverse wrap-reverse;   // items are written last-to-first, like Odoo
+        width: fit-content;
+        max-width: 100%;
+        margin-left: auto;
+        border: 1px solid $kderp-sb-border;
+        border-radius: 2px;
+        background: #fff;
+        overflow: hidden;
+    }
+
+    .o_kderp_sb_step {
+        position: relative;
+        display: flex;
+        align-items: center;
+        min-height: $kderp-sb-height;
+        padding: 0 10px 0 ($kderp-sb-arrow * 2);
+        background: #fff;
+        color: #6c757d;
+        font-size: 11px;
+        font-weight: bold;
+        white-space: nowrap;
+
+        &:last-child { padding-left: 12px; }    // leftmost segment
+        &:first-child { padding-right: 14px; }  // rightmost segment, no arrow
+
+        // arrow: ::before is the grey outline, ::after the fill (1px to the left)
+        &:not(:first-child)::before,
+        &:not(:first-child)::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -$kderp-sb-arrow + 1;
+            border-top: floor($kderp-sb-height / 2) solid transparent;
+            border-bottom: ceil($kderp-sb-height / 2) solid transparent;
+            border-left: $kderp-sb-arrow solid #fff;
+        }
+        &:not(:first-child)::before {
+            right: -$kderp-sb-arrow;
+            border-left-color: $kderp-sb-border;
+        }
+
+    }
+
+    .o_kderp_sb_num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        margin-right: 5px;
+        border: 1px solid currentColor;
+        border-radius: 50%;
+        font-size: 9px;
+    }
+
+    .o_kderp_sb_step.is-done { color: $kderp-flow-done; }
+    .o_kderp_sb_step.is-current {
+        background: $kderp-sb-active-bg;
+        color: $kderp-flow-current;
+        &::after { border-left-color: $kderp-sb-active-bg; }
+    }
+    .o_kderp_sb_step.is-rejected {
+        background: #fdf2f2;
+        color: $kderp-flow-rejected;
+        &::after { border-left-color: #fdf2f2; }
+    }
+    .o_kderp_sb_step.is-skipped {
+        color: $kderp-flow-muted;
+        font-weight: normal;
+        text-decoration: line-through;
+    }
+}

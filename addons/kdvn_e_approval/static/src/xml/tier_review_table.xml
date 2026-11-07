@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <!-- Reviews panel table: same columns as the tier.review list view (views/tier_review_views.xml).
+         Rendered by ReviewField.include in static/src/js/review_colors.js instead of OCA's
+         tier.review.ReviewsTable. Row colours come from review_colors.css. -->
+    <t t-name="kderp.tier.review.ReviewsTable">
+        <table class="table table-sm o_kderp_review_table">
+            <thead>
+                <tr>
+                    <th class="text-center">#</th>
+                    <th>Step</th>
+                    <th>Reviewers</th>
+                    <th>Status</th>
+                    <th>By</th>
+                    <th>Date</th>
+                    <th>Comment</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr t-foreach="reviews" t-as="review">
+                    <td class="text-center"><t t-esc="review.sequence"/></td>
+                    <td><t t-esc="review.frontend_step_name || review.name"/></td>
+                    <td>
+                        <t t-foreach="review.reviewer_names || []" t-as="reviewer">
+                            <span class="badge badge-pill o_kderp_review_tag" t-esc="reviewer"/>
+                        </t>
+                    </td>
+                    <td><t t-esc="review.display_status"/></td>
+                    <td><t t-esc="review.done_by ? review.done_by[1] : ''"/></td>
+                    <td><t t-esc="review.reviewed_date_display || ''"/></td>
+                    <td><t t-esc="review.comment || ''"/></td>
+                </tr>
+            </tbody>
+        </table>
+    </t>
+</templates>

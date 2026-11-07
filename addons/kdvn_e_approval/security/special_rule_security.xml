@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Internal users may write only rows whose "Editable by" group they belong to.
+             Reading is not restricted (the rule applies to write only). -->
+        <record id="rule_special_rule_editor" model="ir.rule">
+            <field name="name">Special case rules: edit own procedure's rows</field>
+            <field name="model_id" ref="model_kderp_e_approval_special_rule"/>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="domain_force">[('manager_group_id', 'in', user.group_ids.ids)]</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_special_rule_admin" model="ir.rule">
+            <field name="name">Special case rules: e-approval admin</field>
+            <field name="model_id" ref="model_kderp_e_approval_special_rule"/>
+            <field name="groups" eval="[(4, ref('kdvn_e_approval.group_e_approval_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+    </data>
+</odoo>

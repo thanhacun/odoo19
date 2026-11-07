@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_users_view_form_inherit_kderp_base" model="ir.ui.view">
+        <field name="name">res.users.form.view.inherit.kderp.base</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='tz']" position='after'>
+                <field name="approval_notify_type" widget="radio" />
+            </xpath>
+        </field>
+    </record>
+    <!-- Inherit the simple preferences form used when users edit their OWN profile -->
+    <record id="view_users_form_simple_modif_inherit" model="ir.ui.view">
+        <field name="name">res.users.preferences.form.inherit</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form_simple_modif"/>
+        <field name="arch" type="xml">
+            <!-- Inject fields cleanly inside the standard preferences group container -->
+            <xpath expr="//group[@name='preferences']" position="inside">
+                <group string="E-Approval Preferences" name="e_approval_notif_panel" colspan="2">
+                    <field name="approval_notify_type" readonly="0"/>
+                    <field name="approval_ribbon_style" readonly="0"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

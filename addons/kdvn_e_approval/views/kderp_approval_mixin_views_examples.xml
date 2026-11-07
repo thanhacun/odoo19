@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<record id="view_form_id" model="ir.ui.view">
+    <field name="name">view_form_name</field>
+    <field name="model">request_model</field>
+    <field name="arch" type="xml">
+        <form>
+            <header>
+                <!-- Workflow Execution and Action Sign-off Controls -->
+                <button name="action_submit" 
+                    string="Submit Request" type="object" class="oe_highlight" 
+                    attrs="{'invisible': ['|', '|', ('is_current_applicant', '=', False), ('state', '!=', 'draft'), ('is_emergency', '=', True)]}"/>
+                <button name="action_submit" type="object" 
+                    string="🔥 Submit Emergency Request" class="btn-danger"
+                    confirm="⚠️ Are you completely sure this operation requires an URGENT emergency validation?"
+                    attrs="{'invisible': ['|', '|', ('is_current_applicant', '=', False), ('state', '!=', 'draft'), ('is_emergency', '=', False)]}" />
+                <button name="validate_tier" string="Approve Step" type="object" class="oe_highlight" attrs="{'invisible': [('can_review', '=', False)]}"/>
+                <button name="reject_tier" string="Reject Step" type="object" class="btn-danger" attrs="{'invisible': [('can_review', '=', False)]}"/>
+                
+                <!-- 🚀 THE RESET BUTTON: Only visible if the document is under review or finished, and only for Admins -->
+                <button name="action_reset_to_draft" 
+                    string="Unblock / Reset to Draft" 
+                    type="object" 
+                    class="btn-warning"
+                    groups="kdvn_e_approval.group_e_approval_admin"
+                    attrs="{'invisible': [('state', 'not in', ['submitted', 'approved', 'rejected'])]}"/>
+
+                <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,rejected"/>
+                
+            </header>
+            <sheet>
+                <!-- TWO-COLUMN TOP HEADER ROW CONTAINER (NATIVE BOOTSTRAP 4 FLEX ALIGNMENT) -->
+                <div class="row no-gutters mb-3 d-flex align-items-start justify-content-between">
+                    <!-- Left Column: Core Request Tracking Identifiers (Clean 50% width distribution grid) -->
+                    <div class="col-6 oe_title pr-2">
+                        <label for="name" class="oe_edit_only" string="Request No."/>
+                        <h2 class="mt-0 mb-1"><field name="name" readonly="1" /></h2>
+                        <h1 class="mt-0 style" style="font-size: 20px; line-height: 1.3;"><field name="reason" placeholder="Explain request purpose here" /></h1>
+                    </div>
+                    
+                    <!-- Right Column: Expanded Responsive Workflow Ribbon Progress Panel (Clean 50% width distribution grid) -->
+                    <div class="col-6 text-right pl-0" style="min-width: 380px; overflow: hidden;">
+                        <field name="approval_workflow_ribbon" widget="html" readonly="1" nolabel="1"/>
+                    </div>
+                </div>
+
+                <group string="Urgent Request">
+                    <group>
+                        <field name="is_emergency" string="Urgent" widget="boolean_toggle_safe_readonly" attrs='{"readonly": [("state", "!=", "draft")]}'/>
+                    </group>
+                    <group attrs="{'invisible': [('is_emergency', '=', False)]}">
+                        <div class="alert alert-danger" role="alert" style="margin: 0; padding: 10px; border-left: 4px solid #d9534f; background-color: #fdf7f7; color: #b94a48; font-size: 12px; line-height: 1.4;">
+                            <strong>⚠️ COMPLIANCE WARNING:</strong> Please do NOT abuse of the emergency pipeline for non-critical requests.<br/><br/>
+                            <strong>🚨 PROCESSING NOTICE:</strong> Submitting will <u>IMMEDIATELY</u> send a high-priority email notification directly to your assigned managers.
+                        </div>
+                    </group>                    
+                </group>
+
+                <notebook>
+                    <page string="Supporting Documentation Files" name="attachments_tab">
+                        <group>
+                            <field name="attachment_ids" 
+                                    widget="many2many_binary" 
+                                    string="Upload Documentation Attachments"
+                                    placeholder="Drag files here or click to browse..."/>
+                        </group>
+                    </page>
+                    <page string="For Admin Only" name="for_admin_only_tab" readonly="1" groups="base.user_admin,kdvn_e_approval.group_e_approval_admin">
+                        <group string="Controler fields">
+                                <field name="need_validation" invisible="0"/>
+                                <field name="can_review" invisible="0"/>
+                                <field name="validated" invisible="0"/>
+                                <field name="is_current_applicant" invisible="0" />
+                                <field name="is_gm" invisible="0" />
+                                <field name="approval_category" invisible="0" />
+                            </group>
+                    </page>
+                </notebook>
+            </sheet>
+
+            <chatter/>
+        </form>
+    </field>
+</record>
+</odoo>

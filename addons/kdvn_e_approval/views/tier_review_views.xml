@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 🚀 CLEAN SEPARATION OF CONCERNS: Override the core tier.review list definition -->
+    <record id="tier_review_view_tree_inherited" model="ir.ui.view">
+        <field name="name">tier.review.list.kderp.override</field>
+        <field name="model">tier.review</field>
+        <field name="inherit_id" ref="base_tier_validation.tier_review_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="replace">
+                <list 
+                    decoration-info="status == 'pending'" 
+                    decoration-success="status == 'approved'" 
+                    decoration-danger="status == 'rejected'">
+                    <field name="sequence" string="#"/>
+                    <field name="frontend_step_name" string="Step"/>
+                    <field name="reviewer_ids" widget="many2many_tags" string="Reviewers"/>
+                    <field name="status" string="Status"/>
+                    <field name="done_by" string="By"/>
+                    <field name="reviewed_date" string="Date"/>
+                    <field name="comment" string="Comment"/>
+                </list>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 🛡️ PROTECTIVE MINIMAL FALLBACK FORM VIEW -->
+    <record id="view_tier_review_form_minimal" model="ir.ui.view">
+        <field name="name">tier.review.form.minimal</field>
+        <field name="model">tier.review</field>
+        <field name="arch" type="xml">
+            <form string="Approval Sequence Information" create="0" edit="0" delete="0">
+                <sheet>
+                    <group col="4">
+                        <field name="sequence" readonly="1"/>
+                        <field name="name" readonly="1" string="Milestone Layer"/>
+                        <field name="status" readonly="1"/>
+                        <field name="todo_by" readonly="1" string="Assigned Signer"/>
+                        <field name="reviewed_date" readonly="1" string="Action Date"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>
