@@ -305,8 +305,9 @@ class KderpApprovalMixin(models.AbstractModel):
     @api.depends('review_ids','review_ids.status', 'employee_id')
     def _compute_is_gm(self):
         for record in self:
-            applicant = record.employee_id.user_id or record.create_uid
-            record.is_gm = applicant.has_group('kderp_hr_attendance.group_hr_attendance_gm')
+            # a new (unsaved) record has no create_uid yet: the user filling the form is the applicant
+            applicant = record.employee_id.user_id or record.create_uid or self.env.user
+            record.is_gm = applicant.has_group('kdvn_hr_attendance.group_hr_attendance_gm')
 
     def _compute_is_current_applicant(self):
         for record in self:
@@ -489,8 +490,15 @@ class KderpApprovalMixin(models.AbstractModel):
             return False
         return super(KderpApprovalMixin, self)._allow_to_remove_reviews(values)
 
+    def _check_state_conditions(self, vals):
+        """OCA 19 treats a write of the final state as 'please validate now' and calls _validate_tier again.
+        Our own state change (after the reviews are done) must not trigger that: it would loop forever."""
+        if self.env.context.get('kdvn_internal_state_change'):
+            return False
+        return super(KderpApprovalMixin, self)._check_state_conditions(vals)
+
     def _universal_state_changer(self, target_state):
-        for record in self:
+        for record in self.with_context(kdvn_internal_state_change=True):
             state_field = getattr(self, '_state_field', 'state')
             if hasattr(record, state_field) and getattr(record, state_field) != target_state:
                 record.write({state_field: target_state})
