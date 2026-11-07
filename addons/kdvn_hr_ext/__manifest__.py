@@ -6,7 +6,7 @@ Odoo 19 version of the Odoo 12 module kderp_hr_ext (12.0.1.0.0).
 Functional and administrative department history per employee, manager history per department,
 project history, chains of manager users (functional and administrative) and their GM, org-chart data.
 """,
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Human Resources',
     'author': 'Kinden Vietnam',
     'license': 'LGPL-3',

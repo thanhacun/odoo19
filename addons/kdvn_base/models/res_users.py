@@ -9,4 +9,4 @@ class ResUsers(models.Model):
 
     location_user_id = fields.Many2one(
         'kderp.base.code', string='Location', ondelete='restrict',
-        domain=lambda self: [('model_id.model', '=', 'res.users'), ('type_code', '=', 'user_location')])
+        domain=lambda self: [('model_name', '=', 'res.users'), ('type_code', '=', 'user_location')])

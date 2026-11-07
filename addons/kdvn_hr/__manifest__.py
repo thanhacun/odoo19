@@ -7,7 +7,7 @@ Adds to hr.employee: staff code (searchable, shown in the name), working flag, l
 Adds to hr.department: code, type, second manager, new manager with effective date.
 Model names are unchanged so legacy data maps 1:1.
 """,
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Human Resources',
     'author': 'Kinden Vietnam',
     'license': 'LGPL-3',

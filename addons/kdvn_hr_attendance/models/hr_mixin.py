@@ -78,7 +78,9 @@ class HrMixin(models.AbstractModel):
     refuse_comment = fields.Text(compute='_get_refuse_comment')
 
     single_mode = fields.Boolean(compute='_compute_single_mode', help='Whether the user is staff or admin/manager?')
-    active = fields.Boolean(default=True, groups='hr_attendance.group_hr_attendance_user')
+    # Odoo 12 limited `active` to attendance officers. Odoo 19 checks field access for the implicit active filter of every search,
+    # so staff who are not officers could not even open their own attendance: no groups on `active` (views hide the archive filter by group).
+    active = fields.Boolean(default=True)
 
     # Odoo 12 fields_view_get removed some list columns (employee, request times...) in 'single mode' (staff see only their own rows).
     # Odoo 19: the list views hide those columns themselves with column_invisible="context.get('attendance_single_mode')" etc.

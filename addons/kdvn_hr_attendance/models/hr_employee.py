@@ -46,12 +46,12 @@ class Employee(models.Model):
     # admin_dept_id = fields.Many2one('hr.department', string='Administrative section', default=lambda self: self.department_id)
 
     # === Leaves balances ===
-    leaves_bal = fields.Float(default=0, string="Leaves Balance", help="Current year leaves balance")
-    leaves_carry_forward_bal = fields.Float(default=0, string="Last Year Leaves", help="Last year leaves carrying forward to this year")
-    ot_compensation_leave_bal = fields.Float(default=0, string="OT Compensation Leaves")
-    special_leaves_0 = fields.Float(default=0, string="Special Leave Y.1")
-    special_leaves_1 = fields.Float(default=0, string="Special Leave Y.2")
-    special_leaves_2 = fields.Float(default=0, string="Special Leave Y.3")
+    leaves_bal = fields.Float(default=0, string="Leaves Balance", groups="hr.group_hr_user", help="Current year leaves balance")
+    leaves_carry_forward_bal = fields.Float(default=0, string="Last Year Leaves", groups="hr.group_hr_user", help="Last year leaves carrying forward to this year")
+    ot_compensation_leave_bal = fields.Float(default=0, string="OT Compensation Leaves", groups="hr.group_hr_user")
+    special_leaves_0 = fields.Float(default=0, string="Special Leave Y.1", groups="hr.group_hr_user")
+    special_leaves_1 = fields.Float(default=0, string="Special Leave Y.2", groups="hr.group_hr_user")
+    special_leaves_2 = fields.Float(default=0, string="Special Leave Y.3", groups="hr.group_hr_user")
     need_action = fields.Boolean('Need HR Action', compute='_compute_need_hr_action', search='_search_need_hr_action', readonly=True)
     need_action_explain = fields.Text('Need Action Explain', compute='_compute_need_hr_action', readonly=True)
 
