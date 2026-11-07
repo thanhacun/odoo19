@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-inherit="mail.Chatter" t-inherit-mode="extension">
+        <!-- the button, in the top bar -->
+        <xpath expr="//button[@t-if='showsAttachmentPopout']" position="before">
+            <button type="button" class="o-kdvn-ChatterToggle btn btn-link text-nowrap" t-on-click="kdvnToggleChatter">
+                <t t-if="state.kdvnHidden">Show Chatter ▼</t>
+                <t t-else="">Hide Chatter ▲</t>
+            </button>
+        </xpath>
+        <!-- the messages, activities, files: hidden until the button is clicked (the top bar and the composer stay) -->
+        <xpath expr="//div[hasclass('o-mail-Chatter-content')]" position="attributes">
+            <attribute name="t-if">!state.kdvnHidden</attribute>
+        </xpath>
+    </t>
+</templates>
