@@ -2464,17 +2464,17 @@ class KderpHrAttendance(models.Model):
         # generate current at_rules to show in UI (form view)
         # the view is defined in data/mail_templates.xml
         at_view = self.env.ref('kdvn_hr_attendance.at_rules')
-        at_rules = self._at_rules()
-        rule_desc = self._at_rules(get_rule_desc=True)
-        rules = []
-        for key in at_rules.keys():
-            label = self.env['hr.attendance.rule'].fields_get().get(key, {'string': None})['string']
-            value = at_rules.get(key, None)
-            desc = rule_desc.get(key, ['', ''])
-            rules.append((key, label or key, value, desc[0], desc[1]))
-        values = {'rules': rules, 'employee_name': self.employee_id.display_name}
-        html = self.env['ir.qweb']._render(at_view.id, values)
-        self.at_rules = html
+        for at in self:  # Odoo 19: per record (a prefetch batch may hold several)
+            at_rules = at._at_rules()
+            rule_desc = at._at_rules(get_rule_desc=True)
+            rules = []
+            for key in at_rules.keys():
+                label = self.env['hr.attendance.rule'].fields_get().get(key, {'string': None})['string']
+                value = at_rules.get(key, None)
+                desc = rule_desc.get(key, ['', ''])
+                rules.append((key, label or key, value, desc[0], desc[1]))
+            values = {'rules': rules, 'employee_name': at.employee_id.display_name}
+            at.at_rules = self.env['ir.qweb']._render(at_view.id, values)
 
     @api.depends('at_date')
     def _compute_start_end_date(self):
@@ -2793,20 +2793,20 @@ class KderpHrAttendance(models.Model):
     @api.depends('employee_id')
     def _compute_ah_leaves_count(self):
         # [X] counting ah leaves for current at month
-        self.ensure_one()
-        ah_domain = [
-            ('employee_id', '=', self.employee_id.id),
-            ('holiday_status_id.allocation_type', '!=', 'no'),
-            ('holiday_status_id.active', '=', 'True'),
-            ('holiday_status_id.is_ah', '=', True),
-            ('state', '=', 'validate'),
-            ('holiday_status_id.validity_start', '<=', self.at_date),
-            ('holiday_status_id.validity_stop', '>=', self.at_date)
-        ]
+        for at in self:  # Odoo 19: a form can compute several records of the prefetch batch
+            ah_domain = [
+                ('employee_id', '=', at.employee_id.id),
+                ('holiday_status_id.allocation_type', '!=', 'no'),
+                ('holiday_status_id.active', '=', 'True'),
+                ('holiday_status_id.is_ah', '=', True),
+                ('state', '=', 'validate'),
+                ('holiday_status_id.validity_start', '<=', at.at_date),
+                ('holiday_status_id.validity_stop', '>=', at.at_date)
+            ]
 
-        ah_leaves = self.env['hr.leave.report'].read_group(ah_domain, fields=['number_of_days', 'employee_id'], groupby=['employee_id'])
-        ah_mapping = dict([(l['employee_id'][0], l['number_of_days']) for l in ah_leaves])
-        self.ah_leaves_count = float_round(ah_mapping.get(self.employee_id.id, 0), precision_digits=2)
+            ah_leaves = self.env['hr.leave.report'].read_group(ah_domain, fields=['number_of_days', 'employee_id'], groupby=['employee_id'])
+            ah_mapping = dict([(l['employee_id'][0], l['number_of_days']) for l in ah_leaves])
+            at.ah_leaves_count = float_round(ah_mapping.get(at.employee_id.id, 0), precision_digits=2)
 
     def _compute_on_current_month_at(self):
         today = fields.Date.context_today(self)

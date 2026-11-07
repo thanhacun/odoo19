@@ -72,3 +72,23 @@ class TestRealisticRows(ATCase):
         self.assertFalse(at.check_in)
         self.assertEqual(at.color, 0)
         self.assertTrue(at.read(['color', 'display_name', 'worked_hours']))
+
+    def test_computed_fields_of_many_records(self):
+        """A list view computes many records at once: no ensure_one in compute methods, every field assigned."""
+        emp = self.new_employee()
+        emp2 = self.new_employee()
+        self.new_rule(emp, early_offset=60)
+        self.new_rule(emp2, early_offset=30)
+        rules = self.env['hr.attendance.rule'].search([])
+        self.assertTrue(len(rules) >= 2)
+        self.assertTrue(rules.read(['date_start', 'day_start', 'working_start', 'late_in', 'early_out', 'absence', 'special_ot_hour']))
+        ats = self.new_at(emp, datetime.date(2026, 3, 11)) | self.new_at(emp2, datetime.date(2026, 3, 11))
+        self.assertTrue(ats.read(['ah_leaves_count', 'at_rules', 'color']))
+        self.assertTrue((emp | emp2).read(['hours_last_month', 'hours_last_month_display', 'hours_last_month_overtime']))
+
+    def test_allocations_read_together(self):
+        emp = self.new_employee()
+        self.new_leave(emp, datetime.date(2026, 3, 11))
+        allocations = self.env['hr.leave.allocation'].search([('employee_id', '=', emp.id)])
+        self.assertTrue(allocations)
+        self.assertTrue(allocations.read(['max_leaves', 'virtual_remaining_leaves', 'leaves_taken']))

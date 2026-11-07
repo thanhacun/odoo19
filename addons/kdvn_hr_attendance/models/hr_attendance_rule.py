@@ -111,26 +111,26 @@ class HrAttendanceRule(models.Model):
         else:
             policy = company.at_policy()
 
-        # Handling override rules
-        if self.override_day_start:
-            policy['day_start'] = self.override_day_start
-        if self.override_working_start:
-            policy['working_start'] = self.override_working_start
-        if self.override_late_in:
-            policy['late_in'] = self.override_late_in
-        if self.override_early_out:
-            policy['early_out'] = self.override_early_out
-        if self.override_absence:
-            policy['absence'] = self.override_absence
-
         for rule in self:
-            rule.date_start = policy['date_start']
-            rule.day_start = policy['day_start']
-            rule.working_start = policy['working_start']
-            rule.late_in = policy['late_in']
-            rule.early_out = policy['early_out']
-            rule.absence = policy['absence']
-            rule.special_ot_hour = ':'.join(map(lambda e: "{:02d}".format(e), policy['special_ot']))
+            rule_policy = dict(policy)
+            # Handling override rules (Odoo 19: per record, a list view computes many rules at once)
+            if rule.override_day_start:
+                rule_policy['day_start'] = rule.override_day_start
+            if rule.override_working_start:
+                rule_policy['working_start'] = rule.override_working_start
+            if rule.override_late_in:
+                rule_policy['late_in'] = rule.override_late_in
+            if rule.override_early_out:
+                rule_policy['early_out'] = rule.override_early_out
+            if rule.override_absence:
+                rule_policy['absence'] = rule.override_absence
+            rule.date_start = rule_policy['date_start']
+            rule.day_start = rule_policy['day_start']
+            rule.working_start = rule_policy['working_start']
+            rule.late_in = rule_policy['late_in']
+            rule.early_out = rule_policy['early_out']
+            rule.absence = rule_policy['absence']
+            rule.special_ot_hour = ':'.join(map(lambda e: "{:02d}".format(e), rule_policy['special_ot']))
 
     def action_submit(self):
         for rule in self:
