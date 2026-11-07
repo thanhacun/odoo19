@@ -7,7 +7,7 @@ set -eu
 TPL=${1:-odoo19_empty}
 CONTAINER=${CONTAINER:-odoo19}
 PGC=${PGC:-db}
-MODULES=${MODULES:-kdvn_legacy_import,kdvn_hr_attendance,kdvn_remote_sync}   # their dependencies come with them
+MODULES=${MODULES:-kdvn_legacy_import,kdvn_hr_attendance,kdvn_remote_sync,kdvn_web,kdvn_e_approval,kdvn_entertainment_procedures,kdvn_hr_procedures,kdvn_procurement_procedures,kdvn_dashboard,kdvn_knowledge}   # their dependencies come with them
 case "$TPL" in odoo19_dev|odoo19_thcn|legacy12|postgres) echo "refusing: $TPL is not a template name"; exit 1;; esac
 docker exec "$PGC" psql -U odoo -d postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='$TPL' AND pid<>pg_backend_pid()" >/dev/null
 docker exec "$PGC" psql -U odoo -d postgres -c "DROP DATABASE IF EXISTS \"$TPL\"" -c "CREATE DATABASE \"$TPL\""

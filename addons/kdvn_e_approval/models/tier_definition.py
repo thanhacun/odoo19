@@ -11,6 +11,9 @@ class TierDefinition(models.Model):
         help="Friendly name displayed to staff employees in the checklist track table (e.g. 'General Manager Sign-off')"
     )
     
+    # Odoo 12 always logged "refused by" in the chatter; OCA 19 does it only when this is set.
+    notify_on_rejected = fields.Boolean(default=True)
+
     procedure_tag = fields.Selection(
         selection='_get_dynamic_procedure_tags',
         string='Belongs to Procedure App',
