@@ -112,3 +112,11 @@ class TestOurDefaultViews(common.TransactionCase):
             with self.subTest(view=view_type):
                 resolved = Att.get_view(view_type=view_type)
                 self.assertEqual(self.env['ir.ui.view'].browse(resolved['id']), self.env.ref(xmlid))
+
+
+@tagged('post_install', '-at_install', 'at_screens')
+class TestDefaultPivot(common.TransactionCase):
+    def test_overtime_pivot_is_the_default_pivot(self):
+        """In Odoo 12 this view replaced the core pivot; in Odoo 19 it has to win by priority."""
+        resolved = self.env['hr.attendance'].get_view(view_type='pivot')
+        self.assertEqual(self.env['ir.ui.view'].browse(resolved['id']), self.env.ref('kdvn_hr_attendance.hr_attendance_overtime_pivot'))

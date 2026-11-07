@@ -54,7 +54,7 @@ class KderpHrEmployeeLocationFromAttendance(models.Model):
         finally:
             if preview:
                 self.env.cr.execute('ROLLBACK TO SAVEPOINT staff_location_preview')
-                self.invalidate_cache()
+                self.env.invalidate_all()
         return stats
 
     @api.model

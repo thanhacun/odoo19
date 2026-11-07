@@ -388,7 +388,7 @@
     </record>
     
     <!-- Attendance OT Hoilday -->
-    <!-- OT Holidays Tree view -->
+    <!-- OT Holidays List view -->
     <record id="list_hr_attendance_ot_holiday" model="ir.ui.view">
         <field name="name">hr.attendance.ot.holiday.tree</field>
         <field name="model">hr.attendance.ot.holiday</field>
@@ -479,7 +479,7 @@
 
     </record>
 
-    <!-- OT Holiday line tree view -->
+    <!-- OT Holiday line list view -->
     <record id="list_hr_attendance_ot_holiday_line" model="ir.ui.view">
         <field name="name">hr.attendance.ot.holiday.line.tree</field>
         <field name="model">hr.attendance.ot.holiday.line</field>

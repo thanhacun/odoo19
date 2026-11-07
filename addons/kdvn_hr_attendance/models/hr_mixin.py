@@ -282,7 +282,7 @@ class HrMixin(models.AbstractModel):
             "name": "Change approve manager",
             "res_model": "hr.mixin.manager",
             "views": [(False, "form")],
-            "view_mode": "tree,form",
+            "view_mode": "list,form",
             "target": "new"
         }
 
@@ -345,7 +345,7 @@ class HrMixin(models.AbstractModel):
             "name": "Open refuse comment",
             "res_model": "hr.attendance.refuse",
             "views": [(False, "form")],
-            "view_mode": "tree,form",
+            "view_mode": "list,form",
             "domain": [],
             # "res_id": refuse.id if refuse else self.env['hr.attendance.refuse'].create({refuse_model_id: self.id}).id,
             "res_id": refuse.id if refuse else False,

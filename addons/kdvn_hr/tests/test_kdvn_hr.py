@@ -79,4 +79,3 @@ class TestDepartmentDisplayName(TransactionCase):
         child = self.env['hr.department'].create({'name': 'ZZ GA Section', 'code': 'ZZ00-01', 'parent_id': top.id})
         self.assertEqual(child.display_name, 'ZZ GA Section')
         self.assertIn('ZZ Top', child.complete_name)
-        self.assertEqual(dict(child.name_get())[child.id] if hasattr(child, 'name_get') else child.display_name, 'ZZ GA Section')

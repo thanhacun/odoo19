@@ -147,7 +147,7 @@
                             attrs="{'invisible': False}" string="Request OUT" readonly="True" /> -->
                         <!-- <field name="request_description" string="Summary" /> -->
                         <field name="at_request_ids" string="OT/WT" colspan="4" readonly="1" context="{'request_single_mode': True}" widget="many2many">
-                            <!-- <tree decoration-success="state == 'waiting_fman'" decoration-info="state == 'waiting_fhr'" 
+                            <!-- <list decoration-success="state == 'waiting_fman'" decoration-info="state == 'waiting_fhr'" 
                                 decoration-warning="state == 'waiting_fman2'" decoration-muted="state == 'done'" decoration-danger="state == 'refuse'" editable="bottom">
                                 <field name="request_type" string="Type" />
                                 <field name="sub_request_type_id" string="Detail" />
@@ -168,7 +168,7 @@
                                 <field name="refuse_button_visible" invisible="1" />
                                 <field name="revise_button_visible" invisible="1" />
                                 <field name="man2_approve" invisible="1" />
-                            </tree> -->
+                            </list> -->
                         </field>
                         <!-- <field name="leave_cover_ids" colspan="4" widget="many2many_tags" options="{'open': True}" /> -->
                         <field name="leave_cover_ids" colspan="4" string="Leaves">
@@ -677,10 +677,10 @@
         <field name="name">hr.attendance.approve.manager.tree</field>
         <field name="model">hr.attendance.approve.manager</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="at_id" string="Attendance" />
                 <field name="name" />
-            </tree>
+            </list>
         </field>
     </record>
     
@@ -735,7 +735,7 @@
     <record id="hr_attendance_overtime_pivot" model="ir.ui.view">
         <field name="name">hr.attendance.overtime_pivot</field>
         <field name="model">hr.attendance</field>
-        <field name="priority">20</field>
+        <field name="priority">1</field>
         <field name="arch" type="xml">
             <pivot string="OT Summary">
                     <field name="employee_id" type="row"/>

@@ -155,7 +155,7 @@ class Employee(models.Model):
                     if dept.name == 'HR Section':
                         groups_id.append(at_manager.id)
 
-            u.write({'groups_id': [(6, 0, groups_id)]})
+            u.write({'group_ids': [(6, 0, groups_id)]})  # Odoo 19: groups_id -> group_ids
 
     def disable_user(self):
         self.ensure_one()

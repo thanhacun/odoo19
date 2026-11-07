@@ -75,9 +75,9 @@
                 <filter name="filter_published" string="Shown on Website" domain="[('website_published', '=', True)]"/>
                 <separator/>
                 <filter name="filter_expiring" string="Expiring in 60 Days"
-                        domain="[('date_end', '!=', False), ('date_end', '&gt;=', context_today().strftime('%Y-%m-%d')), ('date_end', '&lt;=', (context_today() + relativedelta(days=60)).strftime('%Y-%m-%d'))]"/>
+                        domain="[('date_end', '!=', False), ('date_end', '&gt;=', 'today'), ('date_end', '&lt;=', 'today +60d')]"/>
                 <filter name="filter_expired" string="Expired"
-                        domain="[('date_end', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                        domain="[('date_end', '&lt;', 'today')]"/>
                 <separator/>
                 <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
             </search>
