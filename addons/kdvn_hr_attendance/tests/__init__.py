@@ -10,3 +10,4 @@ from . import test_leave_balance
 from . import test_staff_location_push
 from . import test_requests
 from . import test_screens
+from . import test_reports
