@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="group_staff_transfer_functional_controller" model="res.groups">
+            <field name="name">Staff Transfer: Functional Controller / HR Manager</field>
+            <field name="privilege_id" ref="kdvn_e_approval.privilege_kderp_e_approval"/>
+        </record>
+        <!-- HR Managers stay in this group (also existing ones, on upgrade) -->
+        <record id="hr.group_hr_manager" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('group_staff_transfer_functional_controller'))]"/>
+        </record>
+        <record id="rule_staff_transfer_functional_controller_all" model="ir.rule">
+            <field name="name">Staff Transfer: Functional Controller sees all</field>
+            <field name="model_id" ref="model_staff_transfer"/>
+            <field name="groups" eval="[(4, ref('group_staff_transfer_functional_controller'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_staff_transfer_employee" model="ir.rule">
+            <field name="name">Employee: Own Staff Transfer Only</field>
+            <field name="model_id" ref="model_staff_transfer"/>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="rule_staff_transfer_manager_isolation" model="ir.rule">
+            <field name="name">Staff Transfer Dynamic Multi-Tier Manager Enforcement Rule</field>
+            <field name="model_id" ref="model_staff_transfer"/>
+            <field name="groups" eval="[
+                (4, ref('kdvn_hr_attendance.group_hr_attendance_section_manager')),
+                (4, ref('kdvn_hr_attendance.group_hr_attendance_gm'))
+                ]" /> 
+            <!-- <field name="domain_force">[('review_ids', 'in', user.review_ids.ids)]</field> -->
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree Layout -->
+    <record id="view_staff_transfer_tree" model="ir.ui.view">
+        <field name="name">staff.transfer.list</field>
+        <field name="model">staff.transfer</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'draft'" decoration-warning="state == 'submitted'" decoration-success="state == 'approved'">
+                <field name="name"/>
+                <field name="employee_id" string="Requested by"/>
+                <field name="transfer_employee_id" string="Staff to transfer"/>
+                <field name="transfer_from_date"/>
+                <field name="transfer_to_date"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form Layout -->
+    <record id="view_staff_transfer_form" model="ir.ui.view">
+        <field name="name">staff.transfer.form</field>
+        <field name="model">staff.transfer</field>
+        <field name="arch" type="xml">
+            <form duplicate="false">
+                <header>
+                    <button name="action_submit" string="Submit Request" type="object" class="oe_highlight"
+                        invisible="(not is_current_applicant or state != 'draft') or is_emergency"/>
+                    <button name="action_submit" type="object" string="🔥 Submit Emergency Request" class="btn-danger"
+                        confirm="⚠️ Are you completely sure this operation requires an URGENT emergency validation?"
+                        invisible="(not is_current_applicant or state != 'draft') or not is_emergency"/>
+                    <button name="validate_tier" string="Approve Step" type="object" class="oe_highlight" invisible="not can_review"/>
+                    <button name="reject_tier" string="Reject Step" type="object" class="btn-danger" invisible="not can_review"/>
+                    <button name="action_print_secure_authenticated_report" string="Print Secure Form" type="object" class="oe_highlight" invisible="state not in ('approved')" context="{'target_report_xml_id': 'kdvn_hr_procedures.action_report_staff_transfer_py3o', 'report_format_method': '_prepare_staff_transfer_report_data'}"/>
+                    <button name="action_reset_to_draft" string="Unblock / Reset to Draft" type="object" class="btn-warning"
+                        groups="kdvn_e_approval.group_e_approval_admin,kdvn_hr_procedures.group_staff_transfer_functional_controller"
+                        invisible="state not in ('submitted', 'approved', 'rejected')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,rejected"/>
+                </header>
+                <sheet>
+                    <div class="row" style="margin-bottom: 20px;">
+                        <div class="col-7 oe_title">
+                            <label for="name" class="oe_edit_only" string="Request No."/>
+                            <h2><field name="name" readonly="1"/></h2>
+                            <h1><field name="reason" placeholder="Reason of transfer..." /></h1>
+                        </div>
+                        <!-- Right: Dynamic HTML Workflow Progress and Attachment Ribbon -->
+                        <div class="col-5 text-right pull-right" style="margin-top: 5px;">
+                            <field name="approval_workflow_ribbon" widget="html" readonly="1" nolabel="1"/>
+                        </div>
+                    </div>
+                    <group string="Urgent Request">
+                        <group>
+                            <field name="is_emergency" string="Urgent" widget="boolean_toggle_safe_readonly" readonly="state != 'draft'"/>
+                        </group>
+                        <group invisible="not is_emergency">
+                            <div class="alert alert-danger" role="alert" style="margin: 0; padding: 10px; border-left: 4px solid #d9534f; background-color: #fdf7f7; color: #b94a48; font-size: 12px; line-height: 1.4;">
+                                <strong>⚠️ COMPLIANCE WARNING:</strong> Please do NOT abuse of the emergency pipeline for non-critical requests.<br/><br/>
+                                <strong>🚨 PROCESSING NOTICE:</strong> Submitting will <u>IMMEDIATELY</u> send a high-priority email notification directly to your assigned managers.
+                            </div>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Request">
+                            <field name="employee_id" string="Requested by"/>
+                            <field name="transfer_employee_id" readonly="state != 'draft'" string="Staff to transfer"/>
+                        </group>
+                        <group string="Transfer period">
+                            <field name="transfer_from_date" readonly="state != 'draft'"/>
+                            <field name="transfer_to_date" readonly="state != 'draft'"/>
+                            <field name="petrol_allowance" readonly="state != 'draft'" string="Change of petrol allowance" widget="boolean_toggle" context="{'readonly_gray_override': True}"/>
+                            <field name="approval_category" invisible="1" />
+                            <field name="need_validation" invisible="1"/>
+                            <field name="can_review" invisible="1"/>
+                            <field name="validated" invisible="1"/>
+                            <field name="is_current_applicant" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Transfer details">
+                            <group>
+                                <group string="Current">
+                                    <field name="current_area_id" string="Area" options="{'no_open': True, 'no_create': True}"/>
+                                    <field name="current_department_id" string="Section" options="{'no_open': True, 'no_create': True}"/>
+                                    <field name="project_from_history" invisible="1"/>
+                                    <field name="current_project_id" options="{'no_open': True, 'no_create': True}"
+                                           invisible="not project_from_history"/>
+                                    <field name="current_project_manual_id" options="{'no_create': True}"
+                                           readonly="state != 'draft'" invisible="project_from_history"
+                                           help="No Project history for this employee yet: select the current project."/>
+                                </group>
+                                <group string="New">
+                                    <field name="transfer_area_id" readonly="state != 'draft'" string="Area" options="{'no_create': True}"/>
+                                    <field name="transfer_department_id" readonly="state != 'draft'" string="Section" options="{'no_create': True}"/>
+                                    <field name="transfer_project_id" readonly="state != 'draft'" string="Project" options="{'no_create': True}"/>
+                                </group>
+                            </group>
+                            <separator string="Site commute allowance (for reference)"/>
+                            <field name="allowance_matrix_html" widget="html" readonly="1" nolabel="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <field name="review_ids" widget="tier_validation" invisible="not review_ids"/>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action Pipeline -->
+    <record id="action_staff_transfer" model="ir.actions.act_window">
+        <field name="name">Staff Movements</field>
+        <field name="res_model">staff.transfer</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Initialize your first corporate staff movement authorization loop.</p>
+        </field>
+    </record>
+
+    <!-- <menuitem id="menu_staff_transfer_root" name="Staff Movements" parent="menu_e_approval_root" sequence="25" action="action_staff_transfer"/> -->
+</odoo>

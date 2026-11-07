@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kderp_peak_time_rule_form" model="ir.ui.view">
+        <field name="name">kderp.peak.time.rule.form</field>
+        <field name="model">kderp.peak.time.rule</field>
+        <field name="arch" type="xml">
+            <form string="Peak Time Rules" create="false" delete="false">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Reminder to the PM">
+                            <field name="reminder_days"/>
+                        </group>
+                    </group>
+                    <div class="text-muted">
+                        Special-case limits (registered late, long peak time, registration no., not accepted)
+                        are in <button name="%(kdvn_e_approval.action_special_rules)d" type="action"
+                        string="E-Approval Portal &gt; Special Case Rules" class="btn-link p-0"
+                        context="{'search_default_groupby_procedure': 1}"/>.
+                    </div>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+</odoo>

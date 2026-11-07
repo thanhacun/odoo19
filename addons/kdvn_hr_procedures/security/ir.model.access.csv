@@ -1,0 +1,15 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_staff_transfer_user,staff.transfer.user,model_staff_transfer,base.group_user,1,1,1,0
+access_kderp_project_peak_time_user,kderp.project.peak.time.user,model_kderp_project_peak_time,base.group_user,1,1,1,0
+access_transfer_allowance_grade_user,transfer.allowance.grade.user,model_transfer_allowance_grade,base.group_user,1,0,0,0
+access_transfer_allowance_grade_hr_manager,transfer.allowance.grade.hr.manager,model_transfer_allowance_grade,hr.group_hr_manager,1,1,1,1
+access_transfer_allowance_grade_kderp_hr_admin,transfer.allowance.grade.kderp.hr.admin,model_transfer_allowance_grade,kdvn_hr.group_kderp_hr_admin,1,1,1,1
+access_transfer_allowance_band_user,transfer.allowance.band.user,model_transfer_allowance_band,base.group_user,1,0,0,0
+access_transfer_allowance_band_hr_manager,transfer.allowance.band.hr.manager,model_transfer_allowance_band,hr.group_hr_manager,1,1,1,1
+access_transfer_allowance_band_kderp_hr_admin,transfer.allowance.band.kderp.hr.admin,model_transfer_allowance_band,kdvn_hr.group_kderp_hr_admin,1,1,1,1
+access_transfer_allowance_matrix_user,transfer.allowance.matrix.user,model_transfer_allowance_matrix,base.group_user,1,0,0,0
+access_transfer_allowance_matrix_hr_manager,transfer.allowance.matrix.hr.manager,model_transfer_allowance_matrix,hr.group_hr_manager,1,1,1,1
+access_transfer_allowance_matrix_kderp_hr_admin,transfer.allowance.matrix.kderp.hr.admin,model_transfer_allowance_matrix,kdvn_hr.group_kderp_hr_admin,1,1,1,1
+access_kderp_peak_time_rule_user,kderp.peak.time.rule.user,model_kderp_peak_time_rule,base.group_user,1,0,0,0
+access_kderp_peak_time_rule_hr,kderp.peak.time.rule.hr,model_kderp_peak_time_rule,kdvn_hr_procedures.group_peak_time_functional_manager,1,1,0,0
+access_kderp_peak_time_rule_admin,kderp.peak.time.rule.admin,model_kderp_peak_time_rule,base.group_system,1,1,1,1

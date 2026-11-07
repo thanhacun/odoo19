@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="seq_project_peak_time" model="ir.sequence">
+            <field name="name">Peak Time Serial Sequence Engine</field>
+            <field name="code">kderp.project.peak.time</field>
+            <field name="prefix">PT-%(year)s-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

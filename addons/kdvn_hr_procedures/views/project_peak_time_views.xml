@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 🚀 DEDICATED SEARCH POP-UP GRID: Only exposes the 3 fields requested by HR -->
+    <record id="view_employee_minimal_popup_tree" model="ir.ui.view">
+        <field name="name">hr.employee.minimal.popup.list</field>
+        <field name="model">hr.employee</field>
+        <field name="priority">99</field> <!-- High priority to prevent it from replacing the global employee tree -->
+        <field name="arch" type="xml">
+            <list>
+                <field name="code" string="Staff No."/>
+                <field name="name" string="Employee Name"/>
+                <!-- <field name="department_id" string="Department / Section"/> -->
+            </list>
+        </field>
+    </record>
+    
+    <!-- =========================================================================
+         1. TREE / LIST LAYOUT VIEW
+         ========================================================================= -->
+    <record id="view_kderp_project_peak_time_tree" model="ir.ui.view">
+        <field name="name">kderp.project.peak.time.list</field>
+        <field name="model">kderp.project.peak.time</field>
+        <field name="arch" type="xml">
+            <!-- 🎨 STATE DECORATION ALIGNMENT: Matches standard e-approval palette cues -->
+            <list decoration-info="state == 'draft'" decoration-warning="state == 'submitted'" decoration-success="state == 'approved'">
+                <field name="name"/>
+                <field name="employee_id" string="Applicant"/>
+                <field name="job_id"/>
+                <field name="job_name"/>
+                <field name="actual_peak_from" string="Peak Start"/>
+                <field name="actual_peak_to" string="Peak End"/>
+                <field name="actual_peak_months" string="Months (Actual)"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+
+    <record id="view_kderp_project_peak_time_form" model="ir.ui.view">
+        <field name="name">kderp.project.peak.time.list</field>
+        <field name="model">kderp.project.peak.time</field>
+        <field name="arch" type="xml">
+            <form duplicate="false">
+                <header>
+                    <!-- Workflow Execution and Action Sign-off Controls -->
+                    <button name="action_submit" 
+                        string="Submit Request" type="object" class="oe_highlight" 
+                        invisible="(not is_current_applicant or state != 'draft') or is_emergency"/>
+                    <button name="action_submit" type="object" 
+                        string="🔥 Submit Emergency Request" class="btn-danger"
+                        confirm="⚠️ Are you completely sure this operation requires an URGENT emergency validation?"
+                        invisible="(not is_current_applicant or state != 'draft') or not is_emergency" />
+                    <button name="validate_tier" string="Approve Step" type="object" class="oe_highlight" invisible="not can_review"/>
+                    <button name="reject_tier" string="Reject Step" type="object" class="btn-danger" invisible="not can_review"/>
+                    
+                    <!-- 🚀 THE RESET BUTTON: Only visible if the document is under review or finished, and only for Admins -->
+                    <button name="action_reset_to_draft" 
+                        string="Unblock / Reset to Draft" 
+                        type="object" 
+                        class="btn-warning"
+                        groups="kdvn_e_approval.group_e_approval_admin,kdvn_hr_procedures.group_peak_time_functional_manager"
+                        invisible="state not in ('submitted', 'approved', 'synced', 'rejected')"/>
+
+                    <button name="action_print_secure_authenticated_report"
+                        string=" Print Approved Report" type="object" class="btn btn-primary" icon="fa-print"
+                        invisible="state not in ('approved', 'synced')"/>
+
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,synced,rejected"/>
+                </header>
+                <sheet>
+                    <!-- TWO-COLUMN TOP HEADER ROW CONTAINER -->
+                    <div class="row" style="margin-bottom: 20px;">
+                        <div class="col-7 oe_title">
+                            <label for="name" class="oe_edit_only" string="Request No."/>
+                            <h2><field name="name" readonly="1" /></h2>
+                            <label for="reason" class="oe_edit_only" string="Explanation (required)"/>
+                            <h3><field name="reason" readonly="state != 'draft'" placeholder="Required: explain why the project needs peak time..." required="1" /></h3>
+                        </div>
+                        <!-- Right: Dynamic HTML Workflow Progress and Attachment Ribbon -->
+                        <div class="col-5 text-right pull-right" style="margin-top: 5px;">
+                            <field name="approval_workflow_ribbon" widget="html" readonly="1" nolabel="1"/>
+                        </div>
+                    </div>
+
+                    <group string="Urgent Request">
+                        <group>
+                            <field name="is_emergency" string="Urgent" widget="boolean_toggle_safe_readonly" readonly="state != 'draft'"/>
+                        </group>
+                        <group invisible="not is_emergency">
+                            <div class="alert alert-danger" role="alert" style="margin: 0; padding: 10px; border-left: 4px solid #d9534f; background-color: #fdf7f7; color: #b94a48; font-size: 12px; line-height: 1.4;">
+                                <strong>⚠️ COMPLIANCE WARNING:</strong> Please do NOT abuse of the emergency pipeline for non-critical requests.<br/><br/>
+                                <strong>🚨 PROCESSING NOTICE:</strong> Submitting will <u>IMMEDIATELY</u> send a high-priority email notification directly to your assigned managers.
+                            </div>
+                        </group>                    
+                    </group>
+
+                    <group string="General Information">
+                        <group>
+                            <field name="employee_id" string="Applicant (SM/PM)" readonly="1" options="{'no_open': True, 'no_create': True}"/>
+                            <field name="create_date" string="Input Date" widget="date" />
+                        </group>
+                        <group>
+                            <field name="job_id" string="Project Job Code" options="{'no_create': True}" readonly="state != 'draft'"
+                                domain="[('big_job', '=', True),('kickoff_meeting_date', '!=', False),('view_user_ids', '=', uid)]" />
+                            <field name="job_name" style="font-weight: bold; color: #1f618d; font-size: 14px;"/>
+                            <field name="client_id" string="Client Name" readonly="1" force_save="1"
+                                options="{'no_open': True, 'no_create': True}"/>
+                            <field name="k_o_m_date" string="K.O.M Date" readonly="1" force_save="1"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="Contract Period">
+                            <field name="execution_from" string="Start Date" readonly="1" force_save="1"/>
+                            <field name="execution_to" string="Actual Comp. Date" readonly="1" force_save="1"/>
+                            <field name="execution_months" string="Duration (Months)" widget="float" readonly="1"/>
+                        </group>
+                        <group string="Peak Time (as estimated at K.O.M)">
+                            <field name="kom_peak_from" string="From (month)" readonly="1" force_save="1"
+                                widget="month_date" options="{'month_period': 'begin'}" />
+                            <field name="kom_peak_to" string="To (month)" readonly="1" force_save="1" 
+                                widget="month_date" options="{'month_period': 'end'}" />
+                            <field name="kom_peak_months" string="Duration (Months)" widget="float" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Actual Peak Time">
+                            <field name="actual_peak_from" string="From (month)" readonly="state != 'draft'"
+                                widget="month_date" options="{'month_period': 'begin'}"/>
+                            <field name="actual_peak_to" string="To (month)" readonly="state != 'draft'"
+                                widget="month_date" options="{'month_period': 'end'}"/>
+                            <field name="actual_peak_months" string="Actual Duration (Months)" widget="float" readonly="1" style="font-weight: bold; color: #117a65; font-size: 15px;"/>
+                        </group>
+                        <group string="Comments / Special Cases" >
+                            <field name="validate_comments" string="Comments" readonly="1" />
+                            <field name="proceed_flow_message" string="Warning" readonly="1" invisible="proceed_flow_type == 'normal'"/>
+                            <field name="proceed_flow_type" string="Type" readonly="1" invisible="1" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="List of employees">
+                            <field name="employee_ids" mode="list" readonly="state != 'draft'"
+                                options="{'no_create': True, 'no_create_edit': True}" 
+                                domain="[('category_ids', '!=', 'G8')]"
+                                context="{'list_view_ref': 'kdvn_hr_procedures.view_employee_minimal_popup_tree'}">
+                                <list editable="bottom">
+                                    <field name="code" string="Staff No." readonly="1"/>
+                                    <field name="name" string="Employee Name" readonly="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Related documents">
+                            <group string="Peak Time ATT Rule">
+                                <field name="attendance_rule_id" readonly="1" nolabel="1" />
+                            </group>
+                            <group string="Past Peak Time Requests">
+                                <field name="past_related_request_ids" readonly="1" mode="list" options="{'no_create': True, 'no_create_edit': True}"
+                                    nolabel="1" >
+                                    <list>
+                                        <field name="name" />
+                                        <field name="reason" />
+                                        <field name="job_id" />
+                                        <field name="actual_peak_months" />
+                                        <field name="employee_ids" />
+                                        <field name="state" invisible="1" />
+                                    </list>
+                                </field>
+                            </group>
+                        </page>
+                        <page string="Attachments" name="attachments_tab">
+                            <group>
+                                <field name="attachment_ids" 
+                                       widget="many2many_binary" 
+                                       string="Upload Documentation Attachments"
+                                       placeholder="Drag files here or click to browse..."/>
+                            </group>
+                        </page>
+                        <page string="For Admin Only" name="for_admin_only_tab" readonly="1" groups="base.user_admin,kdvn_e_approval.group_e_approval_admin">
+                            <group string="Controler fields">
+                                <field name="need_validation" invisible="0"/>
+                                <field name="can_review" invisible="0"/>
+                                <field name="validated" invisible="0"/>
+                                <field name="is_current_applicant" invisible="0" />
+                                <field name="is_gm" invisible="0" />
+                                <field name="approval_category" invisible="0" />
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <field name="review_ids" widget="tier_validation" invisible="not review_ids"/>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+</odoo>

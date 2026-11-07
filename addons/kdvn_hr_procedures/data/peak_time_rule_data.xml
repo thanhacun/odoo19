@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- noupdate: HR's values survive module upgrades -->
+    <data noupdate="1">
+        <record id="peak_time_rule_default" model="kderp.peak.time.rule">
+            <field name="name">Peak Time Rules</field>
+            <field name="reminder_days">14</field>
+        </record>
+    </data>
+    <data>
+        <record id="ir_cron_peak_time_kom_reminder" model="ir.cron">
+            <field name="name">Peak Time: KOM peak reminder to PM</field>
+            <field name="model_id" ref="model_kderp_project_peak_time"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_send_kom_peak_reminders()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>

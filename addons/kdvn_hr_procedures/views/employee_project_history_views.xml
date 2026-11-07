@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Project history on the employee form: HR picks the project (project_name is computed from it) -->
+    <record id="view_employee_form_project_history_code" model="ir.ui.view">
+        <field name="name">hr.employee.form.project.history.code</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="kdvn_hr.inherited_hr_employee_view_form_inherit_kderp_hr"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='project_history_ids']/list/field[@name='project_name']" position="replace">
+                <field name="project_code" options="{'no_create': True}" required="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

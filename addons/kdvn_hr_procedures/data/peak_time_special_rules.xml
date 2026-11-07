@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Peak time special-case rules (shared screen E-Approval Portal > Special Case Rules).
+         noupdate: HR's limits and actions survive module upgrades. The checks themselves are in
+         kderp.project.peak.time._get_special_case_reasons(). -->
+    <data noupdate="1">
+        <record id="special_rule_peak_registration_no" model="kderp.e.approval.special.rule">
+            <field name="procedure">kderp.project.peak.time</field>
+            <field name="code">registration_no</field>
+            <field name="name">From registration no.</field>
+            <field name="sequence">10</field>
+            <field name="value">2</field>
+            <field name="unit">registration</field>
+            <field name="action">special</field>
+            <field name="description">2 = the second request for the same project and every later one. Rejected requests are not counted.</field>
+            <field name="manager_group_id" ref="group_peak_time_functional_manager"/>
+        </record>
+        <record id="special_rule_peak_long_peak" model="kderp.e.approval.special.rule">
+            <field name="procedure">kderp.project.peak.time</field>
+            <field name="code">long_peak</field>
+            <field name="name">Actual peak longer than</field>
+            <field name="sequence">20</field>
+            <field name="value">2</field>
+            <field name="unit">months</field>
+            <field name="action">special</field>
+            <field name="description">Actual peak duration in months.</field>
+            <field name="manager_group_id" ref="group_peak_time_functional_manager"/>
+        </record>
+        <record id="special_rule_peak_late_days" model="kderp.e.approval.special.rule">
+            <field name="procedure">kderp.project.peak.time</field>
+            <field name="code">late_days</field>
+            <field name="name">Registered later than</field>
+            <field name="sequence">30</field>
+            <field name="value">7</field>
+            <field name="unit">days</field>
+            <field name="action">special</field>
+            <field name="description">Calendar days from Actual Peak From to the input date of the request.</field>
+            <field name="manager_group_id" ref="group_peak_time_functional_manager"/>
+        </record>
+        <record id="special_rule_peak_late_days_block" model="kderp.e.approval.special.rule">
+            <field name="procedure">kderp.project.peak.time</field>
+            <field name="code">late_days_block</field>
+            <field name="name">Not accepted when registered later than</field>
+            <field name="sequence">40</field>
+            <field name="value">20</field>
+            <field name="unit">days</field>
+            <field name="action">block</field>
+            <field name="description">Calendar days from Actual Peak From to the input date. The request cannot be submitted.</field>
+            <field name="manager_group_id" ref="group_peak_time_functional_manager"/>
+        </record>
+    </data>
+    <!-- HR (peak time) sees the shared Special Case Rules menu -->
+    <record id="kdvn_e_approval.menu_special_rules" model="ir.ui.menu">
+        <field name="group_ids" eval="[(4, ref('group_peak_time_functional_manager'))]"/>
+    </record>
+</odoo>

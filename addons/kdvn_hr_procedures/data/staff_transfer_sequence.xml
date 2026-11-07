@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="seq_staff_transfer" model="ir.sequence">
+            <field name="name">Staff Transfer Serial Sequence Engine</field>
+            <field name="code">staff.transfer</field>
+            <field name="prefix">ST-%(year)s-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

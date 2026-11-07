@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Approval steps of the Staff Transfer request. noupdate: HR/admin edits in Approval Rules survive upgrades.
+         Higher sequence runs first (the platform numbers the steps from the highest sequence down). -->
+    <data noupdate="1">
+        <record id="tier_st_applicant_gm" model="tier.definition">
+            <field name="name">[ST] 1 Applicant GM / AM</field>
+            <field name="frontend_name">GM / AM (New)</field>
+            <field name="model_id" ref="model_staff_transfer"/>
+            <field name="procedure_tag">staff.transfer</field>
+            <field name="review_type">expression</field>
+            <field name="reviewer_expression">rec.employee_id.gm_id.user_id or rec.employee_id.department_id.area_id.manager_id.user_id</field>
+            <field name="definition_type">domain</field>
+            <field name="sequence">40</field>
+            <field name="approve_sequence" eval="True"/>
+        </record>
+        <record id="tier_st_current_sm" model="tier.definition">
+            <field name="name">[ST] 2 Current SM / PM</field>
+            <field name="frontend_name">SM / PM (Current)</field>
+            <field name="model_id" ref="model_staff_transfer"/>
+            <field name="procedure_tag">staff.transfer</field>
+            <field name="review_type">expression</field>
+            <field name="reviewer_expression">rec.current_department_id.manager_id.user_id</field>
+            <field name="definition_type">domain</field>
+            <field name="sequence">30</field>
+            <field name="approve_sequence" eval="True"/>
+        </record>
+        <record id="tier_st_current_gm" model="tier.definition">
+            <field name="name">[ST] 3 Current GM / AM</field>
+            <field name="frontend_name">GM / AM (Current)</field>
+            <field name="model_id" ref="model_staff_transfer"/>
+            <field name="procedure_tag">staff.transfer</field>
+            <field name="review_type">expression</field>
+            <field name="reviewer_expression">rec.transfer_employee_id.gm_id.user_id or rec.current_area_id.manager_id.user_id</field>
+            <field name="definition_type">domain</field>
+            <field name="sequence">20</field>
+            <field name="approve_sequence" eval="True"/>
+        </record>
+        <record id="tier_st_hr_manager" model="tier.definition">
+            <field name="name">[ST] 4 HR Manager</field>
+            <field name="frontend_name">HRM</field>
+            <field name="model_id" ref="model_staff_transfer"/>
+            <field name="procedure_tag">staff.transfer</field>
+            <field name="review_type">group</field>
+            <field name="reviewer_group_id" ref="hr.group_hr_manager"/>
+            <field name="definition_type">domain</field>
+            <field name="sequence">10</field>
+            <field name="approve_sequence" eval="True"/>
+        </record>
+    </data>
+</odoo>

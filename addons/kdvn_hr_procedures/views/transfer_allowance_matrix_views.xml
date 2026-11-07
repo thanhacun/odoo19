@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ================= Grades (G codes) ================= -->
+    <record id="view_transfer_allowance_grade_tree" model="ir.ui.view">
+        <field name="name">transfer.allowance.grade.list</field>
+        <field name="model">transfer.allowance.grade</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="category_id" options="{'no_create': True}"/>
+                <field name="active" invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_transfer_allowance_grade" model="ir.actions.act_window">
+        <field name="name">Allowance Grades (G codes)</field>
+        <field name="res_model">transfer.allowance.grade</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p>Link each grade to the employee tag HR uses for it (e.g. G8).
+               An employee's allowance grade is read from their tags.</p>
+        </field>
+    </record>
+
+    <!-- ================= Bands (S / T codes) ================= -->
+    <record id="view_transfer_allowance_band_tree" model="ir.ui.view">
+        <field name="name">transfer.allowance.band.list</field>
+        <field name="model">transfer.allowance.band</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="transfer_type"/>
+                <field name="km_from"/>
+                <field name="km_to"/>
+                <field name="months_over"/>
+                <field name="months_up_to"/>
+                <field name="note"/>
+                <field name="active" invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_transfer_allowance_band_search" model="ir.ui.view">
+        <field name="name">transfer.allowance.band.search</field>
+        <field name="model">transfer.allowance.band</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="code"/>
+                <filter name="project" string="Project Transfer" domain="[('transfer_type', '=', 'project')]"/>
+                <filter name="training" string="Training" domain="[('transfer_type', '=', 'training')]"/>
+                <separator/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_transfer_allowance_band" model="ir.actions.act_window">
+        <field name="name">Allowance Bands (S / T codes)</field>
+        <field name="res_model">transfer.allowance.band</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p>Distance in km (both ends included, distances rounded to the nearest km).
+               Duration: leave 0 when the band does not depend on duration.</p>
+        </field>
+    </record>
+
+    <!-- ================= Rates ================= -->
+    <record id="view_transfer_allowance_matrix_tree" model="ir.ui.view">
+        <field name="name">transfer.allowance.matrix.list</field>
+        <field name="model">transfer.allowance.matrix</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="grade_id" options="{'no_create': True}"/>
+                <field name="band_id" options="{'no_create': True}"/>
+                <field name="transfer_type"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="amount"/>
+                <field name="note"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_transfer_allowance_matrix_form" model="ir.ui.view">
+        <field name="name">transfer.allowance.matrix.form</field>
+        <field name="model">transfer.allowance.matrix</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="grade_id" options="{'no_create': True}"/>
+                            <field name="band_id" options="{'no_create': True}"/>
+                            <field name="transfer_type"/>
+                        </group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="amount"/>
+                            <field name="note"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_transfer_allowance_matrix_pivot" model="ir.ui.view">
+        <field name="name">transfer.allowance.matrix.pivot</field>
+        <field name="model">transfer.allowance.matrix</field>
+        <field name="arch" type="xml">
+            <pivot string="Transfer Allowance Matrix (VND/month)">
+                <field name="grade_id" type="row"/>
+                <field name="band_id" type="col"/>
+                <field name="amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_transfer_allowance_matrix_search" model="ir.ui.view">
+        <field name="name">transfer.allowance.matrix.search</field>
+        <field name="model">transfer.allowance.matrix</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="grade_id"/>
+                <field name="band_id"/>
+                <filter name="valid_today" string="Valid Today"
+                        domain="[('date_from', '&lt;=', context_today().strftime('%Y-%m-%d')),
+                                 '|', ('date_to', '=', False), ('date_to', '&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter name="project" string="Project Transfer" domain="[('transfer_type', '=', 'project')]"/>
+                <filter name="training" string="Training" domain="[('transfer_type', '=', 'training')]"/>
+                <group>
+                    <filter name="group_grade" string="Grade" context="{'group_by': 'grade_id'}"/>
+                    <filter name="group_band" string="Band" context="{'group_by': 'band_id'}"/>
+                    <filter name="group_date" string="Effective From" context="{'group_by': 'date_from:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_transfer_allowance_matrix" model="ir.actions.act_window">
+        <field name="name">Allowance Matrix</field>
+        <field name="res_model">transfer.allowance.matrix</field>
+        <field name="view_mode">pivot,list,form</field>
+        <field name="context">{'search_default_valid_today': 1}</field>
+        <field name="help" type="html">
+            <p>Monthly allowance in VND, for reference in the salary calculation.
+               One line per grade and band. No line = the grade is not entitled to that band.
+               To change an amount from a date, add a new line with a later "Effective From";
+               the previous line closes automatically.</p>
+        </field>
+    </record>
+
+    <!-- ================= Menus: Employees > Configuration > Transfer Allowances ================= -->
+    <menuitem id="menu_transfer_allowance_root" name="Transfer Allowances"
+              parent="hr.menu_human_resources_configuration" sequence="50"
+              groups="hr.group_hr_manager,kdvn_hr.group_kderp_hr_admin,base.group_system"/>
+    <menuitem id="menu_transfer_allowance_matrix" name="Allowance Matrix" parent="menu_transfer_allowance_root"
+              action="action_transfer_allowance_matrix" sequence="10"/>
+    <menuitem id="menu_transfer_allowance_grade" name="Grades (G codes)" parent="menu_transfer_allowance_root"
+              action="action_transfer_allowance_grade" sequence="20"/>
+    <menuitem id="menu_transfer_allowance_band" name="Bands (S / T codes)" parent="menu_transfer_allowance_root"
+              action="action_transfer_allowance_band" sequence="30"/>
+</odoo>

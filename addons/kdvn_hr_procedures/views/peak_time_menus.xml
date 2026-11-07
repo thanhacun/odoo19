@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- =========================================================================
+             🎬 ACTIONS: SEPARATED WORKFLOW VIEW PIPELINES
+             ========================================================================= -->
+        <!-- 1. APPLICANT WINDOW: Shows only forms created by the logged-in user -->
+        <record id="action_my_project_peak_times" model="ir.actions.act_window">
+            <field name="name">My Requests - Project Peak Times</field>
+            <field name="res_model">kderp.project.peak.time</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('create_uid', '=', uid)]</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Initialize your first Project Peak Time crunch period authorization tracking loop.
+                </p>
+            </field>
+        </record>
+
+        <!-- 2. MANAGER QUEUE WINDOW: Shows requests pending managerial sign-off actions -->
+        <record id="action_manager_project_peak_time_queue" model="ir.actions.act_window">
+            <field name="name">Waiting My Approval - Project Peak Times</field>
+            <field name="res_model">kderp.project.peak.time</field>
+            <field name="view_mode">list,form</field>
+            <!-- Domain is handled dynamically by your master e-approval mixin engine record rules -->
+            <field name="domain">[]</field>
+        </record>
+
+        <!-- 3. MASTER AUDIT WINDOW: Global tracking access reserved for administrative officers -->
+        <record id="action_all_project_peak_times" model="ir.actions.act_window">
+            <field name="name">All Company Requests - Project Peak Times</field>
+            <field name="res_model">kderp.project.peak.time</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+
+        <!-- =========================================================================
+             🔏 LEAF NODE BINDINGS: USER MENUS & LEAF ENDPOINTS
+             ========================================================================= -->
+        <!-- Binds Applicant View to the Request Category Tree -->
+        <menuitem id="menu_action_my_peak_times" 
+                  name="Project Peak Time" 
+                  parent="menu_cat_req_hr" 
+                  action="action_my_project_peak_times" 
+                  groups="kdvn_hr_attendance.group_hr_attendance_section_manager,kdvn_hr_attendance.group_hr_attendance_gm,kdvn_e_approval.group_e_approval_admin"
+                  sequence="10"/>
+
+        <!-- Help > guide page (opened in the web client so debug mode stays; needs kderp_knowledge) -->
+        <record id="action_guide_peak_time_srv" model="ir.actions.server">
+            <field name="name">Project Peak Time Guide</field>
+            <field name="model_id" ref="base.model_res_users"/>
+            <field name="state">code</field>
+            <field name="code">action = env['document.page'].kderp_action_open_guide('e-approval/peak-time')</field>
+        </record>
+        <menuitem id="menu_help_guide_peak_time" name="Project Peak Time" parent="kdvn_e_approval.menu_sub_help"
+                  action="action_guide_peak_time_srv" sequence="30"
+                  groups="kdvn_hr_attendance.group_hr_attendance_section_manager,kdvn_hr_attendance.group_hr_attendance_gm,kdvn_e_approval.group_e_approval_admin,kdvn_hr_procedures.group_peak_time_functional_manager"/>
+
+        <!-- Binds Manager Validation Queue to the Review Category Tree -->
+        <menuitem id="menu_action_manager_peak_time_queue" 
+                  name="Project Peak Time Reviews" 
+                  parent="menu_cat_rev_hr" 
+                  action="action_manager_project_peak_time_queue" 
+                  sequence="10"/>
+        
+        <!-- Binds Administrative Master Audit Stack to Core Reviews Tree with Group Restrictor -->
+        <menuitem id="menu_action_all_peak_times" 
+                  name="Master Audit Tracking (Peak Times)" 
+                  parent="kdvn_e_approval.menu_sub_cat_master_audit" 
+                  action="action_all_project_peak_times" 
+                  sequence="920" 
+                  groups="kdvn_e_approval.group_e_approval_admin,kdvn_e_approval.group_e_approval_global_auditor,kdvn_hr_procedures.group_peak_time_functional_manager"/>
+                  
+        <!-- Peak Time Rules: one record, edited by HR (Functional Controller / HR Manager) -->
+        <record id="action_peak_time_rules" model="ir.actions.act_window">
+            <field name="name">Peak Time Rules</field>
+            <field name="res_model">kderp.peak.time.rule</field>
+            <field name="view_mode">form</field>
+            <field name="res_id" ref="peak_time_rule_default"/>
+            <field name="target">current</field>
+        </record>
+
+        <menuitem id="menu_peak_time_rules"
+                  name="Peak Time Rules"
+                  parent="kdvn_e_approval.menu_sub_cat_master_audit"
+                  action="action_peak_time_rules"
+                  sequence="921"
+                  groups="kdvn_hr_procedures.group_peak_time_functional_manager,kdvn_e_approval.group_e_approval_admin"/>
+    </data>
+</odoo>

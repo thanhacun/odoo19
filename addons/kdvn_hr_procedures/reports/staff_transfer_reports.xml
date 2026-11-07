@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Printed transfer request (replaces paper form CR04-03-F01). Data: staff.transfer._prepare_staff_transfer_report_data -->
+        <record id="action_report_staff_transfer_py3o" model="ir.actions.report">
+            <field name="name">Personnel Transfer Request</field>
+            <field name="type">ir.actions.report</field>
+            <field name="model">staff.transfer</field>
+            <field name="report_name">py3o_report_staff_transfer</field>
+            <field name="report_type">py3o</field>
+            <field name="py3o_filetype">pdf</field>
+            <field name="py3o_multi_in_one">1</field>
+            <field name="module">kdvn_hr_procedures</field>
+            <field name="py3o_template_fallback">reports/staff_transfer.odt</field>
+            <field name="binding_type">report</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- ================= 📂 INJECT DEDICATED HR CATEGORIES VIA BASE HOOKS ================= -->
+        <menuitem id="menu_cat_req_hr" name="Human Resources &amp; Transfers" parent="kdvn_e_approval.menu_sub_my_requests" sequence="20"/>
+        <menuitem id="menu_cat_rev_hr" name="Human Resources &amp; Transfers" parent="kdvn_e_approval.menu_sub_my_reviews" sequence="20"/>
+
+
+        <!-- ================= 🎬 ACTIONS: STAFF TRANSFER HANDLING PROFILES ================= -->
+        <record id="action_my_staff_transfers" model="ir.actions.act_window">
+            <field name="name">My Requests - Staff Transfers</field>
+            <field name="res_model">staff.transfer</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('create_uid', '=', uid)]</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">Initialize your first corporate staff movement authorization loop.</p>
+            </field>
+        </record>
+
+        <record id="action_manager_staff_transfer_queue" model="ir.actions.act_window">
+            <field name="name">Waiting My Approval - Staff Transfers</field>
+            <field name="res_model">staff.transfer</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[]</field>
+        </record>
+
+        <record id="action_all_staff_transfers" model="ir.actions.act_window">
+            <field name="name">All Company Requests - Staff Transfers</field>
+            <field name="res_model">staff.transfer</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+
+        <!-- ================= 🔏 LEAF NODE BINDINGS: TRANSFERS ================= -->
+        <menuitem id="menu_action_my_transfers" name="Staff Movements" parent="menu_cat_req_hr" action="action_my_staff_transfers" sequence="10"/>
+        <menuitem id="menu_action_manager_transfer_queue" name="Staff Transfer Validation" parent="menu_cat_rev_hr" action="action_manager_staff_transfer_queue" sequence="10"/>
+
+        <!-- open to everyone (a PM has no group; Submit checks the applicant). Explicit: an upgrade does not remove
+             groups that are just left out of the menuitem -->
+        <function model="ir.ui.menu" name="write"
+                  eval="[[ref('menu_action_my_transfers'), ref('menu_action_manager_transfer_queue')], {'group_ids': [(5, 0, 0)]}]"/>
+
+        <!-- Help menu: opens the Staff Transfer guide category (same pattern as Project Peak Time) -->
+        <record id="action_guide_staff_transfer_srv" model="ir.actions.server">
+            <field name="name">Staff Transfer Guide</field>
+            <field name="model_id" ref="base.model_res_users"/>
+            <field name="state">code</field>
+            <field name="code">action = env['document.page'].kderp_action_open_guide('e-approval/staff-transfer')</field>
+        </record>
+        <menuitem id="menu_help_guide_staff_transfer" name="Staff Transfer" parent="kdvn_e_approval.menu_sub_help"
+                  action="action_guide_staff_transfer_srv" sequence="35"/>
+
+        <!-- Appends directly to the Master Audit stack with a clean sequence priority -->
+        <menuitem id="menu_action_all_transfers" name="Master Audit Tracking (Transfers)" parent="kdvn_e_approval.menu_sub_cat_master_audit" action="action_all_staff_transfers" sequence="910" 
+            groups="base.user_admin,kdvn_e_approval.group_e_approval_admin,kdvn_hr_procedures.group_staff_transfer_functional_controller"/>
+    </data>
+</odoo>
