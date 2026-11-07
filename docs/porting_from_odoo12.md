@@ -159,3 +159,4 @@ RESULT:
 - AT location: same rows; only the row numbers move (leavers missing).
 Importer changes for a year: every step now clears the ORM cache and, with context `kdvn_commit_steps`, commits (a first all-in-one-transaction run died with MemoryError after 2 h and rolled back; steps are re-runnable so a crash resumes). Run: `env['kdvn.legacy.import'].with_context(kdvn_commit_steps=True).run(employee_codes=[], working_only=True, date_from=..., date_to=...)`. Report scripts take `AT_DATE` and `KEYS` environment variables.
 NOT compared: PDFs (visual), Dec 2025 onwards beyond the earlier checks.
+Report inventory (7 Nov 2026): every ACTIVE Odoo 12 report action is ported (14 of 14). `attendance_report_py3o` and `ot_on_holiday_schedule_py3o` are commented out in Odoo 12 itself, so they are deliberately not ported. The 5 PDF reports (requests, approved, compact approved, request-of-approval attendance / leaves) render in tests; a visual page check has not been done.
