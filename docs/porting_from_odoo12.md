@@ -160,3 +160,8 @@ RESULT:
 Importer changes for a year: every step now clears the ORM cache and, with context `kdvn_commit_steps`, commits (a first all-in-one-transaction run died with MemoryError after 2 h and rolled back; steps are re-runnable so a crash resumes). Run: `env['kdvn.legacy.import'].with_context(kdvn_commit_steps=True).run(employee_codes=[], working_only=True, date_from=..., date_to=...)`. Report scripts take `AT_DATE` and `KEYS` environment variables.
 NOT compared: PDFs (visual), Dec 2025 onwards beyond the earlier checks.
 Report inventory (7 Nov 2026): every ACTIVE Odoo 12 report action is ported (14 of 14). `attendance_report_py3o` and `ot_on_holiday_schedule_py3o` are commented out in Odoo 12 itself, so they are deliberately not ported. The 5 PDF reports (requests, approved, compact approved, request-of-approval attendance / leaves) render in tests; a visual page check has not been done.
+
+### Where we stop (7 Nov 2026) and what is next
+Done and merged into dev: stages A0-A3, B, C and D (reports), with Odoo 12 parity proven for the whole year 2025 (see the two parity sections). `odoo19_dev` upgraded (kdvn_base, kdvn_report_py3o, kdvn_hr_attendance, kdvn_legacy_import) after a backup; server restarted with `odoo --dev all -d odoo19_dev`.
+Next, in this order: (1) step 5 e-approval (read `kderp_e_approval/ai_prompts/platform_contract.md` first, own branch); (2) steps 6-7 procedures, dashboard / knowledge; (3) stage E; (4) optional: PDF visual check, two leave-type update failures on import re-run, S1429 import data issue, remaining kderp_report_py3o parts.
+Server notes: `extra-addons/report_py3o` (OCA 19.0) is git-ignored and must be copied by hand to every server. A year import takes about 2 h: use `with_context(kdvn_commit_steps=True)`.
