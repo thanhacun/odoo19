@@ -1,6 +1,7 @@
 from collections import namedtuple
 import datetime
 import logging
+import re
 from dateutil.relativedelta import relativedelta
 import pytz
 from pytz import timezone, utc
@@ -334,10 +335,9 @@ class KderpHolidayRequestCover(models.Model):
                 sort_weight = 10
             if not a['leave_type'].is_special and a['leave_type'].category == 'special_leave':  # Yearly Special Leave
                 sort_weight = 15
-                try:
-                    sort_weight = this_year - int(a['name'][-4:]) + 15
-                except Exception as e:
-                    _logger.error(e)
+                year = re.search(r'(\d{4})\s*$', a['name'] or '')   # a name without a final year keeps the default weight
+                if year:
+                    sort_weight = this_year - int(year.group(1)) + 15
             
             return sort_weight
         
@@ -1570,11 +1570,8 @@ class KderpHolidaysType(models.Model):
             if t.is_special and t.category == 'summer_vacation':
                 sort_weight = 200 if remaining_leaves else 900
             if t.category == 'special_leave':
-                try:
-                    sort_weight = 900 + datetime.date.today().year - int(t.name[-4:])
-                except Exception as e:
-                    sort_weight = 900
-                    _logger.error(e)
+                year = re.search(r'(\d{4})\s*$', t.name or '')   # a name without a final year keeps the default weight
+                sort_weight = 900 + datetime.date.today().year - int(year.group(1)) if year else 900
 
             t.sort_weight = sort_weight
 

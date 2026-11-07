@@ -214,6 +214,15 @@ class KderpHrAttendance(models.Model):
     #     for at in all_ats:
     #         at.department_id = at.employee_id.admin_dept_id.id
 
+    def _read_group_employee_id(self, resources, domain):
+        """Core filters the employees of an expanded group by `attendance_manager_id` for everyone outside "Attendance user".
+        That field is readable only by the Officer group, so our section managers got an access error when a list is grouped
+        by employee (the web client sets read_group_expand). Our record rules already limit the records: keep only the
+        employees found in them."""
+        if not self.env.user.has_group('hr_attendance.group_hr_attendance_officer'):
+            return resources
+        return super()._read_group_employee_id(resources, domain)
+
     def _legacy_name_get(self):
         result = []
         for at in self:
