@@ -67,7 +67,7 @@ class Employee(models.Model):
     @api.depends('leaves_count')
     def _compute_leaves_count_explain(self):
         for e in self:
-            pass
+            e.leaves_count_explain = False  # Odoo 19: every field must be assigned
 
     def create_users(self):
         """
