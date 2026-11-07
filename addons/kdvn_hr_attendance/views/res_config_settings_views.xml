@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.hr.attendance</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="hr_attendance.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='hr_attendance']" position="inside">
+                <block title="BZ Server">
+                    <setting string="BZ Server" help="BZ SQL server by IP">
+                        <field name="bz_server"/>
+                    </setting>
+                    <setting string="BZ Databaser">
+                        <field name="bz_db"/>
+                    </setting>
+                    <setting string="Username">
+                        <field name="bz_user"/>
+                    </setting>
+                    <setting string="Password">
+                        <field name="bz_password" password="1"/>
+                    </setting>
+                </block>
+                <block title="Attendance Policy">
+                    <setting string="AT first day" help="The first day of an attendance month.">
+                        <field name="rule_at_start_date"/>
+                    </setting>
+                    <setting string="Day starts at" help="Hour">
+                        <field name="rule_day_start_hour"/>
+                    </setting>
+                    <setting string="Work starts at" help="Hour">
+                        <field name="rule_working_start_hour"/>
+                    </setting>
+                    <setting string="Late in | Early out" help="By minutes.">
+                        <field name="rule_late_in_early_out"/>
+                    </setting>
+                    <setting string="Absence" help="By minutes.">
+                        <field name="rule_absence"/>
+                    </setting>
+                    <setting string="Special OT hour" help="Hours that counting as special OT.">
+                        <field name="rule_special_ot_hour"/>
+                    </setting>
+                    <setting string="Delay duration" help="Days waiting before concluding AT status">
+                        <field name="rule_delay_duration"/>
+                    </setting>
+                    <setting string="Early check-in limit" help="Maximum minutes (default 120 = 2 hours) that a rule or an Early In request may move the day start earlier.">
+                        <field name="rule_early_offset_max"/>
+                    </setting>
+                    <setting string="GM approval: leave days" help="A leave longer than this many days goes to the GM after the HR step. 0 = off (HR decides by hand).">
+                        <field name="gm_leave_days_limit"/>
+                    </setting>
+                    <setting string="GM approval: Absence days" help="A leave with more than this many Absence (unpaid) days goes to the GM. 0 = off.">
+                        <field name="gm_absence_days_limit"/>
+                    </setting>
+                    <setting string="GM approval: OT over the limit" help="An OT request goes to the GM when the month OT is more than this many hours over the allowed OT. 0 = off.">
+                        <field name="gm_ot_over_hours_limit"/>
+                    </setting>
+                    <setting string="GM approval: late requests" help="OT or working time requests registered after the cutoff (allowed by HR) go to the GM.">
+                        <field name="gm_late_request"/>
+                    </setting>
+                    <setting string="OT compensated by leave" help="Staff tags (G5-G8) whose OT is compensated by leave, not paid. Empty = G8.">
+                        <field name="ot_comp_category_ids" widget="many2many_tags"/>
+                    </setting>
+                    <setting string="App start date" help="The date the attendance app officialy used">
+                        <field name="app_start_date"/>
+                    </setting>
+                    <setting string="OT Request Before" help="Duration in hours an OT Request has to be submmitted (count from 17:00). Choose the date as day of applying rule.">
+                        <field name="ot_request_before"/>
+                    </setting>
+                    <setting string="WT Request Before" help="Duration in hours an WT Request has to be submmitted (count from 17:00). Choose the date as day of applying rule.">
+                        <field name="wt_request_before"/>
+                    </setting>
+                    <setting string="Leave Request Before" help="Duration in hours an OT Request has to be submmitted (count from 17:00). Choose the date as day of applying rule.">
+                        <field name="leave_request_before"/>
+                    </setting>
+                </block>
+                <block title="Staff location (remote server)">
+                    <setting>
+                        <div class="text-muted">
+                                The "Send staff locations to remote server" button in HR Admin Control now writes to the remote server directly.
+                                The remote logins and the <b>Staff locations</b> live switch (off = dry run) are in
+                                <b>Settings &gt; Remote Server Connection</b>.
+                            </div>
+                    </setting>
+                </block>
+                <block title="Face Server">
+                    <setting string="Server" help="Face server URI">
+                        <field name="face_server"/>
+                    </setting>
+                    <setting string="Login">
+                        <field name="face_login" widget="email"/>
+                    </setting>
+                    <setting string="Password">
+                        <field name="face_password" password="1"/>
+                    </setting>
+                </block>
+                <block title="Other settings">
+                    <setting string="Description Size" help="Maximum size users can input into description for their requests.">
+                        <field name="description_size"/>
+                    </setting>
+                    <setting string="Last query timestamp" help="Store last query datetime for use in schedule action with continuous mode.">
+                        <field name="last_query_dt"/>
+                    </setting>
+                    <setting string="Query duration" help="Duration for each query in minutes.">
+                        <field name="query_duration"/>
+                    </setting>
+                    <setting string="Instruction URLs" help="Separate URLs by comma">
+                        <field name="att_help_urls"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

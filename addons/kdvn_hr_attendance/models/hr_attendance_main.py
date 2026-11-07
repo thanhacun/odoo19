@@ -2458,7 +2458,7 @@ class KderpHrAttendance(models.Model):
             desc = rule_desc.get(key, ['', ''])
             rules.append((key, label or key, value, desc[0], desc[1]))
         values = {'rules': rules, 'employee_name': self.employee_id.name_get()[0][1]}
-        html = at_view.render(values, engine='ir.qweb')
+        html = self.env['ir.qweb']._render(at_view.id, values)
         self.at_rules = html
 
     @api.depends('at_date')
@@ -3315,7 +3315,7 @@ class KderpHrAttendance(models.Model):
             views = views_or_xmlid
 
         if views:
-            rendered_template = views.render(values, engine='ir.qweb')
+            rendered_template = self.env['ir.qweb']._render(views.id, values)
         else:
             return
         return rendered_template

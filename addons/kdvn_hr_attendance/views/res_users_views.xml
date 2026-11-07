@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- The time zone follows the company: staff cannot change it in their preferences -->
     <record id="view_users_form_simple_modif_origin" model="ir.ui.view">
         <field name="name">res.users.preference.form.modif.origin</field>
         <field name="model">res.users</field>
@@ -10,15 +11,5 @@
             </field>
         </field>
     </record>
-
-    <record id="view_users_form_simple_modif_kderp_base" model="ir.ui.view">
-        <field name="name">res.users.preference.form.modif.kderp.base</field>
-        <field name="model">res.users</field>
-        <field name="inherit_id" ref="kderp_base.view_users_form_simple_modif_location"/>
-        <field name="arch" type="xml">
-            <field name="general_director_id" position="attributes">
-                <attribute name="readonly">1</attribute>
-            </field>
-        </field>
-    </record>
+    <!-- Odoo 12 also made general_director_id read-only in the preferences (kderp_base view, not ported). -->
 </odoo>

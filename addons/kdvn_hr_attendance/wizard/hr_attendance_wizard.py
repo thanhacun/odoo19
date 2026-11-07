@@ -1821,7 +1821,7 @@ class KderpAttendanceManagerRequest(models.Model):
         self.env.cr.execute("""
             CREATE OR REPLACE view {} AS (
                 SELECT ROW_NUMBER() OVER(ORDER BY atts.manager_id) as id, 
-                    atts.manager_id manager_id, json_agg(DISTINCT atts.department_id) departments, count(DISTINCT atts.id) total_requests, json_agg(DISTINCT atts.id) ats
+                    atts.manager_id manager_id, json_agg(DISTINCT atts.department_id)::text departments, count(DISTINCT atts.id) total_requests, json_agg(DISTINCT atts.id)::text ats
                 FROM 
                     (SELECT att.id, att.code, att.state, att.department_id, 
                             CASE 
@@ -3450,7 +3450,7 @@ class KderpAttendanceOTHolidayManagerRequest(models.Model):
         self.env.cr.execute("""
             CREATE OR REPLACE view {} AS (
                 SELECT ROW_NUMBER() OVER(ORDER BY oths.manager_id) as id, 
-                oths.manager_id manager_id, json_agg(DISTINCT oths.admin_dept_id) departments, count(DISTINCT oths.id) total_requests, json_agg(DISTINCT oths.id) othls
+                oths.manager_id manager_id, json_agg(DISTINCT oths.admin_dept_id)::text departments, count(DISTINCT oths.id) total_requests, json_agg(DISTINCT oths.id)::text othls
                 FROM
                 (SELECT oth.id, oth.at_date, oth.employee_id, oth.admin_dept_id, oth.ot_detail, oth.ot_refuse, oth.state, 
                     CASE 
