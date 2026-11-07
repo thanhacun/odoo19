@@ -176,6 +176,7 @@ class KdvnLegacyImport(models.AbstractModel):
         return [
             ('department_types', self._step_department_types),
             ('locations', self._step_locations),
+            ('user_locations', self._step_user_locations),
             ('departments', self._step_departments),
             ('users', self._step_users),
             ('employees', self._step_employees),
@@ -258,9 +259,20 @@ class KdvnLegacyImport(models.AbstractModel):
                 self._safe('hr_department', row['id'], 'parent', lambda dept=dept, parent=parent: dept.write({'parent_id': parent.id}))
         self._state['department_rows'] = rows
 
+    def _step_user_locations(self):
+        """kderp_base codes of type user_location (the office of a user: H, S, P, N, all) -> kderp.base.code for res.users."""
+        if 'kderp.base.code' not in self.env or 'location_user_id' not in self.env['res.users']._fields:
+            return
+        model = self.env['ir.model']._get('res.users')
+        for row in self._legacy_rows('kderp_base_code', ['id', 'code', 'name', 'sequence'], where="type_code = 'user_location'"):
+            self._safe('kderp_base_code', row['id'], row['code'], lambda row=row: self._upsert(
+                'kderp.base.code', 'kderp_base_code', row['id'],
+                {'code': row['code'], 'name': row['name'], 'type_code': 'user_location', 'model_id': model.id, 'sequence': row['sequence'] or 0},
+                natural=[('code', '=', row['code']), ('type_code', '=', 'user_location'), ('model_id', '=', model.id)]))
+
     def _step_users(self):
         wanted = {r['user_id'] for r in self._state['legacy_employees'].values() if r['user_id']}
-        users = {u['id']: u for u in self._legacy_rows('res_users', ['id', 'login', 'active', 'partner_id']) if u['id'] in wanted}
+        users = {u['id']: u for u in self._legacy_rows('res_users', ['id', 'login', 'active', 'partner_id', 'location_user_id']) if u['id'] in wanted}
         partners = {p['id']: p for p in self._legacy_rows('res_partner', ['id', 'name', 'email'])}
         groups = self._user_groups()
         password = self._state['options'].get('password')
@@ -275,6 +287,10 @@ class KdvnLegacyImport(models.AbstractModel):
                     'active': bool(row['active'])}
             if password:
                 vals['password'] = password
+            if 'location_user_id' in self.env['res.users']._fields and row.get('location_user_id'):
+                location = self._record('kderp.base.code', 'kderp_base_code', row['location_user_id'])
+                if location:
+                    vals['location_user_id'] = location.id
 
             self._safe('res_users', user_id, row['login'], lambda row=row, vals=vals: self._upsert(
                 'res.users', 'res_users', user_id, vals, natural=[('login', '=ilike', (row['login'] or '').replace('_', r'\_'))]))

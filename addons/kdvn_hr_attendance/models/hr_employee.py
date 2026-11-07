@@ -135,7 +135,6 @@ class Employee(models.Model):
             e.user_id = u.id
 
             # create user rights/groups
-            manual_at = self.sudo().env.ref('hr_attendance.group_hr_attendance')
             kdvn_staff = self.env.ref('kdvn_hr_attendance.group_hr_attendance_menu_staff')
             at_officer = self.sudo().env.ref('hr_attendance.group_hr_attendance_user')
             at_manager = self.sudo().env.ref('hr_attendance.group_hr_attendance_manager')
