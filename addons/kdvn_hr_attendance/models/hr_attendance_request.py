@@ -166,7 +166,7 @@ class KderpHrAttendanceRequest(models.Model):
     def _compute_estimate_ot(self):
         for r in self:
             estimate_ot, estimate_ot_dsp = (0, None)
-            if r.request_type == 'over_time':
+            if r.request_type == 'over_time' and r.at_id:
                 estimate_hour = r.at_id._compute_ot_hour(estimate=True)
                 estimate_ot = sum([item[1] for item in estimate_hour.items() if item[0] not in ['ot_am', 'ot_pm', 'ot_wd', 'ot_hd', 'ot_total']])
                 estimate_ot_dsp = ', '.join([': '.join(map(str, item)) for item in estimate_hour.items() if item[0] not in ['ot_am', 'ot_pm', 'ot_wd', 'ot_hd', 'ot_total'] and item[1] > 0])
@@ -174,7 +174,8 @@ class KderpHrAttendanceRequest(models.Model):
                 estimate_ot_dsp = re.sub(r'\D{3}st', 'ST' , estimate_ot_dsp)
 
             r.update({'estimate_ot': estimate_ot, 'estimate_ot_dsp': estimate_ot_dsp})
-            r.at_id.update({'e_ot_am': estimate_hour['ot_am'], 'e_ot_pm': estimate_hour['ot_pm']})
+            if r.request_type == 'over_time' and r.at_id:   # estimate_hour only exists for an OT request (a new or WT request raised UnboundLocalError)
+                r.at_id.update({'e_ot_am': estimate_hour['ot_am'], 'e_ot_pm': estimate_hour['ot_pm']})
 
     @api.depends('at_id')
     def compute_view_users(self):

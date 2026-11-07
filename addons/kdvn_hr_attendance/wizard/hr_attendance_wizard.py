@@ -3172,6 +3172,10 @@ class KderpHrAttendanceOTHoliday(models.Model):
     def _compute_is_current(self):
         today = fields.Date.context_today(self)
         for o in self:
+            if not o.at_year or not o.at_month:   # a new record from the form: nothing chosen yet
+                o.is_current = False
+                o.at_month_dsp = False
+                continue
             o.is_current = today < (datetime.date(int(o.at_year), int(o.at_month), 1) + relativedelta(months=1))
             o.at_month_dsp = month_abbr[o.at_month] + '-' + o.at_year
     
@@ -3370,6 +3374,9 @@ class KderpHrAttendanceOTHolidayLine(models.Model):
             if holiday_lines[h.date] != h:
                 holiday_lines[h.date] = h.browse()  # more than one holiday on that date: same as "not a single line" before
         for r in self:
+            if not r.at_date:   # a new record from the form: no date yet
+                r.holiday_type = False
+                continue
             wd = r.at_date.weekday()
             holiday_date = holiday_lines.get(r.at_date, self.env['hr.holidays.public.line'])
             if holiday_date and len(holiday_date) == 1:
