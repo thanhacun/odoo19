@@ -16,6 +16,14 @@ class HrDepartment(models.Model):
     new_man_effective_date = fields.Date(string='Effective Date')
     type_id = fields.Many2one('hr.department.type', string='Type')
 
+    @api.depends('name')
+    def _compute_display_name(self):
+        """Odoo 12 (kderp_hr_ext) had _name_only = True: a department / section / area shows its own name ("GA Section", "HO").
+        Odoo 19 shows the whole path ("B.O.M / B.O.D / ... / ADM-HO / GA Section"), far too long for form fields and lists.
+        The path stays available as complete_name."""
+        for department in self:
+            department.display_name = department.name or ''
+
     @api.model
     def _cron_change_to_effective_manager(self):
         self.search([('new_manager', '!=', False), ('new_man_effective_date', '<=', fields.Date.today())])._change_to_effective_manager()
