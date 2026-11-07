@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-inherit="queue_job_batch.QueueJobBatchMenu" t-inherit-mode="extension">
+        <xpath expr="//a[@t-on-click='openMyJobBatches']" position="before">
+            <a href="#" class="o_read_all_batch_jobs list-group-item list-group-item-action p-2 border-0 text-primary text-center"
+               t-if="finishedBatches.length" t-on-click="hideCompleted">
+                Hide Completes
+            </a>
+        </xpath>
+    </t>
+</templates>

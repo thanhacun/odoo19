@@ -7,6 +7,9 @@ lunarcalendar
 # kdvn_hr_attendance: PDF reports of the attendance wizard (Odoo 12 pinned 52.5 for Python 3.6; use a current one)
 weasyprint
 
+# queue_job (OCA, extra-addons/queue_job): needed by the module
+openupgradelib
+
 # Later (not needed yet):
 # python-barcode   (e-approval QR/barcode, step 5)
 # pyjwt            (face server login, stage E)
