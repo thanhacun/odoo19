@@ -370,7 +370,7 @@ class KderpProjectPeakTime(models.Model):
             return super(KderpProjectPeakTime, self).action_print_secure_authenticated_report()
         report = self.env.ref(self._default_approval_report_xml_id)
         return report.with_context(wizard_report=True).report_action(
-            [], data={'formatted_data': [self.prepare_peak_time_report_data()]})
+            self.ids, data={'formatted_data': [self.prepare_peak_time_report_data()]})
 
     def _generate_hr_attendance_rules(self):
         """

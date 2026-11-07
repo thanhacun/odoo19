@@ -1512,7 +1512,8 @@ class KderpApprovalMixin(models.AbstractModel):
         
         # 4. STREAM CLEAN DATA PACKET TO TARGET PY3O LAYOUT
         # return self.env.ref(report_xml_id).with_context().report_action(res_ids, data=datas)
-        return self.env.ref(report_xml_id).with_context(wizard_report=True).report_action([], data=datas)
+        # Odoo 19 report_py3o renders nothing for an empty id list: pass the record (formatted_data still comes in `data`)
+        return self.env.ref(report_xml_id).with_context(wizard_report=True).report_action(self.ids, data=datas)
 
 
     def _get_or_create_nextcloud_room_token(self, nc_url, bot_user, bot_pass, nc_login):
