@@ -243,6 +243,14 @@ class KderpHrAttendance(models.Model):
         return result
 
 
+    def _compute_color(self):
+        """Odoo 19 core colours a record from check_in; our attendance days (absence, leave, no check) often have neither
+        check_in nor check_out and core raises "'<' not supported between bool and datetime". Those days get colour 0."""
+        no_check = self.filtered(lambda a: not a.check_in and not a.check_out)
+        super(KderpHrAttendance, self - no_check)._compute_color()
+        for attendance in no_check:
+            attendance.color = 0
+
     @api.depends('employee_id', 'compute_in', 'compute_out', 'at_date')
     def _compute_display_name(self):
         """Odoo 19 has no name_get(): display_name is computed. The Odoo 12 body is kept as _legacy_name_get (same strings)."""

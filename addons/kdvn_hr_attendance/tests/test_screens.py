@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """Every window action and menu of the module opens: its views compile and the first page of data reads.
 This is the smoke test of the converted Odoo 12 screens (leave, request, settings); it does not check what the screens look like."""
+import datetime
 from odoo.tests import common, tagged
+from .common_at import ATCase
 
 
 @tagged('post_install', '-at_install', 'at_screens')
@@ -59,3 +61,14 @@ class TestEmptyRecords(common.TransactionCase):
                             self.fail('%s.%s: %s' % (name, fname, e))
                     except Exception:
                         pass  # other errors come from reading an empty record (no employee, no date): not the Odoo 19 issue
+
+
+@tagged('post_install', '-at_install', 'at_screens')
+class TestRealisticRows(ATCase):
+    """Records are read the way the list view reads them. An attendance day without any check (absence) must read."""
+
+    def test_attendance_day_without_check_reads(self):
+        at = self.new_at(self.new_employee(), datetime.date(2026, 3, 11))
+        self.assertFalse(at.check_in)
+        self.assertEqual(at.color, 0)
+        self.assertTrue(at.read(['color', 'display_name', 'worked_hours']))
