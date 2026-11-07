@@ -6,7 +6,7 @@
         <field name="model">hr.leave.cover</field>
         <field name="arch" type="xml">
             <list edit="0" create="0" decoration-success="state == 'waiting_fman'" decoration-info="state ==  'waiting_fhr'" decoration-warning="state == 'waiting_fman2'" decoration-danger="state == 'refuse'" decoration-muted="state == 'done'">
-                <field name="employee_id"/>
+                <field name="employee_id" column_invisible="context.get('leave_single_mode')"/>
                 <field name="name"/>
                 <field name="department_id" string="Section|Project"/>
                 <field name="date_from" string="From"/>

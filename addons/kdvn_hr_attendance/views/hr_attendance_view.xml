@@ -8,7 +8,7 @@
         <field name="model">hr.attendance</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
-            <list string="Attendances" edit="false" create="false" decoration-danger="state in ['refuse']" decoration-muted="state=='done'"><field name="employee_id"/>
+            <list string="Attendances" edit="false" create="false" decoration-danger="state in ['refuse']" decoration-muted="state=='done'"><field name="employee_id" column_invisible="context.get('attendance_single_mode')"/>
                 <field name="at_day_str" string="Date" decoration-danger="wd_block_no==0"/>
                 <field name="wd_block_no" column_invisible="1"/>
                 <field name="at_date" string="Date" column_invisible="1"/>

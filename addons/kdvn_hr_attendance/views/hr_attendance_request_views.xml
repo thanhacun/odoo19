@@ -44,14 +44,14 @@
         <field name="model">hr.attendance.request</field>
         <field name="arch" type="xml">
             <list decoration-success="state == 'waiting_fman'" decoration-info="state ==  'waiting_fhr'" decoration-warning="state == 'waiting_fman2'" decoration-muted="state == 'done'" decoration-danger="state == 'refuse'">
-                <field name="at_id"/>
+                <field name="at_id" column_invisible="context.get('request_single_mode')"/>
                 <field name="request_type" string="Type"/>
                 <field name="sub_request_type_id" string="Detail"/>
                 <field name="display_name" string="Reason"/>
                 <field name="create_date" string="Request Time"/>
-                <field name="request_in"/>
-                <field name="request_out"/>
-                <field name="batch_id"/>
+                <field name="request_in" column_invisible="context.get('request_single_mode')"/>
+                <field name="request_out" column_invisible="context.get('request_single_mode')"/>
+                <field name="batch_id" column_invisible="context.get('request_single_mode')"/>
                 <field name="estimate_ot_dsp" invisible="request_type != 'over_time'"/>
                 <field name="out_by_reg" invisible="request_type != 'over_time'" readonly="1"/>
                 <field name="include_absence_hour" invisible="request_type != 'over_time'" readonly="1"/>
