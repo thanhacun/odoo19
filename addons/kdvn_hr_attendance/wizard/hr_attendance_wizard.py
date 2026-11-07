@@ -3001,12 +3001,20 @@ class KderpHrAttendanceOTHoliday(models.Model):
 
     _data_must_be_unique = models.Constraint('unique(employee_id, at_year, at_month)', 'Employee, at_year, at_month must be unique')
 
-    def name_get(self):
+    def _legacy_name_get(self):
         res = []
         for o in self:
             dsp_name = f'{o.employee_id.code} - OT Holiday Plan - {o.at_month}/{o.at_year}'
             res.append((o.id, dsp_name))
         return res
+
+
+    @api.depends('employee_id', 'at_month', 'at_year')
+    def _compute_display_name(self):
+        """Odoo 19 has no name_get(): display_name is computed. The Odoo 12 body is kept as _legacy_name_get (same strings)."""
+        names = dict(self._legacy_name_get())
+        for rec in self:
+            rec.display_name = names.get(rec.id) or ''
 
     def generate_monthly_record(self, employee_id=None, at_year=None, at_month=None):
         """
@@ -3407,8 +3415,9 @@ class KderpHrAttendanceOTHolidayLine(models.Model):
 
     def _legacy_create(self, values):
         created_ids = super().create(values)
-        for ot_line in created_ids:
-            ot_line.write_ot_request()
+        if not self.env.context.get('kdvn_no_ot_plan_sync'):   # data import: requests come from Odoo 12, not from the plan
+            for ot_line in created_ids:
+                ot_line.write_ot_request()
         return created_ids   # Odoo 12 returned None here (not allowed by Odoo 19 create)
 
     def write(self, values):
@@ -3431,7 +3440,7 @@ class KderpHrAttendanceOTHolidayLine(models.Model):
                 if self.state == 'waiting_fman':
                     self.state = 'draft'
                     run_update_ot_request = True
-        if run_update_ot_request:
+        if run_update_ot_request and not self.env.context.get('kdvn_no_ot_plan_sync'):   # data import: requests come from Odoo 12, not from the plan
             self.write_ot_request()
 
         return _super

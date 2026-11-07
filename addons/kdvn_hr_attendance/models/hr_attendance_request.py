@@ -121,11 +121,19 @@ class KderpHrAttendanceRequest(models.Model):
 	#       JOIN hr_attendance_request hr ON user_id.hr_attendance_id=hr.at_id
     view_user_ids = fields.Many2many('res.users', string="View users", readonly=True)  # data will update in create method (and maybe at_id depends method)
 
-    def name_get(self):
+    def _legacy_name_get(self):
         res = []
         for r in self:
             res.append((r.id, r.description))
         return res
+
+
+    @api.depends('description')
+    def _compute_display_name(self):
+        """Odoo 19 has no name_get(): display_name is computed. The Odoo 12 body is kept as _legacy_name_get (same strings)."""
+        names = dict(self._legacy_name_get())
+        for rec in self:
+            rec.display_name = names.get(rec.id) or ''
 
     def _compute_description(self):
         # description_size = self.env.user.company_id.description_size or 25
@@ -371,6 +379,8 @@ class KderpHrAttendanceRequest(models.Model):
 
     @api.constrains('at_id', 'state', 'request_type', 'sub_request_type_id', 'request_in', 'request_out')
     def _validate_at_requests(self):
+        if self.env.context.get('kdvn_skip_checkin_check'):
+            return   # data import: Odoo 12 already accepted these requests (deadlines, delay, holiday plan); the import never re-judges them
         at_policy = self.env.user.company_id.at_policy()
         delay_duration = at_policy['delay_duration'] if self.env.user.company_id else 2
         today = fields.Date.context_today(self)

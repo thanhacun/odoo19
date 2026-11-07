@@ -38,7 +38,7 @@ class KderpHrAttendanceLocationSetup(models.Model):
         """Fill an empty Location name with the name shown now (machine name without 'Face'): no typing, no typo."""
         for l in self:
             if not (l.show_name or '').strip():
-                l.show_name = l.name_get()[0][1]
+                l.show_name = l._legacy_name_get()[0][1]
         return True
 
     # ---- which machines count ---------------------------------------------
@@ -83,7 +83,7 @@ class KderpHrAttendanceLocationSetup(models.Model):
         staff's main office in front unless the machine stands in that same area (a Head Office staff at the Head Office
         machine = 'Head Office'; at the Kyocera machine = 'Head Office Kyocera')."""
         self.ensure_one()
-        name = self.name_get()[0][1] or ''
+        name = self._legacy_name_get()[0][1] or ''
         area = employee.admin_dept_id.area_id
         # machine without area = a customer site: always '<main office> <site>'. Not when the name already has the office
         # (avoids 'HO HO')

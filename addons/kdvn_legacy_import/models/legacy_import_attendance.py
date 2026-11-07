@@ -50,6 +50,7 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
                 ('lv_leaves', self._step_lv_leaves),
                 ('lv_links', self._step_lv_links),
                 ('at_refuse', self._step_at_refuse),
+                ('at_restore', self._step_at_restore),
             ]
         return steps
 
@@ -232,6 +233,11 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
                          natural=lambda row, vals: [('code', '=', row['code'])],
                          context={'do_not_run_at_status': True, 'kdvn_no_compute': True, 'kdvn_skip_checkin_check': True},
                          skip=('state', 'status_codes', 'request_leave', 'leave_cover_ids', 'related_leaves_count'))
+        self._write_status_marks()
+
+    def _write_status_marks(self):
+        """Status marks (O, X, L, AH... many2many) of the imported days, as Odoo 12 had them."""
+        self._ensure_codes()
         ats = {t[1]: v for t, v in self._state['tags'].items() if t[0] == 'hr_attendance'}
         if not ats:
             return
@@ -271,6 +277,35 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
         self._copy_table('hr_attendance_refuse', 'hr.attendance.refuse', filter_row=wanted,
                          context={'do_not_run_at_status': True, 'kdvn_no_compute': True})
 
+    def _step_at_restore(self):
+        """LAST attendance step: write the Odoo 12 values of the stored computed columns back, straight in SQL.
+        While the later steps run (raw checks, requests, leaves) Odoo 19 recomputes stored fields of the imported days (absence,
+        compute_out, OT hours...) before the requests they depend on exist, and the result differs from what Odoo 12 computed
+        (payroll reads these). The import never recomputes: Odoo 12's values are the truth until the parity run says otherwise."""
+        ats = {t[1]: v for t, v in self._state['tags'].items() if t[0] == 'hr_attendance'}
+        if not ats:
+            return
+        self._write_status_marks()   # the marks are recomputed by later steps too; write them first, then the SQL values on top
+        self.env.flush_all()
+        fields_ = self.env['hr.attendance']._fields
+        simple = ('char', 'text', 'selection', 'float', 'integer', 'boolean', 'datetime', 'date')
+        columns = [name for name, f in fields_.items() if f.store and f.column_type and f.type in simple
+                   and name not in ('id', 'create_date', 'write_date', 'code')]
+        rows = [r for r in self._legacy_rows('hr_attendance', None, where=self._window_where('at_date')) if r['id'] in ats]   # None = the columns that exist in Odoo 12 only
+        if not rows:
+            return
+        legacy_columns = [c for c in columns if c in rows[0]]
+        sql = 'UPDATE hr_attendance SET %s WHERE id = %%s' % ', '.join('"%s" = %%s' % c for c in legacy_columns)
+        # stored computed many2one columns the same way (face machine locations), mapped through the import tags
+        m2o = [c for c in ('check_in_location_id', 'check_out_location_id') if c in rows[0]]
+        sql_m2o = ('UPDATE hr_attendance SET %s WHERE id = %%s' % ', '.join('"%s" = %%s' % c for c in m2o)) if m2o else None
+        for row in rows:
+            self.env.cr.execute(sql, [row[c] for c in legacy_columns] + [ats[row['id']]])
+            if sql_m2o:
+                self.env.cr.execute(sql_m2o, [self._tags_get('hr_attendance_location', row[c]) or None for c in m2o] + [ats[row['id']]])
+        self.env.invalidate_all()
+        self._state['stats'][('hr_attendance', 'values restored')] += len(rows)
+
     def _step_at_ot_plans(self):
         months = self._window_months()
         legacy_emp = set(self._state['legacy_employees'])
@@ -278,10 +313,12 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
         def wanted(row):
             return row['employee_id'] in legacy_emp and (months is None or (int(row['at_year']), int(row['at_month'])) in months)
         self._copy_table('hr_attendance_ot_holiday', 'hr.attendance.ot.holiday', filter_row=wanted,
-                         natural=lambda row, vals: [('employee_id', '=', vals.get('employee_id')), ('at_year', '=', str(row['at_year'])), ('at_month', '=', int(row['at_month']))])
+                         natural=lambda row, vals: [('employee_id', '=', vals.get('employee_id')), ('at_year', '=', str(row['at_year'])), ('at_month', '=', int(row['at_month']))],
+                         context={'kdvn_no_ot_plan_sync': True})
         plans = {t[1] for t in self._state['tags'] if t[0] == 'hr_attendance_ot_holiday'}
         self._copy_table('hr_attendance_ot_holiday_line', 'hr.attendance.ot.holiday.line', filter_row=lambda row: row['ot_holiday_reg_id'] in plans,
-                         natural=lambda row, vals: [('ot_holiday_reg_id', '=', vals.get('ot_holiday_reg_id')), ('at_date', '=', row['at_date'])])
+                         natural=lambda row, vals: [('ot_holiday_reg_id', '=', vals.get('ot_holiday_reg_id')), ('at_date', '=', row['at_date'])],
+                         context={'kdvn_no_ot_plan_sync': True})
 
     # ------------------------------------------------------------------ time off
     def _set_state(self, record, state):

@@ -73,12 +73,20 @@ class KderpHrAttendanceLocation(models.Model):
     terminal_id = fields.Char()
     is_local = fields.Boolean(default=True, help='Wheather a face machine managed by the face server defined in the ATT local server')
 
-    def name_get(self):
+    def _legacy_name_get(self):
         result = []
         for l in self:
             show_name = l.show_name if l.show_name else l.name.replace(' Face', '')
             result.append((l.id, show_name))
         return result
+
+
+    @api.depends('show_name', 'name')
+    def _compute_display_name(self):
+        """Odoo 19 has no name_get(): display_name is computed. The Odoo 12 body is kept as _legacy_name_get (same strings)."""
+        names = dict(self._legacy_name_get())
+        for rec in self:
+            rec.display_name = names.get(rec.id) or ''
 
     @api.model
     def next_code(self):

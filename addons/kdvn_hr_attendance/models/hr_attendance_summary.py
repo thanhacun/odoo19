@@ -145,7 +145,7 @@ class KderpHrAttendanceSummary(models.Model):
     #         # s.at_ids = s._month_ats().mapped('id')
     #         s.at_ids = json.loads(s.at_ids_list)
 
-    def name_get(self):
+    def _legacy_name_get(self):
         # The id encodes employee, year and month (summary_key): decode it instead of reading the view,
         # because the view aggregates the whole hr_attendance table for every lookup (~0.5 s per call).
         employees = self.env['hr.employee'].sudo()
@@ -154,6 +154,14 @@ class KderpHrAttendanceSummary(models.Model):
             employee_id, year, month = summary_key_decode(s.id)
             names.append((s.id, 'Attendance of {}, {} for {}'.format(calendar.month_name[month], year, employees.browse(employee_id).name)))
         return names
+
+
+    @api.depends_context("uid")
+    def _compute_display_name(self):
+        """Odoo 19 has no name_get(): display_name is computed. The Odoo 12 body is kept as _legacy_name_get (same strings)."""
+        names = dict(self._legacy_name_get())
+        for rec in self:
+            rec.display_name = names.get(rec.id) or ''
 
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
@@ -740,9 +748,17 @@ class KderpHrAttendanceOTHolidaySummary(models.Model):
         """
         self.env.cr.execute(query)
 
-    def name_get(self):
+    def _legacy_name_get(self):
         return [(s.id, 'OT detail of {}-{} for {}'.format(calendar.month_name[s.at_month], s.at_year, s.employee_id.name)) for s in self]
     
+
+    @api.depends('employee_id', 'at_month', 'at_year')
+    def _compute_display_name(self):
+        """Odoo 19 has no name_get(): display_name is computed. The Odoo 12 body is kept as _legacy_name_get (same strings)."""
+        names = dict(self._legacy_name_get())
+        for rec in self:
+            rec.display_name = names.get(rec.id) or ''
+
     def compute_at_month_dsp(self):
         for r in self:
             r.at_month_dsp = month_abbr[r.at_month] + '-' + str(r.at_year)
