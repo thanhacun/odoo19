@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <!-- Odoo 19: the settings page of this app (views/settings_views.xml); Odoo 12 opened the remote sync settings form -->
+        <record id="action_kdvn_e_approval_settings" model="ir.actions.act_window">
+            <field name="name">Settings</field>
+            <field name="res_model">res.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="context">{'module': 'kdvn_e_approval', 'bin_size': False}</field>
+        </record>
+
         <!-- ================= 🌟 TOP-LEVEL MANAGEMENT PORTAL HOOKS ================= -->
         <menuitem id="menu_e_approval_root" 
                 name="E-Approval Portal" 
@@ -57,6 +65,6 @@
         <menuitem id="menu_action_jobs_sync" name="Cached Jobs list" parent="menu_sub_configuration" action="action_kderp_jobs_lookup" sequence="10" groups="kdvn_e_approval.group_e_approval_admin"/>
         <menuitem id="menu_action_tier_definitions_config" name="Approval Rules (Procedural Matrix)" parent="menu_sub_configuration" action="action_tier_definition_shortcut" sequence="20" groups="kdvn_e_approval.group_e_approval_admin"/>
         <menuitem id="menu_action_sequence_settings_config" name="Document Number Sequences" parent="menu_sub_configuration" action="action_sequence_config_shortcut" sequence="30" groups="kdvn_e_approval.group_e_approval_admin"/>
-        <menuitem id="menu_action_system_parameters_config" name="System Parameter Settings" parent="menu_sub_configuration" action="kdvn_remote_sync.action_kderp_remote_sync_settings_window" sequence="40" groups="kdvn_e_approval.group_e_approval_admin"/>
+        <menuitem id="menu_action_system_parameters_config" name="System Parameter Settings" parent="menu_sub_configuration" action="action_kdvn_e_approval_settings" sequence="40" groups="kdvn_e_approval.group_e_approval_admin"/>
     </data>
 </odoo>

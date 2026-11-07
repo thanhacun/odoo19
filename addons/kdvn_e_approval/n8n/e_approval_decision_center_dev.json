@@ -1,0 +1,611 @@
+{
+  "name": "E-Approval Decision Center (dev)",
+  "nodes": [
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "path": "e-approval-mobile-gateway",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1568,
+        -496
+      ],
+      "id": "000bd0ea-e723-4159-ae17-9c1d035171bf",
+      "name": "Webhook",
+      "webhookId": "ffc78db0-21d8-485e-b0b4-e8fd4bc82d20"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -144,
+        -592
+      ],
+      "id": "774f84df-02b3-44e1-b585-0e762d192f4d",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.odoo_url }}/api/v1/mobile_review_action",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ jsonrpc: '2.0', method: 'call', params: Object.assign({}, $json.query, $json.query.c ? { code: $json.query.c } : {}) }) }}",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -880,
+        -512
+      ],
+      "id": "e5a40b95-ab92-41d1-8fc2-6ca8e63159df",
+      "name": "HTTP Request",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "jsCode": "// The link's step was already decided (opening the link changed nothing).\nconst r = $json.result || {};\nconst esc = (v) => String(v || '').replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]));\nconst what = r.current_status === 'approved' ? 'approved' : r.current_status === 'rejected' ? 'rejected' : 'decided';\nreturn [{ html: `<!DOCTYPE html>\n<html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Already decided</title>\n<style>\n  body { margin:0; padding:24px 16px; background:#f4f5f7; color:#212529;\n         font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; }\n  .card { max-width:420px; margin:24px auto; background:#fff; border:1px solid #dee2e6; border-radius:6px;\n          border-top:4px solid #adb5bd; padding:20px 22px; }\n  .brand { font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#6c757d; }\n  .ref { font-size:16px; font-weight:600; }\n  .muted { color:#6c757d; font-size:13px; margin-top:2px; }\n  .result { text-align:center; margin-top:14px; }\n  .big { font-size:44px; margin-bottom:6px; }\n  h1 { font-size:19px; margin:6px 0 8px; }\n</style></head>\n<body><div class=\"card\">\n  <div class=\"brand\">Kinden Vietnam · E-Approval</div>\n  ${r.ref ? `<div class=\"ref\" style=\"margin-top:6px\">${esc(r.ref)}</div>` : ''}\n  ${(r.title || r.applicant) ? `<div class=\"muted\">${esc(r.title)}${r.title && r.applicant ? ' · ' : ''}${esc(r.applicant)}</div>` : ''}\n  ${r.step ? `<div class=\"muted\">${esc(r.step)}</div>` : ''}\n  <div class=\"result\"><div class=\"big\">ℹ️</div><h1>Already decided</h1>\n    <div class=\"muted\">This step was already ${what}${r.done_by ? ' by ' + esc(r.done_by) : ''}, so nothing was changed.</div>\n  </div>\n</div></body></html>` }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -512,
+        -640
+      ],
+      "id": "f0dbdb10-e0f8-4a67-97a8-742c0167a4f0",
+      "name": "HTML Already Processed"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Reject page. Opening the link shows the form (Odoo answers \"rejecting\" with a summary);\n// the button POSTs the comment. The result shown depends on Odoo's answer, never assumed.\nconst trigger = $('Webhook Short').isExecuted ? $('Webhook Short') : $('Webhook');\nconst q = trigger.first().json.query || {};\nconst linkParams = q.c\n  ? { code: q.c }\n  : { res_model: q.res_model || '', res_id: parseInt(q.res_id || 0), review_id: parseInt(q.review_id || 0),\n      user_id: parseInt(q.user_id || 0), token: q.token || '' };\nconst r = $json.result || {};\nconst esc = (v) => String(v || '').replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]));\n\nreturn [{ html: `<!DOCTYPE html>\n<html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Reject request</title>\n<style>\n  body { margin:0; padding:24px 16px; background:#f4f5f7; color:#212529;\n         font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; }\n  .card { max-width:420px; margin:24px auto; background:#fff; border:1px solid #dee2e6; border-radius:6px;\n          border-top:4px solid #dc3545; padding:20px 22px; }\n  .card.muted-top { border-top-color:#adb5bd; }\n  .brand { font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#6c757d; }\n  h1 { font-size:19px; margin:6px 0 14px; }\n  .ref { font-size:16px; font-weight:600; }\n  .muted { color:#6c757d; font-size:13px; margin-top:2px; }\n  .details { margin:12px 0 16px; padding:10px 12px; background:#f8f9fa; border-radius:4px; font-size:14px; line-height:1.5; color:#495057; }\n  .lbl { display:block; font-size:13px; font-weight:600; margin-bottom:4px; }\n  textarea { width:100%; box-sizing:border-box; border:1px solid #dee2e6; border-radius:4px; padding:8px;\n             font:inherit; font-size:14px; margin-bottom:6px; }\n  .err { color:#dc3545; font-size:13px; min-height:18px; margin-bottom:8px; }\n  button { width:100%; padding:12px; border:0; border-radius:4px; background:#dc3545; color:#fff; font-size:15px; font-weight:600; cursor:pointer; }\n  button.secondary { background:#6c757d; width:auto; padding:8px 18px; font-size:13px; margin-top:14px; }\n  button:disabled { opacity:.6; }\n  .result { text-align:center; }\n  .big { font-size:44px; margin-bottom:6px; }\n  .quote { margin-top:12px; padding:8px 12px; border-left:3px solid #dc3545; background:#f8f9fa; text-align:left;\n           font-size:13px; color:#495057; word-break:break-word; }\n</style></head>\n<body><div class=\"card\" id=\"card\">\n  <div class=\"brand\">Kinden Vietnam · E-Approval</div>\n  <h1>Reject this request?</h1>\n  <div id=\"summary\">\n    ${r.ref ? `<div class=\"ref\">${esc(r.ref)}</div>` : ''}\n    ${(r.title || r.applicant) ? `<div class=\"muted\">${esc(r.title)}${r.title && r.applicant ? ' · ' : ''}${esc(r.applicant)}</div>` : ''}\n    ${r.step ? `<div class=\"muted\">${esc(r.step)}</div>` : ''}\n    ${r.details ? `<div class=\"details\">${esc(r.details)}</div>` : '<div style=\"height:12px\"></div>'}\n  </div>\n  <label for=\"cmt\" class=\"lbl\">Reason <span style=\"color:#dc3545\">(required)</span></label>\n  <textarea id=\"cmt\" rows=\"4\" placeholder=\"Why do you reject this request? The applicant will see it.\"></textarea>\n  <div id=\"cmterr\" class=\"err\"></div>\n  <button id=\"btn\" onclick=\"reject()\">Reject</button>\n</div>\n<script>\nconst SUMMARY = document.getElementById('summary').innerHTML;\nfunction esc(v) { const d = document.createElement('div'); d.textContent = v == null ? '' : String(v); return d.innerHTML; }\nfunction page(icon, title, text, extra, muted) {\n  const card = document.getElementById('card');\n  card.className = 'card' + (muted ? ' muted-top' : '');\n  card.innerHTML = '<div class=\"brand\">Kinden Vietnam · E-Approval</div>' + SUMMARY +\n    '<div class=\"result\"><div class=\"big\">' + icon + '</div><h1>' + esc(title) + '</h1>' +\n    '<div class=\"muted\">' + esc(text) + '</div>' + (extra || '') + '</div>';\n}\nasync function reject() {\n  const cmt = document.getElementById('cmt');\n  const comment = cmt.value.trim();\n  if (!comment) { document.getElementById('cmterr').textContent = 'Please write a reason before rejecting.'; cmt.focus(); return; }\n  const btn = document.getElementById('btn'); btn.disabled = true; btn.textContent = 'Rejecting…';\n  try {\n    const res = await fetch('', { method:'POST', headers:{'Content-Type':'application/json'},\n      body: JSON.stringify({ jsonrpc:'2.0', params: Object.assign(${JSON.stringify(linkParams)}, { action:'reject', comment: comment }) }) });\n    if (!res.ok) throw new Error('The server did not answer (HTTP ' + res.status + ').');\n    const raw = await res.json(); const rpc = Array.isArray(raw) ? raw[0] : raw;\n    if (rpc.error) throw new Error(rpc.error.message || 'Odoo returned an error.');\n    const out = rpc.result || {};\n    if (out.status === 'rejected') {\n      page('❌', 'Rejected', 'Your rejection was recorded in Odoo and the applicant has been informed.',\n           '<div class=\"quote\"><b>Your reason:</b> ' + esc(out.comment || comment) + '</div>');\n      setTimeout(function(){ window.close(); }, 4000);\n    } else if (out.status === 'already_processed') {\n      const what = out.current_status === 'approved' ? 'approved' : out.current_status === 'rejected' ? 'rejected' : 'decided';\n      page('ℹ️', 'Already decided', 'This step was already ' + what + (out.done_by ? ' by ' + out.done_by : '') +\n           ', so nothing was changed.', '', true);\n    } else if (out.status === 'rejecting') {\n      btn.disabled = false; btn.textContent = 'Reject';\n      document.getElementById('cmterr').textContent = 'Please write a reason before rejecting.';\n    } else {\n      throw new Error(out.message || 'Unexpected answer from Odoo.');\n    }\n  } catch (e) {\n    page('⚠️', 'Not rejected', e.message,\n         '<button class=\"secondary\" onclick=\"location.reload()\">Try again</button>', true);\n  }\n}\n</script></body></html>` }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -512,
+        -288
+      ],
+      "id": "2e127369-3045-4f30-b451-9fca08673a97",
+      "name": "HTML Reject Form and Logged"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  html: `\n  <div style=\"font-family: -apple-system, sans-serif; text-align: center; padding: 40px 20px; background-color: #f8f9fa;\">\n      <div style=\"max-width: 360px; margin: 60px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-top: 5px solid #28a745;\">\n          <div style=\"font-size: 56px; margin-bottom: 15px;\">✅</div>\n          <h2 style=\"font-size: 22px; color: #2c3e50; margin: 0 0 10px 0;\">Thank You!</h2>\n          <p style=\"color: #6c757d; font-size: 14px; line-height: 1.5; margin: 0;\">Your approval signature has been registered and verified successfully inside the database registry.</p>\n      </div>\n  </div>\n  <script>setTimeout(function() { window.close(); }, 2500);</script>`\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -512,
+        -480
+      ],
+      "id": "2c7ee736-0bfa-4df9-bb33-c459ceb0fd25",
+      "name": "HTML Approved Success"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.result.status }}",
+                    "rightValue": "error",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "c5595c4d-d881-4ba4-918b-067d4b9cd602"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Error"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c695c182-cad5-4ea1-8df4-8c03aac2d3ce",
+                    "leftValue": "={{ $json.result.status }}",
+                    "rightValue": "already_processed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Already"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "135d9339-736b-485a-9758-d94ae795d469",
+                    "leftValue": "={{ $json.result.status }}",
+                    "rightValue": "approved",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Approved"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "931503ae-b705-4002-a989-aa24ea7ba1dc",
+                    "leftValue": "={{ $json.result.status }}",
+                    "rightValue": "rejecting",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Rejecting"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "bd9626c9-a2fa-4d3e-97db-531e79177527",
+                    "leftValue": "={{ $json.result.status }}",
+                    "rightValue": "rejected",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Rejected"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "10ec7874-6e0f-4473-b5c7-8230fd359526",
+                    "leftValue": "={{ $json.result.status }}",
+                    "rightValue": "confirm",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Confirm"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -1008,
+        -560
+      ],
+      "id": "75adc9c1-16c3-49e9-9ff9-a53ec0031159",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.odoo_url }}/api/v1/mobile_review_action",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ jsonrpc: '2.0', method: 'call', params: $json.body.params }) }}",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -880,
+        -288
+      ],
+      "id": "00e50d34-c8a3-49bc-bd2d-e0802f2fa68a",
+      "name": "Submit decision (POST)",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -992,
+        -288
+      ],
+      "id": "ec635818-6b55-4837-a7f4-0d871f313fff",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the error message dynamically from the incoming node data\nconst errorMessage =  $('HTTP Request').first().json?.result?.message|| 'An unknown error occurred during this workflow step.';\n\nreturn [{\n  json: {\n    html: `\n    <div style=\"font-family: -apple-system, sans-serif; text-align: center; padding: 40px 20px; background-color: #f8f9fa;\">\n        <div style=\"max-width: 360px; margin: 60px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-top: 5px solid #dc3545;\">\n            <div style=\"font-size: 56px; margin-bottom: 15px;\">❌</div>\n            <h2 style=\"font-size: 20px; color: #2c3e50; margin: 0 0 10px 0;\">Workflow Error</h2>\n            <p style=\"color: #6c757d; font-size: 14px; line-height: 1.5; margin: 0;\">${errorMessage}</p>\n        </div>\n    </div>`\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -512,
+        -800
+      ],
+      "id": "64f8fa65-ff58-4961-af2a-10bda5219117",
+      "name": "Error"
+    },
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "path": "ea",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1568,
+        -276
+      ],
+      "id": "377faf52-2bcb-4b7b-96b8-001f6a6e201f",
+      "name": "Webhook Short",
+      "webhookId": "a238ad35-b87b-4573-908c-0055cc088741"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Confirmation page: opening a link must never approve by itself\n// (chat link previews and email scanners open links automatically).\nconst trigger = $('Webhook Short').isExecuted ? $('Webhook Short') : $('Webhook');\nconst q = trigger.first().json.query || {};\nconst linkParams = q.c\n  ? { code: q.c }\n  : { res_model: q.res_model || '', res_id: parseInt(q.res_id || 0), review_id: parseInt(q.review_id || 0),\n      user_id: parseInt(q.user_id || 0), token: q.token || '' };\nconst r = $json.result || {};\nconst esc = (v) => String(v || '').replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]));\n\nreturn [{ html: `<!DOCTYPE html>\n<html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Confirm approval</title>\n<style>\n  body { margin:0; padding:24px 16px; background:#f4f5f7; color:#212529;\n         font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; }\n  .card { max-width:420px; margin:24px auto; background:#fff; border:1px solid #dee2e6; border-radius:6px;\n          border-top:4px solid #7C7BAD; padding:20px 22px; }\n  .brand { font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#6c757d; }\n  h1 { font-size:19px; margin:6px 0 14px; }\n  .ref { font-size:16px; font-weight:600; }\n  .muted { color:#6c757d; font-size:13px; margin-top:2px; }\n  .details { margin:12px 0 18px; padding:10px 12px; background:#f8f9fa; border-radius:4px; font-size:14px; line-height:1.5; color:#495057; }\n  button { width:100%; padding:12px; border:0; border-radius:4px; background:#28a745; color:#fff; font-size:15px; font-weight:600; cursor:pointer; }\n  button:disabled { opacity:.6; }\n  .lbl { display:block; font-size:13px; font-weight:600; margin-bottom:4px; }\n  textarea { width:100%; box-sizing:border-box; border:1px solid #dee2e6; border-radius:4px; padding:8px;\n             font:inherit; font-size:14px; margin-bottom:6px; }\n  .err { color:#dc3545; font-size:13px; min-height:18px; margin-bottom:8px; }\n  .result { text-align:center; }\n  .big { font-size:44px; margin-bottom:6px; }\n</style></head>\n<body><div class=\"card\" id=\"card\">\n  <div class=\"brand\">Kinden Vietnam · E-Approval</div>\n  <h1>Approve this request?</h1>\n  <div class=\"ref\">${esc(r.ref)}</div>\n  <div class=\"muted\">${esc(r.title)} · ${esc(r.applicant)}</div>\n  <div class=\"muted\">${esc(r.step)}</div>\n  ${r.details ? `<div class=\"details\">${esc(r.details)}</div>` : '<div style=\"height:16px\"></div>'}\n  ${r.comment_required ? `<label for=\"cmt\" class=\"lbl\">Comment <span style=\"color:#dc3545\">(required)</span></label>\n  <textarea id=\"cmt\" rows=\"3\" placeholder=\"Why do you approve this request?\"></textarea>\n  <div id=\"cmterr\" class=\"err\"></div>` : ''}\n  <button id=\"btn\" onclick=\"approve()\">Approve</button>\n</div>\n<script>\nasync function approve() {\n  const cmt = document.getElementById('cmt');\n  const comment = cmt ? cmt.value.trim() : '';\n  if (cmt && !comment) { document.getElementById('cmterr').textContent = 'Please write a comment before approving.'; cmt.focus(); return; }\n  const btn = document.getElementById('btn'); btn.disabled = true; btn.textContent = 'Approving…';\n  const card = document.getElementById('card');\n  try {\n    const res = await fetch('', { method:'POST', headers:{'Content-Type':'application/json'},\n      body: JSON.stringify({ jsonrpc:'2.0', params: Object.assign(${JSON.stringify(linkParams)}, { action:'approve', confirmed:true, comment: comment }) }) });\n    let raw = await res.json(); const rpc = Array.isArray(raw) ? raw[0] : raw;\n    const out = rpc.result || {};\n    if (rpc.error || out.status === 'error') throw new Error(rpc.error ? rpc.error.message : (out.message || 'Action blocked.'));\n    if (out.status === 'comment_required') { location.reload(); return; }\n    const done = out.status === 'approved';\n    card.innerHTML = '<div class=\"result\"><div class=\"big\">' + (done ? '✅' : 'ℹ️') + '</div><h1>' +\n      (done ? 'Approved' : 'Already reviewed') + '</h1><div class=\"muted\">' +\n      (done ? 'Thank you. Your approval was recorded in Odoo.' : 'This step was already approved or rejected.') + '</div></div>';\n    if (done) setTimeout(function(){ window.close(); }, 2500);\n  } catch (e) {\n    card.innerHTML = '<div class=\"result\"><div class=\"big\">⚠️</div><h1>Not approved</h1><div class=\"muted\"></div>' +\n      '<button onclick=\"location.reload()\" style=\"margin-top:14px;background:#6c757d\">Try again</button></div>';\n    card.querySelector('.muted').textContent = e.message;\n  }\n}\n</script></body></html>` }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -512,
+        -112
+      ],
+      "id": "e2eb203e-cab7-44f5-b936-6119a77ad008",
+      "name": "HTML Approve Confirm"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== Site settings =====\n// The only value that differs between sites (dev / HN / HCM) besides the two\n// webhook paths, which n8n requires to be typed on the Webhook nodes themselves.\nconst ODOO_URL = 'https://demo-atthn.kinden.com.vn';\n\nreturn $input.all().map(item => ({ json: { ...item.json, odoo_url: ODOO_URL } }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1368,
+        -386
+      ],
+      "id": "dd5f1fa6-bf63-4a2f-ba0f-49435ffc2a72",
+      "name": "Site settings"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "76500055-5aab-41e8-b7db-bd065f9c3180",
+              "leftValue": "={{ !!($json.body && $json.body.params) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1168,
+        -386
+      ],
+      "id": "57fdf5f8-4c5a-4b21-a42d-4a212f05622b",
+      "name": "Form submit (POST)?"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Site settings",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Site settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML Already Processed": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML Approved Success": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML Reject Form and Logged": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTML Already Processed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTML Approved Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTML Reject Form and Logged",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTML Approved Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTML Approve Confirm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Short": {
+      "main": [
+        [
+          {
+            "node": "Site settings",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Site settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML Approve Confirm": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit decision (POST)": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Site settings": {
+      "main": [
+        [
+          {
+            "node": "Form submit (POST)?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form submit (POST)?": {
+      "main": [
+        [
+          {
+            "node": "Submit decision (POST)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9238e6ce98b7884a03425e317884a0687ae59b2581895c456826b42a68c16a26"
+  },
+  "nodeGroups": [],
+  "tags": []
+}

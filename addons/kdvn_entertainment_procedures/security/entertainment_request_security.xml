@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="group_entertainment_request_functional_manager" model="res.groups">
+            <field name="name">Entertainment: Functional Controller / GA Manager</field>
+            <field name="privilege_id" ref="kdvn_e_approval.privilege_kderp_e_approval"/>
+        </record>
+
+        <record id="rule_entertainment_request_employee" model="ir.rule">
+            <field name="name">Employee: Own Entertainment Requests Only</field>
+            <field name="model_id" ref="model_entertainment_request"/>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record id="rule_entertainment_request_manager" model="ir.rule">
+            <field name="name">Manager: Authorized Routing Reviews Only</field>
+            <field name="model_id" ref="model_entertainment_request"/>
+            <field name="groups" eval="[
+                (4, ref('kdvn_hr_attendance.group_hr_attendance_section_manager')),
+                (4, ref('kdvn_hr_attendance.group_hr_attendance_gm'))
+                ]" /> 
+            <field name="domain_force">[('review_ids', 'in', user.review_ids.ids)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_kderp_entertainment_request_auditor" model="ir.rule">
+            <field name="name">Entertainment: Read-Only All Records</field>
+            <field name="model_id" ref="model_entertainment_request"/> 
+            <field name="groups" eval="[(4, ref('kdvn_e_approval.group_e_approval_global_auditor'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field> 
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/> 
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+         <record id="rule_entertainment_request_functional_manager_all_access" model="ir.rule">
+            <field name="name">Entertainment Manager: View and Edit All Records</field>
+            <field name="model_id" ref="model_entertainment_request"/>
+            <field name="groups" eval="[(4, ref('group_entertainment_request_functional_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field> 
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+    </data>
+</odoo>

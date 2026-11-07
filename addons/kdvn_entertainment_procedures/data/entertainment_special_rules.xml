@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Entertainment special-case rules (shared screen E-Approval Portal > Special Case Rules).
+         noupdate: the limits and actions set by the entertainment managers survive upgrades.
+         Checks: entertainment.request._get_special_case_reasons(). A special case needs a Purpose. -->
+    <data noupdate="1">
+        <record id="special_rule_ent_late_input" model="kderp.e.approval.special.rule">
+            <field name="procedure">entertainment.request</field>
+            <field name="code">late_input</field>
+            <field name="name">Registered after the entertainment</field>
+            <field name="sequence">10</field>
+            <field name="value">0</field>
+            <field name="unit">days</field>
+            <field name="action">special</field>
+            <field name="description">Days from the Date of Entertainment to the Input date. 0 = any request registered after the entertainment day.</field>
+            <field name="manager_group_id" ref="group_entertainment_request_functional_manager"/>
+        </record>
+        <record id="special_rule_ent_backdated_input" model="kderp.e.approval.special.rule">
+            <field name="procedure">entertainment.request</field>
+            <field name="code">backdated_input</field>
+            <field name="name">Input date before the creation date</field>
+            <field name="sequence">20</field>
+            <field name="value">0</field>
+            <field name="unit">days</field>
+            <field name="action">special</field>
+            <field name="description">Days from the Input date to the day the request was created. 0 = any input date set in the past.</field>
+            <field name="manager_group_id" ref="group_entertainment_request_functional_manager"/>
+        </record>
+    </data>
+    <!-- Entertainment managers see the shared Special Case Rules menu -->
+    <record id="kdvn_e_approval.menu_special_rules" model="ir.ui.menu">
+        <field name="group_ids" eval="[(4, ref('group_entertainment_request_functional_manager'))]"/>
+    </record>
+</odoo>

@@ -39,13 +39,13 @@ class IrSequence(models.Model):
     _inherit = 'ir.sequence'
 
     @api.model
-    def search(self, args, offset=0, limit=None, order=None, count=False):
+    def search(self, domain, offset=0, limit=None, order=None, **kwargs):   # Odoo 19: no `count` argument any more (search_count)
         """
         🚀 DYNAMIC SEQUENCE INJECTION:
         Intercepts the search window request if our custom context flag is passed,
         ensuring every model using our mixin is dynamically loaded.
         """
-        if self._context.get('search_mixin_sequences_only'):
+        if self.env.context.get('search_mixin_sequences_only'):
             mixin_models = []
             for model_name, model_instance in self.env.items():
                 # If the model inherits our custom universal state changer method, track it!
@@ -55,9 +55,9 @@ class IrSequence(models.Model):
             if not mixin_models:
                 mixin_models = ['entertainment.request']
 
-            args = list(args) + [('code', 'in', mixin_models)]
+            domain = list(domain) + [('code', 'in', mixin_models)]
             
-        return super(IrSequence, self).search(args, offset=offset, limit=limit, order=order, count=count)
+        return super(IrSequence, self).search(domain, offset=offset, limit=limit, order=order, **kwargs)
 
 
 
@@ -106,6 +106,16 @@ class KderpApprovalMixin(models.AbstractModel):
     approval_procedure_title = fields.Char(string="Procedure Action Title", default=lambda self: self._approval_procedure_title)
     # The applicant is always the employee of the user who creates the request: read-only,
     # filled from the default (form) and again in create() (readonly fields aren't sent).
+    # Odoo 12 OCA tier.validation had the booleans `validated` and `rejected`; OCA 19.0 only has `validation_status`. Same meaning, kept for our code and views.
+    validated = fields.Boolean(compute='_compute_validated_rejected')
+    rejected = fields.Boolean(compute='_compute_validated_rejected')
+
+    @api.depends('validation_status')
+    def _compute_validated_rejected(self):
+        for record in self:
+            record.validated = record.validation_status == 'validated'
+            record.rejected = record.validation_status == 'rejected'
+
     employee_id = fields.Many2one('hr.employee', string='Applicant', required=True, readonly=True,
                                   default=lambda self: self._default_applicant())
     # Native attachment counter link (relational shortcut)

@@ -63,7 +63,7 @@
                 <field name="procedure"/>
                 <filter name="still_refused" string="Still refused" domain="[('state', '=', 'refused')]"/>
                 <filter name="reset" string="Reset to draft" domain="[('state', '=', 'reset')]"/>
-                <group expand="0" string="Group by">
+                <group>
                     <filter name="group_procedure" string="Procedure" context="{'group_by': 'procedure'}"/>
                     <filter name="group_refused_by" string="Refused by" context="{'group_by': 'refused_by_id'}"/>
                     <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>

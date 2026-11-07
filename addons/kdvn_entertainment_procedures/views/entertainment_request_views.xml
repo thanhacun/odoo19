@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- List Tree Overview Panel Grid Definition -->
+    <record id="view_entertainment_request_tree" model="ir.ui.view">
+        <field name="name">entertainment.request.list</field>
+        <field name="model">entertainment.request</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'submitted'" decoration-success="state == 'approved'" decoration-danger="state == 'rejected'">
+                <field name="name" />
+                <field name="reason" />
+                <field name="employee_id"/>
+                <field name="date_input" />
+                <field name="date_entertainment"/>
+                <field name="entertainment_type"/>
+                <field name="estimated_amount"/>
+                <field name="approval_progress" />
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Concentrated Form Canvas Sheet Definition Layout -->
+    <record id="view_entertainment_request_form" model="ir.ui.view">
+        <field name="name">entertainment.request.form</field>
+        <field name="model">entertainment.request</field>
+        <field name="arch" type="xml">
+            <form string="Entertainment Expense Request" duplicate="false">
+                <header>
+                    <!-- Workflow Execution and Action Sign-off Controls -->
+                    <button name="action_submit" 
+                        string="Submit Request" type="object" class="oe_highlight" 
+                        invisible="(not is_current_applicant or state != 'draft') or is_emergency"/>
+                    <button name="action_submit" type="object" 
+                        string="🔥 Submit Emergency Request" class="btn-danger"
+                        confirm="⚠️ Are you completely sure this operation requires an URGENT emergency validation?"
+                        invisible="(not is_current_applicant or state != 'draft') or not is_emergency" />
+                    <button name="validate_tier" string="Approve Step" type="object" class="oe_highlight" invisible="not can_review"/>
+                    <button name="reject_tier" string="Reject Step" type="object" class="btn-danger" invisible="not can_review"/>
+                    <!-- <button name="action_generate_expense_sheet" string="Generate Expense Record" type="object" class="oe_highlight" invisible="state != 'approved' or expense_sheet_id"/> -->
+                    
+                    <!-- 🚀 THE RESET BUTTON: Only visible if the document is under review or finished, and only for Admins -->
+                    <button name="action_reset_to_draft" 
+                        string="Unblock / Reset to Draft" 
+                        type="object" 
+                        class="btn-warning"
+                        groups="kdvn_entertainment_procedures.group_entertainment_request_functional_manager,kdvn_e_approval.group_e_approval_admin"
+                        invisible="state not in ('submitted', 'approved', 'rejected')"/>
+                    
+                    <!-- Core Technical Mixin Flags -->
+                    <field name="need_validation" invisible="1"/>
+                    <field name="can_review" invisible="1"/>
+                    <field name="validated" invisible="1"/>
+
+                    <button name="action_print_secure_authenticated_report" 
+                        string=" Print Approved Report" 
+                        type="object" 
+                        class="btn btn-primary" 
+                        icon="fa-print"
+                        context="{
+                            'target_report_xml_id': 'kdvn_entertainment_procedures.entertainment_approved_report_py3o',
+                            'report_format_method': 'prepare_detailed_entertainment_report'
+                        }"
+                        invisible="state != 'approved'" />
+
+                    <!-- This button appears ONLY when the document achieves the fully authorized state -->
+                    <button name="action_open_advance_wizard" 
+                            string="Create Advanced Request" 
+                            type="object" 
+                            class="oe_highlight btn-info" 
+                            invisible="not can_create_remote_advance" />
+                    <field name="can_create_remote_advance" invisible="1"/>
+                    
+                    <!-- 🚀 THE SETTLEMENT SPAWN ACTION BUTTON -->
+                    <button name="action_spawn_payment_settlement" 
+                            string="Create Payment Request" 
+                            type="object" 
+                            class="btn-success" 
+                            invisible="not is_current_applicant or state != 'approved'"/>
+                    
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,rejected"/>
+                </header>
+                <sheet>
+                    <!-- TWO-COLUMN TOP HEADER ROW CONTAINER -->
+                    <div class="row" style="margin-bottom: 20px;">
+                        <div class="col-7 oe_title">
+                            <label for="name" class="oe_edit_only" string="Request No."/>
+                            <h2><field name="name" readonly="1" /></h2>
+                            <label for="reason" class="oe_edit_only" string="Purpose"/>
+                            <h1><field name="reason" placeholder="Needed only for a special case (e.g. registered late): explain why"
+                                       required="special_case_live != 'normal' and state == 'draft'"/></h1>
+                            <field name="special_case_live" invisible="1"/>
+                        </div>
+                        <!-- Right: Dynamic HTML Workflow Progress and Attachment Ribbon -->
+                        <div class="col-5 text-right pull-right" style="margin-top: 5px;">
+                            <field name="approval_workflow_ribbon" widget="html" readonly="1" nolabel="1"/>
+                        </div>
+                    </div>
+
+                    <field name="special_case_banner" nolabel="1" readonly="1"
+                           invisible="special_case_live == 'normal'"/>
+
+                    <group string="Urgent Request">
+                        <group>
+                            <field name="is_emergency" widget="boolean_toggle_safe_readonly" string="Urgent" readonly="state != 'draft'"/>
+                        </group>
+                        <group invisible="not is_emergency">
+                            <div class="alert alert-danger" role="alert" style="margin: 0; padding: 10px; border-left: 4px solid #d9534f; background-color: #fdf7f7; color: #b94a48; font-size: 12px; line-height: 1.4;">
+                                <strong>⚠️ COMPLIANCE WARNING:</strong> Please do NOT abuse of the emergency pipeline for non-critical requests.<br/><br/>
+                                <strong>🚨 PROCESSING NOTICE:</strong> Submitting will <u>IMMEDIATELY</u> send a high-priority email notification directly to your assigned managers.
+                            </div>
+                        </group>                    
+                    </group>
+                    
+                    <group string="General Information">
+                        <group>
+                            <field name="employee_id" readonly="1" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="date_input"/>
+                        </group>
+                        <group>
+                            <field name="entertainment_type"/>
+                            <field name="place" placeholder="e.g., Nikko Hotel Restaurant, Hanoi"/>
+                            <field name="date_entertainment"/>
+                            <!-- <field name="expense_sheet_id" invisible="not expense_sheet_id"/> -->
+                            <field name="is_gm" invisible="1" />
+                            <field name="is_current_applicant" invisible="1" />
+                            <field name="approval_category" invisible="1" />
+                        </group>
+                    </group>
+
+                    <group string="Advance request (remote server)" invisible="not remote_advance_code">
+                        <group>
+                            <field name="remote_advance_code"/>
+                            <field name="remote_advance_admin"/>
+                            <field name="remote_advance_id" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <group string="Project Cost Allocations">
+                        <group>
+                            <!-- Dynamic dynamic drop-down selections sourced from cached n8n sync tables -->
+                            <field name="job_id" options="{'no_create': True, 'no_open': True}" widget="many2one"
+                                    domain="['|', ('view_user_ids', '=', uid), ('is_general_expense', '=', True)]" />
+                            <label for="budget_code_id" string="Budget Code"/>
+                            <div class="o_row">
+                                <!-- Your standard searchable budget dropdown lookup selection -->
+                                <field name="budget_code_id" options="{'no_create': True, 'no_open': True}" domain="[('job_id', '=', job_id)]" 
+                                        readonly="not job_id" />
+                                <!-- The On-Demand User Sync Button Trigger Link -->
+                                <button name="action_user_force_budget_refresh" 
+                                        string=" Refresh Balance" 
+                                        type="object" 
+                                        icon="fa-refresh" 
+                                        class="btn btn-default btn-xs oe_link"
+                                        style="color: #00a09d; font-weight: 500;"
+                                        help="Click to fetch live budget balance metrics from the remote database master server instantly."/>
+                            </div>
+                            <!-- <field name="job_name_display"/> -->
+                        </group>
+                        <group>
+                            <field name="estimated_amount" string="Estimated Amt (VND)" widget="no_zero_float" />
+                            <field name="total_pax" string="Total Attendees" />
+                            <field name="per_pax_amount" string="Unit price" />
+                        </group>
+                    </group>
+
+                    <group string="Attendance">
+                        <group>
+                            <label for="employee_ids" string="Employees"/>
+                            <div>
+                                <field name="employee_ids" widget="many2many_tags" options="{'no_create': True, 'open': False}" />
+                            </div>
+                            <field name="note" placeholder="Add additional breakdown details, context parameters, or meeting agenda summaries here..."/>
+                        </group>
+                        <group>
+                            <field name="guest_ids" widget="many2many_tags" options="{ 'no_create': True, 'open': False }" />
+                            <field name="guests" placeholder="Please list out full names, job titles, and respective corporate company affiliations..."/>
+                        </group>
+                    </group>
+
+                    <!-- Graphical Approval Flow Checklist Matrix Row Widget -->
+                    <notebook>
+                        <page string="Supporting Documentation Files" name="attachments_tab">
+                            <group>
+                                <field name="attachment_ids" 
+                                       widget="many2many_binary" 
+                                       string="Upload Documentation Attachments"
+                                       placeholder="Drag files here or click to browse..."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <field name="review_ids" widget="tier_validation" invisible="not review_ids"/>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_entertainment_request_search" model="ir.ui.view">
+        <field name="name">entertainment.request.search</field>
+        <field name="model">entertainment.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="employee_id" string="Applicant"/>
+            
+                <!-- Filter 1: Show only requests waiting for the current logged-in manager -->
+                <filter string="To Approve" name="filter_to_approve" domain="[('can_review', '=', True), ('state', '=', 'submitted')]"/>
+                <!-- Filter 2: Show items the manager already processed in the past -->
+                <filter string="My Approval History" name="filter_my_history" domain="[('reviewer_ids', 'in', uid), ('state', 'in', ['approved', 'rejected'])]"/>
+            
+                <separator/>
+                <group>
+                    <filter string="Status / State" name="group_by_state" context="{'group_by':'state'}"/>
+                    <filter string="Applicant" name="group_by_applicant" context="{'group_by':'create_uid'}"/>
+                </group>
+                    <!-- Hidden from UI form, but available as a structural grouping filter -->
+                    <filter string="By Approval Category" name="group_by_category" context="{'group_by':'approval_category'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_kderp_entertainment_fee_kanban" model="ir.ui.view">
+        <field name="name">entertaiment.request.kanban</field>
+        <field name="model">entertainment.request</field>
+        <field name="arch" type="xml">
+            <!-- default_group_by automatically separates requests into neat visual columns based on state -->
+            <kanban default_group_by="state" class="o_kanban_small_column" create="false" >
+                <field name="id"/>
+                <field name="name"/>
+                <field name="create_uid"/>
+                <field name="estimated_amount"/>
+                <field name="approval_progress"/>
+                <!-- Set readonly=1 to prevent drag kanban card -->
+                <field name="state" readonly="1" />
+                <templates>
+                    <t t-name="card">
+                        <!-- Apply contextual color coding indicators to card borders -->
+                        <div t-attf-class="oe_kanban_global_click o_kanban_record_has_image_fill #{
+                            record.state.raw_value == 'rejected' ? 'border-danger' : 
+                            record.state.raw_value == 'approved' ? 'border-success' : 'border-warning'}"
+                            style="border-left: 4px solid; padding: 10px; margin-bottom: 8px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); background: #fff;">
+                            
+                            <div class="o_kanban_record_top" style="margin-bottom: 4px;">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title" style="font-size: 13px; color: #00a09d;">
+                                        <field name="name"/>
+                                    </strong>
+                                </div>
+                                <!-- Dynamic text pricing marker placement right on card corner -->
+                                <span class="pull-right badge" style="background-color: #f4f5f7; color: #495057; font-weight: bold;">
+                                    <field name="estimated_amount"/>
+                                </span>
+                            </div>
+                            
+                            <div class="o_kanban_record_body" style="margin-bottom: 6px; font-size: 11px; color: #6c757d;">
+                                <div><strong>Applicant:</strong> <field name="create_uid"/></div>
+                                <!-- Embeds your clean text tracking progression string directly inside the card body layout -->
+                                <div style="margin-top: 4px; font-weight: 500;">
+                                    <i class="fa fa-sliders"></i> <field name="approval_progress"/>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+
+
+    <!-- Master Window Action Loader Definition using crisp field properties -->
+    <!-- <record id="action_entertainment_request_dashboard" model="ir.actions.act_window">
+        <field name="name">Entertainment Request Workspace</field>
+        <field name="res_model">entertainment.request</field>
+        <field name="view_mode">list,form</field>
+    </record> -->
+
+    <!-- Menu Construction: Drops shortcut directly inside your top level app tray wrapper folder -->
+    <!-- <menuitem id="menu_e_approval_root" name="E-Approval Workspace" web_icon="base_tier_validation,static/description/icon.png" sequence="5"/>
+    <menuitem id="menu_entertainment_pre_approval" name="Entertainment Pre-Approvals" parent="menu_e_approval_root" action="action_entertainment_request_dashboard" sequence="10"/> -->
+
+</odoo>

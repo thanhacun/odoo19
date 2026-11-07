@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>	
+		<!-- Monthly Leave -->
+		<record id="entertainment_approved_report_py3o" model="ir.actions.report">
+			<field name="name">Approved Entertainment</field>
+			<field name="type">ir.actions.report</field>
+			<field name="model">entertainment.request</field>
+			<field name="report_name">py3o_report_entertainment_approved</field>
+			<field name="report_type">py3o</field>
+			<field name="py3o_filetype">pdf</field>
+			<field name="py3o_multi_in_one">1</field>
+			<field name="module">kdvn_entertainment_procedures</field>
+			<field name="py3o_template_fallback">reports/entertainment_approved.odt</field>
+			<field name="binding_type">report</field>
+		</record>
+    </data>
+</odoo>

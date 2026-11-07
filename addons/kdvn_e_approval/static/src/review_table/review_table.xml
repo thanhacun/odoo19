@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <!-- Reviews panel table: same columns as the tier.review list view (views/tier_review_views.xml). Row colours: static/src/scss/review_colors.css -->
+    <t t-name="kdvn_e_approval.ReviewsTable">
+        <div class="o_form_sheet panel-group">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a class="o_info_btn" href="#" t-on-click="toggleOpen">Reviews</a>
+                    </h4>
+                </div>
+                <div t-if="state.open" class="panel-body o_review">
+                    <table class="table table-sm o_kderp_review_table">
+                        <thead>
+                            <tr>
+                                <th class="text-center">#</th>
+                                <th>Step</th>
+                                <th>Reviewers</th>
+                                <th>Status</th>
+                                <th>By</th>
+                                <th>Date</th>
+                                <th>Comment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="reviews" t-as="review" t-key="review.id" t-att-class="rowClass(review)">
+                                <td class="text-center"><t t-out="review.sequence"/></td>
+                                <td><t t-out="review.frontend_step_name || review.name"/></td>
+                                <td><span t-if="review.todo_by" class="badge rounded-pill o_kderp_review_tag" t-out="review.todo_by"/></td>
+                                <td><t t-out="review.display_status"/></td>
+                                <td><t t-out="review.done_by and review.done_by.display_name or ''"/></td>
+                                <td><t t-out="review.reviewed_formated_date or ''"/></td>
+                                <td><t t-out="review.comment or ''"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

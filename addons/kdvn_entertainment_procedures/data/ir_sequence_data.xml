@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Sequence for Entertainment Fee Requests -->
+        <record id="seq_entertainment_request" model="ir.sequence">
+            <field name="name">Entertainment Pre-Approval Sequence</field>
+            <field name="code">entertainment.request</field>
+            <field name="prefix">EF-%(year)s-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

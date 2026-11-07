@@ -5,11 +5,12 @@
     'author': "Kinden Vietnam",
     'website': "https://www.kinden.com.vn",
     'category': "kderp",
-    'version': "19.0.0.1.0",
+    'version': "19.0.0.2.0",
     'depends': [
         'base',
         'base_tier_validation',
         'kdvn_base',
+        'kdvn_hr',
         'kdvn_remote_sync'
     ],
     'data': [
@@ -30,10 +31,11 @@
         'web.assets_backend': [
             'kdvn_e_approval/static/src/scss/review_colors.css',
             'kdvn_e_approval/static/src/scss/approval_ribbon.scss',
-            # TODO: review_colors.js + xml/tier_review_table.xml (colours of the review table): port to the OWL widget of base_tier_validation 19.0
+            'kdvn_e_approval/static/src/review_table/review_table.js',
+            'kdvn_e_approval/static/src/review_table/review_table.xml',
         ],
     },
-    'installable': True,   # port in progress (8 Nov): see HANDOFF.md, step 5
+    'installable': True,
     'application': True,
     'auto_install': False,
 }

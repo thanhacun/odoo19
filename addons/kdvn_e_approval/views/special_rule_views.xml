@@ -61,7 +61,7 @@
                 <field name="name"/>
                 <field name="procedure"/>
                 <filter name="filter_off" string="Switched off" domain="[('action', '=', 'off')]"/>
-                <group expand="1" string="Group By">
+                <group>
                     <filter name="groupby_procedure" string="Procedure" context="{'group_by': 'procedure'}"/>
                 </group>
             </search>

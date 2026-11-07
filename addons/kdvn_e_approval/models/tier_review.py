@@ -44,7 +44,7 @@ class TierReview(models.Model):
 
         # 👥 CASE 3: SECURITY GROUP WORKFLOW
         elif current_type == "group":
-            return self.reviewer_group_id.users if self.reviewer_group_id else empty_users
+            return self.reviewer_group_id.user_ids if self.reviewer_group_id else empty_users
 
         # 📄 CASE 4: DYNAMIC DOCUMENT FIELD WORKFLOW
         elif current_type == "field":

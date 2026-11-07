@@ -10,13 +10,13 @@
                 <!-- Workflow Execution and Action Sign-off Controls -->
                 <button name="action_submit" 
                     string="Submit Request" type="object" class="oe_highlight" 
-                    attrs="{'invisible': ['|', '|', ('is_current_applicant', '=', False), ('state', '!=', 'draft'), ('is_emergency', '=', True)]}"/>
+                    invisible="not is_current_applicant or state != 'draft' or is_emergency"/>
                 <button name="action_submit" type="object" 
                     string="🔥 Submit Emergency Request" class="btn-danger"
                     confirm="⚠️ Are you completely sure this operation requires an URGENT emergency validation?"
-                    attrs="{'invisible': ['|', '|', ('is_current_applicant', '=', False), ('state', '!=', 'draft'), ('is_emergency', '=', False)]}" />
-                <button name="validate_tier" string="Approve Step" type="object" class="oe_highlight" attrs="{'invisible': [('can_review', '=', False)]}"/>
-                <button name="reject_tier" string="Reject Step" type="object" class="btn-danger" attrs="{'invisible': [('can_review', '=', False)]}"/>
+                    invisible="not is_current_applicant or state != 'draft' or not is_emergency" />
+                <button name="validate_tier" string="Approve Step" type="object" class="oe_highlight" invisible="not can_review"/>
+                <button name="reject_tier" string="Reject Step" type="object" class="btn-danger" invisible="not can_review"/>
                 
                 <!-- 🚀 THE RESET BUTTON: Only visible if the document is under review or finished, and only for Admins -->
                 <button name="action_reset_to_draft" 
@@ -24,32 +24,32 @@
                     type="object" 
                     class="btn-warning"
                     groups="kdvn_e_approval.group_e_approval_admin"
-                    attrs="{'invisible': [('state', 'not in', ['submitted', 'approved', 'rejected'])]}"/>
+                    invisible="state not in ('submitted', 'approved', 'rejected')"/>
 
                 <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,rejected"/>
                 
             </header>
             <sheet>
-                <!-- TWO-COLUMN TOP HEADER ROW CONTAINER (NATIVE BOOTSTRAP 4 FLEX ALIGNMENT) -->
-                <div class="row no-gutters mb-3 d-flex align-items-start justify-content-between">
+                <!-- TWO-COLUMN TOP HEADER ROW CONTAINER (BOOTSTRAP 5 FLEX ALIGNMENT) -->
+                <div class="row g-0 mb-3 d-flex align-items-start justify-content-between">
                     <!-- Left Column: Core Request Tracking Identifiers (Clean 50% width distribution grid) -->
-                    <div class="col-6 oe_title pr-2">
+                    <div class="col-6 oe_title pe-2">
                         <label for="name" class="oe_edit_only" string="Request No."/>
                         <h2 class="mt-0 mb-1"><field name="name" readonly="1" /></h2>
                         <h1 class="mt-0 style" style="font-size: 20px; line-height: 1.3;"><field name="reason" placeholder="Explain request purpose here" /></h1>
                     </div>
                     
                     <!-- Right Column: Expanded Responsive Workflow Ribbon Progress Panel (Clean 50% width distribution grid) -->
-                    <div class="col-6 text-right pl-0" style="min-width: 380px; overflow: hidden;">
+                    <div class="col-6 text-end ps-0" style="min-width: 380px; overflow: hidden;">
                         <field name="approval_workflow_ribbon" widget="html" readonly="1" nolabel="1"/>
                     </div>
                 </div>
 
                 <group string="Urgent Request">
                     <group>
-                        <field name="is_emergency" string="Urgent" widget="boolean_toggle_safe_readonly" attrs='{"readonly": [("state", "!=", "draft")]}'/>
+                        <field name="is_emergency" string="Urgent" widget="boolean_toggle" readonly="state != 'draft'"/>
                     </group>
-                    <group attrs="{'invisible': [('is_emergency', '=', False)]}">
+                    <group invisible="not is_emergency">
                         <div class="alert alert-danger" role="alert" style="margin: 0; padding: 10px; border-left: 4px solid #d9534f; background-color: #fdf7f7; color: #b94a48; font-size: 12px; line-height: 1.4;">
                             <strong>⚠️ COMPLIANCE WARNING:</strong> Please do NOT abuse of the emergency pipeline for non-critical requests.<br/><br/>
                             <strong>🚨 PROCESSING NOTICE:</strong> Submitting will <u>IMMEDIATELY</u> send a high-priority email notification directly to your assigned managers.

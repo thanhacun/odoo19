@@ -18,7 +18,7 @@
         <field name="inherit_id" ref="base.view_users_form_simple_modif"/>
         <field name="arch" type="xml">
             <!-- Inject fields cleanly inside the standard preferences group container -->
-            <xpath expr="//group[@name='preferences']" position="inside">
+            <xpath expr="//page[@name='preferences_page']/group" position="inside">
                 <group string="E-Approval Preferences" name="e_approval_notif_panel" colspan="2">
                     <field name="approval_notify_type" readonly="0"/>
                     <field name="approval_ribbon_style" readonly="0"/>
