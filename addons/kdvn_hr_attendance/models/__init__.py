@@ -12,6 +12,7 @@ from . import hr_attendance_request
 from . import hr_attendance_main
 from . import hr_attendance_summary
 from . import hr_leave
+from . import hr_leave_report
 from . import hr_employee_location
 from . import hr_attendance_location_setup
 from . import res_config_settings

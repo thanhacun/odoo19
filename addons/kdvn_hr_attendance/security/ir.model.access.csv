@@ -39,3 +39,5 @@ access_kderp_staff_location_sync_map,kderp.staff.location.sync.map,model_kderp_s
 access_kderp_staff_location_sync_wizard,kderp.staff.location.sync.wizard,model_kderp_staff_location_sync_wizard,base.group_user,1,1,1,1
 access_kderp_staff_location_update_machine,kderp.staff.location.update.machine,model_kderp_staff_location_update_machine,base.group_user,1,1,1,1
 access_kderp_staff_location_update_wizard,kderp.staff.location.update.wizard,model_kderp_staff_location_update_wizard,base.group_user,1,1,1,1
+access_hr_attendance_allocation_report,hr.allocation.report.access,model_hr_leave_allocation_report,base.group_user,1,0,0,0
+access_hr_attendance_ot_days_tracking,hr.leave.allocation.ot.days.tracking.access,model_hr_leave_allocation_ot_days_tracking,hr_attendance.group_hr_attendance_user,1,0,0,0

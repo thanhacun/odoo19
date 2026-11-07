@@ -4,7 +4,7 @@ the waiting rule ST-05 (status is not decided too early). Expected values come f
 import datetime
 import unittest
 from odoo.tests import tagged
-from .common_at import ATCase
+from .common_at import ATCase, WED
 
 
 @tagged('post_install', '-at_install', 'at_leave_balance')
@@ -159,3 +159,24 @@ class TestWaitBeforeDeciding(ATCase):
         at = self.AT.create({'employee_id': emp.id, 'code': 'AT-%s-%s' % (day.strftime('%y%m%d'), emp.code)})
         at._compute_at_status()
         self.assertEqual(self.codes(at), ['X'])
+
+
+@tagged('post_install', '-at_install', 'at_balance_counter')
+class TestLeaveCounter(ATCase):
+    """LV counter: employee.leaves_count = allocated days minus validated leave days (AH and special leave not counted)."""
+
+    def test_counter_is_allocation_minus_validated_leave(self):
+        emp = self.new_employee()
+        self.new_rule(emp)
+        self.new_leave(emp, WED, 'full', 'done')          # helper allocates 10 days of Annual Leave, then 1 day validated
+        self.env.flush_all()
+        emp.invalidate_recordset()
+        self.assertEqual(emp.leaves_count, 9.0)
+
+    def test_counter_ignores_a_leave_that_is_not_validated(self):
+        emp = self.new_employee()
+        self.new_rule(emp)
+        self.new_leave(emp, WED, 'full', 'waiting_fman')
+        self.env.flush_all()
+        emp.invalidate_recordset()
+        self.assertEqual(emp.leaves_count, 10.0)

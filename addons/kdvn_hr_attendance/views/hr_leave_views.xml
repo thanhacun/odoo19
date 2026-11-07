@@ -122,7 +122,7 @@
                                 <field name="request_date_from_pm" invisible="same_request_date and request_date_to_am"/>
                                 <field name="request_date_to" string="To"/>
                                 <field name="request_date_to_am" invisible="same_request_date and request_date_from_pm"/>
-                                <field name="number_of_days_display" string="Duration" readonly="True" sum="Total"/>
+                                <field name="number_of_days" string="Duration" readonly="True" sum="Total"/>
                                 <field name="holiday_status_id" string="Type" options="{'no_open': True}" context="{'employee_id': employee_id, 'request_date_from': request_date_from}"/>
                                 <field name="substitute_for_date" string="Sub. for" invisible="not show_substitute_for_date"/>
                                 <!-- <field name="substitute_for_at_id" attrs="{'invisible': [('show_substitute', '=', False)]}" string="Sub. for" help="Substitute for" /> -->
@@ -150,7 +150,7 @@
                                     <field name="request_date_from_pm" invisible="same_request_date and request_date_to_am"/>
                                     <field name="request_date_to" string="To"/>
                                     <field name="request_date_to_am" invisible="same_request_date and request_date_from_pm"/>
-                                    <field name="number_of_days_display" string="Duration" readonly="True"/>
+                                    <field name="number_of_days" string="Duration" readonly="True"/>
                                     <field name="holiday_status_id" string="Type" options="{'no_open': True}"/>
                                     <field name="substitute_for_date" string="Sub. for" invisible="not show_substitute_for_date"/>
                                     <field name="substitute_period" string="Sub. AM/PM" invisible="not show_substitute_for_date"/>
@@ -273,7 +273,7 @@
                         <field name="request_date_from_pm" invisible="same_request_date and request_date_to_am"/>
                         <field name="request_date_to" string="To"/>
                         <field name="request_date_to_am" invisible="same_request_date and request_date_from_pm"/>
-                        <field name="number_of_days_display" string="Duration" readonly="True"/>
+                        <field name="number_of_days" string="Duration" readonly="True"/>
                         <field name="holiday_status_id" string="Type" options="{'no_open': True}"/>
                         <field name="substitute_for_date" string="Sub. for" invisible="not show_substitute_for_date"/>
                         <field name="substitute_period" string="Sub. AM/PM" invisible="not show_substitute_for_date"/>
@@ -293,82 +293,10 @@
         </field>
     </record>
     
-    <record id="hr_leave_view_form" model="ir.ui.view">
-        <field name="name">hr.leave.view.form</field>
-        <field name="model">hr.leave</field>
-        <field name="inherit_id" ref="hr_holidays.hr_leave_view_form"/>
-        <field name="arch" type="xml">
-            <sheet position="replace">
-                <sheet>
-                    <group>
-                        <group>
-                            <field name="number_of_days" invisible="1"/>
-                            <field name="holiday_status_id" context="{'employee_id':employee_id, 'default_date_from':date_from}" options="{'no_create': True, 'no_open': True}"/>
-                            <label for="number_of_days_display" string="Duration"/>
-                            <div>
-                                <field name="number_of_days_display" class="oe_inline"/>
-                                <span class="m18"> Day(s)</span>
-                            </div>
+    <!-- Not ported: Odoo 12 replaced the sheet of the core hr.leave form. Odoo 19 core views inherit it in several places,
+         and nothing of ours uses it (the cover form embeds hr_leave_view_form_kdvn). -->
 
-                            <field name="date_from" invisible="1"/>
-                            <field name="date_to" invisible="1"/>
-
-                            <field name="request_date_from" string="From" readonly="state not in ['draft', 'confirm']"/>
-                            <field name="request_date_from_pm"/>
-                            <field name="request_date_from_period" options="{'horizontal': True}" widget="radio" string="(Half day)" readonly="1"/>
-                            <field name="request_date_to" string="To" readonly="state not in ['draft', 'confirm']"/>
-                            <field name="request_date_to_am" invisible="same_request_date"/>
-                            <field name="request_date_to_period" options="{'horizontal': True}" widget="radio" string="(Half day)" readonly="1"/>
-                            <field name="same_request_date" invisible="1"/>
-
-                            <field name="name"/>
-                        </group>
-
-                        <group name="col_right">
-                            <field name="employee_id" readonly="True"/>
-                            <field name="department_id" readonly="True"/>
-                        </group>
-
-                    </group>
-                    <notebook>
-
-                    </notebook>
-                </sheet>
-            </sheet>
-        </field>
-    </record>
-
-    <record id="hr_leave_view_kanban" model="ir.ui.view">
-        <field name="name">hr.leave.view.kanban</field>
-        <field name="model">hr.leave</field>
-        <field name="inherit_id" ref="hr_holidays.hr_leave_view_kanban"/>
-        <field name="arch" type="xml">
-            <kanban position="replace">
-                <kanban class="o_kanban_mobile" create="1">
-                    <field name="employee_id"/>
-                    <field name="date_from"/>
-                    <field name="date_to"/>
-                    <field name="name"/>
-                    <field name="number_of_days"/>
-                    <field name="holiday_status_id"/>
-                    <templates>
-                        <t t-name="kanban-box">
-                            <div class="container">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <span class="badge badge-pill float-right"><t t-esc="record.number_of_days.value"/> days</span>
-                                        <strong class="o_kanban_record_title"><t t-esc="record.holiday_status_id.value"/>: </strong>
-                                        <span><t t-esc="record.date_from.value.slice(0,5)"/></span> ~ 
-                                        <span><t t-esc="record.date_to.value.slice(0,5)"/></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </t>
-                    </templates>
-                </kanban>
-            </kanban>
-        </field>
-    </record>
+    <!-- Not ported: Odoo 12 replaced the whole core hr.leave kanban (kanban-box markup). Core 19 kanban stays. -->
 
     <record id="hr_leave_type_form" model="ir.ui.view">
         <field name="name">hr.leave.type.view.form</field>
@@ -422,8 +350,8 @@
             <field name="name" position="replace">
                 <field name="name"/>
             </field>
-            <field name="number_of_days_display" position="replace">
-                <field name="number_of_days_display" class="oe_inline" nolabel="1" readonly="type_request_unit == 'hour' or state not in ['draft', 'confirm', 'validate']" invisible="type_request_unit == 'hour'"/>
+            <field name="number_of_days" position="replace">
+                <field name="number_of_days" class="oe_inline" nolabel="1" readonly="type_request_unit == 'hour' or state not in ['draft', 'confirm', 'validate']" invisible="type_request_unit == 'hour'"/>
             </field>
             <!-- <field name="employee_id" position="after"> -->
                 <!-- <field name="allow_to_use" attrs="{'readonly': [('state', 'not in', ('draft', 'confirm', 'validate'))], 
@@ -477,30 +405,26 @@
         <field name="model">hr.leave.allocation</field>
         <field name="inherit_id" ref="hr_holidays.view_hr_leave_allocation_filter"/>
         <field name="arch" type="xml">
-            <field name="accrual" position="replace">
+            <field name="accrual_plan_id" position="replace">
                 <filter name="active_allocation" string="Active Allocation" domain="[('state', '=', 'validate'), ('employee_id', '=', False)]"/>
                 <!-- <filter name="show_ah" string="Show AH" domain="['|', ('holiday_status_id.is_ah', '=', True), ('holiday_status_id.is_ah', '=', False)]" /> -->
                 <filter name="no_show_ah" string="Hide AH" domain="[('holiday_status_id.is_ah', '=', False)]"/>
                 <!-- <filter name="invalid_allocation" string="Hide invalid" domain="[('holiday_status_id.valid', '=', False)]" /> -->
                 <filter name="valid_allocation" string="Valid Allocations" domain="[('holiday_status_id.valid', '=', True)]"/>
             </field>
-            <filter name="accrual_allocation" position="replace">
+            <filter name="refused_allocations" position="after">
                 <separator/>
                 <filter name="special_leave" string="Special Leave" domain="[('holiday_status_id.is_special', '=', True), ('leave_type_name', '=', 'Special Leave')]"/>
                 <filter name="yearly_special_leave" string="Yearly Special Leave" domain="[('holiday_status_id.category', '=', 'special_leave')]"/>
             </filter>
-            <filter name="message_needaction" position="replace"/>
-            <filter name="department" position="replace"/>
+            <filter name="message_needaction" position="attributes"><attribute name="invisible">1</attribute></filter>
             <filter name="my_team_leaves" position="attributes">
                 <attribute name="string">Section Allocation</attribute>
                 <attribute name="domain">[('employee_id.admin_manager_id.user_id', '=', uid)]</attribute>
             </filter>
-            <filter name="activities_overdue" position="replace"/>
-            <filter name="activities_today" position="replace"/>
-            <filter name="activities_upcoming_all" position="replace"/>
-
-            <!-- Group by -->
-            <filter name="group_second_approver_id" position="replace"/>
+            <filter name="activities_overdue" position="attributes"><attribute name="invisible">1</attribute></filter>
+            <filter name="activities_today" position="attributes"><attribute name="invisible">1</attribute></filter>
+            <filter name="activities_upcoming_all" position="attributes"><attribute name="invisible">1</attribute></filter>
         </field>
     </record>
 
@@ -555,24 +479,6 @@
     </record>
 
     <!-- leave cover refuse -->
-    <record id="hr_leave_cover_refuse_form" model="ir.ui.view">
-        <field name="name">hr.leave.cover.refuse.form</field>
-        <field name="model">hr.leave.cover</field>
-        <field name="priority" eval="99"/>
-        <field name="arch" type="xml">
-            <form>
-                <group>
-                    <field name="name" readonly="1"/>
-                    <field name="refuse_comment" required="1"/>
-                </group>
-                <footer>
-                    <button name="save_refuse_comment" type="object" string="Save" class="oe_highlight"/>
-                    <button name="discard_refuse_comment" type="object" string="Discard" class="btn-danger"/>
-                </footer>
-            </form>
-        </field>
-    </record>
-
     <!-- Pivot, Graph -->
     <record id="leave_summary_pivot" model="ir.ui.view">
         <field name="name">hr.leave.summary.pivot</field>
@@ -636,7 +542,7 @@
     </record>
 
     <!-- update the action to open leave cover instead of leave -->
-    <record id="hr_holidays.hr_leave_action_action_approve_department" model="ir.actions.act_window">
+    <record id="hr_leave_cover_action_section" model="ir.actions.act_window">
         <field name="name">Section Leaves</field>
         <field name="res_model">hr.leave.cover</field>
         <field name="view_mode">list,kanban,form</field>
@@ -699,8 +605,9 @@
     </record>
 
     <!-- Pivot action -->
-    <record id="hr_holidays.action_hr_available_holidays_report" model="ir.actions.act_window">
+    <record id="action_hr_leave_summary_pivot" model="ir.actions.act_window">
         <field name="name">Leaves Summary</field>
+        <field name="res_model">hr.leave</field>
         <field name="view_mode">pivot</field>
         <field name="domain">[('holiday_status_id.category', 'in', ['annual_leave', 'summer_vacation'])]</field>
     </record>
@@ -729,32 +636,18 @@
     </record>
 
     <!-- New Leave Cover action  -->
-    <act_window id="action_hr_leave_cover_request" name="Request Leave" res_model="hr.leave.cover" view_mode="form" target="new"/>
+    <record id="action_hr_leave_cover_request" model="ir.actions.act_window">
+        <field name="name">Request Leave</field>
+        <field name="res_model">hr.leave.cover</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
 
     <!-- Override leave actions -->
-    <record id="hr_holidays.hr_leave_action_all" model="ir.actions.act_window">
-        <field name="view_mode">list,form</field>
-    </record>
-
-    <record id="hr_leave_action_all_tree" model="ir.actions.act_window.view">
-        <field name="sequence" eval="1"/>
-        <field name="view_mode">tree</field>
-        <field name="act_window_id" ref="hr_holidays.hr_leave_action_all"/>
-        <field name="view_id" ref="hr_holidays.hr_leave_view_tree"/>
-    </record>
     
-    <record id="hr_leave_action_all_form" model="ir.actions.act_window.view">
-        <field name="sequence" eval="2"/>
-        <field name="view_mode">form</field>
-        <field name="act_window_id" ref="hr_holidays.hr_leave_action_all"/>
-        <field name="view_id" ref="kdvn_hr_attendance.hr_leave_view_form"/>
-    </record>
-
-    <record id="hr_holidays.hr_leave_action_my" model="ir.actions.act_window">
-        <field name="view_mode">list,form</field>
-    </record>
-
-    <record id="hr_holidays.hr_leave_allocation_action_all" model="ir.actions.act_window">
+    <record id="hr_leave_allocation_action_working" model="ir.actions.act_window">
+        <field name="name">Leave Allocations</field>
+        <field name="res_model">hr.leave.allocation</field>
         <field name="view_mode">list,form</field>
         <field name="context">{
             'search_default_valid_allocation': 1, 
@@ -762,7 +655,9 @@
         <field name="domain">[('employee_id.working', '=', True)]</field>
     </record>
 
-    <record id="hr_holidays.open_view_holiday_status" model="ir.actions.act_window">
+    <record id="open_view_holiday_status_kdvn" model="ir.actions.act_window">
+        <field name="name">Leave Types</field>
+        <field name="res_model">hr.leave.type</field>
         <field name="view_mode">list,form</field>
         <field name="context">{'no_filter_leave_type': True}</field>
     </record>
@@ -771,7 +666,7 @@
     <!-- Sub of My Records -->
     <menuitem id="menu_hr_holidays_in_attendance_leaves" name="Leaves Control" parent="kdvn_hr_attendance.menu_hr_attendance_my_records" sequence="20" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff" action="hr_leave_cover_action"/>
     <!-- Sub of Managers => Section -->
-    <menuitem id="menu_hr_holidays_in_attendance_leaves_for_manager" name="Leaves" parent="kdvn_hr_attendance.menu_hr_attendance_to_section_separator" sequence="30" groups="kdvn_hr_attendance.group_hr_attendance_section_manager" action="hr_holidays.hr_leave_action_action_approve_department"/>
+    <menuitem id="menu_hr_holidays_in_attendance_leaves_for_manager" name="Leaves" parent="kdvn_hr_attendance.menu_hr_attendance_to_section_separator" sequence="30" groups="kdvn_hr_attendance.group_hr_attendance_section_manager" action="kdvn_hr_attendance.hr_leave_cover_action_section"/>
     <!-- Sub of Managers => GM's Section -->
     <menuitem id="menu_hr_holidays_in_attendance_leaves_for_manager_gm" name="Leaves" parent="kdvn_hr_attendance.menu_hr_attendance_to_gm_separator" sequence="10" groups="kdvn_hr_attendance.group_hr_attendance_gm" action="kdvn_hr_attendance.hr_leave_cover_action_manager_gm"/>
     <!-- Sub of Managers => All -->
@@ -781,22 +676,16 @@
     
     <!-- <menuitem id="menu_hr_holidays_in_attendance" name="Manage Leaves" sequence="50" parent="hr_attendance.menu_hr_attendance_root"/> -->
     
-    <menuitem id="hr_holidays_menu_manager_all_allocations" name="Leave Allocations" parent="kdvn_hr_attendance.menu_hr_leave_settings_group" groups="hr_holidays.group_hr_holidays_manager,hr_holidays.group_hr_holidays_user" action="hr_holidays.hr_leave_allocation_action_all" sequence="20"/>
+    <menuitem id="hr_holidays_menu_manager_all_allocations" name="Leave Allocations" parent="kdvn_hr_attendance.menu_hr_leave_settings_group" groups="hr_holidays.group_hr_holidays_manager,hr_holidays.group_hr_holidays_user" action="kdvn_hr_attendance.hr_leave_allocation_action_working" sequence="20"/>
     
     <!-- in holidays app -->
-    <!-- Hide Leaves from Apps -->
-    <record model="ir.ui.menu" id="hr_holidays.menu_hr_holidays_root">
-        <field name="group_ids" eval="[(3,ref('base.group_user')), (4,ref('hr_holidays.group_hr_holidays_manager')), (4,ref('hr_holidays.group_hr_holidays_user'))]"/>
-    </record>
 
-    <menuitem id="menu_hr_holidays_leave_cover" parent="hr_holidays.menu_hr_holidays_my_leaves" action="hr_leave_cover_action" sequence="99"/>
-
-    <menuitem id="hr_holidays.hr_holidays_status_menu_configuration" action="hr_holidays.open_view_holiday_status" name="Leave Types" parent="kdvn_hr_attendance.menu_hr_leave_settings_group" groups="hr_holidays.group_hr_holidays_user" sequence="1"/>
+    <menuitem id="menu_hr_leave_type_kdvn" action="kdvn_hr_attendance.open_view_holiday_status_kdvn" name="Leave Types" parent="kdvn_hr_attendance.menu_hr_leave_settings_group" groups="hr_holidays.group_hr_holidays_user" sequence="1"/>
 
     <menuitem id="menu_hr_leave_cover_reason_action" action="hr_leave_cover_reason_action" name="Leave Reasons" parent="kdvn_hr_attendance.menu_hr_leave_settings_group" groups="hr_holidays.group_hr_holidays_user"/>
 
     <!-- Leaves Summary -->
-    <menuitem id="menu_hr_leave_report" action="hr_holidays.action_hr_available_holidays_report" name="02.2 Leaves Summary" sequence="2002" parent="menu_hr_attendance_reports_attendance_group" groups="hr_attendance.group_hr_attendance_manager,hr_attendance.group_hr_attendance_user"/>
+    <menuitem id="menu_hr_leave_report" action="kdvn_hr_attendance.action_hr_leave_summary_pivot" name="02.2 Leaves Summary" sequence="2002" parent="menu_hr_attendance_reports_attendance_group" groups="hr_attendance.group_hr_attendance_manager,hr_attendance.group_hr_attendance_user"/>
 
     <!-- Leaves Allocation Summary -->
     <menuitem id="menu_hr_leave_allocation_report" action="action_hr_leave_allocation_pivot" name="02.3 Allocation Summary" sequence="2003" parent="menu_hr_attendance_reports_attendance_group" groups="hr_attendance.group_hr_attendance_manager,hr_attendance.group_hr_attendance_user"/>
