@@ -162,6 +162,9 @@ class KdvnLegacyImport(models.AbstractModel):
                     continue
                 method()
                 self.env.flush_all()
+                self.env.invalidate_all()   # a year of data would otherwise fill the ORM cache (MemoryError)
+                if not dry_run and self.env.context.get('kdvn_commit_steps'):
+                    self.env.cr.commit()    # every step is re-runnable: a crash resumes from the failed step
             if dry_run:
                 self.env.flush_all()
                 savepoint.rollback()

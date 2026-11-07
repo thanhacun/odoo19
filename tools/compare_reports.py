@@ -14,8 +14,16 @@ def rows(path):
         while t and t[-1] is None: t = t[:-1]
         if t: out.append(t)
     return out
+import re
+CODE = re.compile(r'^S\d{3,5}$')
+def codes(rs): return {c for r in rs for c in r if isinstance(c, str) and CODE.match(c)}
 for key in sys.argv[1:]:
-    a, b = Counter(rows(A % key)), Counter(rows(B % key))
+    ra, rb = rows(A % key), rows(B % key)
+    if os.environ.get('COMMON'):   # only staff printed by both sides (leavers are not imported with working_only)
+        common = codes(ra) & codes(rb)
+        keep = lambda rs: [r for r in rs if not codes([r]) or codes([r]) <= common]
+        ra, rb = keep(ra), keep(rb)
+    a, b = Counter(ra), Counter(rb)
     only12 = a - b; only19 = b - a
     print('==', key, 'rows 12:', sum(a.values()), '19:', sum(b.values()), 'only in 12:', sum(only12.values()), 'only in 19:', sum(only19.values()))
     for t in list(only12)[:3]: print('   12>', t[:14])
