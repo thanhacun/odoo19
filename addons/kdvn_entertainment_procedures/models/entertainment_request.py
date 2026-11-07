@@ -28,29 +28,27 @@ class EntertainmentRequest(models.Model):
 
     # code = fields.Char(string="Request Number (n8n Alias)", compute='_compute_n8n_code_alias', inverse='_inverse_n8n_code_alias', store=False)
     reason = fields.Char(string='Purpose', required=False)
-    date_entertainment = fields.Date(string='Date of Entertainment', required=True, default=fields.Date.context_today, readonly=True, states={'draft': [('readonly', False)]})
-    place = fields.Char(string='Place / Venue', required=True, readonly=True, states={'draft': [('readonly', False)]})
-    guests = fields.Text(string='Guests', placeholder="e.g., Mr. A (Director of ABC Corp), Ms. B...", readonly=True, states={'draft': [('readonly', False)]})
-    date_input = fields.Date(required=True, default=fields.Date.context_today, readonly=True, states={'draft': [('readonly', False)]})
-    employee_ids = fields.Many2many('hr.employee', string='Attendees', required=True, readonly=True, states={'draft': [('readonly', False)]}, 
+    date_entertainment = fields.Date(string='Date of Entertainment', required=True, default=fields.Date.context_today, readonly=True,)
+    place = fields.Char(string='Place / Venue', required=True, readonly=True,)
+    guests = fields.Text(string='Guests', placeholder="e.g., Mr. A (Director of ABC Corp), Ms. B...", readonly=True,)
+    date_input = fields.Date(required=True, default=fields.Date.context_today, readonly=True,)
+    employee_ids = fields.Many2many('hr.employee', string='Attendees', required=True, readonly=True, 
                                     default=lambda self: self.env.user.employee_ids and [(6, 0, [self.env.user.employee_ids[0].id])] or False)
-    guest_ids = fields.Many2many('kderp.customer.cache', string='Owner/Client', required=True, readonly=True, states={'draft': [('readonly', False)]})
+    guest_ids = fields.Many2many('kderp.customer.cache', string='Owner/Client', required=True, readonly=True,)
     
     entertainment_type = fields.Selection([
         ('dinner', 'Business Lunch / Dinner'),
         ('gift', 'Client Seasonal Gifting'),
         ('golf', 'Sporting Hospitality (Golf, etc.)'),
         ('other', 'Other Corporate Hospitality')
-    ], string='Entertainment Type', default='dinner', required=True, readonly=True, states={'draft': [('readonly', False)]})
+    ], string='Entertainment Type', default='dinner', required=True, readonly=True,)
     
-    estimated_amount = fields.Float(string='Estimated Total Spending (VND)', required=True, readonly=True, 
-                                    states={'draft': [('readonly', False)]}, digits=[16,0], tracking=True)
-    note = fields.Text(string='Supplementary Agenda Details', readonly=True, states={'draft': [('readonly', False)]})
+    estimated_amount = fields.Float(string='Estimated Total Spending (VND)', required=True, readonly=True, digits=[16,0], tracking=True)
+    note = fields.Text(string='Supplementary Agenda Details', readonly=True,)
 
-    job_id = fields.Many2one('kderp.job.lookup', string='Job Selection', required=True, readonly=True, 
-                            states={'draft': [('readonly', False)]})
+    job_id = fields.Many2one('kderp.job.lookup', string='Job Selection', required=True, readonly=True,)
     job_name_display = fields.Char(string='Job Name Reference', related='job_id.job_name', readonly=True)
-    budget_code_id = fields.Many2one('kderp.job.budget.cache', store=True, string='Budget Code', required=True, readonly=True, states={'draft': [('readonly', False)]})
+    budget_code_id = fields.Many2one('kderp.job.budget.cache', store=True, string='Budget Code', required=True, readonly=True,)
 
     state = fields.Selection([
         ('draft', 'Draft'),

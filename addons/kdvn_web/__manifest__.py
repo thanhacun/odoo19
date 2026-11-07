@@ -7,14 +7,17 @@ Generic web client behaviour of KDVN (Odoo 12 kept it inside kderp_hr_attendance
   "Show Chatter / Hide Chatter" button in its top bar, messages collapsed when a form opens;
 - field widget `kdvn_time_only`: a datetime shown as HH:mm (Odoo 12 option format HH:mm); dates and datetimes numeric by default (21/04/2024);
 - context key `graph_measures` of an action: limits, names and orders the measures of its graph views.
-No models, no data. Attendance-specific JS stays in kdvn_hr_attendance.
+One small model: kderp.notification.wizard (centred message dialog used by e-approval). Attendance-specific JS stays in kdvn_hr_attendance.
 """,
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Hidden',
     'author': 'Kinden Vietnam',
     'license': 'LGPL-3',
     'depends': ['web', 'mail'],
-    'data': [],
+    'data': [
+        'security/ir.model.access.csv',
+        'views/notification_wizard_views.xml',
+    ],
     'assets': {
         'web.assets_backend': [
             'kdvn_web/static/src/chatter/chatter_layout.js',

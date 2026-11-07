@@ -1,5 +1,6 @@
 from odoo import http, SUPERUSER_ID, _
 from odoo.http import request
+from markupsafe import Markup
 from odoo.tools import html2plaintext, html_escape
 import json
 import hmac
@@ -156,12 +157,12 @@ class KderpEApprovalController(http.Controller):
                     reviews.write({'comment': comment})
                 # Same steps as the comment wizard / validate_tier, without the wizard
                 record.with_context(xml_id=res_model)._validate_tier(reviews)
-                record._update_counter()
+                record._update_counter({"review_deleted": True})
                 review_line.invalidate_recordset()
                 if review_line.status != 'approved':
                     _logger.error("Link approval did not approve review %s (%s %s)", review_line.id, res_model, res_id)
                     return {"status": "error", "message": "The approval could not be recorded. Please open the request in Odoo."}
-                record.message_post(body="📱 <b>Approved Securely</b> via single-use mobile token transaction link.")
+                record.message_post(body=Markup("📱 <b>Approved Securely</b> via single-use mobile token transaction link."))
                 return {"status": "approved", "message": "Approved successfully."}
 
             elif action == 'reject':
@@ -173,8 +174,7 @@ class KderpEApprovalController(http.Controller):
                 if review_line.status != 'rejected':
                     _logger.error("Link rejection did not reject review %s (%s %s)", review_line.id, res_model, res_id)
                     return {"status": "error", "message": "The rejection could not be recorded. Please open the request in Odoo."}
-                record.message_post(body="📱 <b>Rejected Securely via Mobile Link</b><br/><b>Reason:</b> %s"
-                                         % html_escape(comment))
+                record.message_post(body=Markup("📱 <b>Rejected Securely via Mobile Link</b><br/><b>Reason:</b> %s") % comment)
                 return dict(summary, status="rejected", comment=comment,
                             message="Rejection processed successfully.")
             else:

@@ -1,6 +1,8 @@
 """A refusal comment stays after the request is reset to draft (mixin kderp.e.approval.mixin, tested on the reference procedure)."""
 from unittest import mock
 
+from markupsafe import Markup
+
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
@@ -24,6 +26,11 @@ class TestRefusalLog(TransactionCase):
             patcher.start()
             self.addCleanup(patcher.stop)
         self.Log = self.env['kderp.approval.refusal']
+        # One approval rule for the procedure. Odoo 12 tests relied on the rules of the dev database; a test database has none.
+        self.env['tier.definition'].sudo().create({
+            'name': 'Test step', 'frontend_name': 'Test step', 'procedure_tag': 'entertainment.request',
+            'model_id': self.env['ir.model']._get('entertainment.request').id,
+            'review_type': 'group', 'notify_on_rejected': True, 'reviewer_group_id': self.env.ref('kdvn_e_approval.group_e_approval_admin').id})
 
     # ---- helpers
     def _submit(self):
@@ -102,6 +109,7 @@ class TestRefusalLog(TransactionCase):
         self._refuse('Not yet')
         self.req.action_reset_to_draft()
         self.assertIn('Refused earlier', self.req.approval_workflow_ribbon)
+        self.env.flush_all()                                # Odoo 19: pending ORM writes must reach the database before raw SQL
         self.env.cr.execute("UPDATE entertainment_request SET state='approved' WHERE id=%s", (self.req.id,))
         self.req.invalidate_recordset(['state', 'approval_workflow_ribbon'])
         self.assertNotIn('Refused earlier', self.req.approval_workflow_ribbon)
@@ -168,9 +176,9 @@ class TestRefusalLog(TransactionCase):
     def _old_refusal(self, who, comment=None, reset_by=None):
         """Post what OCA base_tier_validation (and our reset action) used to write in the chatter."""
         text = 'A review was rejected by %s.' % who + (' (%s)' % comment if comment else '')
-        self.req.message_post(body='<p>%s</p>' % text)
+        self.req.message_post(body=Markup('<p>%s</p>') % text)
         if reset_by is not None:
-            self.req.message_post(body='<p>⚠️ Document unlocked and reset to Draft status by system administrator.</p>', author_id=reset_by.partner_id.id)
+            self.req.message_post(body=Markup('<p>⚠️ Document unlocked and reset to Draft status by system administrator.</p>'), author_id=reset_by.partner_id.id)
 
     def _old_world(self):
         """Three old refusals: reset, reset, and the last one still refused."""
@@ -179,6 +187,7 @@ class TestRefusalLog(TransactionCase):
         self._old_refusal('Backfill Reviewer', 'First reason\nsecond line (with brackets)', reset_by=self.resetter)
         self._old_refusal('Backfill Reviewer', None, reset_by=self.resetter)
         self._old_refusal('Unknown Person', 'Third reason')
+        self.env.flush_all()
         self.env.cr.execute("UPDATE entertainment_request SET state='rejected' WHERE id=%s", (self.req.id,))
         self.req.invalidate_recordset(['state'])
 

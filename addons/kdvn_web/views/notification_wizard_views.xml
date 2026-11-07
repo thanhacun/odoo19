@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kderp_notification_wizard_form" model="ir.ui.view">
+        <field name="name">kderp.notification.wizard.form</field>
+        <field name="model">kderp.notification.wizard</field>
+        <field name="arch" type="xml">
+            <form string="System Notification">
+                <div class="alert alert-info mb-0" role="alert">
+                    <i class="fa fa-info-circle fa-2x float-start me-3" role="presentation"/>
+                    <div style="white-space: pre-wrap;">
+                        <field name="message" readonly="1" nolabel="1"/>
+                    </div>
+                </div>
+                <field name="show_cancel" invisible="1"/>
+                <footer>
+                    <button string="OK" name="action_ok" type="object" class="btn btn-primary"/>
+                    <button string="Cancel" class="btn btn-secondary" special="cancel" invisible="not show_cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

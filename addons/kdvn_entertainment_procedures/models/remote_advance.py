@@ -10,7 +10,7 @@ import logging
 
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
-from odoo.tools import html_escape
+from markupsafe import Markup
 
 from odoo.addons.kdvn_remote_integration.models.remote_client import RemoteNotLive
 
@@ -168,17 +168,17 @@ class EntertainmentRequest(models.Model):
         if code != vals['code']:
             # The remote replaced our number (taken in between): it may carry the integration user's location letter
             self.message_post(body=_("Note: the remote server changed the advance number from %(a)s to %(b)s. Please check the location letter.") % {
-                'a': html_escape(vals['code']), 'b': html_escape(code)})
+                'a': vals['code'], 'b': code})
         return code, False
 
     def _remote_store_result(self, remote_id, code, admin, adopted=False):
         self.ensure_one()
         who = '%s (%s)' % (admin['name'], admin['login'])
         self.write({'remote_advance_id': remote_id, 'remote_advance_code': code, 'remote_advance_admin': who})
-        body = _("Advance request <b>%(code)s</b> %(how)s on the remote server. Input user to continue: <b>%(who)s</b>%(team)s.") % {
-            'code': html_escape(code), 'who': html_escape(who),
+        body = Markup(_("Advance request <b>%(code)s</b> %(how)s on the remote server. Input user to continue: <b>%(who)s</b>%(team)s.")) % {
+            'code': code, 'who': who,
             'how': _("found (already created)") if adopted else _("created"),
-            'team': html_escape(' - ' + admin['team']) if admin.get('team') else ''}
+            'team': (' - ' + admin['team']) if admin.get('team') else ''}
         if admin.get('why') and not adopted:
-            body += '<br/>' + _("Chosen because: %s.") % html_escape(admin['why'])
+            body += Markup('<br/>') + _("Chosen because: %s.") % admin['why']
         self.message_post(body=body)

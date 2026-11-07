@@ -1,6 +1,6 @@
 {
     'name': 'KDERP Entertainment Fees Procedure Requests',
-    'version': "19.0.0.1.0",
+    'version': "19.0.0.2.0",
     'category': 'kderp',
     'depends': [
         'kdvn_e_approval',
@@ -18,5 +18,5 @@
         'views/advance_wizard_views.xml',
         'reports/entertainment_reports.xml'
     ],
-    'installable': False,   # port in progress (8 Nov): tests fail, see HANDOFF.md, step 5,
+    'installable': True,
 }

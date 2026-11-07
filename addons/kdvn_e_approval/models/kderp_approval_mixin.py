@@ -1,5 +1,6 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
+from markupsafe import Markup
 from odoo.tools import html_escape, html2plaintext
 
 from . import approval_notify_render as render
@@ -97,9 +98,9 @@ class KderpApprovalMixin(models.AbstractModel):
     _special_case_explain_field = False
     # The real number is taken in create(). A default would consume a number every
     # time someone opens a new form, even if they discard it.
-    name = fields.Char("Request Number", size=16, readonly=True, required=True, states={'draft': [('readonly', False)]},
+    name = fields.Char("Request Number", size=16, readonly=True, required=True,
                            default=lambda self: _('New'), copy=False)
-    reason = fields.Char(string="Reason / Core Purpose", required=True, states={'draft': [('readonly', False)]}, readonly=True)
+    reason = fields.Char(string="Reason / Core Purpose", required=True, readonly=True)
     # Centralized Matrix Group Configuration Category Target Labels
     approval_category = fields.Selection([(key, value) for key, value in _APPROVAL_CATEGORY_MAP.items()], string="Approval Category Group", store=True,
                         default=lambda self: getattr(self, '_approval_category', 'other'), required=True)
@@ -253,9 +254,9 @@ class KderpApprovalMixin(models.AbstractModel):
             if not rows:
                 continue
             rows.write({'state': 'reset', 'reset_by_id': self.env.uid, 'reset_date': fields.Datetime.now(), 'reset_to': labels.get(target_state, target_state)})
-            who = '; '.join('<b>%s</b>: &ldquo;%s&rdquo;' % (html_escape(r.refused_by_id.name or r.refused_by_name or '?'), html_escape(r.comment or _('no comment'))) for r in rows)
-            record.message_post(body=_("Reset to <b>%(to)s</b> from <b>%(frm)s</b>. Refused by %(who)s") % {
-                'to': html_escape(labels.get(target_state, target_state)), 'frm': html_escape(labels.get(reject_state, reject_state)), 'who': who})
+            who = Markup('; ').join(Markup('<b>%s</b>: &ldquo;%s&rdquo;') % (r.refused_by_id.name or r.refused_by_name or '?', r.comment or _('no comment')) for r in rows)
+            record.message_post(body=Markup(_("Reset to <b>%(to)s</b> from <b>%(frm)s</b>. Refused by %(who)s")) % {
+                'to': labels.get(target_state, target_state), 'frm': labels.get(reject_state, reject_state), 'who': who})
 
     def _refusal_ribbon_note(self):
         """Note under the ribbon after a reset: who refused, the comment, who reset it. Empty when it does not apply."""
@@ -454,7 +455,7 @@ class KderpApprovalMixin(models.AbstractModel):
             # Replicate the core internal operations of 'CommentWizard.add_comment()' exactly:
             reviews.write({"comment": remote_comment})
             self._rejected_tier(reviews)
-            self._update_counter()
+            self._update_counter({"review_deleted": True})
             return True
 
         # -------------------------------------------------------------------------
@@ -477,6 +478,16 @@ class KderpApprovalMixin(models.AbstractModel):
                 record._universal_state_changer(reject_state_name)
                 record._refusal_log(tiers)
                 record._notify_applicant('rejected', tiers or record.review_ids.filtered(lambda r: r.status == 'rejected'))
+
+    def _allow_to_remove_reviews(self, values):
+        """OCA 19 deletes the reviews as soon as the record enters `_cancel_state`. Odoo 12 (and our refusal log,
+        ribbon and chatter) kept them: a refused request keeps its reviews until it is reset to draft
+        (that case still removes them, see the OCA rule 'back to _state_from')."""
+        self.ensure_one()
+        state_field = getattr(self, '_state_field', 'state')
+        if values.get(state_field) == self._get_validation_target_states()[1]:
+            return False
+        return super(KderpApprovalMixin, self)._allow_to_remove_reviews(values)
 
     def _universal_state_changer(self, target_state):
         for record in self:

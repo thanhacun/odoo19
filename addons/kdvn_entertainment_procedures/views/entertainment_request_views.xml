@@ -87,7 +87,7 @@
                             <label for="name" class="oe_edit_only" string="Request No."/>
                             <h2><field name="name" readonly="1" /></h2>
                             <label for="reason" class="oe_edit_only" string="Purpose"/>
-                            <h1><field name="reason" placeholder="Needed only for a special case (e.g. registered late): explain why"
+                            <h1><field name="reason" readonly="state != 'draft'" placeholder="Needed only for a special case (e.g. registered late): explain why"
                                        required="special_case_live != 'normal' and state == 'draft'"/></h1>
                             <field name="special_case_live" invisible="1"/>
                         </div>
@@ -115,12 +115,12 @@
                     <group string="General Information">
                         <group>
                             <field name="employee_id" readonly="1" options="{'no_create': True, 'no_open': True}"/>
-                            <field name="date_input"/>
+                            <field name="date_input" readonly="state != 'draft'"/>
                         </group>
                         <group>
-                            <field name="entertainment_type"/>
-                            <field name="place" placeholder="e.g., Nikko Hotel Restaurant, Hanoi"/>
-                            <field name="date_entertainment"/>
+                            <field name="entertainment_type" readonly="state != 'draft'"/>
+                            <field name="place" readonly="state != 'draft'" placeholder="e.g., Nikko Hotel Restaurant, Hanoi"/>
+                            <field name="date_entertainment" readonly="state != 'draft'"/>
                             <!-- <field name="expense_sheet_id" invisible="not expense_sheet_id"/> -->
                             <field name="is_gm" invisible="1" />
                             <field name="is_current_applicant" invisible="1" />
@@ -139,13 +139,13 @@
                     <group string="Project Cost Allocations">
                         <group>
                             <!-- Dynamic dynamic drop-down selections sourced from cached n8n sync tables -->
-                            <field name="job_id" options="{'no_create': True, 'no_open': True}" widget="many2one"
+                            <field name="job_id" readonly="state != 'draft'" options="{'no_create': True, 'no_open': True}" widget="many2one"
                                     domain="['|', ('view_user_ids', '=', uid), ('is_general_expense', '=', True)]" />
                             <label for="budget_code_id" string="Budget Code"/>
                             <div class="o_row">
                                 <!-- Your standard searchable budget dropdown lookup selection -->
                                 <field name="budget_code_id" options="{'no_create': True, 'no_open': True}" domain="[('job_id', '=', job_id)]" 
-                                        readonly="not job_id" />
+                                        readonly="state != 'draft' or not job_id" />
                                 <!-- The On-Demand User Sync Button Trigger Link -->
                                 <button name="action_user_force_budget_refresh" 
                                         string=" Refresh Balance" 
@@ -158,7 +158,7 @@
                             <!-- <field name="job_name_display"/> -->
                         </group>
                         <group>
-                            <field name="estimated_amount" string="Estimated Amt (VND)" widget="no_zero_float" />
+                            <field name="estimated_amount" readonly="state != 'draft'" string="Estimated Amt (VND)" widget="no_zero_float" />
                             <field name="total_pax" string="Total Attendees" />
                             <field name="per_pax_amount" string="Unit price" />
                         </group>
@@ -168,13 +168,13 @@
                         <group>
                             <label for="employee_ids" string="Employees"/>
                             <div>
-                                <field name="employee_ids" widget="many2many_tags" options="{'no_create': True, 'open': False}" />
+                                <field name="employee_ids" readonly="state != 'draft'" widget="many2many_tags" options="{'no_create': True, 'open': False}" />
                             </div>
-                            <field name="note" placeholder="Add additional breakdown details, context parameters, or meeting agenda summaries here..."/>
+                            <field name="note" readonly="state != 'draft'" placeholder="Add additional breakdown details, context parameters, or meeting agenda summaries here..."/>
                         </group>
                         <group>
-                            <field name="guest_ids" widget="many2many_tags" options="{ 'no_create': True, 'open': False }" />
-                            <field name="guests" placeholder="Please list out full names, job titles, and respective corporate company affiliations..."/>
+                            <field name="guest_ids" readonly="state != 'draft'" widget="many2many_tags" options="{ 'no_create': True, 'open': False }" />
+                            <field name="guests" readonly="state != 'draft'" placeholder="Please list out full names, job titles, and respective corporate company affiliations..."/>
                         </group>
                     </group>
 

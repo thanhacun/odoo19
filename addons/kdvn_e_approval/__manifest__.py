@@ -10,6 +10,7 @@
         'base',
         'base_tier_validation',
         'kdvn_base',
+        'kdvn_web',
         'kdvn_hr',
         'kdvn_remote_sync'
     ],
