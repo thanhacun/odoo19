@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="kdvn_hr_attendance.MachineSetupSystray">
+        <div t-if="state.count" class="o_machine_setup_systray d-flex align-items-center px-2" title="Face-id machines need a location name">
+            <button type="button" class="btn btn-link text-danger p-0 text-nowrap" t-on-click="onClick">
+                <i class="fa fa-exclamation-triangle" role="presentation"/>
+                <span class="badge text-bg-danger ms-1" t-esc="state.count"/>
+            </button>
+        </div>
+    </t>
+</templates>
