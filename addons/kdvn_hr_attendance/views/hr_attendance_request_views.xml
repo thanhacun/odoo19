@@ -30,7 +30,7 @@
                         <field name="need_description"/>
                         <field name="auto_in_out"/>
                         <field name="sequence"/>
-                        <field name="active" widget="boolean_button"/>
+                        <field name="active" widget="boolean_toggle"/>
                     </group>
                 </sheet>
             </form>

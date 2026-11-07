@@ -7,9 +7,12 @@
         <field name="arch" type="xml">
             <form string="Attendance Requests">
                 <sheet>
-                    <div class="oe_button_box d-none d-md-block" name="button_box">
-                        <label for="multi_request_mode" string="Multi Requests"/>
-                        <field name="multi_request_mode" widget="boolean_toggle"/>
+                    <!-- Odoo 19 draws only buttons inside a button_box: a plain right-aligned block keeps the toggle and the hints visible like Odoo 12 -->
+                    <div class="d-flex flex-column align-items-end">
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="multi_request_mode" string="Multi Requests" class="mb-0"/>
+                            <field name="multi_request_mode" widget="boolean_toggle"/>
+                        </div>
                         <div class="text-danger h6" invisible="request_mode == 'wt'">Long OT work can negatively impact health and productivity!</div>
                         <div class="text-danger h6" invisible="request_mode == 'wt'">Limit your OT-hour under 4 hours per weekday!</div>
                         <div class="text-danger" invisible="request_mode == 'ot'">Use concise language for Working time description!</div>
@@ -41,12 +44,12 @@
                         <field name="at_request_type_id" string="Reason" widget="selection" readonly="not show_wt_buttons"/>
                         <field name="name" string="Detail" widget="char" required="at_request_need_description" readonly="not show_wt_buttons"/>
                         <label for="wt_in_time" class="text-danger" string="Request IN"/>
-                        <field name="wt_in_time" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;defaultTime&quot;: &quot;08:00&quot;, &quot;stepping&quot;: 15}}" nolabel="1" readonly="((((at_request_auto_in_out == 'out' or not at_request_type_id) or at_request_state not in [False, 'draft', 'waiting_fman']) or at_request_code == 'early_in') or not show_wt_buttons)"/>
+                        <field name="wt_in_time" widget="float_time" nolabel="1" readonly="((((at_request_auto_in_out == 'out' or not at_request_type_id) or at_request_state not in [False, 'draft', 'waiting_fman']) or at_request_code == 'early_in') or not show_wt_buttons)"/>
                         <!-- <field name="wt_in" options='{"inputmask": {"noSecond": True}, "datepicker": {"enabledDates": "at_date",
                             "defaultDate": "at_date", "sideBySide": True, "defaultTime": "08:00", "stepping": 15}}' 
                             attrs="{'readonly': ['|', ('at_request_type_id', '=', False), ('at_request_state', 'not in', (False, 'draft', 'confirm'))]}" /> -->
                         <label for="wt_out_time" class="text-danger" string="Request OUT"/>
-                        <field name="wt_out_time" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;defaultTime&quot;: &quot;17:00&quot;, &quot;stepping&quot;: 15}}" nolabel="1" readonly="((((at_request_auto_in_out == 'in' or not at_request_type_id) or at_request_state not in [False, 'draft', 'waiting_fman']) or at_request_code == 'early_in') or not show_wt_buttons)"/>
+                        <field name="wt_out_time" widget="float_time" nolabel="1" readonly="((((at_request_auto_in_out == 'in' or not at_request_type_id) or at_request_state not in [False, 'draft', 'waiting_fman']) or at_request_code == 'early_in') or not show_wt_buttons)"/>
                         <!-- <field name="wt_out" options='{"inputmask": {"noSecond": True}, "datepicker": {"enabledDates": "at_date",
                             "defaultDate": "at_date", "sideBySide": True, "defaultTime": "17:00", "stepping": 15}}' 
                             attrs="{'readonly': ['|', ('at_request_type_id', '=', False), ('at_request_state', 'not in', (False, 'draft', 'confirm'))]}" /> -->
@@ -68,12 +71,12 @@
                         <field name="at_request_type_id1" string="Reason" widget="selection" readonly="at_request1_state not in [False, 'draft', 'confirm']"/>
                         <field name="name1" string="Detail (2nd)" widget="char" required="at_request_need_description1" readonly="at_request1_state not in [False, 'draft', 'waiting_fman']"/>
                         <label for="wt_in_time1" class="text-danger" string="Request IN"/>
-                        <field name="wt_in_time1" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;defaultTime&quot;: &quot;08:00&quot;, &quot;stepping&quot;: 15}}" nolabel="1" readonly="(((at_request_auto_in_out1 == 'out' or not at_request_type_id1) or at_request1_state not in [False, 'draft', 'wating_fman']) or at_request_code1 == 'early_in')"/>
+                        <field name="wt_in_time1" widget="float_time" nolabel="1" readonly="(((at_request_auto_in_out1 == 'out' or not at_request_type_id1) or at_request1_state not in [False, 'draft', 'wating_fman']) or at_request_code1 == 'early_in')"/>
                         <!-- <field name="wt_in1" options='{"inputmask": {"noSecond": True}, "datepicker": {"enabledDates": "at_date",
                             "defaultDate": "at_date", "sideBySide": True, "defaultTime": "08:00", "stepping": 15}}' 
                             attrs="{'readonly': ['|', ('at_request_type_id1', '=', False), ('at_request1_state', 'not in', (False, 'draft', 'confirm'))]}" nolabel="1" /> -->
                         <label for="wt_out_time1" class="text-danger" string="Request OUT"/>
-                        <field name="wt_out_time1" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;defaultTime&quot;: &quot;17:00&quot;, &quot;stepping&quot;: 15}}" nolabel="1" readonly="(((at_request_auto_in_out1 == 'in' or not at_request_type_id1) or at_request1_state not in [False, 'draft', 'waiting_fman']) or at_request_code1 == 'early_in')"/>
+                        <field name="wt_out_time1" widget="float_time" nolabel="1" readonly="(((at_request_auto_in_out1 == 'in' or not at_request_type_id1) or at_request1_state not in [False, 'draft', 'waiting_fman']) or at_request_code1 == 'early_in')"/>
                         <label for="early_offset" string="Early Offset" invisible="at_request_code != 'early_in'"/>
                         <div invisible="at_request_code != 'early_in'">
                             <field name="early_offset" nolabel="1" widget="numeric_step" options="{'step': 15, 'min': 0}" colspan="1" class="oe_inline"/>
@@ -95,12 +98,12 @@
                         <field name="request_ot_for_id" string="On" widget="selection" readonly="ot_request_state not in [False, 'draft', 'waiting_fman']"/>
                         <field name="ot_description" string="Overtime Detail" widget="char" required="request_ot_for_id" readonly="ot_request_state not in [False, 'draft', 'confirm']"/>
                         <label for="ot_in_time" class="text-danger" string="Request IN"/>
-                        <field name="ot_in_time" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;stepping&quot;: 15}}" nolabel="1" readonly="((ot_request_auto_in_out == 'out' or not request_ot_for_id) or ot_request_state not in [False, 'draft', 'waiting_fman'])" required="ot_request_auto_in_out in ['in', 'both']"/>
+                        <field name="ot_in_time" widget="float_time" nolabel="1" readonly="((ot_request_auto_in_out == 'out' or not request_ot_for_id) or ot_request_state not in [False, 'draft', 'waiting_fman'])" required="ot_request_auto_in_out in ['in', 'both']"/>
                         <!-- <field name="ot_in" options='{"inputmask": {"noSecond"widget="timepicker" options='{"datepicker": {"defaultTime": "08:00", "stepping": 15}}' True}, "datepicker": {"enabledDates": "at_date",
                             "defaultDate": "at_date", "sideBySide": True, "defaultTime": "08:00", "stepping": 15}}' 
                             attrs="{'readonly': ['|', ('request_ot_for_id', '=', False), ('ot_request_state', 'not in', (False, 'draft', 'confirm'))]}" nolabel="1" /> -->
                         <label for="ot_out_time" class="text-danger" string="Request OUT"/>
-                        <field name="ot_out_time" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;defaultTime&quot;: &quot;17:00&quot;, &quot;stepping&quot;: 15}}" nolabel="1" readonly="((ot_request_auto_in_out == 'in' or not request_ot_for_id) or ot_request_state not in [False, 'draft', 'waiting_fman'])" required="ot_request_auto_in_out in ['out', 'both']"/>
+                        <field name="ot_out_time" widget="float_time" nolabel="1" readonly="((ot_request_auto_in_out == 'in' or not request_ot_for_id) or ot_request_state not in [False, 'draft', 'waiting_fman'])" required="ot_request_auto_in_out in ['out', 'both']"/>
                         <!-- <field name="ot_out" options='{"inputmask": {"noSecond": True}, "datepicker": {"enabledDates": "at_date",
                             "defaultDate": "at_date", "sideBySide": True, "defaultTime": "17:00", "stepping": 15}}' 
                             attrs="{'readonly': ['|', ('request_ot_for_id', '=', False), ('ot_request_state', 'not in', (False, 'draft', 'confirm'))]}" nolabel="1" /> -->
@@ -333,8 +336,8 @@
                         <field name="request_detail_ids" colspan="4">
                             <list string="Detail" editable="top">
                                 <field name="employee_id" string="Staff Name"/>
-                                <field name="request_time_fr" string="Check-in time" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;defaultTime&quot;: &quot;08:00&quot;, &quot;stepping&quot;: 15}}"/>
-                                <field name="request_time_to" string="Check-out time" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;defaultTime&quot;: &quot;17:00&quot;, &quot;stepping&quot;: 15}}"/>
+                                <field name="request_time_fr" string="Check-in time" widget="float_time"/>
+                                <field name="request_time_to" string="Check-out time" widget="float_time"/>
                                 <field name="request_id" column_invisible="1"/>
                             </list>
                         </field>
@@ -371,8 +374,8 @@
                                 <field name="employee_id" string="Staff Name"/>
                                 <field name="name" string="Detail OT works" required="1"/>
                                 <field name="sub_request_type_id" string="For" required="1"/>
-                                <field name="request_time_fr" string="From" required="1" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;defaultTime&quot;: &quot;08:00&quot;, &quot;stepping&quot;: 15}}"/>
-                                <field name="request_time_to" string="To" required="1" widget="timepicker" options="{&quot;datepicker&quot;: {&quot;defaultTime&quot;: &quot;17:00&quot;, &quot;stepping&quot;: 15}}"/>
+                                <field name="request_time_fr" string="From" required="1" widget="float_time"/>
+                                <field name="request_time_to" string="To" required="1" widget="float_time"/>
                                 <field name="request_id" column_invisible="1"/>
                             </list>
                         </field>
@@ -459,7 +462,7 @@
                             <field name="ot_holiday_reg_id" column_invisible="1"/>
                             <field name="at_date" readonly="not is_admin"/>
                             <field name="holiday_type" readonly="1"/>
-                            <field name="ot_register" widget="boolean_toggle_safe_readonly" readonly="not is_admin and state == 'done'" invisible="not is_apply"/>
+                            <field name="ot_register" widget="boolean_toggle" readonly="not is_admin and state == 'done'" invisible="not is_apply"/>
                             <field name="ot_detail" required="ot_register" readonly="not ot_register"/>
                             <!-- <field name="ot_refuse" attrs="{'readonly': [('ot_register', '=', False)]}" groups="hr_attendance.group_hr_attendance_user,base.group_system"/> -->
                             <field name="ot_refuse" readonly="not is_admin"/>
@@ -488,7 +491,7 @@
                 <field name="ot_holiday_reg_id"/>
                 <field name="at_date" readonly="not is_admin"/>
                 <field name="holiday_type" readonly="1"/>
-                <field name="ot_register" widget="boolean_toggle_safe_readonly" readonly="not is_admin and state == 'done'"/>
+                <field name="ot_register" widget="boolean_toggle" readonly="not is_admin and state == 'done'"/>
                 <field name="ot_detail" required="ot_register" readonly="not ot_register"/>
                 <!-- <field name="ot_refuse" attrs="{'readonly': [('ot_register', '=', False)]}" groups="hr_attendance.group_hr_attendance_user,base.group_system"/> -->
                 <field name="ot_refuse" readonly="not is_admin"/>
