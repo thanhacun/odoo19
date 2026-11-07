@@ -161,7 +161,7 @@ class KderpHrAttendance(models.Model):
 
     status_ids = fields.Many2many(
         'kderp.base.code', string='Attendance Marks', ondelete='restrict',
-        domain=lambda self: [("model_id", "=", self._name), ("type_code", "=", "at_status")]
+        domain=lambda self: [("model_name", "=", self._name), ("type_code", "=", "at_status")]
     )
 
     status_codes = fields.Char('AT marks', compute='_compute_status_codes', size=32, store=True)

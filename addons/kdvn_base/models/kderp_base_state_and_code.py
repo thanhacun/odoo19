@@ -17,9 +17,9 @@ class KDERPBaseCode(models.Model):
     @api.model
     def _get_default_base_code(self, model, type_code, default_state=''):
         if not default_state:
-            res = self.search([('model_id', '=', model), ('default_code', '=', True), ('type_code', '=', type_code)])
+            res = self.search([('model_name', '=', model), ('default_code', '=', True), ('type_code', '=', type_code)])
         else:
-            res = self.search([('model_id', '=', model), ('code', '=', default_state), ('type_code', '=', type_code)])
+            res = self.search([('model_name', '=', model), ('code', '=', default_state), ('type_code', '=', type_code)])
         return res[0] if res else False
 
     code = fields.Char(size=32)
@@ -27,7 +27,9 @@ class KDERPBaseCode(models.Model):
     default_code = fields.Boolean('Default State')
     model_id = fields.Many2one('ir.model', 'Model ID', required=True, ondelete='cascade')
     active = fields.Boolean(default=True, string='Active')
-    model_name = fields.Char(related='model_id.model', string='Model Name')
+    # stored so that searches and field domains compare plain text: a search on model_id with a model name makes Odoo look the model up in ir.model
+    # as the current user, and in Odoo 19 only administrators may read ir.model (Odoo 12: everybody)
+    model_name = fields.Char(related='model_id.model', string='Model Name', store=True, index=True)
     type_code = fields.Selection(TYPE_CODE, 'Type', required=True)
     # index of the colors: 0 none, 1 red, 2 orange, 3 yellow, 4 light blue, 5 dark purple, 6 salmon pink, 7 medium blue, 8 dark blue, 9 fushia, 10 green, 11 purple
     # (Odoo 12 had a Selection with integer keys; Odoo 19 selections need string keys, so it is a plain integer here with the same values)
@@ -96,10 +98,10 @@ class KDERPBaseStateCode(models.Model):
         to_state = context.get('state', '') or context.get('tostate', '')
         origin_state_id = context.get('origin_state_id', False)
         if not to_state and context.get('finalstate', False):
-            final = self.search([('model_id', '=', self.model_id.model), ('finalstate', '=', True)])
+            final = self.search([('model_name', '=', self.model_id.model), ('finalstate', '=', True)])
             to_state = final and final.code
         if to_state:
-            target = self.search([('model_id', '=', self.model_id.model), ('code', '=', to_state)])
+            target = self.search([('model_name', '=', self.model_id.model), ('code', '=', to_state)])
             if target:
                 self._check_group(target)
                 self.env[self.model_id.model].browse(res_id).write({'state_id': target.id, 'origin_state_id': origin_state_id})
@@ -120,7 +122,7 @@ class KDERPBaseStateCode(models.Model):
 
     def actionCancel(self, res_id):
         self.ensure_one()
-        cancel = self.search([('model_id', '=', self.model_id.model), ('code', '=', 'cancel')])
+        cancel = self.search([('model_name', '=', self.model_id.model), ('code', '=', 'cancel')])
         if not cancel:
             raise ValidationError(_("KDERP Configuration error!\nThe %s model don't have state CANCEL", self.model_id.name))
         self._check_group(cancel[0])
@@ -128,7 +130,7 @@ class KDERPBaseStateCode(models.Model):
 
     def actionReset(self, res_id):
         self.ensure_one()
-        draft = self.search([('model_id', '=', self.model_id.model), ('default_code', '=', True)])
+        draft = self.search([('model_name', '=', self.model_id.model), ('default_code', '=', True)])
         if not draft:
             raise ValidationError(_("KDERP Configuration error!\nThe %s model don't have state DRAFT", self.model_id.name))
         self._check_group(draft[0])
@@ -167,11 +169,11 @@ class KDERPBaseStateModel(models.AbstractModel):
 
     @api.model
     def _get_state_selection(self):
-        return [(s.code, s.name) for s in self.env['kderp.base.state'].search([('model_id', '=', self._name)])]
+        return [(s.code, s.name) for s in self.env['kderp.base.state'].search([('model_name', '=', self._name)])]
 
     @api.model
     def _get_default_state(self):
-        res = self.env['kderp.base.state'].search([('model_id', '=', self._name), ('default_code', '=', True)])
+        res = self.env['kderp.base.state'].search([('model_name', '=', self._name), ('default_code', '=', True)])
         return res and res.id
 
     def button_change_state(self):
@@ -204,14 +206,14 @@ class KDERPBaseStateModel(models.AbstractModel):
 
     def _inverse_state_id(self):
         for rec in self:
-            state = self.env['kderp.base.state'].search([('model_id', '=', self._name), ('code', '=', rec.state)], limit=1)
+            state = self.env['kderp.base.state'].search([('model_name', '=', self._name), ('code', '=', rec.state)], limit=1)
             rec.state_id = state or False
 
     @api.onchange('state_id')
     def _update_state(self):
         self.state = self.state_id and self.state_id.code
 
-    state_id = fields.Many2one('kderp.base.state', string='Status ID', required=True, domain=lambda self: [('model_id', '=', self._name)],
+    state_id = fields.Many2one('kderp.base.state', string='Status ID', required=True, domain=lambda self: [('model_name', '=', self._name)],
                                default=_get_default_state, ondelete='restrict')
     state = fields.Selection(_get_state_selection, compute='_get_state_code', inverse='_inverse_state_id', string='Status', store=True, readonly=True, index=True)
     origin_state_id = fields.Many2one('kderp.base.state', string='State of Document before Open', ondelete='restrict')

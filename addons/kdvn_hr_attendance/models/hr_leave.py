@@ -1642,6 +1642,10 @@ class KderpHolidaysType(models.Model):
             - having active_id or active_ids
             - TODO []: in_probation_period but having OT Compensation => will allow
         """
+        # Odoo 19 reads a record's fields through _search([('id', 'in', ids)]): such a lookup must not run the sorting / filtering below (it reads
+        # fields to sort, which searches again: endless recursion for any user who has an employee in the context)
+        if (isinstance(domain, (list, tuple)) and len(domain) == 1 and isinstance(domain[0], (list, tuple)) and tuple(domain[0][:2]) == ('id', 'in')):
+            return super()._search(domain, offset=offset, limit=limit, order=order, **kwargs)
         # apply for showing all leave type and leave allocation for hr admin
         is_admin_user = self.env.uid in [1, 2] or 'HR Admin' in self.env.user.all_group_ids.mapped('name')
         no_filter_leave_type = self.env.context.get('no_filter_leave_type', False) or is_admin_user

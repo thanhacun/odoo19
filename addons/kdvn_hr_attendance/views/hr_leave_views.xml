@@ -58,11 +58,11 @@
                                 </div>
                                 <div class="col-4">
                                     <button name="action_submit" string="Submit" type="object" class="btn btn-sm btn-outline-dark" invisible="next_button_visible != 'submit'">
-                                        <i class="fa fa-paper-plane"/></button>
+                                        <i title="Submit" class="fa fa-paper-plane"/></button>
                                     <button name="action_approve" string="Approve" type="object" class="btn btn-sm btn-outline-success" invisible="next_button_visible != 'approve'">
-                                        <i class="fa fa-arrow-right"/></button>
+                                        <i title="Approve" class="fa fa-arrow-right"/></button>
                                     <button name="action_refuse" string="Refuse" type="object" class="btn btn-sm btn-outline-danger" invisible="not refuse_button_visible">
-                                        <i class="fa fa-hand-stop-o"/></button>
+                                        <i title="Refuse" class="fa fa-hand-stop-o"/></button>
                                 </div>
                             </div>
                         </div>

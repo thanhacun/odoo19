@@ -7,7 +7,7 @@ tables kderp.base.code / kderp.base.state. Model names are unchanged so data and
 Also res.company.report_date_format (used by the report templates) and res.users.location_user_id (the user's office).
 Not ported: the Odoo 12 web client hacks (fields_view_get / fields_get editing of views), code suggestion, QR, partner and currency data.
 """,
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.3.0',
     'category': 'Hidden',
     'author': 'Kinden Vietnam',
     'license': 'LGPL-3',

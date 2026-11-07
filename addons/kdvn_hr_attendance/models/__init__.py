@@ -17,3 +17,4 @@ from . import hr_employee_location
 from . import hr_attendance_location_setup
 from . import res_config_settings
 from . import staff_location_sync
+from . import hr_employee_public

@@ -9,6 +9,9 @@ class HrEmployee(models.Model):
     _code_unique = models.Constraint('unique(code)', 'The staff code must be unique.')
 
     code = fields.Char(string='Staff Code', index=True, copy=False)
+    # Odoo 19 limits the tags to HR users; Odoo 12 let every user read them and the attendance logic reads them as an ordinary user
+    # (G8, House Maid, Driver, Outsource, Testing decide OT and leave rules). The same relation is on hr.employee.public.
+    category_ids = fields.Many2many(groups='base.group_user')
     working = fields.Boolean(string='Working', default=False)
     working_area_id = fields.Many2one('hr.department', domain=[('type_id.code', '=', 'area')])
     location_ids = fields.One2many('kderp.hr.employee.location', 'employee_id', string='Details')

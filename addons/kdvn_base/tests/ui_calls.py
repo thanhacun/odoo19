@@ -83,17 +83,25 @@ def _default_facets(env, search_arch, ctx):
     return domain, groupby
 
 
-def run(env, prefixes=('kdvn_',), limit=80, form_records=1):
-    """Return a list of 'action / view / call: error' strings (empty when everything the UI does works)."""
-    admin = env.ref('base.user_admin')
-    env = env(user=admin.id)
+def run(env, prefixes=('kdvn_',), limit=80, form_records=1, login=None):
+    """Return a list of 'action / view / call: error' strings (empty when everything the UI does works).
+    login: run as that user (a role of the guide users: employees, managers...) instead of the administrator; actions the user may not
+    open (groups) are skipped, as the menu would not show them."""
+    user = env['res.users'].with_context(active_test=False).search([('login', '=', login)], limit=1) if login else env.ref('base.user_admin')
+    if not user:
+        return ['no user with login %s' % login]
+    env = env(user=user.id)
     failures = []
     data = env['ir.model.data'].sudo().search([('model', '=', 'ir.actions.act_window')])
-    actions = [(d.complete_name, env['ir.actions.act_window'].browse(d.res_id).exists()) for d in data if d.module.startswith(prefixes)]
+    actions = [(d.complete_name, env['ir.actions.act_window'].sudo().browse(d.res_id).exists()) for d in data if d.module.startswith(prefixes)]
     for xmlid, action in actions:
         if not action or action.res_model not in env:
             continue
+        if action.group_ids and not (action.group_ids & env.user.all_group_ids):
+            continue        # the menu would not show it to this user
         model = env[action.res_model]
+        if not model.has_access('read'):
+            continue        # no access rights at all: a screen for other roles
         ctx = _safe(action.context, env, {}, {})
         if not isinstance(ctx, dict):
             ctx = {}
