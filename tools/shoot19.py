@@ -224,7 +224,7 @@ class Shooter:
         if spec.get('crop'):
             crop = self.sub(spec['crop'])
             if 'modal' in crop:      # Odoo 19: take the dialog that is on screen now (the first match can be a hidden or closing one)
-                crop = '.modal.show ' + crop if not crop.startswith('.modal.') else crop
+                crop = '.modal ' + crop if not crop.startswith('.modal ') else crop
                 pg.wait_for_timeout(600)
                 try:
                     box = pg.locator(crop).last.bounding_box(timeout=5000)     # a clip of the page: no wait for the element to be 'stable'
