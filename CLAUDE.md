@@ -1,4 +1,5 @@
 # KDVN Odoo 19 (Kinden Vietnam)
+At the start of every session read HANDOFF.md first (state, open items, tools, lessons). Before ending a session or when I say "handoff", update it.
 Repo ~/odoo19_thcn, Odoo 19 Community. Each addon has its own CLAUDE.md, loaded when you work in it.
 
 | Addon | Purpose | Docs (read only when the task needs them) |
@@ -7,6 +8,7 @@ Repo ~/odoo19_thcn, Odoo 19 Community. Each addon has its own CLAUDE.md, loaded 
 | addons/kdvn_website_project | Past Prominent Projects page; projects pushed by n8n from KDERP | docs/kdvn_website_project.md |
 | addons/kdvn_remote_sync | Jobs, budgets, customers pushed by n8n from KDERP (Odoo 12) into cache models | docs/kdvn_remote_sync.md |
 
+Port of KDERP Odoo 12: HANDOFF.md, docs/porting_from_odoo12.md, docs/odoo19_migration_checklist.md, docs/legacy_import_runbook.md (tools in tools/).
 Other docs: docs/progress.md (current status, review findings), docs/deploy.md (release and deploy),
 DEVELOPMENT.md (setup). History is in git log and tags. The folder claude/ is tool state (git-ignored).
 The docs/kdvn_* files can lag the code (version numbers, old plans): the code and manifest win.
