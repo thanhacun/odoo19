@@ -123,10 +123,10 @@
                     <group string="Attendance" col="4" invisible="multi_request_mode">
                         <field name="employee_id" string="Employee"/>
                         <field name="department_id" string="Section"/>
-                        <field name="at_date" readonly="1"/>
+                        <field name="at_date" readonly="1" options="{'numeric': True}"/>
                         <field name="status_ids" widget="many2many_tags" string="Attendance marks" options="{'color_field': 'color'}" readonly="1"/>
-                        <field name="actual_in" options="{'format': 'HH:mm'}"/>
-                        <field name="actual_out" options="{'format': 'HH:mm'}"/>
+                        <field name="actual_in" widget="kdvn_time_only"/>
+                        <field name="actual_out" widget="kdvn_time_only"/>
                         <!-- <label for="check_in" string="Request IN" class="widget="timepicker" options='{"datepicker": {"defaultTime": "08:00", "stepping": 15}}'text-danger" />
                         <field name="check_in" options='{"inputmask": {"noSecond": True}, "datepicker": {"enabledDates": "at_date",
                             "defaultDate": "at_date", "sideBySide": True, "defaultTime": "08:00", "stepping": 15}}' 

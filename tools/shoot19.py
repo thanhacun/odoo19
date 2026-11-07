@@ -44,8 +44,11 @@ XMLID_MAP = {
     'hr_attendance.hr_attendance_action': 'kdvn_hr_attendance.hr_attendance_action',
 }
 XMLID_MAP_FILE = os.path.join(HERE, 'shoot19_xmlid_map.yaml')
+SELECTOR_MAP = {}      # Odoo 12 click selector -> Odoo 19 selector (key `_selectors` of the map file)
 if os.path.exists(XMLID_MAP_FILE):
-    XMLID_MAP.update(yaml.safe_load(open(XMLID_MAP_FILE)) or {})
+    _map = yaml.safe_load(open(XMLID_MAP_FILE)) or {}
+    SELECTOR_MAP.update(_map.pop('_selectors', None) or {})
+    XMLID_MAP.update(_map)
 W, H = 1366, 768
 print = functools.partial(print, flush=True)      # live progress even when the output is piped
 READY_MS = 15000          # a screen that is not ready after this is an error, not a reason to wait a minute
@@ -219,7 +222,18 @@ class Shooter:
         os.makedirs(os.path.dirname(target), exist_ok=True)
         pg = self.pg
         if spec.get('crop'):
-            pg.locator(self.sub(spec['crop'])).first.screenshot(path=target)
+            crop = self.sub(spec['crop'])
+            if 'modal' in crop:      # Odoo 19: take the dialog that is on screen now (the first match can be a hidden or closing one)
+                crop = '.modal.show ' + crop if not crop.startswith('.modal.') else crop
+                pg.wait_for_timeout(600)
+                try:
+                    box = pg.locator(crop).last.bounding_box(timeout=5000)     # a clip of the page: no wait for the element to be 'stable'
+                    pg.screenshot(path=target, clip={'x': max(box['x'], 0), 'y': max(box['y'], 0), 'width': box['width'], 'height': box['height']})
+                except Exception as error:
+                    self.error('dialog crop failed (%s), full page taken' % str(error).splitlines()[0][:80])
+                    pg.screenshot(path=target)
+            else:
+                pg.locator(crop).first.screenshot(path=target)
         elif spec.get('clip'):
             x, y, w, h = spec['clip']
             pg.screenshot(path=target, clip={'x': x, 'y': y, 'width': w, 'height': h})
@@ -251,7 +265,13 @@ class Shooter:
             self.go(self.sub(st['go']))
         for sel in ([st['click']] if isinstance(st.get('click'), str) else st.get('click') or []):
             try:
-                pg.click(self.sub(sel), timeout=5000)
+                sel = SELECTOR_MAP.get(self.sub(sel), self.sub(sel))
+                target = pg.locator(self.sub(sel)).first
+                button = target.locator('button')
+                if re.search(r'td(:nth-child\(\d+\))?$', self.sub(sel)) and button.count():
+                    button.first.click(timeout=5000)      # a list cell with a button: click the button, not the middle of the (wider) cell
+                else:
+                    target.click(timeout=5000)
             except Exception:
                 print('   (click skipped: %s)' % sel)
             self.settle(500)

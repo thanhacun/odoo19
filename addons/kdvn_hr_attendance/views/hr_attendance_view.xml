@@ -124,8 +124,8 @@
                     </group>
 
                     <group col="4" string="Attendance">
-                        <field name="compute_in" options="{&quot;inputmask&quot;: {&quot;noSecond&quot;: True}}" readonly="True" string="IN"/>
-                        <field name="compute_out" options="{&quot;inputmask&quot;: {&quot;noSecond&quot;: True}}" readonly="True" string="OUT"/>
+                        <field name="compute_in" options="{'numeric': True}" readonly="True" string="IN"/>
+                        <field name="compute_out" options="{'numeric': True}" readonly="True" string="OUT"/>
                         <!-- Using like below to hide these elements in mobile view -->
                         <label for="check_in_location_id" string="IN location" class="d-none d-md-block"/>
                         <field name="check_in_location_id" readonly="1" string="IN location" class="d-none d-md-block" nolabel="1"/>
