@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- ===== Procurement & Logistics sub-menus of My Requests / My Reviews ===== -->
+        <menuitem id="menu_cat_req_procurement" name="Procurement &amp; Logistics" parent="kdvn_e_approval.menu_sub_my_requests" sequence="40"/>
+        <menuitem id="menu_cat_rev_procurement" name="Procurement &amp; Logistics" parent="kdvn_e_approval.menu_sub_my_reviews" sequence="40"/>
+
+        <record id="action_my_safety_tool_requests" model="ir.actions.act_window">
+            <field name="name">My Requests - Safety Tool</field>
+            <field name="res_model">safety.tool.request</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('create_uid', '=', uid)]</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">Create your first Safety Tool Request!</p>
+            </field>
+        </record>
+        <record id="action_review_safety_tool_requests" model="ir.actions.act_window">
+            <field name="name">Waiting My Approval - Safety Tool</field>
+            <field name="res_model">safety.tool.request</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[]</field>
+            <field name="context">{'search_default_filter_to_approve': 1}</field>
+        </record>
+        <record id="action_all_safety_tool_requests" model="ir.actions.act_window">
+            <field name="name">All Company Requests - Safety Tool</field>
+            <field name="res_model">safety.tool.request</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <menuitem id="menu_my_safety_tool_requests" name="Safety Tool Requests" parent="menu_cat_req_procurement"
+                  action="action_my_safety_tool_requests" sequence="10"/>
+        <menuitem id="menu_review_safety_tool_requests" name="Safety Tool Reviews" parent="menu_cat_rev_procurement"
+                  action="action_review_safety_tool_requests" sequence="10"/>
+        <menuitem id="menu_all_safety_tool_requests" name="Master Audit Tracking (Safety Tool)"
+                  parent="kdvn_e_approval.menu_sub_cat_master_audit" action="action_all_safety_tool_requests" sequence="910"
+                  groups="kdvn_e_approval.group_e_approval_admin,kdvn_e_approval.group_e_approval_global_auditor,kdvn_procurement_procedures.group_safety_tool_admin"/>
+
+        <!-- ===== Safety Tool Store (admin staff) ===== -->
+        <record id="action_safety_tool_items" model="ir.actions.act_window">
+            <field name="name">Safety Tools and Stock</field>
+            <field name="res_model">safety.tool.item</field>
+            <field name="view_mode">list,form</field>
+        </record>
+        <record id="action_safety_tool_moves" model="ir.actions.act_window">
+            <field name="name">Stock Ledger</field>
+            <field name="res_model">safety.tool.move</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'default_source': 'purchase'}</field>
+        </record>
+        <record id="action_safety_tool_to_fulfil" model="ir.actions.act_window">
+            <field name="name">To Hand Over / To Purchase</field>
+            <field name="res_model">safety.tool.request</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('fulfilment_state', 'in', ['to_issue', 'to_purchase', 'ordered', 'not_received'])]</field>
+        </record>
+
+        <menuitem id="menu_safety_tool_store" name="Safety Tool Store" parent="kdvn_e_approval.menu_e_approval_root" sequence="70"
+                  groups="kdvn_procurement_procedures.group_safety_tool_admin,kdvn_e_approval.group_e_approval_admin"/>
+        <menuitem id="menu_safety_tool_to_fulfil" name="To Hand Over / To Purchase" parent="menu_safety_tool_store"
+                  action="action_safety_tool_to_fulfil" sequence="10"/>
+        <menuitem id="menu_safety_tool_items" name="Safety Tools and Stock" parent="menu_safety_tool_store"
+                  action="action_safety_tool_items" sequence="20"/>
+        <menuitem id="menu_safety_tool_moves" name="Stock Ledger" parent="menu_safety_tool_store"
+                  action="action_safety_tool_moves" sequence="30"/>
+
+        <!-- Help > guide page (opened in the web client; needs kderp_knowledge) -->
+        <record id="action_guide_safety_tool_srv" model="ir.actions.server">
+            <field name="name">Safety Tool Guide</field>
+            <field name="model_id" ref="base.model_res_users"/>
+            <field name="state">code</field>
+            <field name="code">action = env['document.page'].kderp_action_open_guide('e-approval/safety-tool')</field>
+        </record>
+        <menuitem id="menu_help_guide_safety_tool" name="Safety Tool" parent="kdvn_e_approval.menu_sub_help"
+                  action="action_guide_safety_tool_srv" sequence="40"/>
+    </data>
+</odoo>

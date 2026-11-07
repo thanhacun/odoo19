@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Special-case rules of the Safety Tool Request (shared screen E-Approval Portal > Special Case Rules).
+         All shipped OFF = no limit. Switch one on there and set its limit; no code change.
+         noupdate: the Safety Tool Admin's values survive upgrades. Checks: safety.tool.request._get_special_case_reasons(). -->
+    <data noupdate="1">
+        <record id="special_rule_safety_shoe_limit" model="kderp.e.approval.special.rule">
+            <field name="procedure">safety.tool.request</field>
+            <field name="code">shoe_limit</field>
+            <field name="name">Safety shoes per staff</field>
+            <field name="sequence">10</field>
+            <field name="value">1</field>
+            <field name="unit">pairs</field>
+            <field name="action">off</field>
+            <field name="description">Largest number of safety shoe pairs one staff may have (this request plus submitted or approved requests of the last 12 months). Above it the request is a special case, or cannot be submitted.</field>
+            <field name="manager_group_id" ref="group_safety_tool_admin"/>
+        </record>
+        <record id="special_rule_safety_qty_over" model="kderp.e.approval.special.rule">
+            <field name="procedure">safety.tool.request</field>
+            <field name="code">qty_over</field>
+            <field name="name">Quantity of one line above</field>
+            <field name="sequence">20</field>
+            <field name="value">10</field>
+            <field name="unit">pcs</field>
+            <field name="action">off</field>
+            <field name="description">A single line asking for more than this quantity.</field>
+            <field name="manager_group_id" ref="group_safety_tool_admin"/>
+        </record>
+        <record id="special_rule_safety_replace_no_photo" model="kderp.e.approval.special.rule">
+            <field name="procedure">safety.tool.request</field>
+            <field name="code">replace_no_photo</field>
+            <field name="name">Replacement without a photo</field>
+            <field name="sequence">30</field>
+            <field name="value">0</field>
+            <field name="unit"></field>
+            <field name="action">off</field>
+            <field name="description">A replacement request with no photo of the broken tool. The limit is not used.</field>
+            <field name="manager_group_id" ref="group_safety_tool_admin"/>
+        </record>
+    </data>
+    <!-- The Safety Tool Admin staff see the shared Special Case Rules menu -->
+    <record id="kdvn_e_approval.menu_special_rules" model="ir.ui.menu">
+        <field name="group_ids" eval="[(4, ref('group_safety_tool_admin'))]"/>
+    </record>
+</odoo>

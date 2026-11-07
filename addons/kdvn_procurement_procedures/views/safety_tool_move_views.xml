@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_safety_tool_move_tree" model="ir.ui.view">
+        <field name="name">safety.tool.move.list</field>
+        <field name="model">safety.tool.move</field>
+        <field name="arch" type="xml">
+            <list decoration-success="qty_in &gt; 0" decoration-muted="source == 'reverse'">
+                <field name="date"/>
+                <field name="item_id"/>
+                <field name="size_id"/>
+                <field name="qty_in" sum="IN"/>
+                <field name="qty_out" sum="OUT"/>
+                <field name="job_id"/>
+                <field name="employee_id"/>
+                <field name="source"/>
+                <field name="request_id"/>
+                <field name="note"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_safety_tool_move_form" model="ir.ui.view">
+        <field name="name">safety.tool.move.form</field>
+        <field name="model">safety.tool.move</field>
+        <field name="arch" type="xml">
+            <form string="Stock move">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="date"/>
+                            <field name="item_id" options="{'no_create': True}"/>
+                            <field name="size_id" options="{'no_create': True}"
+                                   domain="[('item_id', '=', item_id)]"/>
+                            <field name="source"/>
+                        </group>
+                        <group>
+                            <field name="qty_in"/>
+                            <field name="qty_out"/>
+                            <field name="job_id" options="{'no_create': True}"/>
+                            <field name="employee_id" options="{'no_create': True}"/>
+                            <field name="request_id" readonly="1" invisible="not request_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="note"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_safety_tool_move_search" model="ir.ui.view">
+        <field name="name">safety.tool.move.search</field>
+        <field name="model">safety.tool.move</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="item_id"/>
+                <field name="employee_id"/>
+                <field name="job_id"/>
+                <field name="note"/>
+                <filter string="Issued to requests" name="filter_requests" domain="[('source', '=', 'request')]"/>
+                <filter string="Stock in (opening, purchase)" name="filter_stock_in" domain="[('source', 'in', ['opening', 'purchase'])]"/>
+                <separator/>
+                <filter string="IN" name="filter_in" domain="[('qty_in', '&gt;', 0)]"/>
+                <filter string="OUT" name="filter_out" domain="[('qty_out', '&gt;', 0)]"/>
+                <group>
+                    <filter string="Item" name="group_item" context="{'group_by': 'item_id'}"/>
+                    <filter string="Source" name="group_source" context="{'group_by': 'source'}"/>
+                    <filter string="Month" name="group_month" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>

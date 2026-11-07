@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_safety_tool_item_tree" model="ir.ui.view">
+        <field name="name">safety.tool.item.list</field>
+        <field name="model">safety.tool.item</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="low_stock">
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="item_type"/>
+                <field name="uom"/>
+                <field name="stock_qty"/>
+                <field name="reorder_level"/>
+                <field name="low_stock" invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_safety_tool_item_form" model="ir.ui.view">
+        <field name="name">safety.tool.item.form</field>
+        <field name="model">safety.tool.item</field>
+        <field name="arch" type="xml">
+            <form string="Safety Tool">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_moves" type="object" class="oe_stat_button" icon="fa-list">
+                            <field name="stock_qty" widget="statinfo" string="In stock"/>
+                        </button>
+                        
+            <field name="active" invisible="1" />
+            <widget
+                name="web_ribbon"
+                title="Archived"
+                bg_color="bg-danger"
+                invisible="active"
+            />
+            
+                    </div>
+                    <field name="image" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1><field name="name" placeholder="e.g. Safety Shoe"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="item_type"/>
+                            <field name="uom"/>
+                        </group>
+                        <group>
+                            <field name="reorder_level"/>
+                            <field name="low_stock" readonly="1"/>
+                            <field name="external_code"/>
+                            <field name="has_sizes" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Sizes" name="sizes">
+                            <p class="text-muted">Leave empty when the item has no size. With sizes, every request line and stock move must name one.</p>
+                            <field name="size_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="stock_qty"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_safety_tool_item_search" model="ir.ui.view">
+        <field name="name">safety.tool.item.search</field>
+        <field name="model">safety.tool.item</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="code"/>
+                <filter string="Low stock" name="filter_low_stock" domain="[('low_stock', '=', True)]"/>
+                <filter string="Out of stock" name="filter_out" domain="[('stock_qty', '&lt;=', 0)]"/>
+                <filter string="Archived" name="filter_archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Type" name="group_type" context="{'group_by': 'item_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>

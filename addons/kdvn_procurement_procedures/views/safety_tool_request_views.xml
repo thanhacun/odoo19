@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_safety_tool_request_tree" model="ir.ui.view">
+        <field name="name">safety.tool.request.list</field>
+        <field name="model">safety.tool.request</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'submitted'"
+                  decoration-success="state == 'approved'" decoration-danger="state == 'rejected'">
+                <field name="name"/>
+                <field name="reason"/>
+                <field name="employee_id"/>
+                <field name="request_type"/>
+                <field name="job_id"/>
+                <field name="date_input"/>
+                <field name="approval_progress"/>
+                <field name="state"/>
+                <field name="fulfilment_state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_safety_tool_request_form" model="ir.ui.view">
+        <field name="name">safety.tool.request.form</field>
+        <field name="model">safety.tool.request</field>
+        <field name="arch" type="xml">
+            <form string="Safety Tool Request" duplicate="false">
+                <header>
+                    <button name="action_submit" string="Submit Request" type="object" class="oe_highlight"
+                            invisible="(not is_current_applicant or state != 'draft') or is_emergency"/>
+                    <button name="action_submit" type="object" string="Submit Emergency Request" class="btn-danger"
+                            confirm="Are you sure this request needs URGENT validation?"
+                            invisible="(not is_current_applicant or state != 'draft') or not is_emergency"/>
+                    <button name="validate_tier" string="Approve Step" type="object" class="oe_highlight"
+                            invisible="not can_review"/>
+                    <button name="reject_tier" string="Reject Step" type="object" class="btn-danger"
+                            invisible="not can_review"/>
+
+                    <!-- Store side, after approval -->
+                    <button name="action_issue" string="Hand over" type="object" class="oe_highlight"
+                            confirm="Post the stock-out and tell the applicant the tools were handed over?"
+                            invisible="not is_tool_admin or fulfilment_state not in ('to_issue', 'to_purchase', 'ordered')"/>
+                    <button name="action_mark_ordered" string="Mark as ordered" type="object"
+                            invisible="not is_tool_admin or fulfilment_state != 'to_purchase'"/>
+                    <button name="action_check_stock" string="Check stock again" type="object"
+                            invisible="not is_tool_admin or fulfilment_state not in ('to_purchase', 'ordered')"/>
+                    <button name="action_reverse_issue" string="Reverse handover" type="object" class="btn-warning"
+                            confirm="Put the tools back in stock and reopen the handover?"
+                            invisible="not is_tool_admin or fulfilment_state not in ('issued', 'received', 'not_received')"/>
+                    <button name="action_confirm_received" string="I received the tools" type="object" class="oe_highlight"
+                            invisible="not is_current_applicant or fulfilment_state not in ('issued', 'not_received')"/>
+                    <button name="action_not_received" string="Not received" type="object"
+                            confirm="Tell the store that you did NOT receive these tools?"
+                            invisible="not is_current_applicant or fulfilment_state != 'issued'"/>
+
+                    <button name="action_print_secure_authenticated_report" string=" Print Approved Request" type="object"
+                            class="btn btn-primary" icon="fa-print"
+                            context="{'target_report_xml_id': 'kdvn_procurement_procedures.safety_tool_request_report_py3o',
+                                      'report_format_method': 'prepare_safety_tool_report'}"
+                            invisible="state != 'approved'"/>
+                    <button name="action_reset_to_draft" string="Unblock / Reset to Draft" type="object" class="btn-warning"
+                            groups="kdvn_procurement_procedures.group_safety_tool_admin,kdvn_e_approval.group_e_approval_admin"
+                            invisible="state not in ('submitted', 'approved', 'rejected')"/>
+
+                    <field name="need_validation" invisible="1"/>
+                    <field name="can_review" invisible="1"/>
+                    <field name="validated" invisible="1"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,rejected"/>
+                </header>
+                <sheet>
+                    <div class="row" style="margin-bottom: 20px;">
+                        <div class="col-7 oe_title">
+                            <label for="name" class="oe_edit_only" string="Request No."/>
+                            <h2><field name="name" readonly="1"/></h2>
+                            <label for="reason" class="oe_edit_only" string="Purpose"/>
+                            <h1><field name="reason" placeholder="e.g. New site staff need helmets and vests"/></h1>
+                            <field name="special_case_live" invisible="1"/>
+                        </div>
+                        <div class="col-5 text-right pull-right" style="margin-top: 5px;">
+                            <field name="approval_workflow_ribbon" widget="html" readonly="1" nolabel="1"/>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info" role="status" invisible="not is_imported">
+                        <strong>Imported history.</strong> This request comes from the Excel safety tool control sheet:
+                        the tools were issued in the past, so it has no approval steps.
+                    </div>
+                    <field name="special_case_banner" nolabel="1" readonly="1"
+                           invisible="special_case_live == 'normal'"/>
+                    <field name="stock_warning" nolabel="1" readonly="1"
+                           invisible="not stock_warning"/>
+
+                    <group string="Urgent Request">
+                        <group>
+                            <field name="is_emergency" widget="boolean_toggle_safe_readonly" string="Urgent"
+                                   readonly="state != 'draft'"/>
+                        </group>
+                        <group invisible="not is_emergency">
+                            <div class="alert alert-danger" role="alert" style="margin: 0; padding: 10px;">
+                                <strong>COMPLIANCE WARNING:</strong> do not abuse the urgent pipeline for non-critical requests.
+                                Submitting immediately sends a high-priority notification to your managers.
+                            </div>
+                        </group>
+                    </group>
+
+                    <group string="General Information">
+                        <group>
+                            <field name="employee_id" readonly="1" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="request_type" readonly="state != 'draft'"/>
+                            <field name="date_input" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="job_id" readonly="state != 'draft'" options="{'no_create': True, 'no_open': True}"
+                                   domain="['|', ('view_user_ids', '=', uid), ('is_general_expense', '=', True)]"
+                                   required="state == 'draft'"/>
+                            <field name="import_project_text" invisible="not is_imported"/>
+                            <field name="import_staff_text" invisible="not is_imported"/>
+                            <field name="is_imported" invisible="1"/>
+                            <field name="budget_code_id" options="{'no_create': True, 'no_open': True}"
+                                   domain="[('job_id', '=', job_id)]" readonly="not job_id or state != 'draft'"/>
+                            <field name="office_code" readonly="state != 'draft'"/>
+                            <field name="is_gm" invisible="1"/>
+                            <field name="is_current_applicant" invisible="1"/>
+                            <field name="is_tool_admin" invisible="1"/>
+                            <field name="approval_category" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <group string="Tools">
+                        <field name="line_ids" readonly="state != 'draft'" nolabel="1" colspan="2">
+                            <list editable="bottom" decoration-danger="is_short">
+                                <field name="sequence" widget="handle"/>
+                                <field name="item_id" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="has_sizes" invisible="1"/>
+                                <field name="size_id" options="{'no_create': True, 'no_open': True}"
+                                       domain="[('item_id', '=', item_id)]"
+                                       required="has_sizes" readonly="not has_sizes"/>
+                                <field name="qty"/>
+                                <field name="uom"/>
+                                <field name="stock_qty"/>
+                                <field name="is_short" invisible="1"/>
+                            </list>
+                        </field>
+                    </group>
+
+                    <group string="Trouble Report (Company Assets)" invisible="request_type != 'replace'">
+                        <group>
+                            <field name="damaged_item_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="asset_code" readonly="state != 'draft'"/>
+                            <field name="trouble_date" readonly="state != 'draft'"/>
+                            <field name="trouble_place" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="solution" readonly="state != 'draft'"/>
+                            <field name="repair_cost" readonly="state != 'draft'" invisible="solution != 'repair'"/>
+                            <field name="trouble_note" readonly="state != 'draft'" placeholder="Describe what happened to the tool"/>
+                        </group>
+                        <field name="trouble_photo_ids" readonly="state != 'draft'" widget="many2many_binary" string="Photos of the trouble" colspan="2"/>
+                    </group>
+
+                    <group string="Store" invisible="state != 'approved'">
+                        <group>
+                            <field name="fulfilment_state" readonly="1"/>
+                            <field name="issued_date"/>
+                            <field name="issued_by_id"/>
+                            <field name="receipt_date"/>
+                        </group>
+                        <group>
+                            <field name="issue_override_note" readonly="not is_tool_admin"/>
+                            <field name="cost_amount" readonly="not is_tool_admin"/>
+                            <field name="vat_amount"/>
+                            <field name="total_amount"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Supporting Documentation Files" name="attachments_tab">
+                            <group>
+                                <field name="attachment_ids" widget="many2many_binary" string="Upload Documentation Attachments"/>
+                            </group>
+                        </page>
+                        <page string="Stock moves" name="moves_tab" invisible="not move_ids"
+                              groups="kdvn_procurement_procedures.group_safety_tool_admin,kdvn_e_approval.group_e_approval_admin,kdvn_e_approval.group_e_approval_global_auditor">
+                            <field name="move_ids">
+                                <list>
+                                    <field name="date"/>
+                                    <field name="item_id"/>
+                                    <field name="size_id"/>
+                                    <field name="qty_in"/>
+                                    <field name="qty_out"/>
+                                    <field name="source"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <field name="review_ids" widget="tier_validation" invisible="not review_ids"/>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_safety_tool_request_search" model="ir.ui.view">
+        <field name="name">safety.tool.request.search</field>
+        <field name="model">safety.tool.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="employee_id" string="Applicant"/>
+                <field name="job_id"/>
+                <filter string="To Approve" name="filter_to_approve" domain="[('can_review', '=', True), ('state', '=', 'submitted')]"/>
+                <filter string="My Approval History" name="filter_my_history" domain="[('reviewer_ids', 'in', uid), ('state', 'in', ['approved', 'rejected'])]"/>
+                <separator/>
+                <filter string="To issue" name="filter_to_issue" domain="[('fulfilment_state', '=', 'to_issue')]"/>
+                <filter string="To purchase" name="filter_to_purchase" domain="[('fulfilment_state', 'in', ['to_purchase', 'ordered'])]"/>
+                <filter string="Waiting for the applicant" name="filter_waiting_receipt" domain="[('fulfilment_state', '=', 'issued')]"/>
+                <filter string="Not received" name="filter_not_received" domain="[('fulfilment_state', '=', 'not_received')]"/>
+                <group>
+                    <filter string="Status / State" name="group_by_state" context="{'group_by': 'state'}"/>
+                    <filter string="Fulfilment" name="group_by_fulfilment" context="{'group_by': 'fulfilment_state'}"/>
+                    <filter string="Type" name="group_by_type" context="{'group_by': 'request_type'}"/>
+                    <filter string="Applicant" name="group_by_applicant" context="{'group_by': 'create_uid'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>

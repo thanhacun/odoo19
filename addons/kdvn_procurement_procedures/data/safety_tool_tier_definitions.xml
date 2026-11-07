@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Predefined approval steps of the Safety Tool Request.
+         noupdate: edits made in E-Approval > Configuration > Approval Rules survive upgrades.
+         Order: the HIGHEST sequence is the first step (request_validation walks sequence desc).
+         SM / GM follow the applicant's section (hr.employee parent_id / gm_id). A step is skipped when
+         the applicant is a GM or when nobody can be found (a step without reviewer would block). -->
+    <data noupdate="1">
+        <record id="tier_safety_tool_sm" model="tier.definition">
+            <field name="name">[ST] SM</field>
+            <field name="model_id" ref="model_safety_tool_request"/>
+            <field name="procedure_tag">safety.tool.request</field>
+            <field name="frontend_name">SM Approval</field>
+            <field name="sequence">30</field>
+            <field name="review_type">expression</field>
+            <field name="reviewer_expression"># Available locals:
+#  - rec: current record
+#  - Expects a recordset of res.users
+rec.employee_id.parent_id.user_id</field>
+            <field name="definition_type">domain</field>
+            <field name="definition_domain">[["is_gm","=",False],["employee_id.parent_id.user_id","!=",False]]</field>
+            <field name="approve_sequence" eval="True"/>
+            <field name="has_comment" eval="False"/>
+            <field name="notify_on_create" eval="False"/>
+        </record>
+        <record id="tier_safety_tool_gm" model="tier.definition">
+            <field name="name">[ST] GM</field>
+            <field name="model_id" ref="model_safety_tool_request"/>
+            <field name="procedure_tag">safety.tool.request</field>
+            <field name="frontend_name">GM Approval</field>
+            <field name="sequence">20</field>
+            <field name="review_type">expression</field>
+            <field name="reviewer_expression"># Available locals:
+#  - rec: current record
+#  - Expects a recordset of res.users
+rec.employee_id.gm_id.user_id</field>
+            <field name="definition_type">domain</field>
+            <field name="definition_domain">[["is_gm","=",False],["employee_id.gm_id.user_id","!=",False]]</field>
+            <field name="approve_sequence" eval="True"/>
+            <field name="has_comment" eval="False"/>
+            <field name="notify_on_create" eval="False"/>
+        </record>
+        <record id="tier_safety_tool_safety_manager" model="tier.definition">
+            <field name="name">[ST] Safety Manager</field>
+            <field name="model_id" ref="model_safety_tool_request"/>
+            <field name="procedure_tag">safety.tool.request</field>
+            <field name="frontend_name">Safety Manager</field>
+            <field name="sequence">10</field>
+            <field name="review_type">group</field>
+            <field name="reviewer_group_id" ref="group_safety_tool_manager"/>
+            <field name="definition_type">domain</field>
+            <field name="definition_domain">[]</field>
+            <field name="approve_sequence" eval="True"/>
+            <field name="has_comment" eval="False"/>
+            <field name="notify_on_create" eval="False"/>
+        </record>
+    </data>
+</odoo>

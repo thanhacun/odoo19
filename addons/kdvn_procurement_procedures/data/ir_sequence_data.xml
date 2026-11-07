@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- code = the model _name (the mixin takes the number from it) -->
+        <record id="seq_safety_tool_request" model="ir.sequence">
+            <field name="name">Safety Tool Request Sequence</field>
+            <field name="code">safety.tool.request</field>
+            <field name="prefix">SFT-%(year)s-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <!-- numbers of the history imported from the Excel control sheet (kept apart from real requests) -->
+        <record id="seq_safety_tool_request_import" model="ir.sequence">
+            <field name="name">Safety Tool Request (imported history)</field>
+            <field name="code">safety.tool.request.import</field>
+            <field name="prefix">SFT-IMP-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

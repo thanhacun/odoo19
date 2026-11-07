@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="safety_tool_request_report_py3o" model="ir.actions.report">
+            <field name="name">Approved Safety Tool Request</field>
+            <field name="type">ir.actions.report</field>
+            <field name="model">safety.tool.request</field>
+            <field name="report_name">py3o_report_safety_tool_request</field>
+            <field name="report_type">py3o</field>
+            <field name="py3o_filetype">pdf</field>
+            <field name="py3o_multi_in_one">1</field>
+            <field name="module">kderp_procurement_procedures</field>
+            <field name="py3o_template_fallback">reports/safety_tool_request.odt</field>
+            <field name="binding_type">report</field>
+        </record>
+    </data>
+</odoo>

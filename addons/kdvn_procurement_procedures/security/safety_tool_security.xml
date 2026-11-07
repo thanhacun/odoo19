@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- ===== Requests ===== -->
+        <record id="rule_safety_tool_request_own" model="ir.rule">
+            <field name="name">Safety Tool Request: own requests</field>
+            <field name="model_id" ref="model_safety_tool_request"/>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="domain_force">['|', ('create_uid', '=', user.id), ('employee_id.user_id', '=', user.id)]</field>
+        </record>
+        <record id="rule_safety_tool_request_reviewer" model="ir.rule">
+            <field name="name">Safety Tool Request: requests I review</field>
+            <field name="model_id" ref="model_safety_tool_request"/>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="domain_force">[('review_ids', 'in', user.review_ids.ids)]</field>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_safety_tool_request_auditor" model="ir.rule">
+            <field name="name">Safety Tool Request: auditor reads all</field>
+            <field name="model_id" ref="model_safety_tool_request"/>
+            <field name="groups" eval="[(4, ref('kdvn_e_approval.group_e_approval_global_auditor'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_safety_tool_request_admin" model="ir.rule">
+            <field name="name">Safety Tool Request: admin staff see and edit all</field>
+            <field name="model_id" ref="model_safety_tool_request"/>
+            <field name="groups" eval="[(4, ref('group_safety_tool_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- ===== Lines follow their request ===== -->
+        <record id="rule_safety_tool_line_own" model="ir.rule">
+            <field name="name">Safety Tool Line: own requests</field>
+            <field name="model_id" ref="model_safety_tool_request_line"/>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="domain_force">['|', ('request_id.create_uid', '=', user.id), ('request_id.employee_id.user_id', '=', user.id)]</field>
+        </record>
+        <record id="rule_safety_tool_line_reviewer" model="ir.rule">
+            <field name="name">Safety Tool Line: requests I review</field>
+            <field name="model_id" ref="model_safety_tool_request_line"/>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="domain_force">[('request_id.review_ids', 'in', user.review_ids.ids)]</field>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_safety_tool_line_auditor" model="ir.rule">
+            <field name="name">Safety Tool Line: auditor reads all</field>
+            <field name="model_id" ref="model_safety_tool_request_line"/>
+            <field name="groups" eval="[(4, ref('kdvn_e_approval.group_e_approval_global_auditor'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_safety_tool_line_admin" model="ir.rule">
+            <field name="name">Safety Tool Line: admin staff see all</field>
+            <field name="model_id" ref="model_safety_tool_request_line"/>
+            <field name="groups" eval="[(4, ref('group_safety_tool_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        <record id="rule_safety_tool_request_eadmin" model="ir.rule">
+            <field name="name">Safety Tool Request: E-Approval admin sees and edits all</field>
+            <field name="model_id" ref="model_safety_tool_request"/>
+            <field name="groups" eval="[(4, ref('kdvn_e_approval.group_e_approval_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_safety_tool_line_eadmin" model="ir.rule">
+            <field name="name">Safety Tool Line: E-Approval admin sees all</field>
+            <field name="model_id" ref="model_safety_tool_request_line"/>
+            <field name="groups" eval="[(4, ref('kdvn_e_approval.group_e_approval_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+    </data>
+</odoo>
