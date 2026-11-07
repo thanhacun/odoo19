@@ -141,7 +141,8 @@ class Shooter:
                 body = response.json()
                 if isinstance(body, dict) and body.get('error'):
                     data = body['error'].get('data') or {}
-                    self.error('RPC error %s: %s' % (url.split('/call_kw/')[-1][:80], (data.get('message') or body['error'].get('message') or '')[:200]))
+                    sent = (response.request.post_data or '')[:3500].replace('\n', ' ')
+                    self.error('RPC error %s: %s | request: %s' % (url.split('/call_kw/')[-1][:80], (data.get('message') or body['error'].get('message') or '')[:200].replace('\n', ' '), sent))
         except Exception:
             pass
 
