@@ -288,6 +288,9 @@ class KderpHrAttendance(models.Model):
             if at.at_date:
                 at.at_day = calendar.day_abbr[at.at_date.weekday()]
                 at.at_day_str = at.at_date.strftime('%a %d/%m/%Y')
+            else:
+                at.at_day = False  # Odoo 19: every field must be assigned
+                at.at_day_str = False
 
     @api.depends('employee_id', 'at_month', 'at_year')
     def _compute_summary_id(self):

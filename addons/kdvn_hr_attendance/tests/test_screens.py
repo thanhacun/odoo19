@@ -31,3 +31,31 @@ class TestScreens(common.TransactionCase):
                 self.assertTrue(menu.exists())
                 if menu.action:
                     self.assertTrue(menu.action.exists())
+
+
+@tagged('post_install', '-at_install', 'at_screens')
+class TestEmptyRecords(common.TransactionCase):
+    """Opening a form creates an empty virtual record and reads its computed fields (onchange). Odoo 12 let a compute method
+    skip a field; Odoo 19 raises "Compute method failed to assign". Every model of the module is tried with an empty record."""
+
+    def test_computed_fields_of_an_empty_record(self):
+        admin = self.env.ref('base.user_admin')
+        names = self.env['ir.model.data'].search([('module', '=', 'kdvn_hr_attendance'), ('model', '=', 'ir.model')]).mapped('res_id')
+        models = self.env['ir.model'].browse(names).mapped('model')
+        self.assertTrue(models)
+        for name in models:
+            if name not in self.env or self.env[name]._abstract:
+                continue
+            Model = self.env[name].with_user(admin)
+            record = Model.new({})
+            for fname, field in Model._fields.items():
+                if not field.compute:
+                    continue
+                with self.subTest(model=name, field=fname):
+                    try:
+                        record[fname]
+                    except ValueError as e:
+                        if 'failed to assign' in str(e):
+                            self.fail('%s.%s: %s' % (name, fname, e))
+                    except Exception:
+                        pass  # other errors come from reading an empty record (no employee, no date): not the Odoo 19 issue

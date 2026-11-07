@@ -996,6 +996,8 @@ class KderpAttendanceAdminControl(models.TransientModel):
         for r in self:
             if r.at_date:
                 r.at_year, r.at_month = AT.get_at_year_month(r.at_date)
+            else:
+                r.at_year = r.at_month = 0  # Odoo 19: a compute method must assign every field on every record
 
     @api.depends('at_date')
     def _compute_archive_message(self):
@@ -2087,7 +2089,8 @@ class KderpHrAttendanceOTHolidayManager(models.TransientModel):
 
     # override this method in hr.mixin to avoid conflict (hr.mixin need employee_id as a field)
     def _compute_buttons_visible(self):
-        return False
+        for r in self:  # Odoo 19: every field must be assigned
+            r.update({'next_button_visible': False, 'refuse_button_visible': False, 'revise_button_visible': False, 'need_director_button_visible': False})
     
     @api.model
     def default_get(self, fields_list):

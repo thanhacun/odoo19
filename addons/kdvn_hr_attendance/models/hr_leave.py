@@ -284,6 +284,10 @@ class KderpHolidayRequestCover(models.Model):
                 # ! NOTE: review
                 # r.number_of_days = sum(r.leave_request_ids.filtered(lambda h: not h.holiday_status_id.is_ah or h.substitute_for_date).mapped('number_of_days'))
                 r.number_of_days = sum(r.leave_request_ids.mapped('number_of_days'))
+            else:  # Odoo 19: every field must be assigned
+                r.date_from = r.date_to = r.dt_from = r.dt_to = False
+                r.date_from_period = r.date_to_period = False
+                r.number_of_days = 0
 
     def _search_for_zero_duration(self, operator, value):
         if operator == '=' and value == 0:
@@ -1706,6 +1710,7 @@ class KderpHolidaysType(models.Model):
             is datetime instead of date type
             - Ability to compute allocation based on a specific date using context valid_allocation_date
         """
+        super()._compute_valid()  # Odoo 19 core computes has_valid_allocation here; our override replaced it
         if self.env.context.get('valid_allocation_date', None):
             dt = self.env.context.get('valid_allocation_date')
         else:
