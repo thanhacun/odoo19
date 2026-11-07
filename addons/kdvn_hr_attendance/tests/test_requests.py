@@ -241,3 +241,38 @@ class TestOTHolidayPlan(ATCase):
         with self.assertRaises(UserError):
             line.write({'state': 'refuse'})
         self.assertTrue(request.exists())
+
+
+@tagged('post_install', '-at_install', 'at_names')
+class TestDisplayNames(ATCase):
+    """Odoo 19 computes display_name (no name_get): the monthly working time report and the lists read it."""
+
+    def test_request_display_name_is_its_description(self):
+        emp = self.new_employee()
+        self.new_rule(emp)
+        at = self.new_at(emp, WED, None, (17, 0))
+        req = self.new_wt(at, 'forget_in', (8, 0), None, state='waiting_fman')
+        self.assertTrue(req.description)
+        self.assertEqual(req.display_name, req.description)
+        self.assertTrue(req.display_name.startswith('W: zz wt'))      # 'W: <reason> [times]' as in Odoo 12
+
+    def test_attendance_display_name_has_employee_and_date(self):
+        emp = self.new_employee()
+        self.new_rule(emp)
+        at = self.new_at(emp, WED, (8, 0), (17, 0))
+        self.assertIn(emp.name, at.display_name)
+        self.assertIn('11/03/2026', at.display_name)
+        self.assertIn('08:00', at.display_name)
+
+    def test_ot_plan_display_name(self):
+        emp = self.new_employee()
+        self.new_rule(emp)
+        self.env['hr.attendance.ot.holiday'].generate_monthly_record(emp, at_year='2026', at_month=3)
+        plan = self.env['hr.attendance.ot.holiday'].search([('employee_id', '=', emp.id)])
+        self.assertEqual(plan.display_name, '%s - OT Holiday Plan - 3/2026' % emp.code)
+
+    def test_leave_cover_display_name(self):
+        emp = self.new_employee()
+        self.new_rule(emp)
+        cover = self.new_leave(emp, WED, 'full', 'waiting_fman')
+        self.assertIn('Leave on 11-03-2026', cover.display_name)

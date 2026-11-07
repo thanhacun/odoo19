@@ -218,7 +218,7 @@ class KderpHrAttendance(models.Model):
     #     for at in all_ats:
     #         at.department_id = at.employee_id.admin_dept_id.id
 
-    def name_get(self):
+    def _legacy_name_get(self):
         result = []
         for at in self:
             if at.compute_in and at.compute_out:
@@ -245,6 +245,14 @@ class KderpHrAttendance(models.Model):
 
             result.append((at.id, display_name))
         return result
+
+
+    @api.depends('employee_id', 'compute_in', 'compute_out', 'at_date')
+    def _compute_display_name(self):
+        """Odoo 19 has no name_get(): display_name is computed. The Odoo 12 body is kept as _legacy_name_get (same strings)."""
+        names = dict(self._legacy_name_get())
+        for rec in self:
+            rec.display_name = names.get(rec.id) or ''
 
     # Customize restrictions
     # @api.multi
@@ -1119,7 +1127,7 @@ class KderpHrAttendance(models.Model):
 
                 for r in at.at_request_ids:
                     # request_des = '- ' + r.name_get()[0][1]
-                    request_des = r.name_get()[0][1]
+                    request_des = r.display_name
                     if r.state != at.state and states.index(r.state) < at_state_index and at.state != 'refuse':
                         raw_description.append(request_des)
                         description.append('<span class="text-danger font-weight-bold">' + request_des + '</span>')
@@ -2457,7 +2465,7 @@ class KderpHrAttendance(models.Model):
             value = at_rules.get(key, None)
             desc = rule_desc.get(key, ['', ''])
             rules.append((key, label or key, value, desc[0], desc[1]))
-        values = {'rules': rules, 'employee_name': self.employee_id.name_get()[0][1]}
+        values = {'rules': rules, 'employee_name': self.employee_id.display_name}
         html = self.env['ir.qweb']._render(at_view.id, values)
         self.at_rules = html
 
@@ -2935,6 +2943,8 @@ class KderpHrAttendance(models.Model):
         - Override to remove constrain of maximum 1 "open" attendance
         - Change to validate check_in, check_out should be on the same day
         """
+        if self.env.context.get('kdvn_skip_checkin_check'):
+            return   # data import: Odoo 12 already validated the row; the early-in request that moves the day start is imported later
         # hours difference from utc time
         for at in self:
             if at.check_in and at.check_out:

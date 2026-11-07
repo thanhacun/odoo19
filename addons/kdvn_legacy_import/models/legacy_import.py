@@ -176,6 +176,7 @@ class KdvnLegacyImport(models.AbstractModel):
             ('departments', self._step_departments),
             ('users', self._step_users),
             ('employees', self._step_employees),
+            ('employee_categories', self._step_employee_categories),
             ('employee_links', self._step_employee_links),
             ('histories', self._step_histories),
             ('organisation', self._step_organisation),
@@ -359,6 +360,23 @@ class KdvnLegacyImport(models.AbstractModel):
                     'hr.employee.project.history', 'hr_employee_project_history', row['id'],
                     {'employee_id': employee.id, 'project_name': row['project_name'], 'project_description': row['project_description'],
                      'effective_date': row['effective_date']}))
+
+    def _step_employee_categories(self):
+        """Staff tags (G8, Top Manager, House Maid, Driver...). Not decoration: the attendance rules read them (OT compensated by leave for G8)."""
+        for row in self._legacy_rows('hr_employee_category', ['id', 'name', 'color']):
+            self._safe('hr_employee_category', row['id'], row['name'], lambda row=row: self._upsert(
+                'hr.employee.category', 'hr_employee_category', row['id'], {'name': row['name'], 'color': row['color'] or 0},
+                natural=[('name', '=', row['name'])]))
+        tags = {}
+        for link in self._legacy_rows('employee_category_rel', ['emp_id', 'category_id']):
+            category = self._record('hr.employee.category', 'hr_employee_category', link['category_id'])
+            if category:
+                tags.setdefault(link['emp_id'], []).append(category.id)
+        for legacy_id, category_ids in tags.items():
+            employee = self._record('hr.employee', 'hr_employee', legacy_id)
+            if employee:
+                self._safe('hr_employee', legacy_id, 'categories', lambda employee=employee, category_ids=category_ids: employee.write({'category_ids': [(6, 0, category_ids)]}))
+                self._state['stats'][('employee_category_rel', 'employees tagged')] += 1
 
     def _step_organisation(self):
         """Second manager and pending new manager of the departments, then the manager-user chains once for everybody."""

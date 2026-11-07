@@ -15,9 +15,9 @@ def machine_line_values(env, months, include_inactive=False):
                       JOIN hr_attendance a ON a.check_in_location_id = l.id OR a.check_out_location_id = l.id
                       WHERE l.id IN %s GROUP BY l.id''', (tuple(usage) or (0,),))
     last_use = dict(env.cr.fetchall())
-    rows = sorted(machines, key=lambda m: (m.ignore_location, not m.setup_missing, m.name_get()[0][1].lower(), m.name))
+    rows = sorted(machines, key=lambda m: (m.ignore_location, not m.setup_missing, m.display_name.lower(), m.name))
     return [(0, 0, {'machine_id': m.id, 'machine_name': m.name, 'terminal_id': m.terminal_id or '',
-                    'display_name_now': m.name_get()[0][1], 'show_name': m.show_name or '',
+                    'display_name_now': m.display_name, 'show_name': m.show_name or '',
                     'original_show_name': m.show_name or '', 'area_id': m.area_id.id,
                     'original_area_id': m.area_id.id, 'usage': usage[m.id],
                     'last_use': last_use.get(m.id), 'is_local': m.is_local, 'is_active': m.active,

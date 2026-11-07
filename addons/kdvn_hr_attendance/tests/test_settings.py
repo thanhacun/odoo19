@@ -53,7 +53,7 @@ class TestSettings(ATCase):
         emp = self.new_employee(joining_date=datetime.date(2020, 1, 1))
         at = self.new_at(emp, datetime.date(2026, 3, 2), (8, 0), (17, 0))
         self.assertEqual(at.summary_id.id, summary_key(emp.id, at.at_year, at.at_month))
-        self.assertIn('ZZ Test', at.summary_id.name_get()[0][1])
+        self.assertIn('ZZ Test', at.summary_id.display_name)
 
 
 @tagged('post_install', '-at_install', 'at_gm_limits')

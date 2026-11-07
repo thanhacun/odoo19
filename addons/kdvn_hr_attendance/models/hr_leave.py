@@ -85,7 +85,7 @@ class KderpHolidayRequestCover(models.Model):
 	#   JOIN hr_attendance_res_users_rel vu ON lc.hr_attendance_id = vu.hr_attendance_id
     view_user_ids = fields.Many2many('res.users', string="View users", readonly=True)  # data will update in CRUD method
 
-    def name_get(self):
+    def _legacy_name_get(self):
         res = []
         for cover in self:
             display_name = cover.employee_id.name
@@ -111,6 +111,14 @@ class KderpHolidayRequestCover(models.Model):
                     display_name += _(' (for {})'.format(cover.reason_id.name))
             res.append((cover.id, display_name))
         return res
+
+
+    @api.depends('employee_id', 'date_from', 'date_to', 'date_from_period', 'date_to_period', 'reason_id', 'leave_request_ids', 'leave_request_ids.substitute_for_date')
+    def _compute_display_name(self):
+        """Odoo 19 has no name_get(): display_name is computed. The Odoo 12 body is kept as _legacy_name_get (same strings)."""
+        names = dict(self._legacy_name_get())
+        for rec in self:
+            rec.display_name = names.get(rec.id) or ''
 
     @api.model
     def create_cover(self, reason_id, holiday_status_id, fr_date, fr_date_pm=False, to_date=None, to_date_am=False, employee_id=None, sub_hol_id=False, sub_period=None):
@@ -851,6 +859,14 @@ class KderpHolidaysRequest(models.Model):
     _inherit = ['hr.leave', 'hr.mixin']
     _order = 'sequence, id'
 
+
+    def _check_validity(self):
+        """Odoo 12 let leaves (notably AH, made by the system) go beyond the allocation; Odoo 19 core refuses it. The data import copies
+        leaves that Odoo 12 already accepted, so it skips this one check (context set by kdvn_legacy_import only)."""
+        if self.env.context.get('kdvn_legacy_import'):
+            return
+        return super()._check_validity()
+
     leave_cover_id = fields.Many2one('hr.leave.cover', ondelete='cascade')
     # Description
     name = fields.Text(related='leave_cover_id.name', readonly=True)
@@ -1576,7 +1592,7 @@ class KderpHolidaysType(models.Model):
         
         return employee_id
 
-    def name_get(self):
+    def _legacy_name_get(self):
         """
             - Override
         """
@@ -1584,7 +1600,7 @@ class KderpHolidaysType(models.Model):
         no_filter_leave_type = self.env.context.get('no_filter_leave_type', False)
         if not employee_id :
             # leave counts is based on employee_id, would be inaccurate if not based on correct employee
-            return super().name_get()
+            return []
         res = []
         for record in self:
             name = record.name
@@ -1602,6 +1618,16 @@ class KderpHolidaysType(models.Model):
                 }
             res.append((record.id, name))
         return res
+
+    @api.depends('name', 'category', 'allocation_type', 'request_unit')
+    @api.depends_context('employee_id', 'default_employee_id', 'at_id', 'no_filter_leave_type', 'uid')
+    def _compute_display_name(self):
+        """Odoo 19: display_name is computed. With an employee in the context the name carries the remaining days (Odoo 12 name_get)."""
+        if not self._get_contextual_employee_id():
+            return super()._compute_display_name()
+        names = dict(self._legacy_name_get())
+        for rec in self:
+            rec.display_name = names.get(rec.id) or rec.name
 
     @api.model
     def _search(self, domain, offset=0, limit=None, order=None, **kwargs):
@@ -2557,16 +2583,16 @@ class KderpHolidaysAllocation(models.Model):
                 a.valid_to = False
     
     # ORM
-    def name_get(self):
+    def _legacy_name_get(self):
         # override
         res = []
         for allocation in self:
             if allocation.holiday_type == 'company':
-                target = allocation.mode_company_id.name
+                target = allocation.employee_company_id.name   # Odoo 19: no mode_company_id
             elif allocation.holiday_type == 'department':
                 target = allocation.department_id.name
             elif allocation.holiday_type == 'category':
-                target = allocation.category_id.name
+                target = ''   # Odoo 19 allocation has no category target
             else:
                 target = allocation.employee_id.sudo().name
 
@@ -2580,6 +2606,14 @@ class KderpHolidaysAllocation(models.Model):
             )
         return res
     
+
+    @api.depends('name', 'holiday_type', 'employee_company_id', 'department_id', 'employee_id', 'number_of_days')
+    def _compute_display_name(self):
+        """Odoo 19 has no name_get(): display_name is computed. The Odoo 12 body is kept as _legacy_name_get (same strings)."""
+        names = dict(self._legacy_name_get())
+        for rec in self:
+            rec.display_name = names.get(rec.id) or ''
+
     @api.onchange('employee_id')
     def _onchange_employee_update_holiday_type(self):
         # Return domain like this just to trigger name_get method

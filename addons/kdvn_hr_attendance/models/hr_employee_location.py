@@ -110,7 +110,7 @@ class KderpHrEmployeeLocationFromAttendance(models.Model):
                 stats['by_location'][label] = stats['by_location'].get(label, 0) + 1
                 machine = Machine.browse(machine_id)
                 info = stats['by_machine'].setdefault(machine_id, {
-                    'name': machine.name, 'show': machine.name_get()[0][1], 'has_area': bool(machine.area_id),
+                    'name': machine.name, 'show': machine.display_name, 'has_area': bool(machine.area_id),
                     'lines': 0, 'prefixed': 0, 'areas': Counter(), 'example': label})
                 info['lines'] += 1
                 info['areas'][employee.admin_dept_id.area_id.name or ''] += 1
