@@ -56,16 +56,16 @@
                 <field name="out_by_reg" invisible="request_type != 'over_time'" readonly="1"/>
                 <field name="include_absence_hour" invisible="request_type != 'over_time'" readonly="1"/>
                 <field name="state"/>
-                <button name="action_submit" string="Approve" icon="fa-paper-plane" type="object" invisible="next_button_visible != 'submit'"/>
-                <button name="action_approve" string="Approve" icon="fa-arrow-right text-success" type="object" invisible="next_button_visible != 'approve'"/>
-                <button name="action_validate" string="Validate" icon="fa-check text-success" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="next_button_visible != 'validate'"/>
-                <button name="action_need_director" string="Need director" icon="fa-user-plus text-danger" type="object" invisible="not need_director_button_visible"/>
-                <button name="action_approve_man2" string="GM Approve" icon="fa-check text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_gm" invisible="next_button_visible != 'approve2'"/>
-                <button name="action_revise" string="Revise" icon="fa-pencil text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff,hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_section_manager" invisible="not revise_button_visible"/>
-                <button name="action_refuse" string="Refuse" type="object" icon="fa-hand-stop-o text-danger" invisible="not refuse_button_visible"/>
-                <button name="action_open_ot_request" string="Open Detail" type="object" icon="fa-desktop text-success" invisible="request_type == 'working_time'"/>
-                <button name="action_open_wt_request" string="Open Detail" type="object" icon="fa-clock-o text-success" invisible="request_type == 'over_time'"/>
-                <button name="action_unlink" string="Delete" type="object" icon="fa-trash text-danger" confirm="Are you sure to delete this request?" invisible="next_button_visible not in ['submit', 'delete']"/>
+                <button name="action_submit" title="Approve" icon="fa-paper-plane" type="object" invisible="next_button_visible != 'submit'"/>
+                <button name="action_approve" title="Approve" icon="fa-arrow-right text-success" type="object" invisible="next_button_visible != 'approve'"/>
+                <button name="action_validate" title="Validate" icon="fa-check text-success" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="next_button_visible != 'validate'"/>
+                <button name="action_need_director" title="Need director" icon="fa-user-plus text-danger" type="object" invisible="not need_director_button_visible"/>
+                <button name="action_approve_man2" title="GM Approve" icon="fa-check text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_gm" invisible="next_button_visible != 'approve2'"/>
+                <button name="action_revise" title="Revise" icon="fa-pencil text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff,hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_section_manager" invisible="not revise_button_visible"/>
+                <button name="action_refuse" title="Refuse" type="object" icon="fa-hand-stop-o text-danger" invisible="not refuse_button_visible"/>
+                <button name="action_open_ot_request" title="Open Detail" type="object" icon="fa-desktop text-success" invisible="request_type == 'working_time'"/>
+                <button name="action_open_wt_request" title="Open Detail" type="object" icon="fa-clock-o text-success" invisible="request_type == 'over_time'"/>
+                <button name="action_unlink" title="Delete" type="object" icon="fa-trash text-danger" confirm="Are you sure to delete this request?" invisible="next_button_visible not in ['submit', 'delete']"/>
                 <field name="next_button_visible" column_invisible="1"/>
                 <field name="refuse_button_visible" column_invisible="1"/>
                 <field name="need_director_button_visible" column_invisible="1"/>

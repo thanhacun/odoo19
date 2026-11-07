@@ -6,7 +6,7 @@ Odoo 19 version of the Odoo 12 module kderp_hr_attendance (12.0.1.0.11), ported 
 Stage A1: company attendance policy, groups, attendance rules, public holidays, AT calendar helpers.
 The computation code is ported literally: payroll depends on its results. See docs/porting_from_odoo12.md.
 """,
-    'version': '19.0.0.4.0',
+    'version': '19.0.0.5.0',
     'category': 'Human Resources/Attendances',
     'author': 'Kinden Vietnam',
     'license': 'LGPL-3',
@@ -33,6 +33,12 @@ The computation code is ported literally: payroll depends on its results. See do
         'views/res_config_settings_views.xml',
         'data/mail_templates.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'kdvn_hr_attendance/static/src/fields/time_only_field.js',
+            'kdvn_hr_attendance/static/src/fields/time_only_field.xml',
+        ],
+    },
     'installable': True,
     'application': False,
 }

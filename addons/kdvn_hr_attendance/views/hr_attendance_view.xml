@@ -9,7 +9,7 @@
         <field name="priority">1</field>
         <field name="arch" type="xml">
             <list string="Attendances" edit="false" create="false" decoration-danger="state in ['refuse']" decoration-muted="state=='done'"><field name="employee_id" column_invisible="context.get('attendance_single_mode')"/>
-                <field name="at_day_str" string="Date" decoration-danger="wd_block_no==0"/>
+                <field name="at_day_str" string="Date" width="125px" decoration-danger="wd_block_no==0"/>
                 <field name="wd_block_no" column_invisible="1"/>
                 <field name="at_date" string="Date" column_invisible="1"/>
                 <field name="code" column_invisible="1"/>
@@ -17,8 +17,8 @@
                 <field name="is_public_holiday" column_invisible="1"/>
                 <field name="is_other_holiday" column_invisible="1"/>
                 <field name="single_mode" column_invisible="1"/>
-            <field name="check_in" column_invisible="1"/><field name="check_out" column_invisible="1"/><field name="compute_in" string="IN" decoration-danger="late_in == True"/>
-                <field name="compute_out" string="OUT" decoration-danger="early_out == True"/>
+            <field name="check_in" column_invisible="1"/><field name="check_out" column_invisible="1"/><field name="compute_in" widget="kdvn_time_only" string="IN" decoration-danger="late_in == True"/>
+                <field name="compute_out" widget="kdvn_time_only" string="OUT" decoration-danger="early_out == True"/>
                 <field name="status_ids" widget="many2many_tags" options="{'color_field': 'color', 'create_edit': True}" string="AT marks"/>
                 <field name="request_description" widget="html"/>
                 <!-- <field name="ot_am" attrs="{'invisible': ['|', ('ot_am', '=', False), ('ot_am', '=', 0)]}" groups="hr_attendance.group_hr_attendance_user" /> -->
@@ -29,23 +29,23 @@
                 <field name="ot_hd" string="HD OT" column_invisible="1"/>
                 <field name="ot_total" string="Total OT" invisible="ot_total == 0"/>
                 <field name="ot_warning" invisible="not ot_warning" decoration-danger="ot_warning"/>
-                <button name="action_ot_request" type="object" icon="fa-desktop text-success" string="Overtime Request" invisible="not can_request_ot"/>
-                <button name="action_wt_request" type="object" icon="fa-clock-o text-success" string="Working time Request" invisible="not can_request_wt"/>
-                <button name="action_leave_request" type="object" icon="fa-bed text-success" string="Leave Request" context="{'at_date': at_date}" invisible="not can_request_leave"/>
+                <button name="action_ot_request" type="object" icon="fa-desktop text-success" title="Overtime Request" invisible="not can_request_ot"/>
+                <button name="action_wt_request" type="object" icon="fa-clock-o text-success" title="Working time Request" invisible="not can_request_wt"/>
+                <button name="action_leave_request" type="object" icon="fa-bed text-success" title="Leave Request" context="{'at_date': at_date}" invisible="not can_request_leave"/>
                 <field name="check_in_location_id" string="IN location"/>
                 <field name="check_out_location_id" string="OUT location"/>
                 <field name="area_id"/>
                 <field name="check_in_manual" string="Request IN" column_invisible="1"/>
                 <field name="check_out_manual" string="Request OUT" column_invisible="1"/>
                 <field name="state" string="State"/>
-                <button name="action_submit" string="Submit" icon="fa-paper-plane" type="object" invisible="((next_button_visible != 'submit' or not request_description) or request_description == '')"/>
-                <button name="action_approve" string="Approve" icon="fa-arrow-right text-success" type="object" invisible="next_button_visible != 'approve'"/>
-                <button name="action_validate" string="Validate" icon="fa-check text-success" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="next_button_visible != 'validate'"/>
-                <button name="action_need_director" string="Need GM" icon="fa-user-plus text-danger" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="state != 'waiting_fhr'"/>
-                <button name="action_approve_man2" string="GM Approve" icon="fa-check text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_gm" invisible="next_button_visible != 'approve2'"/>
-                <button name="action_refuse" string="Refuse" type="object" icon="fa-hand-stop-o text-danger" invisible="not refuse_button_visible"/>
-                <button name="action_revise" string="Revise" icon="fa-pencil text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff,hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_section_manager" invisible="not revise_button_visible"/>
-                <!-- <button name="button_next_state" string="Next state"  
+                <button name="action_submit" title="Submit" icon="fa-paper-plane" type="object" invisible="((next_button_visible != 'submit' or not request_description) or request_description == '')"/>
+                <button name="action_approve" title="Approve" icon="fa-arrow-right text-success" type="object" invisible="next_button_visible != 'approve'"/>
+                <button name="action_validate" title="Validate" icon="fa-check text-success" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="next_button_visible != 'validate'"/>
+                <button name="action_need_director" title="Need GM" icon="fa-user-plus text-danger" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="state != 'waiting_fhr'"/>
+                <button name="action_approve_man2" title="GM Approve" icon="fa-check text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_gm" invisible="next_button_visible != 'approve2'"/>
+                <button name="action_refuse" title="Refuse" type="object" icon="fa-hand-stop-o text-danger" invisible="not refuse_button_visible"/>
+                <button name="action_revise" title="Revise" icon="fa-pencil text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff,hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_section_manager" invisible="not revise_button_visible"/>
+                <!-- <button name="button_next_state" title="Next state"  
                     icon="fa-arrow-right text-success" type="object" attrs="{'invisible': [('next_button_visible', '=', False)]}" /> -->
                 <field name="name" column_invisible="1"/> 
                 <field name="next_button_visible" column_invisible="1"/>
@@ -153,17 +153,17 @@
                                 <field name="sub_request_type_id" string="Detail" />
                                 <field name="name" string="Reason" />
                                 <field name="state" />
-                                <button name="action_submit" string="Submit" icon="fa-paper-plane" type="object" attrs="{'invisible': [('next_button_visible', '!=', 'submit')]}"/>
-                                <button name="action_approve" string="Approve" icon="fa-arrow-right text-success" type="object" attrs="{'invisible': [('next_button_visible', '!=', 'approve')]}"/>
-                                <button name="action_validate" string="Validate" icon="fa-check text-success" type="object" attrs="{'invisible': [('next_button_visible', '!=', 'validate')]}" 
+                                <button name="action_submit" title="Submit" icon="fa-paper-plane" type="object" attrs="{'invisible': [('next_button_visible', '!=', 'submit')]}"/>
+                                <button name="action_approve" title="Approve" icon="fa-arrow-right text-success" type="object" attrs="{'invisible': [('next_button_visible', '!=', 'approve')]}"/>
+                                <button name="action_validate" title="Validate" icon="fa-check text-success" type="object" attrs="{'invisible': [('next_button_visible', '!=', 'validate')]}" 
                                         groups="hr_attendance.group_hr_attendance_manager" />
-                                <button name="action_approve_man2" string="GM Approve" icon="fa-check text-success" type="object" attrs="{'invisible': [('next_button_visible', '!=', 'approve2')]}"
+                                <button name="action_approve_man2" title="GM Approve" icon="fa-check text-success" type="object" attrs="{'invisible': [('next_button_visible', '!=', 'approve2')]}"
                                         groups="hr_attendance.group_hr_attendance_manager" />
-                                <button name="action_need_director" string="Need GM" icon="fa-user-plus text-danger" type="object" attrs="{'invisible': [('state', '!=', 'waiting_fhr')]}"
+                                <button name="action_need_director" title="Need GM" icon="fa-user-plus text-danger" type="object" attrs="{'invisible': [('state', '!=', 'waiting_fhr')]}"
                                         groups="hr_attendance.group_hr_attendance_manager" />
-                                <button name="action_refuse" string="Refuse" type="object" 
+                                <button name="action_refuse" title="Refuse" type="object" 
                                     icon="fa-hand-stop-o text-danger" attrs="{'invisible': [('refuse_button_visible', '=', False)]}" />
-                                <button name="action_revise" string="Revise" icon="fa-pencil text-success" type="object" attrs="{'invisible': [('revise_button_visible', '=', False)]}" />
+                                <button name="action_revise" title="Revise" icon="fa-pencil text-success" type="object" attrs="{'invisible': [('revise_button_visible', '=', False)]}" />
                                 <field name="next_button_visible" invisible="1" />
                                 <field name="refuse_button_visible" invisible="1" />
                                 <field name="revise_button_visible" invisible="1" />
@@ -181,15 +181,15 @@
                                 <field name="number_of_days" string="Duration"/>
                                 <field name="state" string="State"/>
                                 
-                                <button name="action_submit" string="Submit" icon="fa-paper-plane" type="object" invisible="next_button_visible != 'submit'"/>
-                                <button name="action_approve" string="Approve" icon="fa-arrow-right text-success" type="object" invisible="next_button_visible != 'approve'"/>
-                                <button name="action_validate" string="Validate" icon="fa-check text-success" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="next_button_visible != 'validate'"/>
-                                <button name="action_need_director" string="Need GM" icon="fa-user-plus text-danger" type="object" groups="hr_attendance.group_hr_attendance_manager" invisible="state != 'waiting_fhr'"/>
-                                <button name="action_approve_man2" string="GM Approve" icon="fa-check text-success" type="object" groups="hr_attendance.group_hr_attendance_manager" invisible="next_button_visible != 'approve2'"/>
-                                <button name="action_refuse" string="Refuse" type="object" icon="fa-hand-stop-o text-danger" invisible="not refuse_button_visible"/>
-                                <button name="action_revise" string="Revise" icon="fa-pencil text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff,hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_section_manager" invisible="not revise_button_visible"/>
-                                <button name="action_unlink" string="Delete" type="object" icon="fa-trash text-danger" confirm="Are you sure to delete this request?" invisible="next_button_visible not in ['submit', 'delete']"/>
-                                <button name="action_sync_status" string="Sync Status" icon="fa-refresh text-danger" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="status_sync"/>
+                                <button name="action_submit" title="Submit" icon="fa-paper-plane" type="object" invisible="next_button_visible != 'submit'"/>
+                                <button name="action_approve" title="Approve" icon="fa-arrow-right text-success" type="object" invisible="next_button_visible != 'approve'"/>
+                                <button name="action_validate" title="Validate" icon="fa-check text-success" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="next_button_visible != 'validate'"/>
+                                <button name="action_need_director" title="Need GM" icon="fa-user-plus text-danger" type="object" groups="hr_attendance.group_hr_attendance_manager" invisible="state != 'waiting_fhr'"/>
+                                <button name="action_approve_man2" title="GM Approve" icon="fa-check text-success" type="object" groups="hr_attendance.group_hr_attendance_manager" invisible="next_button_visible != 'approve2'"/>
+                                <button name="action_refuse" title="Refuse" type="object" icon="fa-hand-stop-o text-danger" invisible="not refuse_button_visible"/>
+                                <button name="action_revise" title="Revise" icon="fa-pencil text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff,hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_section_manager" invisible="not revise_button_visible"/>
+                                <button name="action_unlink" title="Delete" type="object" icon="fa-trash text-danger" confirm="Are you sure to delete this request?" invisible="next_button_visible not in ['submit', 'delete']"/>
+                                <button name="action_sync_status" title="Sync Status" icon="fa-refresh text-danger" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="status_sync"/>
                                 <field name="next_button_visible" column_invisible="1"/>
                                 <field name="refuse_button_visible" column_invisible="1"/>
                                 <field name="revise_button_visible" column_invisible="1"/>
@@ -437,18 +437,18 @@
                                 <field name="ph_st" string="PH ST" sum="total" invisible="ph_st == 0.0"/>
                                 <field name="check_in_location_id" string="IN location"/>
                                 <field name="check_out_location_id" string="OUT location"/>
-                                <button name="action_ot_request" type="object" icon="fa-desktop text-success" string="Overtime Request" invisible="not can_request_ot"/>
-                                <button name="action_wt_request" type="object" icon="fa-clock-o text-success" string="Working time Request" invisible="not can_request_wt"/>
-                                <button name="action_leave_request" type="object" icon="fa-bed text-success" string="Leave Request" context="{'at_date': at_date}" invisible="not can_request_leave"/>
+                                <button name="action_ot_request" type="object" icon="fa-desktop text-success" title="Overtime Request" invisible="not can_request_ot"/>
+                                <button name="action_wt_request" type="object" icon="fa-clock-o text-success" title="Working time Request" invisible="not can_request_wt"/>
+                                <button name="action_leave_request" type="object" icon="fa-bed text-success" title="Leave Request" context="{'at_date': at_date}" invisible="not can_request_leave"/>
                                 <field name="request_description" string="Description" widget="html"/>
                                 <field name="state"/>
-                                <button name="action_submit" string="Submit" icon="fa-paper-plane" type="object" invisible="((next_button_visible != 'submit' or not request_description) or request_description == '')"/>
-                                <button name="action_approve" string="Approve" icon="fa-arrow-right text-success" type="object" invisible="next_button_visible != 'approve'"/>
-                                <button name="action_validate" string="Validate" icon="fa-check text-success" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="next_button_visible != 'validate'"/>
-                                <button name="action_need_director" string="Need GM" icon="fa-user-plus text-danger" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="state != 'waiting_fhr'"/>
-                                <button name="action_approve_man2" string="GM Approve" icon="fa-check text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_gm" invisible="next_button_visible != 'approve2'"/>
-                                <button name="action_refuse" string="Refuse" type="object" icon="fa-hand-stop-o text-danger" invisible="not refuse_button_visible"/>
-                                <button name="action_revise" string="Revise" icon="fa-pencil text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff,hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_section_manager" invisible="not revise_button_visible"/>
+                                <button name="action_submit" title="Submit" icon="fa-paper-plane" type="object" invisible="((next_button_visible != 'submit' or not request_description) or request_description == '')"/>
+                                <button name="action_approve" title="Approve" icon="fa-arrow-right text-success" type="object" invisible="next_button_visible != 'approve'"/>
+                                <button name="action_validate" title="Validate" icon="fa-check text-success" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="next_button_visible != 'validate'"/>
+                                <button name="action_need_director" title="Need GM" icon="fa-user-plus text-danger" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="state != 'waiting_fhr'"/>
+                                <button name="action_approve_man2" title="GM Approve" icon="fa-check text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_gm" invisible="next_button_visible != 'approve2'"/>
+                                <button name="action_refuse" title="Refuse" type="object" icon="fa-hand-stop-o text-danger" invisible="not refuse_button_visible"/>
+                                <button name="action_revise" title="Revise" icon="fa-pencil text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff,hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_section_manager" invisible="not revise_button_visible"/>
                                 <field name="next_button_visible" column_invisible="1"/>
                                 <field name="refuse_button_visible" column_invisible="1"/>
                                 <field name="revise_button_visible" column_invisible="1"/>
@@ -600,8 +600,8 @@
                 <field name="data_status"/>
                 <field name="last_updated_dt" string="Last update"/>
                 <field name="name"/>
-                <button name="compute_data_status" type="object" icon="fa-refresh text-success" string="Refresh"/>
-                <button name="action_get_machine_data" string="Get Data" icon="fa-download text-danger" type="object"/>
+                <button name="compute_data_status" type="object" icon="fa-refresh text-success" title="Refresh"/>
+                <button name="action_get_machine_data" title="Get Data" icon="fa-download text-danger" type="object"/>
             </list>
         </field>
     </record>

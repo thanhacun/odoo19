@@ -15,14 +15,14 @@
                 <field name="date_to_period" string="Half"/>
                 <field name="number_of_days" string="Duration"/>
                 <field name="state" string="State"/>
-                <button name="action_submit" string="Submit" icon="fa-paper-plane" type="object" invisible="next_button_visible != 'submit'"/>
-                <button name="action_approve" string="Approve" icon="fa-arrow-right text-success" type="object" invisible="next_button_visible != 'approve'"/>
-                <button name="action_validate" string="Validate" icon="fa-check text-success" type="object" invisible="next_button_visible != 'validate'"/>
-                <button name="action_need_director" string="Need GM" icon="fa-user-plus text-danger" type="object" groups="hr_attendance.group_hr_attendance_manager" invisible="state != 'waiting_fhr'"/>
-                <button name="action_approve_man2" string="GM Approve" icon="fa-check text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_gm" invisible="next_button_visible != 'approve2'"/>
-                <button name="action_refuse" string="Refuse" type="object" icon="fa-hand-stop-o text-danger" invisible="not refuse_button_visible"/>
-                <button name="action_revise" string="Revise" icon="fa-pencil text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff,hr_attendance.group_hr_attendance_manager,kdvn_hr_attendance.group_hr_attendance_section_manager" invisible="not revise_button_visible"/>
-                <button name="action_sync_status" string="Sync Status" icon="fa-refresh text-danger" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="status_sync"/>
+                <button name="action_submit" title="Submit" icon="fa-paper-plane" type="object" invisible="next_button_visible != 'submit'"/>
+                <button name="action_approve" title="Approve" icon="fa-arrow-right text-success" type="object" invisible="next_button_visible != 'approve'"/>
+                <button name="action_validate" title="Validate" icon="fa-check text-success" type="object" invisible="next_button_visible != 'validate'"/>
+                <button name="action_need_director" title="Need GM" icon="fa-user-plus text-danger" type="object" groups="hr_attendance.group_hr_attendance_manager" invisible="state != 'waiting_fhr'"/>
+                <button name="action_approve_man2" title="GM Approve" icon="fa-check text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_gm" invisible="next_button_visible != 'approve2'"/>
+                <button name="action_refuse" title="Refuse" type="object" icon="fa-hand-stop-o text-danger" invisible="not refuse_button_visible"/>
+                <button name="action_revise" title="Revise" icon="fa-pencil text-success" type="object" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff,hr_attendance.group_hr_attendance_manager,kdvn_hr_attendance.group_hr_attendance_section_manager" invisible="not revise_button_visible"/>
+                <button name="action_sync_status" title="Sync Status" icon="fa-refresh text-danger" type="object" groups="hr_attendance.group_hr_attendance_user" invisible="status_sync"/>
                 
                 <field name="next_button_visible" column_invisible="1"/>
                 <field name="refuse_button_visible" column_invisible="1"/>

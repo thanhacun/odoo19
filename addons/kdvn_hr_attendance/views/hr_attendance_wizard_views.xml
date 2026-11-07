@@ -295,8 +295,8 @@
                 <field name="manager_id" options="{'open': False}"/>
                 <!-- <field name="state" /> -->
                 <field name="total_requests"/>
-                <button name="action_open_records" type="object" icon="fa-folder-open-o" string="Open records"/>
-                <button name="action_send_noti_email" type="object" icon="fa-envelope-o" string="Send email"/>
+                <button name="action_open_records" type="object" icon="fa-folder-open-o" title="Open records"/>
+                <button name="action_send_noti_email" type="object" icon="fa-envelope-o" title="Send email"/>
                 <field name="departments" column_invisible="1"/>
                 <field name="ats" column_invisible="1"/>
             </list>
@@ -549,8 +549,8 @@
                 <field name="manager_id" options="{'open': False}"/>
                 <!-- <field name="state" /> -->
                 <field name="total_requests"/>
-                <button name="action_open_records" type="object" icon="fa-folder-open-o" string="Open records"/>
-                <button name="action_send_noti_email" type="object" icon="fa-envelope-o" string="Send email"/>
+                <button name="action_open_records" type="object" icon="fa-folder-open-o" title="Open records"/>
+                <button name="action_send_noti_email" type="object" icon="fa-envelope-o" title="Send email"/>
                 <field name="departments" column_invisible="1"/>
                 <field name="othls" column_invisible="1"/>
             </list>
