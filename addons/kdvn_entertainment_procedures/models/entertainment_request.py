@@ -32,7 +32,9 @@ class EntertainmentRequest(models.Model):
     place = fields.Char(string='Place / Venue', required=True, readonly=True,)
     guests = fields.Text(string='Guests', placeholder="e.g., Mr. A (Director of ABC Corp), Ms. B...", readonly=True,)
     date_input = fields.Date(required=True, default=fields.Date.context_today, readonly=True,)
-    employee_ids = fields.Many2many('hr.employee', string='Attendees', required=True, readonly=True, 
+    # hr.employee.public (names only): plain staff cannot read hr.employee in Odoo 19. Same relation table and ids as hr.employee.
+    employee_ids = fields.Many2many('hr.employee.public', 'entertainment_request_hr_employee_rel', 'entertainment_request_id', 'hr_employee_id',
+                                    string='Attendees', required=True, readonly=True, 
                                     default=lambda self: self.env.user.employee_ids and [(6, 0, [self.env.user.employee_ids[0].id])] or False)
     guest_ids = fields.Many2many('kderp.customer.cache', string='Owner/Client', required=True, readonly=True,)
     
