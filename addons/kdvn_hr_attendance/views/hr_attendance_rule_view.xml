@@ -9,8 +9,8 @@
                 <field name="employee_ids"/>
                 <filter name="is_active_filter" string="Active Rules" domain="[('is_active', '=', True)]"/>
                 <filter name="draft_dated" string="Draft but already dated" help="Not applied (draft) although its start date is in the past: probably replaced or forgotten"
-                        domain="[('state', '=', 'draft'), ('valid_start', '&lt;=', context_today().strftime('%Y-%m-%d'))]"/>
-                <filter name="ended" string="Ended" domain="[('state', '=', 'done'), ('valid_stop', '!=', False), ('valid_stop', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                        domain="[('state', '=', 'draft'), ('valid_start', '&lt;=', 'today')]"/>
+                <filter name="ended" string="Ended" domain="[('state', '=', 'done'), ('valid_stop', '!=', False), ('valid_stop', '&lt;', 'today')]"/>
                 <separator/>
                 <filter name="by_employee" string="By employee" domain="[('apply_mode', '=', 'by_employee')]"/>
                 <filter name="by_section" string="By department" domain="[('apply_mode', '=', 'by_section')]"/>

@@ -96,15 +96,15 @@ class KderpHrAttendance(models.Model):
     ot_wd = fields.Float('Weekday OT')
     ot_hd = fields.Float('Holiday OT')
     ot_total = fields.Float('OT Total')
-    ot_wd_remain = fields.Float('Remain WD', compute='_compute_ot_allow', store=True, readonly=True, group_operator="min")
-    ot_hd_remain = fields.Float('Remain HD', compute='_compute_ot_allow', store=True, readonly=True, group_operator="min")
+    ot_wd_remain = fields.Float('Remain WD', compute='_compute_ot_allow', store=True, readonly=True, aggregator="min")
+    ot_hd_remain = fields.Float('Remain HD', compute='_compute_ot_allow', store=True, readonly=True, aggregator="min")
     ot_wd_ratio = fields.Float('Ratio WD', compute='_compute_ot_allow', store=True, readonly=True)
     ot_hd_ratio = fields.Float('Ratio HD', compute='_compute_ot_allow', store=True, readonly=True)
     wd_block_no = fields.Integer('Week Block', compute='_compute_ot_allow', store=True, readonly=True)
-    weekly_wd_remain = fields.Float('Remain Weekly', compute='_compute_ot_allow', store=True, readonly=True, group_operator="avg")
-    weekly_wd_ratio = fields.Float('Week Ratio', compute='_compute_ot_allow', store=True, readonly=True, group_operator="avg")
-    # avg_section_ot = fields.Float('Avg. Section OT', compute='_compute_avg_ot', readonly=True, group_operator='min')
-    # avg_area_ot = fields.Float('Avg. Area OT', compute='_compute_avg_ot', readonly=True, group_operator='min')
+    weekly_wd_remain = fields.Float('Remain Weekly', compute='_compute_ot_allow', store=True, readonly=True, aggregator="avg")
+    weekly_wd_ratio = fields.Float('Week Ratio', compute='_compute_ot_allow', store=True, readonly=True, aggregator="avg")
+    # avg_section_ot = fields.Float('Avg. Section OT', compute='_compute_avg_ot', readonly=True, aggregator='min')
+    # avg_area_ot = fields.Float('Avg. Area OT', compute='_compute_avg_ot', readonly=True, aggregator='min')
 
     late_in = fields.Boolean('Late in', compute='_compute_in_out_status', store=True)
     early_out = fields.Boolean('Early out', compute='_compute_in_out_status', store=True)
@@ -571,7 +571,7 @@ class KderpHrAttendance(models.Model):
     #         "name": "Open refuse comment",
     #         "res_model": "hr.attendance.refuse",
     #         "views": [(False, "form")],
-    #         "view_mode": "tree,form",
+    #         "view_mode": "list,form",
     #         "domain": [],
     #         "res_id": refuse.id if refuse else self.env['hr.attendance.refuse'].create({'at_id': self.id}).id,
     #         "target": "new"
@@ -603,7 +603,7 @@ class KderpHrAttendance(models.Model):
             "name": "OT Request",
             "res_model": "hr.attendance.wizard",
             "views": [(False, "form")],
-            "view_mode": "tree,form",
+            "view_mode": "list,form",
             "context": {'default_request_mode': 'ot'},
             "target": "new"
         }
@@ -616,7 +616,7 @@ class KderpHrAttendance(models.Model):
             "name": "WT Request",
             "res_model": "hr.attendance.wizard",
             "views": [(False, "form")],
-            "view_mode": "tree,form",
+            "view_mode": "list,form",
             "context": {'default_request_mode': 'wt'},
             "target": "new"
         }
@@ -629,7 +629,7 @@ class KderpHrAttendance(models.Model):
             "name": "Leave Cover Request",
             "res_model": "hr.leave.cover",
             "views": [(False, "form")],
-            "view_mode": "tree,form",
+            "view_mode": "list,form",
             # "context": {'default_request_mode': 'wt'},
             "target": "new"
         }
@@ -660,7 +660,7 @@ class KderpHrAttendance(models.Model):
             "name": "Leave Request",
             "res_model": "hr.leave.cover",
             "views": [(False, "form")],
-            "view_mode": "tree,form",
+            "view_mode": "list,form",
             "target": "new",
             "context": action_context,
             "res_id": self.leave_cover_ids.mapped('id')[0] if self.leave_cover_ids else False
@@ -2580,7 +2580,7 @@ class KderpHrAttendance(models.Model):
         action = {
             'res_model': 'hr.leave.cover',
             
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'type': 'ir.actions.act_window',
             # 'target': 'new',
             # 'res_id': False,
@@ -2625,7 +2625,7 @@ class KderpHrAttendance(models.Model):
             'name': _('Leaves'),
             'res_model': 'hr.leave.cover',
             
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'type': 'ir.actions.act_window',
             'domain': domain
         }

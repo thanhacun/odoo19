@@ -886,7 +886,7 @@ class KderpAttendanceWizard(models.TransientModel):
             # Method 02
             # Reopen a new record with_context of form_reset to trigger defaults function
             return {
-                'context': self.with_context(form_reset=True)._context,
+                'context': self.with_context(form_reset=True).env.context,
                 
                 'view_mode': 'form',
                 'res_model': 'hr.attendance.wizard',
@@ -1850,8 +1850,8 @@ class KderpAttendanceManagerRequest(models.Model):
                 "type": "ir.actions.act_window",
                 "name": "Not Approve Yet - Manager {}".format(m.manager_id.name),
                 "res_model": "hr.attendance",
-                "views": [(False, "tree"), (False, "form")],
-                "view_mode": "tree,form",
+                "views": [(False, "list"), (False, "form")],
+                "view_mode": "list,form",
                 "context": {"search_default_groupby_state": 1},
                 "domain": domain
             }
@@ -3497,7 +3497,7 @@ class KderpAttendanceOTHolidayManagerRequest(models.Model):
                 "type": "ir.actions.act_window",
                 "name": "Not Approve Yet - Manager {}".format(m.manager_id.name),
                 "res_model": "hr.attendance.ot.holiday.manager",
-                # "views": [(False, "tree"), (False, "form")],
+                # "views": [(False, "list"), (False, "form")],
                 "view_mode": "form",
                 "target": "new",
                 "context": {
