@@ -1,0 +1,12 @@
+# Extra Python libraries of the KDVN Odoo 19 modules (not in the odoo:19.0 image).
+# Install in the image build:  pip3 install --break-system-packages -r requirements-extra.txt
+# Checked 7 Nov 2026 on Python 3.12 (lunarcalendar 0.0.9, weasyprint 70.0).
+
+# kdvn_hr_attendance: Vietnamese public holidays that follow the lunar calendar (Tet, Hung Kings), hr.mixin.to_lunar
+lunarcalendar
+# kdvn_hr_attendance: PDF reports of the attendance wizard (Odoo 12 pinned 52.5 for Python 3.6; use a current one)
+weasyprint
+
+# Later (not needed yet):
+# python-barcode   (e-approval QR/barcode, step 5)
+# pyjwt            (face server login, stage E)

@@ -6,20 +6,6 @@
         <field name="inherit_id" ref="hr_attendance.res_config_settings_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//app[@name='hr_attendance']" position="inside">
-                <block title="BZ Server">
-                    <setting string="BZ Server" help="BZ SQL server by IP">
-                        <field name="bz_server"/>
-                    </setting>
-                    <setting string="BZ Databaser">
-                        <field name="bz_db"/>
-                    </setting>
-                    <setting string="Username">
-                        <field name="bz_user"/>
-                    </setting>
-                    <setting string="Password">
-                        <field name="bz_password" password="1"/>
-                    </setting>
-                </block>
                 <block title="Attendance Policy">
                     <setting string="AT first day" help="The first day of an attendance month.">
                         <field name="rule_at_start_date"/>

@@ -6,7 +6,7 @@ Mechanical conversion helper used while porting: /tmp/port12.py is not kept; the
 ## State (7 Nov 2026: A1-A3 ported; time off (stage B) in progress; see docs/porting_from_odoo12.md Step 4)
 Company policy (`res.company` fields, `at_policy()`), groups (core groups only get implied ids), `hr.attendance.rule`, public holidays (own models, OCA hr_holidays_public does not exist for 19), `hr.mixin` helpers (AT month/year, day start, early offset, Saturdays, time converters, request cutoff), `hr.attendance` rule methods (`_at_rules`, memo, `_is_holiday`, `is_no_sat_working`). `hr.attendance.at_date` is a plain field for now (stage A2 makes it the real one).
 Not yet ported from hr.mixin: workflow buttons / state machine, refuse, GM approval, `groups()` roles, `get_full_url` (still the Odoo 12 `/web?#` form, must become `/odoo/...`), emails (stage C); `do_not_have_data_yet`, `may_be_forget`, `update_view_users_by_model` need raw status and `view_user_ids` (stage A2).
-Optional libs not in the Odoo 19 image: `lunarcalendar` (lazy import in `to_lunar`), `pyodbc` (stage E).
+Optional lib not in the Odoo 19 image: `lunarcalendar` (lazy import in `to_lunar`; holiday generator). The Bizone SQL Server link (pyodbc, `bz_*` company fields, `'FSC'` server) was REMOVED on 7 Nov 2026 (Thanh: finger prints replaced by face-id; Bizone is the payroll system). Only the face server (`'CMC'`) feeds raw data. `BZ` working-time requests stay.
 
 ## Deviations from Odoo 12 (each one only where Odoo 12 crashed, returned a wrong "None", or Odoo 19 changed the API)
 - D1 `hr.holidays.public.is_public_holiday` returns 0 (not None) when the year has no holiday lines. Odoo 12: None, so `== 0` checks treated every day as a holiday. Production always has the year entered.

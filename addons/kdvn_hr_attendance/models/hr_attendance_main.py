@@ -13,10 +13,6 @@ from pytz import utc
 import pytz
 import random
 import requests
-try:
-    import pyodbc  # SQL Server (bizone) link: stage E, not in the Odoo 19 image
-except ImportError:
-    pyodbc = None
 import logging
 from itertools import chain
 from time import process_time

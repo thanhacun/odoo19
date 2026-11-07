@@ -8,12 +8,6 @@ from odoo.exceptions import ValidationError
 class ResCompany(models.Model):
     _inherit = 'res.company'
 
-    # For store bs_server connection string
-    bz_server = fields.Char('Bizone server')
-    bz_db = fields.Char('Bizone database')
-    bz_user = fields.Char('User')
-    bz_password = fields.Char('Password')
-
     # Company attendance policy or at_rules for everyone
     rule_at_start_date = fields.Integer('AT first day', default=21)
     rule_day_start_hour = fields.Integer('AT day start at', default=6)
