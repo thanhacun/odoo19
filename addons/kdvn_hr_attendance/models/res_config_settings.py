@@ -5,10 +5,6 @@ from odoo.exceptions import ValidationError
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
-    bz_server = fields.Char('Bizone server', related='company_id.bz_server', readonly=False)
-    bz_db = fields.Char('Bizone database', related='company_id.bz_db', readonly=False)
-    bz_user = fields.Char('User', related='company_id.bz_user', readonly=False)
-    bz_password = fields.Char('Password', related='company_id.bz_password', readonly=False)
 
     rule_at_start_date = fields.Integer('AT start date', related='company_id.rule_at_start_date', readonly=False)
     rule_day_start_hour = fields.Integer('AT day start at', related='company_id.rule_day_start_hour', readonly=False)

@@ -45,7 +45,7 @@ Proof of equality (the real test): the Odoo 12 module has `scripts/at_baseline.p
 Decisions:
 - `hr.attendance` stays `_inherit = 'hr.attendance'` (same table/model name). Odoo 19 core also has its own overtime engine (`hr.attendance.overtime.line`, `overtime_hours`...): ours does not use it; core constraints that clash with one-record-per-employee-per-day are overridden where needed (noted below).
 - Public holidays: Odoo 19 has no hr_holidays_public. Our module defines the two OCA models itself (`hr.holidays.public`, `hr.holidays.public.line`: year, country, lines, variable date, states) plus our additions (company day, substitute, calendar, memo).
-- Optional python libs: `lunarcalendar` and `pyodbc` are NOT in the Odoo 19 image. `to_lunar` imports lazily; the SQL Server (bizone) link is stage E.
+- Optional python libs: `lunarcalendar` is NOT in the Odoo 19 image. `to_lunar` imports lazily; 
 - Attendance approvals stay on the attendance state machine (not tier validation), as in Odoo 12.
 - Groups: our groups live in kdvn_hr_attendance with the same names; Odoo 12 changed core group records (`hr_attendance.group_hr_attendance_user` name/implied); in Odoo 19 we add implied ids instead of renaming core records.
 
@@ -159,3 +159,7 @@ RESULT:
 - AT location: same rows; only the row numbers move (leavers missing).
 Importer changes for a year: every step now clears the ORM cache and, with context `kdvn_commit_steps`, commits (a first all-in-one-transaction run died with MemoryError after 2 h and rolled back; steps are re-runnable so a crash resumes). Run: `env['kdvn.legacy.import'].with_context(kdvn_commit_steps=True).run(employee_codes=[], working_only=True, date_from=..., date_to=...)`. Report scripts take `AT_DATE` and `KEYS` environment variables.
 NOT compared: PDFs (visual), Dec 2025 onwards beyond the earlier checks.
+
+
+### Bizone link removed (7 Nov 2026, kdvn_hr_attendance 19.0.0.2.1)
+Thanh: finger prints are replaced by face-id; Bizone is the payroll system. Removed: pyodbc imports, `_get_data_from_bz`, the `'FSC'` server branches, `bz_*` fields on res.company / settings, the BZ settings block; wizard group renamed "Data from face server". Kept: `BZ` working-time requests. Stage E now = face-machine feed + remote staff sync only. Old `bz_*` columns stay in a database that already has them (harmless; password in plain text: drop them by hand if present). 252 tests pass. No pyodbc / msodbcsql17 needed in the image.

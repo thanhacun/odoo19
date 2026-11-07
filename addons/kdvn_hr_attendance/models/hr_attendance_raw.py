@@ -13,10 +13,6 @@ from pytz import utc
 import pytz
 import random
 import requests
-try:
-    import pyodbc  # SQL Server (bizone) link: stage E, not in the Odoo 19 image
-except ImportError:
-    pyodbc = None
 import logging
 from itertools import chain
 from time import process_time
@@ -446,90 +442,6 @@ class KderpHrAttendanceRaw(models.Model):
 
                 print('=====', staff.code, date, rnd_status, finger_time)
 
-    @api.model
-    def _get_data_from_bz(self, start_time, end_time, employee_ids=[], department_ids=[], force_sync=False, location_name=None, continue_mode=False, fix_data=False):
-        """
-            Get data from BZ_ATT sql server into hr.attendance.raw
-            TODO []: get data by current at_month
-            TODO []: inform users the process
-            Args:
-                at_date (date) the based date to get data
-                duration (integer) number of days from at_date to get data
-                employee_ids: list of employee id
-                departement_ids: list of department id
-                location_name: name of finger/face machine
-        """
-        # Prepair connection with BZ SQL server
-        company_id = self.env.user.company_id
-        # [X] TODO: move into database for security reason
-        bz_server = company_id.bz_server
-        bz_db = company_id.bz_db
-        bz_user = company_id.bz_user
-        bz_password = company_id.bz_password
-        bz_conn_str = 'DRIVER={ODBC Driver 17 for SQL Server};SERVER=' + bz_server + ';DATABASE=' + bz_db + ';UID=' + bz_user + ';PWD=' + bz_password
-
-        try:
-            cnxn = pyodbc.connect(bz_conn_str)
-            cursor = cnxn.cursor()
-
-            # Prepair query
-            emp_domain = [('working', '=', True)]
-            if employee_ids:
-                emp_domain.append(('id', 'in', employee_ids))
-            if department_ids:
-                emp_domain.append(('admin_dept_id', 'in', department_ids))
-            employees = self.env['hr.employee'].search(emp_domain)
-
-            emp_codes = ', '.join(employees.mapped(lambda e: "'" + e.code + "'"))
-            # NOTE: cannot use Created as column name here
-            # TODO [] REVIEW SQL function from FSC
-            query = """
-                    SELECT
-                        MaNV code,
-                        -- CAST(ThoiGian AS DATE) at_date,
-                        ThoiGian at_datetime, MayChamCong location
-                    FROM dbo.fn_TKM_KDN_DC_0001_DanhSachTrangThaiChamCong('{fr_date}','{to_date}')
-                    WHERE
-                        {dt_field} BETWEEN '{fr_datetime}' AND '{to_datetime}'
-                        AND MaNV IN ({emp_codes})
-                        AND NOT (ThoiGian IS NOT NULL AND MayChamCong = '')
-                    ORDER BY
-                        MaNV,
-                        ThoiGian
-            """.format(fr_date=start_time.date(), to_date=end_time.date(), dt_field='Created' if continue_mode else 'ThoiGian', fr_datetime=start_time, to_datetime=end_time, emp_codes=emp_codes)
-
-            # Location name search
-            if location_name:
-                query = """
-                    SELECT
-                        MaNV code,
-                        -- CAST(ThoiGian AS DATE) at_date,
-                        ThoiGian at_datetime, MayChamCong location
-                    FROM dbo.fn_TKM_KDN_DC_0001_DanhSachTrangThaiChamCong('{fr_date}','{to_date}')
-                    WHERE
-                        ThoiGian BETWEEN '{fr_datetime}' AND '{to_datetime}'
-                        AND MaNV IN ({emp_codes})
-                        AND NOT (ThoiGian IS NOT NULL AND MayChamCong = '')
-                        AND MayChamCong = '{location_name}'
-                    ORDER BY
-                        MaNV,
-                        ThoiGian
-            """.format(fr_date=start_time.date(), to_date=end_time.date(), fr_datetime=start_time, to_datetime=end_time, emp_codes=emp_codes, location_name=location_name)
-                force_sync = True  # When using location_name, raw_check_times is not correctly reflect the actual total check times
-
-            cursor.execute(query)
-            # cols = [c[0] for c in cursor.description]
-            rows = []
-            if not fix_data:
-                rows = [(row[0], row[1] if not isinstance(row[1], datetime.datetime) else row[1].strftime('%Y/%m/%d %H:%M'), row[2]) for row in cursor.fetchall()]
-            else:
-                rows = [(row[0], row[1].strftime('%Y/%m/%d %H:%M'), row[2]) for row in cursor.fetchall()]
-            # result = [dict(zip(cols, row)) for row in set(rows)]
-            return list(set(rows))
-        except Exception as err:
-            _logger.error('Error(s) happen while getting data from Bizzone Server: {}'.format(err))
-            raise Exception(_('Error(s) happen: {}'.format(err)))
-
     def _get_api_token_face_server(self, server, email, password):
         query = """
             query Login($email: String!, $password: String!){
@@ -805,9 +717,7 @@ class KderpHrAttendanceRaw(models.Model):
             create_count = 0
             # get rows data
             try:
-                if server == 'FSC':
-                    rows = self._get_data_from_bz(start_time=start_time, end_time=end_time, employee_ids=employee_ids, department_ids=department_ids, force_sync=force_sync, location_name=location_name, fix_data=fix_data)
-                elif server == 'CMC':
+                if server == 'CMC':
                     server = remote_info['server'] if 'server' in remote_info else {}
                     staff_codes = remote_info['staff_codes'] if 'staff_codes' in remote_info else {}
                     rows = self._get_data_from_face_server(start_time=start_time, end_time=end_time, employee_ids=employee_ids, fix_data=fix_data, continue_mode=continue_mode, test_mode=test_mode, server=server, staff_codes=staff_codes)
@@ -1022,9 +932,7 @@ class KderpHrAttendanceRaw(models.Model):
         for server in servers:
             rows = []
             try:
-                if server == 'FSC':
-                    rows = self._get_data_from_bz(start_time=query_start_time, end_time=end_time, employee_ids=employee_ids, department_ids=department_ids, force_sync=force_sync, location_name=location_name, fix_data=fix_data)
-                elif server == 'CMC':
+                if server == 'CMC':
                     srv_cfg = remote_info.get('server', {})
                     staff_codes = remote_info.get('staff_codes', {})
                     if srv_cfg and not staff_codes:

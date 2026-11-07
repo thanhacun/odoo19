@@ -220,7 +220,7 @@
                             <button name="action_print_monthly_reports" type="object" string="Export" class="oe_highlight" invisible="not monthly_report"/>
                         </div>
                     </group>
-                    <group col="4" string="Data from Bizone">
+                    <group col="4" string="Data from face server">
                         <button name="action_run_get_raw_data" type="object" string="Get data (1)" class="oe_highlight"/>
                         <button name="action_run_sync_raw_data" type="object" string="Sync data (2)" class="oe_highlight"/>
                         <div class="text-muted">Get attendance data for last 7 days.</div>

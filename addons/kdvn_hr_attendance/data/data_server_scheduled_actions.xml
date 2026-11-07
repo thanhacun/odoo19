@@ -106,7 +106,7 @@
     
     <!-- Scheduled actions -->
     <data noupdate="1">
-        <!-- Get raw data from Bizone -->
+        <!-- Get raw data from the face server -->
         <record id="at_get_raw_data" model="ir.cron">
             <field name="active" eval="False"/>
             <field name="name">AT: Get raw data HR Server</field>
