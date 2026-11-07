@@ -1,7 +1,0 @@
-# ACL rows of models that arrive with later stages (wizard / reports): add them with the model
-access_hr_attendance_manager_request,hr.attendance.manager.request.access,model_hr_attendance_manager_request,hr_attendance.group_hr_attendance_user,1,0,0,0
-access_hr_attendance_allocation_report,hr.allocation.report.access,model_hr_leave_allocation_report,base.group_user,1,0,0,0
-access_hr_attendance_ot_holiday,hr.attendance.ot.holiday.access,model_hr_attendance_ot_holiday,base.group_user,1,1,1,1
-access_hr_attendance_ot_holiday_line,hr.attendance.ot.holiday.line.access,model_hr_attendance_ot_holiday_line,base.group_user,1,1,1,1
-access_hr_attendance_ot_holiday_summary,hr.attendance.ot_holiday_summary.access,model_hr_attendance_ot_holiday_summary,base.group_user,1,0,0,0
-access_hr_attendance_ot_holiday_manager_request,hr.attendance.ot.holiday.manager.request.access,model_hr_attendance_ot_holiday_manager_request,hr_attendance.group_hr_attendance_user,1,0,0,0

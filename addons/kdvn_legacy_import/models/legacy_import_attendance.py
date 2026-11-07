@@ -50,6 +50,7 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
                 ('lv_leaves', self._step_lv_leaves),
                 ('lv_links', self._step_lv_links),
                 ('at_refuse', self._step_at_refuse),
+                ('at_view_users', self._step_at_view_users),
                 ('at_restore', self._step_at_restore),
             ]
         return steps
@@ -276,6 +277,36 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
                     or (row['related_leave_cover_id'] and ('hr_leave_cover', row['related_leave_cover_id']) in tags))
         self._copy_table('hr_attendance_refuse', 'hr.attendance.refuse', filter_row=wanted,
                          context={'do_not_run_at_status': True, 'kdvn_no_compute': True})
+
+    def _step_at_view_users(self):
+        """Who may see each imported attendance, request and leave cover (view_user_ids): the Odoo 12 lists, copied as they are.
+        The record rules of the managers and GMs read them. Recomputing gives different lists (Odoo 12 also keeps past and
+        functional managers), so the import never recomputes them. A user outside the imported staff is skipped (counted)."""
+        users = {t[1]: v for t, v in self._state['tags'].items() if t[0] == 'res_users'}
+        cr = self.env.cr
+        for table, rel, column in (('hr_attendance', 'hr_attendance_res_users_rel', 'hr_attendance_id'),
+                                   ('hr_attendance_request', 'hr_attendance_request_res_users_rel', 'hr_attendance_request_id'),
+                                   ('hr_leave_cover', 'hr_leave_cover_res_users_rel', 'hr_leave_cover_id')):
+            records = {t[1]: v for t, v in self._state['tags'].items() if t[0] == table}
+            if not records:
+                continue
+            wanted = {}
+            for row in self._legacy_rows(rel, [column, 'res_users_id']):
+                if row[column] not in records:
+                    continue
+                user = users.get(row['res_users_id'])
+                if user:
+                    wanted.setdefault(records[row[column]], set()).add(user)
+                else:
+                    self._state['stats'][(table, 'viewers skipped (user not imported)')] += 1
+            self.env.flush_all()
+            ids = list(records.values())
+            cr.execute('DELETE FROM %s WHERE %s = ANY(%%s)' % (rel, column), [ids])
+            rows = [(rid, uid) for rid, uids in wanted.items() for uid in sorted(uids)]
+            if rows:
+                cr.executemany('INSERT INTO %s (%s, res_users_id) VALUES (%%s, %%s) ON CONFLICT DO NOTHING' % (rel, column), rows)
+            self._state['stats'][(table, 'viewer lists restored')] += len(wanted)
+        self.env.invalidate_all()
 
     def _step_at_restore(self):
         """LAST attendance step: write the Odoo 12 values of the stored computed columns back, straight in SQL.

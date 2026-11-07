@@ -14,3 +14,4 @@ from . import test_reports
 from . import test_lunar_holidays
 from . import test_users
 from . import test_ui_calls
+from . import test_record_rules
