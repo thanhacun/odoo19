@@ -360,8 +360,8 @@
                 <filter name="states_not_sync" string="States unsynced" domain="[('states_sync', '=', False)]" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff"/>
                 <separator/>
                 <filter name="show_inactive" string="Show Archive" domain="['|', ('active', '=', True), ('active', '=', False)]" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff"/>
-            <group><filter string="Employee" name="employee" context="{'group_by': 'employee_id'}"/><filter name="groupby_area" string="Area" context="{'group_by':'area_id'}" groups="kdvn_hr_attendance.group_hr_attendance_section_admin,hr_attendance.group_hr_attendance_user"/>
-                <filter name="groupby_department" string="Section" context="{'group_by':'department_id'}" groups="kdvn_hr_attendance.group_hr_attendance_section_admin,hr_attendance.group_hr_attendance_user"/>
+            <group><filter name="groupby_department" string="Section" context="{'group_by':'department_id'}" groups="kdvn_hr_attendance.group_hr_attendance_section_admin,hr_attendance.group_hr_attendance_user"/>
+                <filter string="Employee" name="employee" context="{'group_by': 'employee_id'}"/><filter name="groupby_area" string="Area" context="{'group_by':'area_id'}" groups="kdvn_hr_attendance.group_hr_attendance_section_admin,hr_attendance.group_hr_attendance_user"/>
             <filter name="groupby_at_date" string="AT Date" context="{'group_by': 'at_date'}"/>
                 <filter name="groupby_state" string="Status" context="{'group_by': 'state'}" groups="kdvn_hr_attendance.group_hr_attendance_section_admin,hr_attendance.group_hr_attendance_user"/>
                 <filter name="groupby_at_month" string="AT Year" context="{'group_by': 'at_year'}" groups="kdvn_hr_attendance.group_hr_attendance_section_admin,hr_attendance.group_hr_attendance_user"/>
