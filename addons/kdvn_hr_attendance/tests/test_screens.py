@@ -98,3 +98,17 @@ class TestRealisticRows(ATCase):
         defaults = self.env['hr.attendance.ot.holiday.manager'].default_get(['managed_section_ids'])
         for command in defaults.get('managed_section_ids', []):
             self.assertIsInstance(command, (tuple, list))
+
+
+@tagged('post_install', '-at_install', 'at_screens')
+class TestOurDefaultViews(common.TransactionCase):
+    """Our list / form / search of hr.attendance must be the ones Odoo picks (lowest priority wins). In Odoo 12 they extended
+    the core views; in Odoo 19 they are primary views and lost to core's priority 16 until given priority 1."""
+
+    def test_our_views_are_the_defaults(self):
+        Att = self.env['hr.attendance']
+        for view_type, xmlid in (('list', 'kdvn_hr_attendance.view_attendance_tree'), ('form', 'kdvn_hr_attendance.hr_attendance_view_form'),
+                                 ('search', 'kdvn_hr_attendance.hr_attendance_view_filter')):
+            with self.subTest(view=view_type):
+                resolved = Att.get_view(view_type=view_type)
+                self.assertEqual(self.env['ir.ui.view'].browse(resolved['id']), self.env.ref(xmlid))
