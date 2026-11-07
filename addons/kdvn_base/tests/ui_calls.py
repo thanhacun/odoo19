@@ -138,7 +138,7 @@ def run(env, prefixes=('kdvn_',), limit=80, form_records=1, login=None):
                 order = root.get('default_order')
                 attempt('%s read' % mode, lambda: model.with_context(**ctx).web_search_read(full_domain, _spec(model, names), limit=limit, order=order))
                 if facet_group:
-                    attempt('%s group by %s' % (mode, facet_group), lambda: model.with_context(**ctx).web_read_group(
+                    attempt('%s group by %s' % (mode, facet_group), lambda: model.with_context(**dict(ctx, read_group_expand=True)).web_read_group(   # the web client sets read_group_expand on grouped lists
                         full_domain, facet_group[:1], ['__count'], limit=limit, unfold_read_specification=_spec(model, names)))
             elif mode in ('pivot', 'graph'):
                 rows = [n.get('name') + (':' + n.get('interval') if n.get('interval') else '') for n in root.iter('field')
