@@ -214,3 +214,8 @@ kdvn_website/
 - Never commit `.env`, `odoo.conf`, `db/`, `odoodata/`, `sshkeys/`, `config/`,
   `configvsweb/`, `claude/` or `__pycache__/`. Check `git status` before
   `git add -A`.
+
+## Extra Python libraries
+Modules may need libraries that the `odoo:19.0` image does not have. They are listed in `requirements-extra.txt`
+(each with the module that needs it). Add them when the image `kdvn/odoo19:dev` is built:
+`pip3 install --break-system-packages -r requirements-extra.txt`. Tests that need a library skip themselves when it is missing.
