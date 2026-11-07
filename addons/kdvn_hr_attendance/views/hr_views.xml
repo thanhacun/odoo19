@@ -14,6 +14,7 @@
             </xpath>
             <xpath expr="//page[@name='hr_settings']//group[@name='kderp_hr']" position="inside">
                 <field name="joining_date"/>
+                <field name="official_working_date"/>
                 <field name="ot_apply"/>
                 <field name="remote_code"/>
                 <field name="work_location" readonly="1"/>
@@ -42,6 +43,7 @@
         <field name="inherit_id" ref="kdvn_hr.inherited_hr_department_view_form_inherit_kderp_hr"/>
         <field name="arch" type="xml">
             <field name="type_id" position="after">
+                <field name="area_id" readonly="1"/>
                 <field name="section_ot_staff"/>
                 <field name="area_ot_staff"/>
             </field>
