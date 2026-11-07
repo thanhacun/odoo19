@@ -14,3 +14,8 @@ class HrEmployeePublic(models.Model):
     admin_gm_id = fields.Many2one('hr.employee', readonly=True)
     parent_users_dsp = fields.Char(readonly=True)
     admin_manager_users_dsp = fields.Char(readonly=True)
+    # Same relation tables as hr.employee (see its _compute_parent_users). Attendance screens and rules search
+    # employee_id.admin_manager_user_ids / parent_user_ids as ordinary users: for users without HR rights Odoo 19 resolves
+    # employee_id on hr.employee.public, so the fields must be there.
+    admin_manager_user_ids = fields.Many2many('res.users', 'hr_employee_res_users_admin_rel', 'hr_employee_id', 'res_users_id', readonly=True)
+    parent_user_ids = fields.Many2many('res.users', 'hr_employee_res_users_functional_rel', 'hr_employee_id', 'res_users_id', readonly=True)
