@@ -1,0 +1,313 @@
+// KDERP dashboard. Palette shared with the e-approval ribbon and emails.
+$kd-done: #28a745;
+$kd-current: #7C7BAD;
+$kd-rejected: #dc3545;
+$kd-muted: #adb5bd;
+$kd-line: #dee2e6;
+$kd-soft: #f8f9fa;
+
+.o_kderp_dashboard {
+    padding: 16px;
+    max-width: 1200px;
+
+    .o_kd_header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+    }
+    .o_kd_hello { margin: 0; }
+    .o_kd_today { color: $kd-muted; }
+    .o_kd_tiles { display: flex; align-items: center; flex-wrap: wrap; }
+    .o_kd_tile {
+        border: 1px solid $kd-line;
+        border-radius: 4px;
+        padding: 6px 16px;
+        margin-right: 12px;
+        min-width: 120px;
+        text-align: center;
+        background: #fff;
+        .o_kd_tile_value { font-size: 24px; font-weight: bold; line-height: 1.2; }
+        .o_kd_tile_label { color: $kd-muted; font-size: 12px; }
+        &.o_kd_tile_current { border-color: $kd-current; .o_kd_tile_value { color: $kd-current; } }
+    }
+
+    // Today card
+    .o_kd_today_card {
+        margin-top: 8px;
+        padding: 8px 12px;
+        background: #fff;
+        border: 1px solid $kd-line;
+        border-left: 3px solid $kd-current;
+        border-radius: 4px;
+        .o_kd_inout { margin-right: 12px; }
+        .o_kd_marks { color: #555; margin-right: 10px; }
+        .o_kd_absence { color: $kd-rejected; font-weight: bold; margin-right: 10px; }
+        // the theme paints outline buttons white: set colours here
+        .o_kd_today_buttons .btn {
+            margin: 2px 4px 2px 0;
+            color: #495057;
+            background: #fff;
+            border: 1px solid $kd-muted;
+            &:hover { background: $kd-soft; }
+        }
+        .o_kd_yesterday {
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px dashed $kd-line;
+            color: $kd-rejected;
+            .btn-link { padding: 0 4px; color: $kd-current; }
+        }
+    }
+
+    // Attendance month window
+    .o_kd_window {
+        margin-bottom: 12px;
+        .o_kd_month {
+            display: inline-block;
+            margin: 0 8px 6px 0;
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: 1px solid $kd-line;
+            background: #fff;
+            font-size: 13px;
+        }
+        .o_kd_month_closing { border-color: $kd-current; color: $kd-current; }
+        .o_kd_month_late { border-color: $kd-rejected; color: $kd-rejected; }
+    }
+
+    .o_kd_card {
+        background: #fff;
+        border: 1px solid $kd-line;
+        border-radius: 4px;
+        margin-bottom: 16px;
+    }
+    .o_kd_card_title {
+        padding: 8px 12px;
+        font-weight: bold;
+        border-bottom: 1px solid $kd-line;
+    }
+    .o_kd_card_footer {
+        padding: 6px 12px;
+        border-top: 1px solid $kd-line;
+        a { margin-right: 16px; }
+        .o_kd_older { color: $kd-rejected; }
+    }
+    .o_kd_empty { padding: 12px; color: $kd-muted; }
+    .o_kd_muted { color: $kd-muted; }
+
+    // Inbox: tabs, toolbar, groups
+    .o_kd_tabs {
+        display: flex;
+        flex-wrap: wrap;
+        border-bottom: 1px solid $kd-line;
+        padding: 0 8px;
+        .o_kd_tab {
+            padding: 8px 12px;
+            color: #555;
+            border-bottom: 2px solid transparent;
+            &:hover { text-decoration: none; color: $kd-current; }
+        }
+        .o_kd_tab_active { color: $kd-current; border-bottom-color: $kd-current; font-weight: bold; }
+        .o_kd_tab_count {
+            display: inline-block;
+            min-width: 20px;
+            padding: 0 6px;
+            border-radius: 10px;
+            background: $kd-soft;
+            font-size: 12px;
+            text-align: center;
+        }
+    }
+    .o_kd_inbox_toolbar {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        .o_kd_search { max-width: 280px; margin-right: 12px; }
+        .o_kd_tools { display: flex; align-items: center; flex: 1; flex-wrap: wrap; }
+        .o_kd_selall { margin: 0 12px 0 0; font-size: 13px; cursor: pointer; input { margin-right: 4px; } }
+        .o_kd_collapse_all { font-size: 13px; margin-right: 12px; color: #555; }
+        .o_kd_bulk { margin-left: auto; }
+    }
+    .o_kd_attention {
+        padding: 8px 12px; font-size: 13px; background: $kd-soft; border-left: 3px solid $kd-rejected;
+        border-bottom: 1px solid $kd-line;
+        .fa { color: $kd-rejected; margin-right: 4px; }
+        a { margin-left: 8px; font-weight: 600; }
+    }
+    .o_kd_group_toggle { cursor: pointer; user-select: none; }
+    .o_kd_caret { width: 12px; color: $kd-muted; }
+    .o_kd_approve_group {
+        margin-left: 8px; padding: 0 8px; font-size: 12px; color: $kd-done;
+        border: 1px solid $kd-line; background: #fff;
+        &:hover { background: $kd-done; color: #fff; }
+    }
+    .o_kd_group_section td {
+        background: $kd-soft;
+        font-weight: bold;
+        border-top: 1px solid $kd-line;
+    }
+    .o_kd_group_employee td { color: #555; font-weight: 600; border-top: 0; }
+    .o_kd_cb { width: 28px; }
+    .o_kd_actions {
+        white-space: nowrap;
+        .btn { padding: 1px 8px; border: 1px solid $kd-line; background: #fff; }
+        .o_kd_approve { color: $kd-done; &:hover { background: $kd-done; color: #fff; } }
+        .o_kd_refuse { color: $kd-rejected; margin-left: 4px; &:hover { background: $kd-rejected; color: #fff; } }
+    }
+    .o_kd_pager {
+        padding: 6px 12px;
+        color: $kd-muted;
+        font-size: 12px;
+        .btn-link { font-size: 12px; }
+    }
+
+    .o_kd_table {
+        margin: 0;
+        th { color: $kd-muted; font-weight: normal; border-top: 0; }
+        td.o_kd_open, tr.o_kd_open { cursor: pointer; }
+        .o_kd_ref { font-weight: bold; }
+        .o_kd_subject {
+            color: $kd-muted;
+            font-size: 12px;
+            max-width: 420px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .o_kd_special {
+        display: inline-block;
+        margin-left: 6px;
+        padding: 0 6px;
+        border-radius: 10px;
+        background: $kd-current;
+        color: #fff;
+        font-size: 10px;
+        font-weight: bold;
+        vertical-align: 1px;
+    }
+
+    .o_kd_type {
+        display: inline-block;
+        padding: 1px 8px;
+        border-radius: 10px;
+        font-size: 12px;
+        border: 1px solid $kd-line;
+        white-space: nowrap;
+        &.o_kd_type_e_approval { border-color: $kd-current; color: $kd-current; }
+        &.o_kd_type_attendance, &.o_kd_type_leave { border-color: $kd-muted; color: #555; }
+    }
+
+    .o_kd_days { color: $kd-muted; white-space: nowrap; }
+    .o_kd_days.o_kd_overdue { color: $kd-rejected; font-weight: bold; }
+
+    .o_kd_state {
+        display: inline-block;
+        padding: 1px 8px;
+        border-radius: 10px;
+        font-size: 12px;
+        color: #fff;
+        background: $kd-muted;
+        white-space: nowrap;
+    }
+    .o_kd_state_submitted, .o_kd_state_waiting_fman, .o_kd_state_waiting_fhr, .o_kd_state_waiting_fman2 { background: $kd-current; }
+    .o_kd_state_approved, .o_kd_state_done { background: $kd-done; }
+    .o_kd_state_rejected, .o_kd_state_refuse { background: $kd-rejected; }
+    .o_kd_progress { color: $kd-muted; margin-left: 6px; font-size: 12px; }
+
+    // Phone: rows become cards, big approve / reject buttons, the bulk button sticks to the bottom
+    @media (max-width: 767.98px) {
+        padding: 8px 8px 72px;      // room under the fixed bulk bar
+
+        .o_kd_header { display: block; }
+        .o_kd_tiles { margin-top: 8px; }
+        .o_kd_tile { flex: 1; min-width: 0; margin-right: 8px; }
+        .o_kd_today_card .o_kd_today_buttons .btn { padding: 8px 12px; }
+
+        .o_kd_tabs { flex-wrap: nowrap; overflow-x: auto; padding: 0; .o_kd_tab { white-space: nowrap; padding: 8px; font-size: 13px; } }
+        .o_kd_inbox_toolbar { flex-wrap: wrap; .o_kd_search { max-width: none; margin-right: 0; flex: 1 1 100%; margin-bottom: 8px; } .o_kd_tools { flex: 1 1 100%; } }
+        .o_kd_bulk {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+            border-radius: 0;
+            padding: 14px;
+            font-size: 16px;
+            &[disabled] { display: none; }      // only while something is selected
+        }
+
+        .o_kd_table {
+            display: block;
+            thead { display: none; }
+            tbody { display: block; }
+            tr, td { display: block; border: 0; padding: 0; }
+            td:empty { display: none; }
+            .o_kd_subject { max-width: none; white-space: normal; }
+
+            // group headers
+            .o_kd_group_section, .o_kd_group_employee {
+                display: flex;
+                align-items: center;
+                padding: 8px 12px;
+                background: $kd-soft;
+                td { display: block; background: none; border: 0; padding: 0; }
+                .o_kd_cb { width: 32px; flex: none; }
+            }
+            .o_kd_group_employee { background: #fff; }
+
+            // inbox card
+            &.o_kd_table_inbox .o_kd_row {
+                display: grid;
+                grid-template-columns: 32px 1fr auto auto;
+                grid-template-areas: "cb ref days actions" ". name name actions" ". step date actions";
+                align-items: start;
+                column-gap: 4px;
+                padding: 8px 12px;
+                border-top: 1px solid $kd-line;
+                transition: transform .15s;
+                touch-action: pan-y;
+                &.o_kd_swipe_pull { transition: none; }
+                &.o_kd_swipe_ok { background: #e6f4ea; }
+                &.o_kd_swipe_no { background: #fbe9eb; }
+                .o_kd_cb { grid-area: cb; width: auto; padding-top: 3px; input { width: 20px; height: 20px; } }
+                .o_kd_c_ref { grid-area: ref; }
+                .o_kd_subject { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+                .o_kd_c_days { grid-area: days; }
+                .o_kd_c_name { grid-area: name; font-weight: 600; }
+                .o_kd_c_step { grid-area: step; color: #555; }
+                .o_kd_c_date { grid-area: date; color: $kd-muted; text-align: right; }
+                .o_kd_actions {
+                    grid-area: actions;
+                    display: flex;
+                    align-self: center;
+                    margin: 0 0 0 4px;
+                    .btn { width: 40px; height: 40px; padding: 0; font-size: 18px; margin: 0; }
+                    .o_kd_refuse { margin-left: 6px; }
+                }
+            }
+
+            // my requests card
+            &.o_kd_table_mine .o_kd_open {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                grid-template-areas: "type date" "ref ref" "state step";
+                row-gap: 4px;
+                padding: 10px 12px;
+                border-top: 1px solid $kd-line;
+                .o_kd_c_type { grid-area: type; }
+                .o_kd_c_date { grid-area: date; color: $kd-muted; }
+                .o_kd_c_ref { grid-area: ref; }
+                .o_kd_c_state { grid-area: state; }
+                .o_kd_c_step { grid-area: step; text-align: right; color: #555; }
+            }
+        }
+    }
+}
+
+// Bulk approve result dialog (outside the dashboard element)
+.o_kd_skipped { margin: 0; padding-left: 18px; }

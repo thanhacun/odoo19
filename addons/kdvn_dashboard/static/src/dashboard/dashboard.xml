@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="kdvn_dashboard.Dashboard">
+        <div class="o_kderp_dashboard" t-ref="root">
+            <div class="o_kd_body" t-if="state.ready">
+                <t t-set="data" t-value="state.data"/>
+                <t t-set="view" t-value="getView()"/>
+                <!-- Greeting, today, counters -->
+                <div class="o_kd_header">
+                    <div class="o_kd_greeting">
+                        <h2 class="o_kd_hello">Hello, <t t-out="data.employee_name"/></h2>
+                        <div class="o_kd_today"><t t-out="data.today"/></div>
+                        <t t-call="kdvn_dashboard.TodayCard"/>
+                    </div>
+                    <div class="o_kd_tiles">
+                        <div t-attf-class="o_kd_tile #{data.inbox_count ? 'o_kd_tile_current' : ''}">
+                            <div class="o_kd_tile_value"><t t-out="data.inbox_count"/></div>
+                            <div class="o_kd_tile_label">Waiting for you</div>
+                        </div>
+                        <div class="o_kd_tile">
+                            <div class="o_kd_tile_value"><t t-out="data.mine_open"/></div>
+                            <div class="o_kd_tile_label">My open requests</div>
+                        </div>
+                        <button type="button" class="btn btn-secondary o_kd_refresh" title="Refresh" t-on-click.prevent="refresh">
+                            <i class="fa fa-refresh" role="presentation"/> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Attendance month window -->
+                <div class="o_kd_window">
+                    <t t-foreach="data.window.months" t-as="m" t-key="m_index">
+                        <span t-attf-class="o_kd_month #{m.closing ? (m.late ? 'o_kd_month_late' : 'o_kd_month_closing') : ''}">
+                            <i class="fa fa-calendar" role="presentation"/>
+                            Attendance month <b><t t-out="m.label"/></b>
+                            <t t-if="m.closing">
+                                · please finish by <b><t t-out="m.target"/></b> · closes <t t-out="m.closes"/>
+                            </t>
+                        </span>
+                    </t>
+                </div>
+
+                <t t-call="kdvn_dashboard.Inbox"/>
+
+                <!-- My requests -->
+                <div class="o_kd_card">
+                    <div class="o_kd_card_title">
+                        <i class="fa fa-paper-plane" role="presentation"/> My requests
+                    </div>
+                    <t t-if="!data.mine.length">
+                        <div class="o_kd_empty">You have no open or recent requests.</div>
+                    </t>
+                    <t t-else="">
+                        <table class="table table-sm table-hover o_kd_table o_kd_table_mine">
+                            <thead>
+                                <tr><th>Type</th><th>Reference</th><th>Status</th><th>Current step</th><th class="text-end">Date</th></tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="data.mine" t-as="row" t-key="row.model + ':' + row.res_id">
+                                    <tr class="o_kd_open" t-on-click.prevent="() => this.openRecord(row.model, row.res_id)">
+                                        <td class="o_kd_c_type"><span t-attf-class="o_kd_type o_kd_type_#{row.kind}"><t t-out="row.type_label"/></span></td>
+                                        <td class="o_kd_c_ref">
+                                            <div class="o_kd_ref"><t t-out="row.ref"/>
+                                                <span t-if="row.special" class="o_kd_special">SPECIAL</span></div>
+                                            <div t-if="row.subject" class="o_kd_subject"><t t-out="row.subject"/></div>
+                                        </td>
+                                        <td class="o_kd_c_state"><span t-attf-class="o_kd_state o_kd_state_#{row.state}"><t t-out="row.state_label"/></span></td>
+                                        <td class="o_kd_c_step">
+                                            <t t-out="row.step"/>
+                                            <span t-if="row.progress" class="o_kd_progress"><t t-out="row.progress"/></span>
+                                        </td>
+                                        <td class="text-end o_kd_c_date"><t t-out="row.date"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </t>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <!-- Today: check in/out from today's attendance day and its own request buttons -->
+    <t t-name="kdvn_dashboard.TodayCard">
+        <t t-set="card" t-value="data.today_card"/>
+        <div t-if="card" class="o_kd_today_card">
+            <t t-if="card.has_record">
+                <span class="o_kd_inout">
+                    <i class="fa fa-sign-in" role="presentation"/> In <b><t t-out="card.check_in"/></b>
+                    <i class="fa fa-sign-out" role="presentation" style="margin-left:10px"/> Out <b><t t-out="card.check_out"/></b>
+                </span>
+                <span t-if="card.marks" class="o_kd_marks"><t t-out="card.marks"/></span>
+                <span t-if="card.absence" class="o_kd_absence"><t t-out="card.absence"/></span>
+                <span class="o_kd_today_buttons">
+                    <button t-if="card.can_wt" type="button" class="btn btn-sm btn-outline-secondary o_kd_att_button"
+                            t-on-click.prevent="() => this.attendanceButton('action_wt_request', card.id, card.at_date)">
+                        <i class="fa fa-clock-o" role="presentation"/> Working time request</button>
+                    <button t-if="card.can_ot" type="button" class="btn btn-sm btn-outline-secondary o_kd_att_button"
+                            t-on-click.prevent="() => this.attendanceButton('action_ot_request', card.id, card.at_date)">
+                        <i class="fa fa-desktop" role="presentation"/> Overtime request</button>
+                    <button t-if="card.can_leave" type="button" class="btn btn-sm btn-outline-secondary o_kd_att_button"
+                            t-on-click.prevent="() => this.attendanceButton('action_leave_request', card.id, card.at_date)">
+                        <i class="fa fa-bed" role="presentation"/> Leave request</button>
+                </span>
+            </t>
+            <t t-else="">
+                <span class="o_kd_marks">No attendance record for today yet.</span>
+                <span class="o_kd_today_buttons">
+                    <button t-if="card.links.wt" type="button" class="btn btn-sm btn-outline-secondary o_kd_menu_action"
+                            t-on-click.prevent="() => this.menuAction(card.links.wt)"><i class="fa fa-clock-o" role="presentation"/> WT requests</button>
+                    <button t-if="card.links.ot" type="button" class="btn btn-sm btn-outline-secondary o_kd_menu_action"
+                            t-on-click.prevent="() => this.menuAction(card.links.ot)"><i class="fa fa-desktop" role="presentation"/> OT requests</button>
+                    <button t-if="card.links.leave" type="button" class="btn btn-sm btn-outline-secondary o_kd_menu_action"
+                            t-on-click.prevent="() => this.menuAction(card.links.leave)"><i class="fa fa-bed" role="presentation"/> Leave request</button>
+                </span>
+            </t>
+            <div t-if="card.yesterday" class="o_kd_yesterday">
+                <i class="fa fa-exclamation-triangle" role="presentation"/>
+                Yesterday (<t t-out="card.yesterday.date"/>) looks incomplete:
+                in <b><t t-out="card.yesterday.check_in"/></b>, out <b><t t-out="card.yesterday.check_out"/></b>.
+                <button t-if="card.yesterday.can_wt" type="button" class="btn btn-sm btn-link o_kd_att_button"
+                        t-on-click.prevent="() => this.attendanceButton('action_wt_request', card.yesterday.id, card.yesterday.at_date)">Working time request</button>
+                <button t-if="card.yesterday.can_leave" type="button" class="btn btn-sm btn-link o_kd_att_button"
+                        t-on-click.prevent="() => this.attendanceButton('action_leave_request', card.yesterday.id, card.yesterday.at_date)">Leave request</button>
+            </div>
+        </div>
+    </t>
+
+    <!-- Waiting for you: tabs, search, grouped rows, quick actions -->
+    <t t-name="kdvn_dashboard.Inbox">
+        <div class="o_kd_card o_kd_inbox">
+            <div class="o_kd_card_title">
+                <i class="fa fa-inbox" role="presentation"/> Waiting for you
+            </div>
+            <div t-if="view.attention" class="o_kd_attention">
+                <i class="fa fa-exclamation-triangle" role="presentation"/>
+                <t t-if="view.attention.active">Showing only requests waiting <t t-out="overdueDays"/>+ days (<t t-out="view.attention.count"/>).</t>
+                <t t-else=""><b><t t-out="view.attention.count"/></b> waiting <t t-out="overdueDays"/>+ days, the oldest <t t-out="view.attention.oldest"/> d.</t>
+                <a href="#" class="o_kd_attention_toggle" t-on-click.prevent="toggleAttention"><t t-if="view.attention.active">Show all</t><t t-else="">Show only these</t></a>
+            </div>
+            <div class="o_kd_tabs">
+                <t t-foreach="view.tabs" t-as="tab" t-key="tab.key">
+                    <a href="#" t-attf-class="o_kd_tab #{tab.active ? 'o_kd_tab_active' : ''}" t-on-click.prevent="() => this.setTab(tab.key)">
+                        <t t-out="tab.label"/> <span class="o_kd_tab_count"><t t-out="tab.count"/></span>
+                    </a>
+                </t>
+            </div>
+            <div class="o_kd_inbox_toolbar">
+                <input type="search" class="form-control form-control-sm o_kd_search" placeholder="Search name, reference…"
+                       t-att-value="state.search" t-on-input="onSearch"/>
+                <span class="o_kd_tools">
+                    <label t-if="view.bulk and view.selAllCount" class="o_kd_selall" title="Select the first requests of this tab, on all pages">
+                        <input type="checkbox" class="o_kd_check_all" t-att-checked="view.selAllChecked"
+                               t-on-change="(ev) => this.toggleKeys(view.selAllKeys, ev.target.checked)"/>
+                        Select all
+                        <span class="o_kd_muted">(<t t-if="view.selAllCapped">first <t t-out="view.selAllCount"/> of </t><t t-out="view.selAllTotal"/>)</span>
+                    </label>
+                    <a t-if="view.hasHeaders" href="#" class="o_kd_collapse_all"
+                       t-on-click.prevent="() => this.collapseAll(view.headerKeys, view.allCollapsed)">
+                        <i t-attf-class="fa #{view.allCollapsed ? 'fa-expand' : 'fa-compress'}" role="presentation"/>
+                        <t t-if="view.allCollapsed">Expand all</t><t t-else="">Collapse all</t>
+                    </a>
+                    <button t-if="view.bulk" type="button" class="btn btn-sm btn-success o_kd_bulk"
+                            t-att-disabled="!view.selectedCount" t-on-click.prevent="bulkApprove">
+                        <i class="fa fa-check" role="presentation"/> Approve selected (<t t-out="view.selectedCount"/>)
+                    </button>
+                </span>
+            </div>
+            <div class="o_kd_inbox_rows">
+                <t t-if="!view.total">
+                    <div class="o_kd_empty">Nothing is waiting for you here.</div>
+                </t>
+                <t t-else="">
+                    <table class="table table-sm o_kd_table o_kd_table_inbox">
+                        <tbody>
+                            <t t-foreach="view.groups" t-as="g" t-key="g.gkey">
+                                <tr t-if="view.showSections" class="o_kd_group_section">
+                                    <td class="o_kd_cb">
+                                        <input t-if="g.checkbox" type="checkbox" class="o_kd_check_group" t-att-checked="g.checked"
+                                               t-on-change="(ev) => this.toggleKeys(g.keys, ev.target.checked)"/>
+                                    </td>
+                                    <td colspan="6" class="o_kd_group_toggle" t-on-click.prevent="() => this.toggleGroup(g.gkey)">
+                                        <i t-attf-class="fa #{g.caret} o_kd_caret" role="presentation"/>
+                                        <i class="fa fa-sitemap" role="presentation"/> <t t-out="g.label"/></td>
+                                </tr>
+                                <t t-if="!g.collapsed"><t t-foreach="g.employees" t-as="e" t-key="e.gkey">
+                                    <tr t-if="e.multi" class="o_kd_group_employee">
+                                        <td class="o_kd_cb">
+                                            <input t-if="e.checkbox" type="checkbox" class="o_kd_check_group" t-att-checked="e.checked"
+                                                   t-on-change="(ev) => this.toggleKeys(e.keys, ev.target.checked)"/>
+                                        </td>
+                                        <td colspan="6" class="o_kd_group_toggle" t-on-click.prevent="() => this.toggleGroup(e.gkey)">
+                                            <i t-attf-class="fa #{e.caret} o_kd_caret" role="presentation"/>
+                                            <i class="fa fa-user" role="presentation"/> <t t-out="e.name"/>
+                                            <span class="o_kd_muted">(<t t-out="e.rows.length"/>)</span>
+                                            <button t-if="e.approve_group" type="button" class="btn btn-sm o_kd_approve_group"
+                                                    t-on-click.prevent.stop="() => this.approveGroup(e.keys, e.name)">
+                                                <i class="fa fa-check" role="presentation"/> Approve <t t-out="e.approve_count"/>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <t t-if="!e.collapsed"><t t-foreach="e.rows" t-as="row" t-key="row.key">
+                                        <tr class="o_kd_row" t-att-data-model="row.model" t-att-data-id="row.res_id">
+                                            <td class="o_kd_cb">
+                                                <input t-if="row.checkbox" type="checkbox" class="o_kd_check" t-att-checked="row.checked"
+                                                       t-on-change="(ev) => this.toggleKeys([row.key], ev.target.checked)"/>
+                                            </td>
+                                            <td class="o_kd_open o_kd_c_ref" t-on-click.prevent="() => this.openRecord(row.model, row.res_id)">
+                                                <div class="o_kd_ref"><t t-out="row.ref"/>
+                                                    <span t-if="row.special" class="o_kd_special">SPECIAL</span></div>
+                                                <div t-if="row.subject" class="o_kd_subject"><t t-out="row.subject"/></div>
+                                            </td>
+                                            <td class="o_kd_open o_kd_c_name" t-on-click.prevent="() => this.openRecord(row.model, row.res_id)"><t t-if="row.show_name" t-out="row.applicant"/></td>
+                                            <td class="o_kd_open o_kd_c_step" t-on-click.prevent="() => this.openRecord(row.model, row.res_id)"><t t-out="row.step"/></td>
+                                            <td class="o_kd_open o_kd_c_date" t-on-click.prevent="() => this.openRecord(row.model, row.res_id)"><t t-out="row.date"/></td>
+                                            <td class="text-end o_kd_open o_kd_c_days" t-on-click.prevent="() => this.openRecord(row.model, row.res_id)">
+                                                <span t-attf-class="o_kd_days #{row.days &gt;= overdueDays ? 'o_kd_overdue' : ''}"><t t-out="row.days"/> d</span>
+                                            </td>
+                                            <td class="text-end o_kd_actions">
+                                                <button t-if="row.can_approve" type="button" class="btn btn-sm o_kd_approve" title="Approve"
+                                                        t-on-click.prevent.stop="() => this.approve(row)">
+                                                    <i class="fa fa-check" role="presentation"/></button>
+                                                <button t-if="row.can_refuse" type="button" class="btn btn-sm o_kd_refuse" title="Reject"
+                                                        t-on-click.prevent.stop="() => this.refuse(row)">
+                                                    <i class="fa fa-times" role="presentation"/></button>
+                                            </td>
+                                        </tr>
+                                    </t></t>
+                                </t></t>
+                            </t>
+                        </tbody>
+                    </table>
+                    <div class="o_kd_pager">
+                        <span><t t-out="view.from"/>–<t t-out="view.to"/> of <t t-out="view.total"/></span>
+                        <button t-if="view.page &gt; 0" type="button" class="btn btn-sm btn-link o_kd_page" t-on-click.prevent="() => this.step(-1)">‹ Previous</button>
+                        <button t-if="view.page &lt; view.pages - 1" type="button" class="btn btn-sm btn-link o_kd_page" t-on-click.prevent="() => this.step(1)">Next ›</button>
+                    </div>
+                </t>
+            </div>
+            <div t-if="data.inbox_lists.length" class="o_kd_card_footer">
+                <t t-foreach="data.inbox_lists" t-as="list" t-key="list_index">
+                    <a t-if="list.count" href="#" class="o_kd_show_all" t-on-click.prevent="() => this.showAll(list_index, false)">
+                        Show all <t t-out="list.count"/>: <t t-out="list.name"/>
+                    </a>
+                    <a t-if="list.older" href="#" class="o_kd_show_all o_kd_older" t-on-click.prevent="() => this.showAll(list_index, true)">
+                        <t t-out="list.older"/> older (previous months)
+                    </a>
+                </t>
+            </div>
+        </div>
+    </t>
+
+    <!-- Result of a bulk approve: what was not approved and why -->
+    <t t-name="kdvn_dashboard.SkippedDialog" t-inherit="web.Dialog" t-inherit-mode="primary">
+        <xpath expr="//t[@t-slot='default']" position="replace">
+            <ul class="o_kd_skipped">
+                <t t-foreach="props.skipped" t-as="s" t-key="s_index">
+                    <li><b><t t-out="s.ref"/></b>: <t t-out="s.reason"/></li>
+                </t>
+            </ul>
+        </xpath>
+    </t>
+
+</templates>

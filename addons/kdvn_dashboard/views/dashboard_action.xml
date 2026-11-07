@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_kderp_dashboard" model="ir.actions.client">
+        <field name="name">Dashboard</field>
+        <field name="tag">kderp_dashboard</field>
+    </record>
+
+    <menuitem id="menu_kderp_dashboard_root" name="Dashboard" sequence="1"
+              action="action_kderp_dashboard" web_icon="kdvn_dashboard,static/description/icon.png"/>
+</odoo>
