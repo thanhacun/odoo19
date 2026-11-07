@@ -69,3 +69,14 @@ class TestKdvnHr(TransactionCase):
         for model, vtype in (('hr.employee', 'form'), ('hr.employee', 'list'), ('hr.employee', 'search'),
                              ('hr.department', 'form'), ('hr.department', 'list')):
             self.env[model].get_view(view_type=vtype)
+
+
+class TestDepartmentDisplayName(TransactionCase):
+
+    def test_department_shows_its_own_name(self):
+        """Odoo 12 _name_only: fields show "GA Section", not the whole path (the path is complete_name)."""
+        top = self.env['hr.department'].create({'name': 'ZZ Top', 'code': 'ZZ00'})
+        child = self.env['hr.department'].create({'name': 'ZZ GA Section', 'code': 'ZZ00-01', 'parent_id': top.id})
+        self.assertEqual(child.display_name, 'ZZ GA Section')
+        self.assertIn('ZZ Top', child.complete_name)
+        self.assertEqual(dict(child.name_get())[child.id] if hasattr(child, 'name_get') else child.display_name, 'ZZ GA Section')
