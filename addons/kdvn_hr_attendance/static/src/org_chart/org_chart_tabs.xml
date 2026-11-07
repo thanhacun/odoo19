@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="kdvn_hr_attendance.HrOrgChartTabs">
+        <t t-if="admin and (managers.length or children.length or admin.managers.length or admin.children.length)">
+            <div class="kd_org_tabs">
+                <ul class="nav nav-pills kd_org_nav" role="tablist">
+                    <li class="nav-item">
+                        <a href="#" role="tab" class="nav-link kd_org_func" t-att-class="{ active: tabs.active === 'func' }" t-on-click.prevent="() => this.tabs.active = 'func'">
+                            Functional <span class="badge rounded-pill" t-esc="funcCount"/>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" role="tab" class="nav-link kd_org_admin" t-att-class="{ active: tabs.active === 'admin' }" t-on-click.prevent="() => this.tabs.active = 'admin'">
+                            Administrative <span class="badge rounded-pill" t-esc="adminCount"/>
+                        </a>
+                    </li>
+                </ul>
+                <div t-att-class="'kd_org_content kd_org_pane_' + tabs.active">
+                    <t t-set="data" t-value="activeData"/>
+                    <t t-set="managers" t-value="data.managers"/>
+                    <t t-set="managers_more" t-value="data.managers_more"/>
+                    <t t-set="children" t-value="data.children"/>
+                    <t t-set="self" t-value="data.self"/>
+                    <t t-call="hr_org_chart.hr_org_chart"/>
+                </div>
+            </div>
+        </t>
+        <t t-else="">
+            <t t-call="hr_org_chart.hr_org_chart"/>
+        </t>
+    </t>
+</templates>

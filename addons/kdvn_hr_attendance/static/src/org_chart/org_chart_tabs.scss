@@ -1,0 +1,32 @@
+// Employee form org chart: Functional / Administrative tabs. Palette: current #7C7BAD, line #dee2e6
+.kd_org_tabs {
+    .kd_org_nav {
+        margin-bottom: 8px;
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 6px;
+
+        .nav-link {
+            padding: 3px 12px;
+            font-size: 13px;
+            color: #6c757d;
+            border-radius: 14px;
+
+            .badge {
+                background: #dee2e6;
+                color: #495057;
+                margin-left: 4px;
+            }
+
+            &.active .badge {
+                background: rgba(255, 255, 255, .3);
+                color: #fff;
+            }
+        }
+    }
+
+    .kd_org_func.active { background: #7C7BAD; color: #fff; }
+    .kd_org_admin.active { background: #17a2b8; color: #fff; }
+    .kd_org_pane_func .o_org_chart_entry_self .o_media_object { border: 2px solid #7C7BAD; }
+    .kd_org_pane_admin .o_org_chart_entry_self .o_media_object { border: 2px solid #17a2b8; }
+    .kd_org_pane_admin .o_org_chart_entry .badge { background: #17a2b8; color: #fff; }
+}
