@@ -84,3 +84,17 @@ All 219 module tests pass. What Odoo 19 needed: core computes leave dates (half 
 1. A RE-RUN on a database that already holds imported covers stops in step `organisation` with "OdooBot doesn't have read access to hr.leave.cover" (path: kdvn_hr_ext `_compute_1st_manager` -> employee write -> hr.leave write -> `related_at_ids`). First runs on an empty database work. Next: make the nested reads superuser (or give OdooBot read ACL on the cover model).
 2. 30 allocations failed in the first run because of Odoo 19's "duration > 0" check (fixed by `_duration_check` override, not yet re-verified after the fix).
 3. The Saturday AH days of the trial staff still differ (10 of 65 compared days) because their AH leaves/allocations were not imported in the same run; re-check once issue 1 is fixed.
+
+
+### Leave import issues 1 and 2 (7 Nov 2026)
+1. FIXED. Cause was not OdooBot rights: `hr.leave.cover._search` hides covers with reason `ah` unless `show_ah`, and Odoo 19 reads fields through `_search([('id','in',ids)])` (Odoo 12 did not), so reading an AH cover raised a false access error. Id lookups now skip the filter. Re-run on `kdvn_att_try` (264 staff, 21 Jun - 20 Jul) passes every step.
+2. Allocation "duration > 0": 0 allocation failures (15,048 created, 1,207 updated). New: 2 leave types fail to update ("This modification is not allowed in the current state": type 90 Annual Leave, 96 AH for Jul. 2026) and 1 employee (S1429, still manages sections: data). To look at next.
+
+BUSINESS RULE (Thanh, 7 Nov 2026): the payroll system (third party) does not accept a day with two leave types. Technically Odoo can create them, but we must not allow or produce them; any day with two types in an import or parity run is to be explained. Also in addons/kdvn_hr_attendance/CLAUDE.md.
+Leave types 90 (Annual Leave) / 96 (AH Jul. 2026) re-run update failure: the type write recomputes durations of their VALIDATED leaves in an env that lost the skip flag (`leave_skip_state_check` set on run and step did not help); only metadata of those 2 types stays stale on a re-run, nothing else is lost. Not solved; low priority.
+
+
+### Parity, 21 Oct - 20 Nov 2026 (7 Nov 2026): 4,488 of 4,488 days identical
+284 working staff, full import of the window incl. covers, leaves, allocations and calendar entries into `kdvn_att_try`, then every imported attendance day recomputed in Odoo 19 (`tools/parity_attendance.py`, rolled back) and compared with the stored Odoo 12 values (status marks, absence, OT hours, working/holiday hours, late/early): **0 differences** (before the fix: 15, all Saturday AH days).
+Cause of the 15: the importer left adopted employees on Odoo 19's default calendar / time zone UTC, so their working hours were read as UTC and the AH leave (on the company calendar, Asia/Ho_Chi_Minh) never removed the Saturday work. The calendars step (`at_calendars`) now copies each employee's Odoo 12 calendar and time zone. Tests 232/232 (attendance + import).
+Earlier parity window 21 Jun - 20 Jul (the 11 differences) should be re-run the same way. Stage B logic is therefore proven against real data for this window; the open stage B items are screens, leave type data, leave report, mail templates (see table).
