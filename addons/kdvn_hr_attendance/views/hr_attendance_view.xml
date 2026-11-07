@@ -6,7 +6,7 @@
     <record id="view_attendance_tree" model="ir.ui.view">
         <field name="name">hr.attendance.tree</field>
         <field name="model">hr.attendance</field>
-        <field name="priority">100</field>
+        <field name="priority">1</field>
         <field name="arch" type="xml">
             <list string="Attendances" edit="false" create="false" decoration-danger="state in ['refuse']" decoration-muted="state=='done'"><field name="employee_id"/>
                 <field name="at_day_str" string="Date" decoration-danger="wd_block_no==0"/>
@@ -65,7 +65,7 @@
     <record id="hr_attendance_view_form" model="ir.ui.view">
         <field name="name">hr.attendance.form</field>
         <field name="model">hr.attendance</field>
-        <field name="priority">100</field>
+        <field name="priority">1</field>
         <field name="arch" type="xml">
             <form string="Attendance" edit="false" create="false"><header>
                     <!-- <button name="button_next_state" help="Change the attendance to the next state!"  
@@ -335,6 +335,7 @@
     <record id="hr_attendance_view_filter" model="ir.ui.view">
         <field name="name">hr_attendance_view_filter</field>
         <field name="model">hr.attendance</field>
+        <field name="priority">1</field>
         <field name="arch" type="xml">
             <search string="Attendance Search"><field name="employee_id"/><field name="department_id" operator="child_of"/><field name="at_date"/>
                 <field name="at_month"/>
