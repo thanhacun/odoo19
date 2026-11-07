@@ -365,7 +365,7 @@ class KderpHolidayRequestCover(models.Model):
             view = self.env.ref('kdvn_hr_attendance.allocation_summary')
             allocations = self._compute_allocation(employee_id=employee_id)
             # return allocations
-            return view.render(allocations, engine="ir.qweb") if allocations['summary'] else None
+            return self.env['ir.qweb']._render(view.id, allocations) if allocations['summary'] else None
         else:
             return None
 
@@ -374,7 +374,7 @@ class KderpHolidayRequestCover(models.Model):
         view = self.env.ref('kdvn_hr_attendance.allocation_summary')
         for c in self:
             values = c._compute_allocation()
-            html = view.render(values, engine="ir.qweb")
+            html = self.env['ir.qweb']._render(view.id, values)
             c.allocation_summary = html
 
     def _compute_special_leave(self):

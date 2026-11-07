@@ -337,7 +337,7 @@ class KderpHrAttendanceSummary(models.Model):
             any_leave_cover = self.env['hr.leave.cover'].search([('employee_id', '=', s.employee_id.id)], limit=1)
             # !NOTE: need sudo for SM/GM to see his/her staffs leave allocation
             values['allocation_summary'] = any_leave_cover.sudo().with_context(valid_allocation_date=self.env['hr.mixin'].at_period_last_day(s.at_year, s.at_month))._compute_allocation(employee_id=s.employee_id.id)
-            html = view.render(values, engine='ir.qweb')
+            html = self.env['ir.qweb']._render(view.id, values)
             s.summary_for_at = html
             
             # return html

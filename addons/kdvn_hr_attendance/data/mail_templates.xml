@@ -1,0 +1,757 @@
+<odoo>
+<data>
+    <!-- Can use mail.template here but QWeb seem to be more dynamic -->
+    <!--  template for email notification - use classic STYLE attributes -->
+    <template id="noti_email_for_manager">
+        <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;">
+        <tr><td align="center">
+            <table border="0" cellpadding="0" cellspacing="0" width="590" style="padding: 16px; background-color: white; color: #454748; border-collapse:separate;">
+                <tbody>
+                    <!-- HEADER -->
+                    <tr>
+                        <td align="center" style="min-width: 590px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                <tr><td valign="middle">
+                                    <span style="font-size: 20px; font-weight: bold;">
+                                        <t t-out="name"/>
+                                    </span>
+                                </td><td valign="middle" align="right">
+                                    <img t-attf-src="http://att-hn.kinden.com.vn/logo.png?company={{company_id}}" style="padding: 0px; margin: 0px; height: auto; width: 80px;" t-att-alt="company_name"/>
+                                </td></tr>
+                                <tr><td colspan="2" style="text-align:center;">
+                                <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- DEAR -->
+                        <td align="center" style="min-width: 590px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                <tr><td valign="top" style="font-size: 13px;">
+                                    <div>
+                                        <p>Dear <span t-out="pre" /> <span t-out="name" />.</p>
+                                        Please be informed that there are <span style="font-weight:bold;"><t t-out="len(extra_data)" /></span> attendance request(s) and <span style="font-weight:bold;"><t t-out="len(ot_holiday_data)" /></span> ot on holiday request(s)
+                                        are waiting for your approval!<br/>
+                                        Below are summary of WT, OT, Leave requests; and OT on Holiday requests from your section staffs as of <span style="font-weight:bold;color:red"><t t-out="now" /></span>:
+                                    </div>
+                                </td></tr>
+                                <tr><td style="text-align:center;">
+                                    <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- MAIN CONTENT -->
+                        <td align="center" style="min-width: 590px; font-size: 13px">
+                            <table border="1" cellpadding="1" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 0px 0px 0px; border-collapse:separate;">
+                                <thead>
+                                    <tr>
+                                        <th valign="top" style="width: 30%;">Employee</th>
+                                        <!-- <th>Section</th> -->
+                                        <th valign="top" style="width: 10%">Date</th>
+                                        <th valign="top" style="width: 50%">Requests Marks</th>
+                                        <th valign="top" style="width: 10%">State</th>
+                                        <!-- <th>Actions</th> -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t  t-if="extra_data">
+                                        <tr scope="col" align="left" valign="top" style="font-size: 13px;">
+                                            <th colspan="4" style="width: 100%;">WT, OT and Leave requests</th>
+                                        </tr>
+                                        <t t-foreach="extra_data" t-as="at">
+                                            <tr valign="top" style="font-size: 13px;">
+                                                <td><t t-out="at['employee']" /></td>
+                                                <!-- <td><t t-out="at['section']" /></td> -->
+                                                <td><t t-out="at['date']" /></td>
+                                                <td><t t-out="at['request_marks']" /></td>
+                                                <td><t t-out="at['state']" /></td>
+                                                <!-- <td><a t-attf-href="https://att-hn.kinden.com.vn{{at['action_approve']}}" style="background-color: #155C2f; padding:1px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;">Approve</a></td> -->
+                                            </tr>
+                                        </t>
+                                    </t>
+                                    <t t-if="ot_holiday_data">
+                                        <tr scope="col" align="left" valign="top" style="font-size: 13px;">
+                                            <th colspan="4" style="width: 100%;">OT on Holiday requests</th>
+                                        </tr>
+                                        <t t-foreach="ot_holiday_data" t-as="o">
+                                            <tr valign="top" style="font-size: 13px;">
+                                                <td><t t-out="o['employee']" /></td>
+                                                <td><t t-out="o['date']" /></td>
+                                                <td><t t-out="o['request_marks']" /></td>
+                                                <td><t t-out="o['state']" /></td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- END -->
+                        <td>
+                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                <tr><td valign="top" style="font-size: 13px;">
+                                    <div>
+                                        <br/>
+                                        Kindly access the <a t-att-href="app_url">Attendance App</a> to review and approve or reject these requests to ensure proper work planning and scheduling.<br/>
+                                        Please note that for OT on Holiday requests: <strong>employees are not permitted to work on these days without prior managerial approval.</strong><br/>
+                                        This is an automatically generated email. Please <strong>DO NOT</strong> reply to it.<br/>
+                                        Thank you for your cooperation!
+                                    </div>
+                                </td></tr>
+                                <tr><td style="text-align:center;">
+                                    <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </td></tr>
+        </table>
+    </template>
+
+    <!-- QWeb template for refuse request -->
+    <template id="noti_email_for_refuse_request">
+        <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;">
+        <tr><td align="center">
+            <table border="0" cellpadding="0" cellspacing="0" width="590" style="padding: 16px; background-color: white; color: #454748; border-collapse:separate;">
+                <tbody>
+                    <!-- HEADER -->
+                    <tr>
+                        <td align="center" style="min-width: 590px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                <tr><td valign="middle">
+                                    <span style="font-size: 20px; font-weight: bold;">
+                                        <t t-out="name"/>
+                                    </span>
+                                </td><td valign="middle" align="right">
+                                    <img t-attf-src="http://att-hn.kinden.com.vn/logo.png?company={{company_id}}" style="padding: 0px; margin: 0px; height: auto; width: 80px;" t-att-alt="company_name"/>
+                                </td></tr>
+                                <tr><td colspan="2" style="text-align:center;">
+                                <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- DEAR -->
+                        <td align="center" style="min-width: 590px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                <tr><td valign="top" style="font-size: 13px;">
+                                    <div>
+                                        <p>Dear <span t-out="pre" /> <span t-out="name" />.</p>
+                                        Please be informed that <span style="font-weight:bold;"><t t-out="len(extra_data)" /></span> of your attendance request(s) is <span style="color: red">refused!</span><br/>
+                                        Check below for summary of those requests as of <span style="font-weight:bold;color:red"><t t-out="now" /></span>:
+                                    </div>
+                                </td></tr>
+                                <tr><td style="text-align:center;">
+                                    <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- MAIN CONTENT -->
+                        <td align="center" style="min-width: 590px; font-size: 13px">
+                            <table border="1" cellpadding="1" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 0px 0px 0px; border-collapse:separate;">
+                                <thead>
+                                    <tr>
+                                        <!-- <th valign="top" style="width: 30%;">Employee</th> -->
+                                        <!-- <th>Section</th> -->
+                                        <th valign="top" style="width: 20%">Date</th>
+                                        <th valign="top" style="width: 40%">Requests Marks</th>
+                                        <th valign="top" style="width: 40%">Refuse Marks</th>
+                                        <!-- <th>Actions</th> -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="extra_data" t-as="at">
+                                        <tr valign="top" style="font-size: 13px;">
+                                            <!-- <td><t t-out="at['employee']" /></td> -->
+                                            <!-- <td><t t-out="at['section']" /></td> -->
+                                            <td><t t-out="at['date']" /></td>
+                                            <td><t t-out="at['request_marks']" /></td>
+                                            <td><t t-out="at['refuse_marks']" /></td>
+                                            <!-- <td><a t-attf-href="https://att-hn.kinden.com.vn{{at['action_approve']}}" style="background-color: #155C2f; padding:1px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;">Approve</a></td> -->
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- END -->
+                        <td>
+                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                <tr><td valign="top" style="font-size: 13px;">
+                                    <div>
+                                        <br/>
+                                        Please login to <a t-att-href="app_url">Attendance App</a> to modify these requests ASAP to keep the company's approval schedule.<br/>
+                                        (Select the filter [Not submit yet] and look for refuse requests)<br/>
+                                        This is an automatically generated email. Please <strong>DO NOT</strong> reply to it.<br/>
+                                        Thank you and best regards.
+                                    </div>
+                                </td></tr>
+                                <tr><td style="text-align:center;">
+                                    <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </td></tr>
+        </table>
+    </template>    
+
+
+    <!-- QWeb template for states unsync -->
+    <template id="noti_email_for_states_unsync">
+        <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;">
+        <tr><td align="center">
+            <table border="0" cellpadding="0" cellspacing="0" width="590" style="padding: 16px; background-color: white; color: #454748; border-collapse:separate;">
+                <tbody>
+                    <!-- HEADER -->
+                    <tr>
+                        <td align="center" style="min-width: 590px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                <tr><td valign="middle">
+                                    <span style="font-size: 20px; font-weight: bold;">
+                                        <t t-out="name"/>
+                                    </span>
+                                </td><td valign="middle" align="right">
+                                    <img t-attf-src="http://att-hn.kinden.com.vn/logo.png?company={{company_id}}" style="padding: 0px; margin: 0px; height: auto; width: 80px;" t-att-alt="company_name"/>
+                                </td></tr>
+                                <tr><td colspan="2" style="text-align:center;">
+                                <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- DEAR -->
+                        <td align="center" style="min-width: 590px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                <tr><td valign="top" style="font-size: 13px;">
+                                    <div>
+                                        <p>Dear <span t-out="pre" /> <span t-out="name" />.</p>
+                                        Please be informed that <span style="font-weight:bold;"><t t-out="len(extra_data)" /></span> of your attendance request(s) are <span style="color: red">not completed!</span><br/>
+                                        Mostly due to <span style="font-weight:bold; color: red">not yet submited requests</span>. Please check below for summary of those requests as of <span style="font-weight:bold;color:red"><t t-out="now" /></span>:
+                                    </div>
+                                </td></tr>
+                                <tr><td style="text-align:center;">
+                                    <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- MAIN CONTENT -->
+                        <td align="center" style="min-width: 590px; font-size: 13px">
+                            <table border="1" cellpadding="1" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 0px 0px 0px; border-collapse:separate;">
+                                <thead>
+                                    <tr>
+                                        <!-- <th valign="top" style="width: 30%;">Employee</th> -->
+                                        <!-- <th>Section</th> -->
+                                        <th valign="top" style="width: 20%">Date</th>
+                                        <th valign="top" style="width: 40%">Requests Marks</th>
+                                        <!-- <th valign="top" style="width: 40%">Refuse Marks</th> -->
+                                        <!-- <th>Actions</th> -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="extra_data" t-as="at">
+                                        <tr valign="top" style="font-size: 13px;">
+                                            <!-- <td><t t-out="at['employee']" /></td> -->
+                                            <!-- <td><t t-out="at['section']" /></td> -->
+                                            <td><t t-out="at['date']" /></td>
+                                            <td><t t-out="at['request_marks']" /></td>
+                                            <!-- <td><t t-out="at['refuse_marks']" /></td> -->
+                                            <!-- <td><a t-attf-href="https://att-hn.kinden.com.vn{{at['action_approve']}}" style="background-color: #155C2f; padding:1px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;">Approve</a></td> -->
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- END -->
+                        <td>
+                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                <tr><td valign="top" style="font-size: 13px;">
+                                    <div>
+                                        <br/>
+                                        Please login to <a t-att-href="app_url">Attendance App</a> to modify these requests ASAP to keep the company's approval schedule.<br/>
+                                        (Select the filter [States unsynced] and look for related requests)<br/>
+                                        This is an automatically generated email. Please <strong>DO NOT</strong> reply to it.<br/>
+                                        Thank you and best regards.
+                                    </div>
+                                </td></tr>
+                                <tr><td style="text-align:center;">
+                                    <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </td></tr>
+        </table>
+    </template>
+
+    <!-- template for generate at_rules - can use odoo and bootstrap classes -->
+    <template id="at_rules">
+        <div class="col-12 table-responsive" >
+            <!-- <h3 class="h3 text-center text-success">Attendance Rules for <span t-out="employee_name" /></h3> -->
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Rules</th>
+                        <th>Values</th>
+                        <th>Unit</th>
+                        <th>Rule set</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="rules" t-as="rule">
+                        <t t-if="rule[3] != 'Policy'">
+                            <!-- <t t-if="not (rule[1] == 'Child Care Period' and rule[2] == 0)"> -->
+                            <t t-if="not rule[2] == 0 or rule[0] == 'allow_morning_ot'">
+                                <tr t-att-class="'text-danger' if rule[1][:8] == 'Override' else ''">
+                                    <td><t t-out="rule[1]" /></td>
+                                    <td><t t-out="rule[2]" /></td>
+                                    <td><t t-out="rule[4]" /></td>
+                                    <td><t t-out="rule[3]" /></td>
+                                </tr>
+                            </t>
+                        </t>
+
+                    </t>
+                </tbody>
+            </table>
+        </div>
+    </template>
+
+    <!-- template for allocation summary -->
+    <template id="allocation_summary">
+        <div class="col-12 table-reponsive">
+            <!-- <h3 class="h3 text-center text-success">Allocation Summary for <span t-out="employee_name" /></h3> -->
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Name</th>
+                        <th>Total Allowed</th>
+                        <th>Remaining*</th>
+                        <!-- <th>Can Request*</th> -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="summary" t-as="s">
+                        <tr t-if="s['can_request'] != 0">
+                            <td>
+                                <t t-if="s_index == 0 or s['type'] != summary[s_index -1]['type']">
+                                    <b><t t-out="s['type']" /></b>
+                                </t>
+                            </td>
+                            <td>
+                                <t t-if="list(map(lambda x: x['type'], summary)).count(s['type']) > 1">
+                                    <t t-out="s['name']" />
+                                </t>
+                            </td>
+                            <td><a t-att-href="s['allocation_url']" target="_blank"><t t-out="s['total_allowed']" /></a></td>
+                            <td>
+                                <t t-if="s_index == 0 or s['type'] != summary[s_index -1]['type']">
+                                    <t t-out="s['remain']" />
+                                </t>
+                            </td>
+                            <!-- <td>
+                                <t t-if="s_index == 0 or s['type'] != summary[s_index -1]['type']">
+                                    <t t-out="s['can_request']" />
+                                </t>
+                            </td> -->
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+            <t t-if="len(summary) > 0">
+                <p class="text-muted">*: Not counting leaves in [draft] state.</p>
+                <p class="text-muted">*: As of <t t-out="summary[0]['valid_allocation_date']" /></p>
+            </t>
+        </div>
+    </template>
+
+    <!-- Month summary for an AT -->
+    <template id="at_monthly_summary">
+        <div class="row">
+            <div class="col-12 col-md-6 table-reponsive">
+                <span class="h4">Status of working</span>
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th class="text-right">Days</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="at_summary" t-value="filter(lambda r: r['category'] == 'AT' and r['field'] not in ['late_in_count', 'early_out_count', 'forget_count'], monthly_summary)" />
+                        <t t-foreach="at_summary" t-as="s">
+                            <tr>
+                                <t t-if="s['field'] == 'working_days_sum'">
+                                    <td class="h4"><t t-out="s['name']" /></td>
+                                    <td class="h4 text-right"><t t-out="s['value']" /></td>
+                                </t>
+                                <t t-else="">
+                                    <td><t t-out="s['name']" /></td>
+                                    <td class="text-right"><t t-out="s['value']" /></td>
+                                </t>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+            <!-- <div class="col-6 table-reponsive">
+                <span class="h4">Status of Overtime</span>
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th class="text-right">Hours</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set='field_list' t-value="['wd_sum', 'hd_sum', 'allow_wd_overtime', 'allow_hd_overtime', 'exceed_wd_overtime', 'exceed_hd_overtime', 'exceed_ot_to_leave', 'exceed_ot_subtitude']" />
+                        <t t-set='name_list' t-value="['WD OT', 'HD OT', 'Allow WD OT', 'Allow HD OT', 'Exceed WD OT', 'Exceed HD OT', 'Exceed To Leave', 'OT Substitude (days)']" />
+                        <t t-foreach="filter(lambda r: r['category'] != 'AT' and r['field'] in field_list, monthly_summary)" t-as="s">
+                            <tr t-if="s['value'] &gt; 0">
+                                <td t-att-class="'h5 text-danger' if s_index &gt;= 4 else ''"><t t-out="name_list[s_index]" /></td>
+                                <td t-att-class="'h5 text-danger text-right' if s_index &gt;= 4 else 'text-right'"><t t-out="s['value']"/></td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </div> -->
+            
+            <t t-if="sum(list(map(lambda r: r['value'] if r['category'] in ['OT', 'Exceed'] else 0, monthly_summary))) > 0">
+                <div class="col-12 col-md-6 table-reponsive">
+                    <span class="h4">Status of Overtime</span>
+                    <table class="table table-striped table-hover">
+                        <tbody>
+                            <tr class="text-center">
+                                <td rowspan="2"></td>
+                                <td colspan="2">Weekday</td>
+                                <td colspan="2">Holiday</td>
+                                <td colspan="2">Public Holiday</td>
+                            </tr>
+                            <tr class="text-center">
+                                <td>OT</td>
+                                <td>ST</td>
+                                <td>OT</td>
+                                <td>ST</td>
+                                <td>OT</td>
+                                <td>ST</td>                            
+                            </tr>
+
+                            <t t-set='actual_list' t-value="['wd_ot_sum', 'wd_st_sum', 'hd_ot_sum', 'hd_st_sum', 'ph_ot_sum', 'ph_st_sum']" />
+                            <t t-set='actual' t-value="list(filter(lambda r: r['category'] == 'OT' and r['field'] in actual_list, monthly_summary))" />
+                            <tr t-if="sum(map(lambda r: r['value'], actual)) > 0">
+                                <td>Actual OT (hour)</td>
+                                <!-- <t t-set='actual_name' t-value="['WD OT', 'WD ST', 'DD OT', 'HD ST', 'PH OT', 'PH ST']" /> -->
+                                <t t-foreach="actual" t-as="e">
+                                    <td class="text-center"><t t-out="e['value']" /></td>
+                                </t>
+                            </tr>
+
+                            <t t-set='max_allow' 
+                                t-value="list(filter(lambda r: r['category'] in ['Allow WD', 'Allow HD'] and r['field'] in ['allow_wd_overtime', 'allow_hd_overtime'], monthly_summary))" />
+                            <tr t-if="(max_allow[0]['value'] + max_allow[1]['value']) > 0">
+                                <td>Max OT allow (hour)</td>
+                                <td colspan="2" style="text-align: center;"><t t-out="max_allow[0]['value']" /></td>
+                                <td colspan="4" style="text-align: center;"><t t-out="max_allow[1]['value']" /></td>
+                            </tr>
+
+                            <t t-set='ot_bylaw' t-value="list(filter(lambda r: r['category'] == 'Exempt PIT OT', monthly_summary))" />
+                            <t t-set='allow_list' t-value="['allow_wd_ot', 'allow_wd_st', 'allow_hd_ot', 'allow_hd_st', 'allow_ph_ot', 'allow_ph_st']" />
+                            <t t-set='allow' t-value="list(filter(lambda r: r['category'] in ['Allow WD', 'Allow HD'] and r['field'] in allow_list, monthly_summary))" />
+                            <tr t-if="sum(map(lambda r: r['value'], allow)) > 0" class="font-weight-bold">
+                                <td t-if="ot_bylaw[0]['value'] > 0">Exempt PIT OT (hour)</td>
+                                <td t-else="">Allow OT (hour)</td> 
+                                <t t-foreach="allow" t-as="e">
+                                    <td class="text-center"><t t-out="e['value']" /></td>
+                                </t>
+                            </tr>
+
+                            <t t-if="ot_bylaw[0]['value'] > 0">
+                                <tr class="font-weight-bold">
+                                    <td></td>
+                                    <td colspan="6" style="text-align: center;"><t t-out="ot_bylaw[1]['value']" /> / <t t-out="ot_bylaw[0]['value']" /></td>
+                                </tr>
+                            
+                                <t t-set='bonus_ot'
+                                    t-value="list(filter(lambda r: r['category'] == 'Bonus OT', monthly_summary))" />
+                                <tr class="font-weight-bold">
+                                    <td>Bonus OT (hour | level)</td>
+                                    <td colspan="6" style="text-align: center;"><t t-out="bonus_ot[0]['value']" />  | <t t-out="bonus_ot[1]['value']" /></td>
+                                </tr>
+                            </t>
+                            
+                            <t t-set='compensation'
+                                t-value="list(filter(lambda r: r['category'] == 'Exceed', monthly_summary))" />
+                            <tr t-if="compensation[3]['value'] > 0" class="font-weight-bold">
+                                <td>OT Compensation (day)</td>
+                                <td colspan="6" style="text-align: center;"><t t-out="compensation[3]['value']" /></td>
+                            </tr>
+
+
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+
+            <div class="col-12 col-md-6">
+                <span class="h4">Status of Leave Allocation</span>
+                <t t-call="kdvn_hr_attendance.allocation_summary">
+                    <t t-set="summary" t-value="allocation_summary['summary']" />
+                </t>
+            </div>
+
+        </div>
+    </template>
+
+    <!-- OT warning email template for manager -->
+    <template id="ot_warning_for_manager">
+        <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;">
+        <tr><td align="center">
+            <table border="0" cellpadding="0" cellspacing="0" width="75%" style="padding: 16px; background-color: white; color: #454748; border-collapse:separate;">
+                <tbody>
+                    <!-- HEADER -->
+                    <tr>
+                        <td align="center" style="min-width: 590px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                <tr><td valign="middle">
+                                    <span style="font-size: 20px; font-weight: bold;">
+                                        <t t-out="name"/>
+                                    </span>
+                                </td><td valign="middle" align="right">
+                                    <img t-attf-src="http://att-hn.kinden.com.vn/logo.png?company={{company_id}}" style="padding: 0px; margin: 0px; height: auto; width: 80px;" t-att-alt="company_name"/>
+                                </td></tr>
+                                <tr><td colspan="2" style="text-align:center;">
+                                <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- DEAR -->
+                        <td align="center" style="min-width: 590px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                <tr><td valign="top" style="font-size: 12px;">
+                                    <div>
+                                        <p>Kính gửi / Dear <span t-out="pre" /> <span t-out="name" />.</p>
+                                        <p>Vui lòng kiểm tra danh sách nhân viên có tổng số giờ làm thêm vượt định mức trung bình tuần/ và hoặc tháng.</p>
+                                        <p>Lưu ý sắp xếp công việc của nhân viên để hạn chế vượt định mức làm thêm quy định.</p>
+                                        <p>Kindly review the list of staff whose total overtime hours exceeded the average hours/week / and or month.</p>
+                                        <p>Please consider arranging jobs for your staff within these allowed overtime hours.</p>
+                                        <p>Cập nhật lúc / Updated by: <span style="font-weight:bold;color:red"><t t-out="now" /></span>.</p>
+                                    </div>
+                                </td></tr>
+                                <tr><td style="text-align:center;">
+                                    <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- MAIN CONTENT -->
+                        <td align="center" style="min-width: 590px; font-size: 12px">
+                            <table border="1" cellpadding="1" cellspacing="0" width="100%" style="min-width: 590px; background-color: white; padding: 0px 0px 0px 0px; border-collapse:separate;">
+                                <thead>
+                                    <tr style="text-align: center; vertical-align: middle">
+                                        <th rowspan="2" valign="middle" style="width: 5%;">Staff No.</th>
+                                        <th rowspan="2" valign="middle" style="width: 15%;">Employee</th>
+                                        <th rowspan="2" valign="middle" style="width: 5%">Location</th>
+                                        <th rowspan="2" valign="middle" style="width: 15%">SM/GM</th>
+                                        <th colspan="2" valign="top" style="width: 20%">Limit Amount</th>
+                                        <th colspan="2" valign="top" style="width: 20%">Used Amount</th>
+                                        <th colspan="2" valign="top" style="width: 20%">Remain Amount</th>
+                                    </tr>
+                                    <tr style="text-align: center; vertical-align: middle">
+                                        <th valign="top" style="width: 10%">Weekday</th>
+                                        <th valign="top" style="width: 10%">Holiday</th>
+                                        <th valign="top" style="width: 10%">Weekday</th>
+                                        <th valign="top" style="width: 10%">Holiday</th>
+                                        <th valign="top" style="width: 10%">Weekday</th>
+                                        <th valign="top" style="width: 10%">Holiday</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="extra_data" t-as="row">
+                                        <tr valign="top" style="font-size: 12px;">
+                                            <td><t t-out="row['staff_code']" /></td>
+                                            <td><t t-out="row['employee']" /></td>
+                                            <td><t t-out="row['location']" /></td>
+                                            <td><t t-out="row['sm_pm']" /></td>
+                                            <td style="text-align: right"><t t-out="row['wd_allow']" /></td>
+                                            <td style="text-align: right"><t t-out="row['hd_allow']" /></td>
+                                            <td style="text-align: right"><t t-out="row['wd_used']" /></td>
+                                            <td style="text-align: right"><t t-out="row['hd_used']" /></td>
+                                            <td t-att-style="'color:red; text-align: right' if row['wd_remain'] &lt; 0 else 'text-align: right'"><t t-out="row['wd_remain']" /></td>
+                                            <td t-att-style="'color:red; text-align: right' if row['hd_remain'] &lt; 0 else 'text-align: right'"><t t-out="row['hd_remain']" /></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- END -->
+                        <td>
+                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                <tr><td valign="top" style="font-size: 12px;">
+                                    <div>
+                                        <br/>
+                                        Đăng nhập / Login to <a t-att-href="app_url">Attendance App</a> để biết thêm chi tiết / for further actions.<br/>
+                                        Đây là email tự động. <strong>Xin đừng</strong> trả lời.<br/>
+                                        This is an automatically generated email. Please <strong>DO NOT</strong> reply to it.<br/>
+                                        Trân trọng cảm ơn / Thank you and best regards.
+                                    </div>
+                                </td></tr>
+                                <tr><td style="text-align:center;">
+                                    <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </td></tr>
+        </table>
+    </template>
+
+    <!-- New AT notification email to Managers: combined -->
+    <template id="combined_noti_email_for_manager">
+        <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;">
+        <tr><td align="center">
+            <table border="0" cellpadding="0" cellspacing="0" width="590" style="padding: 16px; background-color: white; color: #454748; border-collapse:separate;">
+                <tbody>
+                    <!-- HEADER -->
+                    <tr>
+                        <td align="center" style="min-width: 590px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                <tr><td valign="middle">
+                                    <span style="font-size: 20px; font-weight: bold;">
+                                        <t t-out="name"/>
+                                    </span>
+                                </td><td valign="middle" align="right">
+                                    <img t-attf-src="http://att-hn.kinden.com.vn/logo.png?company={{company_id}}" style="padding: 0px; margin: 0px; height: auto; width: 80px;" t-att-alt="company_name"/>
+                                </td></tr>
+                                <tr><td colspan="2" style="text-align:center;">
+                                <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- DEAR, MAIN CONTENT, NOTE-->
+                        <td align="center" style="min-width: 590px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                <!-- Tieng Viet -->
+                                <tr><td valign="top" style="font-size: 13px;">
+                                    <div>
+                                        <p>Kính gửi <span t-out="pre" /> <span t-out="name" />,</p>
+                                        <p>
+                                        Xin thông báo đến Anh/Chị cho đến <span style="font-weight:bold;"><t t-out="now" /></span>, các nội dung sau cần được xem xét và xử lý:</p>
+                                        <ol>
+                                            <t t-if="extra_data">
+                                                <li>
+                                                    <strong>Phê duyệt chấm công</strong> (bao gồm: làm thêm giờ, đăng ký công và nghỉ phép)<br/>
+                                                    Có <a t-att-href="app_url"><span style="font-weight:bold;"><t t-out="len(extra_data)" /> yêu cầu</span></a> đang chờ Anh/Chị phê duyệt.
+                                                    <br/>
+                                                </li>
+                                            </t>
+                                            <t t-if="ot_holiday_data">
+                                                <li>
+                                                    <strong>Đăng ký làm thêm vào ngày nghỉ</strong><br/>
+                                                    Có <a t-att-href="ot_holidays_url"><span style="font-weight:bold;"><t t-out="len(ot_holiday_data)" /> đăng ký làm thêm</span></a> vào các ngày nghỉ sắp tới đang chờ Anh/Chị phê duyệt.
+                                                    <ul><li>
+                                                    Lưu ý: Nhân viên <strong>chỉ được làm việc vào ngày nghỉ khi có sự phê duyệt trước của quản lý.</strong>
+                                                    <br/>
+                                                    </li></ul>
+                                                </li>
+                                            </t>
+                                            <t t-if="ot_warning['employee_ids']">
+                                                <li>
+                                                    <strong>Cảnh báo làm thêm vượt định mức</strong><br/>
+                                                    Có <a t-att-href="ot_warning_url"><span style="font-weight:bold;"><t t-out="len(ot_warning['employee_ids'])" /> nhân viên</span></a> đã vượt số giờ làm thêm theo quy định tuần hoặc tháng.
+                                                    <ul><li>
+                                                        Đề nghị Anh/Chị rà soát và điều chỉnh phân công công việc nếu cần thiết, nhằm đảm bảo tuân thủ quy định hiện hành và bảo vệ sức khỏe người lao động.
+                                                        <br/>
+                                                    </li></ul>
+                                                </li>
+                                            </t>
+                                        </ol>
+                                        <p> Trân trọng cảm ơn.<br/>
+                                        (Email được gửi tự động hàng ngày từ <strong>12:30 đến 13:00</strong> khi có các thông báo phát sinh - vui lòng không phản hồi)
+                                        </p>
+                                    </div>
+                                </td></tr>
+                                <!-- Separator -->
+                                <tr><td style="text-align:center;">
+                                    <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                </td></tr>
+                                <!-- English -->
+                                <tr><td valign="top" style="font-size: 13px;">
+                                    <div>
+                                        <p>Dear <span t-out="pre" /> <span t-out="name" />,</p>
+                                        <p>Please be informed that as of <span style="font-weight:bold;"><t t-out="now" /></span>, the following items required your attention:</p>
+                                        <ol>
+                                            <t t-if="extra_data">
+                                                <li>
+                                                    <strong>Approve of attendance requests</strong> (including: overtime, working time and leave)<br/>
+                                                    There are <a t-att-href="app_url"><span style="font-weight:bold;"><t t-out="len(extra_data)" /> attendance requests</span></a> are waiting for your approval.
+                                                    <br/>
+                                                </li>
+                                            </t>
+                                            <t t-if="ot_holiday_data">
+                                                <li>
+                                                    <strong>Registration for working on scheduled days off</strong><br/>
+                                                    There are <a t-att-href="ot_holidays_url"><span style="font-weight:bold;"><t t-out="len(ot_holiday_data)" /> OT registers</span></a> on upcoming holidays waiting for your approval.
+                                                    <br/>
+                                                </li>
+                                                <ul>
+                                                <li>Please note: Employees are <strong>not allowed to work on days off without prior managerial approval.</strong></li>
+                                                </ul>
+                                            </t>
+                                            <t t-if="ot_warning['employee_ids']">
+                                                <li>
+                                                    There are <a t-att-href="ot_warning_url"><span style="font-weight:bold;"><t t-out="len(ot_warning['employee_ids'])" /> employees</span></a> have exceeded the allowed weekly/monthly overtime limit.
+                                                    <ul><li>
+                                                        Please review and adjust work assignments as necessary to ensure compliance and safeguard employees' health.
+                                                        <br/>
+                                                    </li></ul>
+                                                </li>
+                                            </t>
+                                        </ol>
+                                    <p>Thank you for your cooperation.<br/>
+                                       (This is an automated email sent daily <strong>from 12:30 to 13:00</strong> when there are new notifications - Please do not reply)</p>
+                                    </div>
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </td></tr>
+        </table>
+    </template>
+</data>
+</odoo>

@@ -25,6 +25,8 @@ The computation code is ported literally: payroll depends on its results. See do
         'views/hr_holidays_public_view.xml',
         'views/hr_attendance_menus.xml',
         'views/hr_attendance_rule_view.xml',
+        'views/res_config_settings_views.xml',
+        'data/mail_templates.xml',
     ],
     'installable': True,
     'application': False,

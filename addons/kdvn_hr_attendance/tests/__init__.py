@@ -8,3 +8,4 @@ from . import test_ot_ah
 from . import test_gm_special_warning
 from . import test_leave_balance
 from . import test_staff_location_push
+from . import test_requests
