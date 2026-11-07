@@ -197,7 +197,7 @@
         <field name="name">hr.attendance.admin.control.wizard.form</field>
         <field name="model">hr.attendance.admin.control.wizard</field>
         <field name="arch" type="xml">
-            <form string="HR Admin Control Panel">
+            <form string="HR Admin Control Panel" disable_autofocus="1">
                 <header/>
                 <sheet>
                     <group col="4" string="Date and Employee">

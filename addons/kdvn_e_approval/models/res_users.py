@@ -22,28 +22,18 @@ class ResUsers(models.Model):
         help="How the approval progress is shown on request forms. "
              "'Company default' follows the setting in E-Approval configuration.")
 
-    def __init__(self, pool, cr):
-        init_res = super(ResUsers, self).__init__(pool, cr)
-        # copy the lists so the original references are not modified
-        type(self).SELF_WRITEABLE_FIELDS = list(self.SELF_WRITEABLE_FIELDS)
-        type(self).SELF_WRITEABLE_FIELDS.extend(['approval_notify_type', 'approval_ribbon_style'])
-        type(self).SELF_READABLE_FIELDS = list(self.SELF_READABLE_FIELDS)
-        type(self).SELF_READABLE_FIELDS.extend(['approval_notify_type', 'approval_ribbon_style'])
-        return init_res
-    @api.model
-    def get_reviews(self, data):
-        """Add what the Reviews panel shows like the list view: reviewer names
-        and a short local date (OCA returns a timezone-aware datetime)."""
-        res = super(ResUsers, self).get_reviews(data)
-        reviews = {r.id: r for r in self.env['tier.review'].browse([row['id'] for row in res])}
-        for row in res:
-            review = reviews.get(row['id'])
-            row['reviewer_names'] = review.reviewer_ids.mapped('name') if review else []
-            if review and not row.get('frontend_step_name'):
-                row['frontend_step_name'] = review.frontend_step_name
-            date = row.get('reviewed_date')
-            row['reviewed_date_display'] = date.strftime('%d/%m/%Y %H:%M') if date else ''
-        return res
+    # Odoo 19: the lists a user may read / write on his own record are properties (Odoo 12 changed class attributes in __init__)
+    @property
+    def SELF_READABLE_FIELDS(self):
+        return super().SELF_READABLE_FIELDS + ['approval_notify_type', 'approval_ribbon_style']
+
+    @property
+    def SELF_WRITEABLE_FIELDS(self):
+        return super().SELF_WRITEABLE_FIELDS + ['approval_notify_type', 'approval_ribbon_style']
+
+    # TODO (port): Odoo 12 `get_reviews` added reviewer names and a short local date to the data of the OCA "Reviews" panel. OCA's 19.0 widget
+    # (extra-addons/base_tier_validation/static/src/components/tier_review_widget) no longer calls res.users.get_reviews: redo this with the
+    # OWL widget (see HANDOFF.md, e-approval open item 2). The columns are still in tier.review `frontend_step_name`, `reviewer_names`.
 
     @api.model
     def cron_send_all_manager_digests(self):

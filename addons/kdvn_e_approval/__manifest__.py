@@ -33,7 +33,7 @@
             # TODO: review_colors.js + xml/tier_review_table.xml (colours of the review table): port to the OWL widget of base_tier_validation 19.0
         ],
     },
-    'installable': False,   # port in progress (8 Nov): see HANDOFF.md, step 5
+    'installable': True,   # port in progress (8 Nov): see HANDOFF.md, step 5
     'application': True,
     'auto_install': False,
 }

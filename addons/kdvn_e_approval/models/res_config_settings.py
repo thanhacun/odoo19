@@ -1,7 +1,7 @@
 from odoo import models, fields, api, _
 
 class KderpEApprovalSettingsInherit(models.TransientModel):
-    _inherit = 'kderp.remote.sync.config.settings'
+    _inherit = 'res.config.settings'     # Odoo 12: kderp.remote.sync.config.settings
 
     n8n_analytic_webhook_url = fields.Char(
         string='n8n Analytic Webhook URL',

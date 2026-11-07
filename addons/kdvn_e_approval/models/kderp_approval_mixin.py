@@ -8,7 +8,7 @@ import base64
 import hmac
 import hashlib
 import io
-from werkzeug import url_encode
+from urllib.parse import urlencode as url_encode
 import requests
 import logging
 import re

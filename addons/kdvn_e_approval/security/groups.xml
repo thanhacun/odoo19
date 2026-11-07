@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- NEW CUSTOM CATEGORY -->
+        <!-- Odoo 19: groups are listed under a privilege (res.groups.privilege) instead of category_id -->
+        <record id="privilege_kderp_e_approval" model="res.groups.privilege">
+            <field name="name">KDERP E-Approval Workspace</field>
+            <field name="sequence">20</field>
+        </record>
         <record id="module_category_kderp_e_approval" model="ir.module.category">
             <field name="name">KDERP E-Approval Workspace</field>
             <field name="description">Security access levels for the corporate paperless workflow application portal.</field>
@@ -11,14 +15,14 @@
         <!-- Define a unique security master override group role -->
         <record id="group_e_approval_admin" model="res.groups">
             <field name="name">E-Approval: Administrator</field>
-            <field name="category_id" ref="module_category_kderp_e_approval"/>
+            <field name="privilege_id" ref="privilege_kderp_e_approval"/>
             <field name="comment">Members can view/edit ALL requests across ALL modules.</field>
-            <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+            <field name="user_ids" eval="[(4, ref('base.user_admin'))]"/>
         </record>
 
         <record id="group_e_approval_global_auditor" model="res.groups">
             <field name="name">E-Approval: Read-Only Auditor</field>
-            <field name="category_id" ref="module_category_kderp_e_approval"/>
+            <field name="privilege_id" ref="privilege_kderp_e_approval"/>
             <field name="comment">Members can view ALL requests across ALL modules but cannot modify or change states.</field>
         </record>
     </data>

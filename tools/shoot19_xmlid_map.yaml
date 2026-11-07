@@ -5,3 +5,4 @@ hr_holidays_public.open_holidays_public_view: kdvn_hr_attendance.open_holidays_p
 _selectors:
   "tr.o_data_row:has-text('25/09/2026') td:nth-child(9)": "tr.o_data_row:has-text('25/09/2026') button[name='action_ot_request']"
   "tr.o_data_row:has-text('25/09/2026') td:nth-child(10)": "tr.o_data_row:has-text('25/09/2026') button[name='action_wt_request']"
+  "table.o_list_view": ".o_list_renderer"

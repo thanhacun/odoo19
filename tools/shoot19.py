@@ -160,7 +160,7 @@ class Shooter:
         pg = self.pg
         pg.wait_for_selector('.o_main_navbar', timeout=READY_MS)
         try:
-            pg.wait_for_selector('.o_action_manager .o_action, .o_action_manager .o_view_controller', timeout=READY_MS)
+            pg.wait_for_selector('.o_action_manager .o_action, .o_action_manager .o_view_controller, .modal-content', timeout=READY_MS)    # an action opened as a dialog has no .o_action in the manager
             pg.wait_for_function("() => !document.querySelector('.o_loading_indicator, .o_blockUI, .o_list_view .o_list_loading, .o_view_controller.o_loading')", timeout=READY_MS)
         except Exception:
             self.error('screen did not settle (spinner or no action)')
@@ -222,7 +222,7 @@ class Shooter:
         os.makedirs(os.path.dirname(target), exist_ok=True)
         pg = self.pg
         if spec.get('crop'):
-            crop = self.sub(spec['crop'])
+            crop = SELECTOR_MAP.get(self.sub(spec['crop']), self.sub(spec['crop']))
             if 'modal' in crop:      # Odoo 19: take the dialog that is on screen now (the first match can be a hidden or closing one)
                 crop = '.modal ' + crop if not crop.startswith('.modal ') else crop
                 pg.wait_for_timeout(600)
