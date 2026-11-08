@@ -292,12 +292,25 @@ class Shooter:
                 pg.fill('.o_searchview_input', '')
             self.settle(500)
         for sel, value in (st.get('fill') or {}).items():
-            pg.fill(self.sub(sel), self.sub(value))
-        for sel, label in (st.get('select') or {}).items():
+            real = SELECTOR_MAP.get(self.sub(sel), self.sub(sel))
             try:
-                pg.select_option(self.sub(sel), label=self.sub(label))
-            except Exception:
-                print('   (select skipped: %s)' % sel)
+                pg.fill(real, self.sub(value), timeout=5000)
+                pg.keyboard.press('Tab')      # Odoo 19 commits a field on blur / change
+            except Exception as error:
+                print('   (fill skipped: %s: %s)' % (sel, str(error).splitlines()[0][:100]))
+            self.settle(500)
+        for sel, label in (st.get('select') or {}).items():
+            real = SELECTOR_MAP.get(self.sub(sel), self.sub(sel))
+            try:
+                if pg.locator(real).first.evaluate('e => e.tagName') == 'SELECT':
+                    pg.select_option(real, label=self.sub(label), timeout=5000)
+                else:      # a field that is a select in Odoo 12 and a plain input in 19 (month names -> month number)
+                    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                    text = self.sub(label)
+                    pg.fill(real, str(months.index(text) + 1) if text in months else text, timeout=5000)
+                    pg.keyboard.press('Tab')
+            except Exception as error:
+                print('   (select skipped: %s: %s)' % (sel, str(error).splitlines()[0][:100]))
             self.settle(500)
         if 'wait' in st:
             pg.wait_for_timeout(min(int(st['wait']), 1500))

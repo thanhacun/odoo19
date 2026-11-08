@@ -3,6 +3,8 @@ kderp_hr_attendance.hr_attendance_admin_control_wizard: kdvn_hr_attendance.actio
 hr_holidays_public.open_holidays_public_view: kdvn_hr_attendance.open_holidays_public_view
 # Odoo 12 gave every list button its own column (td:nth-child(N)); Odoo 19 puts consecutive buttons in one cell: click the button itself
 _selectors:
+  "input[name=at_year]": ".modal .o_field_widget[name='at_year'] input"
+  "select[name=at_month]": ".modal .o_field_widget[name='at_month'] input"
   "tr.o_data_row:has-text('25/09/2026') td:nth-child(9)": "tr.o_data_row:has-text('25/09/2026') button[name='action_ot_request']"
   "tr.o_data_row:has-text('25/09/2026') td:nth-child(10)": "tr.o_data_row:has-text('25/09/2026') button[name='action_wt_request']"
   "table.o_list_view": ".o_list_renderer"
