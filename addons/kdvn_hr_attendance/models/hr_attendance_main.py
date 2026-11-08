@@ -34,6 +34,11 @@ from .rounding import roundPartial
 
 vn_tz = pytz.timezone(' '.join(pytz.country_timezones('vn')))
 
+
+def _esc(text):
+    """Plain str with the HTML special characters escaped (tools.html_escape returns Markup, which would escape the tags it is added to)."""
+    return str(tools.html_escape(text or ''))
+
 # vn_tz = tz.gettz('Asia/Ho_Chi_Minh')
 # utc = tz.gettz('UTC')
 utc_diff = 7
@@ -1146,11 +1151,11 @@ class KderpHrAttendance(models.Model):
                     request_des = r.display_name
                     if r.state != at.state and states.index(r.state) < at_state_index and at.state != 'refuse':
                         raw_description.append(request_des)
-                        description.append('<span class="text-danger font-weight-bold">' + request_des + '</span>')
+                        description.append('<span class="text-danger font-weight-bold">' + _esc(request_des) + '</span>')
                         states_sync = False
                     else:
                         raw_description.append(request_des)
-                        description.append('<span>' + request_des + '</span>')
+                        description.append('<span>' + _esc(request_des) + '</span>')
                         states_sync = True
 
                 if at.leave_ids:
@@ -1178,17 +1183,17 @@ class KderpHrAttendance(models.Model):
 
                             raw_description += leave_des
                             if l.leave_cover_id.state and l.leave_cover_id.state != at.state and states.index(l.leave_cover_id.state) < at_state_index and at.state != 'refuse':
-                                leave_des = ['<span class="text-danger font-weight-bold">' + des + '</span>' for des in leave_des]
+                                leave_des = ['<span class="text-danger font-weight-bold">' + _esc(des) + '</span>' for des in leave_des]
                                 states_sync = False
                             else:
-                                leave_des = ['<span>' + des + '</span>' for des in leave_des]
+                                leave_des = ['<span>' + _esc(des) + '</span>' for des in leave_des]
                                 states_sync = True
                             description += leave_des
 
                 if at.can_convert_leave and at.convert_leave:
                     # REF: https://stackoverflow.com/questions/44968895/how-to-get-string-of-selection-field/44968971
                     convert_leave_label = dict(at._fields['request_leave'].selection).get(at.convert_leave)
-                    description.append('Convert leave for {}'.format(convert_leave_label))
+                    description.append(_esc('Convert leave for {}'.format(convert_leave_label)))
 
                 at.request_description = '<br/>'.join(description)
                 at.raw_request_description = '\n'.join(raw_description)
