@@ -1,6 +1,6 @@
 {
     'name': 'KDERP Entertainment Fees Procedure Requests',
-    'version': "19.0.0.2.1",
+    'version': "19.0.0.2.2",
     'category': 'kderp',
     'depends': [
         'kdvn_e_approval',
@@ -13,6 +13,7 @@
         'security/ir.model.access.csv',
         'security/entertainment_request_security.xml',
         'data/entertainment_special_rules.xml',
+        'data/entertainment_tier_definitions.xml',
         'views/entertainment_request_views.xml',
         'views/entertainment_request_menu.xml',
         'views/advance_wizard_views.xml',

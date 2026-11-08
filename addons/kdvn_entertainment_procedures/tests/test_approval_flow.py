@@ -16,6 +16,8 @@ class TestApprovalFlow(TransactionCase):
         groups |= sum((self.env.ref(g) for g in self.env['entertainment.request']._admin_groups), self.env['res.groups'])
         reviewer = self.env['res.users'].create({'name': 'Flow reviewer', 'login': 'flow_reviewer', 'email': 'flow@example.test',
                                                  'group_ids': [(6, 0, groups.ids)]})
+        # The shipped steps (data/entertainment_tier_definitions.xml) are off here: the test brings its own single step.
+        self.env['tier.definition'].sudo().search([('model', '=', 'entertainment.request')]).write({'active': False})
         self.env['tier.definition'].sudo().create({
             'name': 'Flow step', 'frontend_name': 'Flow step', 'procedure_tag': 'entertainment.request',
             'model_id': self.env['ir.model']._get('entertainment.request').id, 'review_type': 'individual', 'reviewer_id': reviewer.id})

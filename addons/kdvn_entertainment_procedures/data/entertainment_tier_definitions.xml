@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Approval steps of the Entertainment request, taken from the HN production configuration (Nov 2026).
+         noupdate: edits made in E-Approval > Configuration > Approval Rules survive upgrades.
+         Higher sequence runs first (the platform numbers the steps from the highest sequence down).
+         Normal applicant: 1st (admin manager) -> 2nd (admin GM) -> GD when the amount >= 2,000,000.
+         GM applicant: GD only. The two GD steps name the person by login; no such user = the step has no
+         reviewer and the manager sets it in Approval Rules. -->
+    <data noupdate="1">
+        <record id="tier_ent_1st" model="tier.definition">
+            <field name="name">[ENT] 1st Approval</field>
+            <field name="frontend_name">1st Approval</field>
+            <field name="model_id" ref="model_entertainment_request"/>
+            <field name="procedure_tag">entertainment.request</field>
+            <field name="review_type">expression</field>
+            <field name="reviewer_expression"># Available locals:
+#  - rec: current record
+#  - Expects a recordset of res.users
+rec.employee_id.admin_manager_id.user_id</field>
+            <field name="definition_type">domain</field>
+            <field name="definition_domain">[["is_gm","=",False]]</field>
+            <field name="sequence">50</field>
+            <field name="approve_sequence" eval="True"/>
+            <field name="notify_on_create" eval="False"/>
+        </record>
+        <record id="tier_ent_2nd" model="tier.definition">
+            <field name="name">[ENT] 2nd Approval</field>
+            <field name="frontend_name">2nd Approval</field>
+            <field name="model_id" ref="model_entertainment_request"/>
+            <field name="procedure_tag">entertainment.request</field>
+            <field name="review_type">expression</field>
+            <field name="reviewer_expression"># Available locals:
+#  - rec: current record
+#  - Expects a recordset of res.users
+rec.employee_id.admin_gm_id.user_id</field>
+            <field name="definition_type">domain</field>
+            <field name="definition_domain">[["is_gm","=",False]]</field>
+            <field name="sequence">40</field>
+            <field name="approve_sequence" eval="True"/>
+            <field name="notify_on_create" eval="False"/>
+        </record>
+        <record id="tier_ent_gd_amount" model="tier.definition">
+            <field name="name">[ENT] GD Approval (>= 2tr)</field>
+            <field name="frontend_name">GD Approve</field>
+            <field name="model_id" ref="model_entertainment_request"/>
+            <field name="procedure_tag">entertainment.request</field>
+            <field name="review_type">individual</field>
+            <field name="reviewer_id" model="res.users" search="[('login','=','yudai-shinsha')]"/>
+            <field name="definition_type">domain</field>
+            <field name="definition_domain">["&amp;",["estimated_amount",">=",2000000],["is_gm","=",False]]</field>
+            <field name="sequence">30</field>
+            <field name="approve_sequence" eval="True"/>
+            <field name="notify_on_create" eval="False"/>
+        </record>
+        <record id="tier_ent_gd_gm" model="tier.definition">
+            <field name="name">[ENT] GD Approval (for GM Applicant)</field>
+            <field name="frontend_name">GD Approve</field>
+            <field name="model_id" ref="model_entertainment_request"/>
+            <field name="procedure_tag">entertainment.request</field>
+            <field name="review_type">individual</field>
+            <field name="reviewer_id" model="res.users" search="[('login','=','yudai-shinsha')]"/>
+            <field name="definition_type">domain</field>
+            <field name="definition_domain">[["is_gm","=",True]]</field>
+            <field name="sequence">10</field>
+            <field name="approve_sequence" eval="True"/>
+            <field name="notify_on_create" eval="False"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Approval steps of the Peak Time request, taken from the HN production configuration (Nov 2026).
+         noupdate: edits made in E-Approval > Configuration > Approval Rules survive upgrades.
+         Higher sequence runs first. Flow: GM of the applicant's area (1st) -> HR (2nd) -> Admin Senior GM (3rd)
+         -> Construction GM (4th). "Special Case" (HR review) only applies when proceed_flow_type is 'special'.
+         The individual steps name the person by login; no such user = the manager sets it in Approval Rules. -->
+    <data noupdate="1">
+        <record id="tier_pt_1st" model="tier.definition">
+            <field name="name">1st Approve</field>
+            <field name="frontend_name">GM Approve</field>
+            <field name="model_id" ref="model_kderp_project_peak_time"/>
+            <field name="procedure_tag">kderp.project.peak.time</field>
+            <field name="review_type">expression</field>
+            <field name="reviewer_expression"># Available locals:
+#  - rec: current record
+#  - Expects a recordset of res.users
+rec.employee_id.admin_dept_id.area_id.manager_id.user_id</field>
+            <field name="definition_type">domain</field>
+            <field name="sequence">40</field>
+            <field name="approve_sequence" eval="True"/>
+            <field name="notify_on_create" eval="False"/>
+        </record>
+        <record id="tier_pt_2nd" model="tier.definition">
+            <field name="name">2nd Approve</field>
+            <field name="frontend_name">HR Review</field>
+            <field name="model_id" ref="model_kderp_project_peak_time"/>
+            <field name="procedure_tag">kderp.project.peak.time</field>
+            <field name="review_type">individual</field>
+            <field name="reviewer_id" model="res.users" search="[('login','=','tran-thi-nam')]"/>
+            <field name="definition_type">domain</field>
+            <field name="sequence">30</field>
+            <field name="approve_sequence" eval="True"/>
+            <field name="notify_on_create" eval="False"/>
+        </record>
+        <record id="tier_pt_3rd" model="tier.definition">
+            <field name="name">3rd Approve</field>
+            <field name="frontend_name">Admin Senior GM</field>
+            <field name="model_id" ref="model_kderp_project_peak_time"/>
+            <field name="procedure_tag">kderp.project.peak.time</field>
+            <field name="review_type">individual</field>
+            <field name="reviewer_id" model="res.users" search="[('login','=','yusuke-tamada')]"/>
+            <field name="definition_type">domain</field>
+            <field name="sequence">20</field>
+            <field name="approve_sequence" eval="True"/>
+            <field name="notify_on_create" eval="False"/>
+        </record>
+        <record id="tier_pt_4th" model="tier.definition">
+            <field name="name">4th Approve</field>
+            <field name="frontend_name">Construction GM</field>
+            <field name="model_id" ref="model_kderp_project_peak_time"/>
+            <field name="procedure_tag">kderp.project.peak.time</field>
+            <field name="review_type">individual</field>
+            <field name="reviewer_id" model="res.users" search="[('login','=','luu-manh-kien')]"/>
+            <field name="definition_type">domain</field>
+            <field name="sequence">10</field>
+            <field name="approve_sequence" eval="True"/>
+            <field name="notify_on_create" eval="False"/>
+        </record>
+        <record id="tier_pt_special" model="tier.definition">
+            <field name="name">Special Case</field>
+            <field name="frontend_name">Need HR Review</field>
+            <field name="model_id" ref="model_kderp_project_peak_time"/>
+            <field name="procedure_tag">kderp.project.peak.time</field>
+            <field name="review_type">individual</field>
+            <field name="reviewer_id" model="res.users" search="[('login','=','tran-thi-nam')]"/>
+            <field name="definition_type">formula</field>
+            <field name="python_code"># Available locals:
+#  - rec: current record
+rec.proceed_flow_type == 'special'</field>
+            <field name="has_comment" eval="True"/>
+            <field name="sequence">50</field>
+            <field name="approve_sequence" eval="True"/>
+            <field name="notify_on_create" eval="False"/>
+        </record>
+    </data>
+</odoo>
