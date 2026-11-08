@@ -10,6 +10,7 @@ Rules
 import contextlib
 import logging
 import re
+import time
 from collections import Counter
 
 import psycopg2
@@ -151,7 +152,7 @@ class KdvnLegacyImport(models.AbstractModel):
         dry_run: do everything, then roll back."""
         self = self.sudo().with_context(tracking_disable=True, mail_notrack=True, mail_create_nolog=True, no_reset_password=True,
                                  kdvn_defer_org_refresh=True, kdvn_skip_working_check=True)
-        state = {'tags': {}, 'stats': Counter(), 'errors': [], 'options': {'password': password, 'date_from': date_from, 'date_to': date_to}, 'legacy_employees': {}, 'department_rows': []}
+        state = {'tags': {}, 'stats': Counter(), 'errors': [], 'options': {'password': password, 'date_from': date_from, 'date_to': date_to}, 'legacy_employees': {}, 'department_rows': [], 'timings': []}
         self = self.with_context(kdvn_import_state=state)
         state['tags'] = {(name.rsplit('_', 1)[0], int(name.rsplit('_', 1)[1])): res_id for name, res_id in self._tag_map().items()}
         self._select_employees(employee_codes, working_only)
@@ -160,8 +161,11 @@ class KdvnLegacyImport(models.AbstractModel):
             for name, method in self._import_steps():
                 if steps and name not in steps:
                     continue
+                started = time.time()
                 method()
                 self.env.flush_all()
+                state['timings'].append((name, time.time() - started))
+                _logger.info('legacy import step %s: %.1f s', name, time.time() - started)
                 self.env.invalidate_all()   # a year of data would otherwise fill the ORM cache (MemoryError)
                 if not dry_run and self.env.context.get('kdvn_commit_steps'):
                     self.env.cr.commit()    # every step is re-runnable: a crash resumes from the failed step
@@ -189,6 +193,8 @@ class KdvnLegacyImport(models.AbstractModel):
 
     def _format_log(self, dry_run):
         lines = ['DRY RUN (rolled back)' if dry_run else 'Import done']
+        lines += ['STEP TIME %-28s %7.1f s' % item for item in self._state['timings']]
+        lines.append('STEP TIME %-28s %7.1f s' % ('TOTAL', sum(t for _n, t in self._state['timings'])))
         for (table, what), count in sorted(self._state['stats'].items()):
             lines.append('%-40s %-8s %d' % (table, what, count))
         if self._state['errors']:

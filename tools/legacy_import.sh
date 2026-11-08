@@ -31,7 +31,7 @@ CONTAINER=${CONTAINER:-odoo19}
 HERE=$(cd "$(dirname "$0")/.." && pwd)
 LOG=temp/legacy_import_${DB}_$(date +%y%m%d_%H%M).log
 mkdir -p "$HERE/temp"
-docker exec -d -e DB="$DB" -e FROM="$FROM" -e TO="$TO" -e APPLY="$APPLY" -e PW="$PW" -e CODES="$CODES" -e ALL="$ALL" -e STEPS="$STEPS" "$CONTAINER" sh -c "odoo shell -c /etc/odoo/odoo.conf -d '$DB' --no-http > /home/odoo/project/$LOG 2>&1 <<'PY'
+docker exec -d -e DB="$DB" -e FROM="$FROM" -e TO="$TO" -e APPLY="$APPLY" -e PW="$PW" -e CODES="$CODES" -e ALL="$ALL" -e STEPS="$STEPS" "$CONTAINER" sh -c "odoo shell -c ${ODOO_CONF:-/etc/odoo/odoo.conf} -d '$DB' --no-http > /home/odoo/project/$LOG 2>&1 <<'PY'
 import os, datetime
 iso = datetime.date.fromisoformat
 imp = env['kdvn.legacy.import'].with_context(kdvn_commit_steps=True)

@@ -248,11 +248,16 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
                 code = self._tags_get('kderp_base_code', r['kderp_base_code_id'])
                 if code:
                     marks.setdefault(r['hr_attendance_id'], []).append(code)
-        for legacy_id, codes in marks.items():
-            at = self.env['hr.attendance'].browse(ats[legacy_id]).exists()
-            if at:
-                self._safe('hr_attendance', legacy_id, 'status marks', lambda at=at, codes=codes: at.with_context(do_not_run_at_status=True).write(
-                    {'status_ids': [(6, 0, codes)]}))
+        # straight SQL on the relation table: writing the many2many through the ORM makes Odoo 19 recompute the status
+        # fields of every day (minutes per month); the Odoo 12 values are restored as they are anyway
+        field = self.env['hr.attendance']._fields['status_ids']
+        self.env.flush_all()
+        ids = [ats[i] for i in marks]
+        self.env.cr.execute('DELETE FROM "%s" WHERE "%s" = ANY(%%s)' % (field.relation, field.column1), [ids])
+        rows = [(ats[legacy_id], code) for legacy_id, codes in marks.items() for code in sorted(set(codes))]
+        if rows:
+            self.env.cr.executemany('INSERT INTO "%s" ("%s", "%s") VALUES (%%s, %%s) ON CONFLICT DO NOTHING' % (field.relation, field.column1, field.column2), rows)
+        self.env.invalidate_all()
 
     def _step_at_raw(self):
         legacy_emp = set(self._state['legacy_employees'])
