@@ -32,7 +32,7 @@ RULES = [
     (BREAK, 'kanban-box', 'xml', r't-name="kanban-box"', 'kanban template is "card" in Odoo 18+'),
     (BREAK, 't-esc/t-raw', 'xml', r'\bt-(esc|raw)\s*=', 't-esc/t-raw are t-out'),
     (BREAK, 'track_visibility', 'py', r'track_visibility', 'use tracking=True'),
-    (BREAK, 'py2', 'py', r'\b(unicode|basestring|iteritems|itervalues|iterkeys|xrange|has_key)\b\(?', 'python 2 leftovers'),
+    (BREAK, 'py2', 'py', r'\b(unicode|basestring|xrange)\(|\.(iteritems|itervalues|iterkeys|has_key)\(', 'python 2 leftovers'),
     (BREAK, 'py312-removed', 'py', r'^\s*(import|from)\s+(distutils|imp|asyncore|asynchat|pkg_resources|cgi)\b', 'removed or deprecated in Python 3.12'),
     (BREAK, 'cron-numbercall', 'xml', r'name="(numbercall|doall)"', 'removed from ir.cron'),
     (BREAK, 'message_post-subtype', 'py', r'message_post[^\n]*\bsubtype\s*=', 'use subtype_xmlid='),
@@ -71,7 +71,7 @@ def files(module_dir, kind):
 
 def strip_comments(path, text):
     if path.endswith('.py'):
-        return '\n'.join('' if l.lstrip().startswith('#') else l for l in text.split('\n'))
+        return '\n'.join('' if l.lstrip().startswith('#') else re.sub(r'\s#[^\'"\n]*$', '', l) for l in text.split('\n'))   # whole-line and trailing comments
     if path.endswith('.xml'):
         return re.sub(r'<!--.*?-->', lambda m: re.sub(r'[^\n]', ' ', m.group(0)), text, flags=re.S)
     if path.endswith('.js'):
@@ -86,6 +86,8 @@ def regex_findings(module_dir):
         for path in files(module_dir, kind):
             if os.path.basename(path) == '__manifest__.py':
                 continue   # descriptions mention old names
+            if rid == 't-esc/t-raw' and '/static/src/' in path:
+                continue   # client-side OWL templates still accept t-esc; the rule is for server-side QWeb (reports, website pages)
             text = strip_comments(path, open(path, encoding='utf-8', errors='replace').read())
             for m in pattern.finditer(text):
                 line = text.count('\n', 0, m.start()) + 1
@@ -144,11 +146,16 @@ def python_findings(module_dir):
                         if isinstance(item, ast.Tuple) and item.elts and isinstance(item.elts[0], ast.Constant) and not isinstance(item.elts[0].value, str):
                             out.append((BREAK, 'selection-key', path, node.lineno, 'Odoo 19 selection keys must be strings'))
                             break
+            # field parameter states={...}: ignored by Odoo 19 (it only was a UI hint): readonly/required/invisible go in the view
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name) \
+                    and node.func.value.id == 'fields' and any(k.arg == 'states' for k in node.keywords):
+                out.append((BREAK, 'field-states', path, node.lineno,
+                            'field parameter states= is ignored in Odoo 19: put readonly="state != ..." in the form view (without it the field is read-only for everybody)'))
             # create() override without model_create_multi
             if isinstance(node, ast.FunctionDef) and node.name == 'create':
                 decos = [ast.dump(d) for d in node.decorator_list]
                 params = [a.arg for a in node.args.args]
-                if params[:2] == ['self', 'vals'] and not any('model_create_multi' in d for d in decos):
+                if len(params) >= 2 and params[0] == 'self' and params[1] in ('vals', 'values', 'val', 'vals_dict') and not any('model_create_multi' in d for d in decos):
                     out.append((WARN, 'create-single', path, node.lineno, 'create(self, vals) is deprecated: @api.model_create_multi and a list'))
     return out
 

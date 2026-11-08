@@ -163,7 +163,7 @@
                                         <field name="job_id" />
                                         <field name="actual_peak_months" />
                                         <field name="employee_ids" />
-                                        <field name="state" invisible="1" />
+                                        <field name="state" column_invisible="1" />
                                     </list>
                                 </field>
                             </group>

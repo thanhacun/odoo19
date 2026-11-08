@@ -31,9 +31,9 @@
                 <field name="line_ids" invisible="state != 'preview'">
                     <list editable="bottom" decoration-danger="action == 'map' and not item_id"
                           decoration-muted="action == 'skip'" decoration-warning="has_gap">
-                        <field name="sequence" invisible="1"/>
-                        <field name="block_json" invisible="1"/>
-                        <field name="has_gap" invisible="1"/>
+                        <field name="sequence" column_invisible="1"/>
+                        <field name="block_json" column_invisible="1"/>
+                        <field name="has_gap" column_invisible="1"/>
                         <field name="excel_no" readonly="1"/>
                         <field name="excel_name" readonly="1"/>
                         <field name="size_text" readonly="1"/>
@@ -115,7 +115,7 @@
                     <notebook>
                         <page string="Requests">
                             <field name="request_ids">
-                                <list><field name="state" invisible="1"/><field name="name"/><field name="employee_id"/>
+                                <list><field name="state" column_invisible="1"/><field name="name"/><field name="employee_id"/>
                                     <field name="date_input"/><field name="import_project_text"/></list>
                             </field>
                         </page>

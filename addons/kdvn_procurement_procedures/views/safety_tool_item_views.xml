@@ -12,7 +12,7 @@
                 <field name="uom"/>
                 <field name="stock_qty"/>
                 <field name="reorder_level"/>
-                <field name="low_stock" invisible="1"/>
+                <field name="low_stock" column_invisible="1"/>
             </list>
         </field>
     </record>

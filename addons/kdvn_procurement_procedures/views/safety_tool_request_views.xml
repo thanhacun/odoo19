@@ -130,14 +130,14 @@
                             <list editable="bottom" decoration-danger="is_short">
                                 <field name="sequence" widget="handle"/>
                                 <field name="item_id" options="{'no_create': True, 'no_open': True}"/>
-                                <field name="has_sizes" invisible="1"/>
+                                <field name="has_sizes" column_invisible="1"/>
                                 <field name="size_id" options="{'no_create': True, 'no_open': True}"
                                        domain="[('item_id', '=', item_id)]"
                                        required="has_sizes" readonly="not has_sizes"/>
                                 <field name="qty"/>
                                 <field name="uom"/>
                                 <field name="stock_qty"/>
-                                <field name="is_short" invisible="1"/>
+                                <field name="is_short" column_invisible="1"/>
                             </list>
                         </field>
                     </group>

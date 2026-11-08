@@ -10,7 +10,7 @@
                 <field name="code"/>
                 <field name="name"/>
                 <field name="category_id" options="{'no_create': True}"/>
-                <field name="active" invisible="1"/>
+                <field name="active" column_invisible="1"/>
             </list>
         </field>
     </record>
@@ -39,7 +39,7 @@
                 <field name="months_over"/>
                 <field name="months_up_to"/>
                 <field name="note"/>
-                <field name="active" invisible="1"/>
+                <field name="active" column_invisible="1"/>
             </list>
         </field>
     </record>
