@@ -2,7 +2,7 @@
 """Take pictures of Odoo 19 screens by replaying the Odoo 12 guide scenarios, and put each one next to its Odoo 12 guide picture.
 Also an error finder: every UI error (error dialog, JS error, failed RPC call) met while replaying is reported with the step.
 
-    ~/.venvs/kderp-guides/bin/python tools/shoot19.py [--db odoo19_dev] [--url http://172.30.0.4:8069] [--list] [--fresh] [name ...]
+    ~/.venvs/kderp-guides/bin/python tools/shoot19.py [--db odoo19_lab] [--url http://172.30.0.4:8069] [--list] [--fresh] [name ...]
 
 name = part of the scenario path (e.g. my-attendance, hr-admin). Default: every scenario of kderp_hr_attendance.
 Output (git-ignored, in temp/):  temp/shots19/<scenario>/<picture>.png   the Odoo 19 pictures
@@ -125,6 +125,7 @@ class Shooter:
         context = self.browser.new_context(viewport={'width': W, 'height': H}, locale='en-US')
         host = re.sub(r'^https?://', '', self.base).split(':')[0].split('/')[0]
         context.add_cookies([{'name': 'session_id', 'value': sid, 'domain': host, 'path': '/'}])
+        context.add_init_script('(()=>{const css="#oe_neutralize_banner{display:none!important}";const add=()=>{const s=document.createElement("style");s.textContent=css;(document.head||document.documentElement).appendChild(s)};if(document.head){add()}else{document.addEventListener("DOMContentLoaded",add)}})();')   # the red neutralized banner of a lab copy must not be in a picture
         self.pg = context.new_page()
         self.pg.set_default_timeout(READY_MS)
         self.pg.on('pageerror', lambda e: self.error('JS error: %s' % str(e)[:300]))
@@ -399,7 +400,7 @@ def compose(old, new, out):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('names', nargs='*')
-    ap.add_argument('--db', default='odoo19_dev')
+    ap.add_argument('--db', default='odoo19_lab')
     ap.add_argument('--url', default=os.environ.get('ODOO19_URL', 'http://172.30.0.4:8069'))
     ap.add_argument('--module', default='kderp_hr_attendance')
     ap.add_argument('--list', action='store_true')
