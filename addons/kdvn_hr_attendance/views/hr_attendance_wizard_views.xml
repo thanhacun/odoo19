@@ -522,7 +522,8 @@
                         <group string="Filter data">
                             <field name="manager_id"/>
                             <field name="at_year"/>
-                            <field name="at_month"/>
+                            <field name="at_month_sel" string="Month"/>
+                            <field name="at_month" invisible="1"/>
                             <separator string="Advanced filter" colspan="4"/>
                             <field name="employee_id" placeholder="Employee (all)"/>
                             <field name="waiting_for" string="State" placeholder="State (all)"/>

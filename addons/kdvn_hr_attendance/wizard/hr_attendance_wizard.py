@@ -2071,7 +2071,8 @@ class KderpHrAttendanceOTHolidayManager(models.TransientModel):
     manager_id = fields.Many2one('hr.employee', domain=lambda self: self.get_manager_domain())
     managed_section_ids = fields.Many2many('hr.department', domain=lambda self: self.get_section_domain())
     at_year = fields.Char()
-    at_month = fields.Integer()   # Odoo 12: Selection with int keys (not allowed in Odoo 19)
+    at_month = fields.Integer()   # the code works with this number; Odoo 12 had a Selection with int keys (not allowed in Odoo 19)
+    at_month_sel = fields.Selection([(str(n), month_abbr[n]) for n in range(1, 13)], string='Month')   # what the form shows (Jan..Dec), follows at_month
     # ot_holiday_summary = fields.Html(compute='compute_ot_holiday_summary')
     wait_for_approve = fields.Boolean('Only register employees', default=True)
     ot_holiday_ids = fields.Many2many('hr.attendance.ot.holiday', string='OT Holidays', compute='compute_ot_holiday_ids', store=False)
@@ -2099,9 +2100,14 @@ class KderpHrAttendanceOTHolidayManager(models.TransientModel):
         defaults['manager_id'] = self.env.context.get('default_manager_id', None) or (manager_id.id if (manager_id and manager_id.id in self.env['hr.department'].search([]).mapped('manager_id.id')) else False)
         today = fields.Date.context_today(self)
         at_year, at_month = self.get_at_year_month(today)
-        defaults['at_year'], defaults['at_month'] = str(at_year), at_month
+        defaults['at_year'], defaults['at_month'], defaults['at_month_sel'] = str(at_year), at_month, str(at_month)
         defaults['managed_section_ids'] = [Command.set(self.env['hr.department'].search(self.get_section_domain()).ids)]  # Odoo 19: x2many defaults are commands
         return defaults
+
+    @api.onchange('at_month_sel')
+    def _onchange_at_month_sel(self):
+        if self.at_month_sel:
+            self.at_month = int(self.at_month_sel)
 
     @api.onchange('manager_id', 'employee_id')
     def onchange_manager_emplolyee_id(self):

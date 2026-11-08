@@ -304,7 +304,10 @@ class Shooter:
             try:
                 if pg.locator(real).first.evaluate('e => e.tagName') == 'SELECT':
                     pg.select_option(real, label=self.sub(label), timeout=5000)
-                else:      # a field that is a select in Odoo 12 and a plain input in 19 (month names -> month number)
+                elif pg.locator(real).first.evaluate('e => !!e.closest(".o_select_menu")'):      # Odoo 19 selection widget: an input that opens a menu
+                    pg.locator(real).first.click(timeout=5000)
+                    pg.locator('.o_select_menu_menu .o_select_menu_item, .o-dropdown--menu .dropdown-item').filter(has_text=re.compile(r'^\s*%s\s*$' % re.escape(self.sub(label)))).first.click(timeout=5000)
+                else:      # a plain input in 19 (month names -> month number)
                     months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
                     text = self.sub(label)
                     pg.fill(real, str(months.index(text) + 1) if text in months else text, timeout=5000)
