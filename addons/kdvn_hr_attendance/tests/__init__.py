@@ -16,3 +16,4 @@ from . import test_users
 from . import test_ui_calls
 from . import test_record_rules
 from . import test_period_lock
+from . import test_perf_fixes

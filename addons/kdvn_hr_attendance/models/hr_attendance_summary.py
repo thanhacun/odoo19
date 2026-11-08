@@ -23,6 +23,7 @@ from datetime import timezone, timedelta
 
 # from werkzeug.routing import parse_converter_args
 
+from odoo.fields import Domain
 from odoo import models, fields, api, tools, _
 # from odoo import exceptions
 from odoo.exceptions import AccessError, UserError, ValidationError
@@ -404,6 +405,38 @@ class KderpHrAttendanceSummary(models.Model):
                 need_hr_action_explain.append('OT-compensated staff (G8); Attended but request Leave/Absence -- IT review')
             s.update({'need_hr_action': need_hr_action, 'need_hr_action_explain': False if not need_hr_action_explain else '\n'.join(need_hr_action_explain)})
     
+    @api.model
+    def _search(self, domain, offset=0, limit=None, order=None, **kwargs):
+        """show_current / is_current are aggregates of the SQL view (every(...) over the month's days): PostgreSQL has to build the summary of ALL
+        480k days before it can apply them (5 s for every user). Rewrite them into at_year/at_month conditions, which it pushes into the aggregation
+        (a few ms). The months are those of the days in the table, tested with the very same conditions as the view."""
+        domain = Domain(domain)
+        if any(c.field_expr in ('show_current', 'is_current') for c in domain.iter_conditions()):
+            domain = domain.map_conditions(self._current_condition_to_months)
+        return super()._search(domain, offset=offset, limit=limit, order=order, **kwargs)
+
+    def _current_condition_to_months(self, condition):
+        field, operator, value = condition.field_expr, condition.operator, condition.value
+        if field not in ('show_current', 'is_current') or operator not in ('=', '!=') or not isinstance(value, bool):
+            return condition
+        today = datetime.datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')).date()
+        # the attendance periods near today (a period is the 21st to the 20th): their start and end are stored on the days
+        self.env.cr.execute("""SELECT DISTINCT at_year, at_month, start_date, end_date FROM hr_attendance
+                               WHERE end_date >= %s AND start_date <= %s""", [today - datetime.timedelta(days=62), today + datetime.timedelta(days=62)])
+        months = []
+        for at_year, at_month, start_date, end_date in self.env.cr.fetchall():
+            if field == 'is_current':
+                current = start_date <= today < end_date
+            else:   # show_current: the period began and its calendar month has not ended
+                month_end = (end_date.replace(day=1) + relativedelta(months=1)) - datetime.timedelta(days=1)
+                current = start_date <= today < month_end
+            if current:
+                months.append((at_year, at_month))
+        wanted = (operator == '=') == value
+        if not wanted:   # "not current": only the opposite of the same months
+            return ~Domain.OR([Domain([('at_year', '=', y), ('at_month', '=', m)]) for y, m in months] or [Domain.FALSE])
+        return Domain.OR([Domain([('at_year', '=', y), ('at_month', '=', m)]) for y, m in months] or [Domain.FALSE])
+
     def _search_need_hr_action(self, operator, value):
         if operator == '=' and value == True:
             ids = self.search([]).filtered('need_hr_action').mapped('id')
@@ -564,7 +597,7 @@ class KderpHrAttendanceRefuse(models.Model):
         for r in self:
             at_ids = []
             if r.related_request_id:
-                at_ids += r.related_request_id.at_id
+                at_ids += r.related_request_id.at_id.ids   # ids, not records: a list of records cannot be written to a one2many (ProgrammingError: can't adapt type)
             elif r.related_leave_cover_id:
                 at_ids += r.related_leave_cover_id.related_at_ids().mapped('id')
             r.at_ids = at_ids
