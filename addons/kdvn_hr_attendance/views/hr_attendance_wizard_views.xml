@@ -34,15 +34,15 @@
                     <!-- Multi request mode -->
                     <group string="Future Requests" col="4" invisible="not multi_request_mode">
                         <field colspan="4" name="employee_ids" widget="many2many_tags" string="Employee(s)"/>
-                        <field name="multi_from_date" options="{&quot;inputmask&quot;: {&quot;noSecond&quot;: True}, &quot;datepicker&quot;: {&quot;defaultDate&quot;: &quot;at_date&quot;}}" string="From Date" readonly="at_state not in [False, 'draft', 'waiting_fman']"/>
-                        <field name="multi_to_date" options="{&quot;inputmask&quot;: {&quot;noSecond&quot;: True}, &quot;datepicker&quot;: {&quot;defaultDate&quot;: &quot;at_date&quot;}}" string="To Date" readonly="at_state not in [False, 'draft', 'waiting_fman']"/>
+                        <field name="multi_from_date" options="{&quot;inputmask&quot;: {&quot;noSecond&quot;: True}, &quot;datepicker&quot;: {&quot;defaultDate&quot;: &quot;at_date&quot;}}" string="From Date" placeholder="Select a date" readonly="at_state not in [False, 'draft', 'waiting_fman']"/>
+                        <field name="multi_to_date" options="{&quot;inputmask&quot;: {&quot;noSecond&quot;: True}, &quot;datepicker&quot;: {&quot;defaultDate&quot;: &quot;at_date&quot;}}" string="To Date" placeholder="Select a date" readonly="at_state not in [False, 'draft', 'waiting_fman']"/>
                         <field name="batch_id" readonly="1" invisible="not batch_id"/>
                     </group>
 
                     <group string="Working time" col="4" invisible="request_mode == 'ot'">
                         <!-- <field name="at_request_type_id" options="{'horizontal': True}" widget="radio" string="Reason" domain="[('request_type', '=', 'working_time')]" /> -->
-                        <field name="at_request_type_id" string="Reason" widget="selection" readonly="not show_wt_buttons"/>
-                        <field name="name" string="Detail" widget="char" required="at_request_need_description" readonly="not show_wt_buttons"/>
+                        <field name="at_request_type_id" string="Reason" widget="selection" placeholder="Select a reason" readonly="not show_wt_buttons"/>
+                        <field name="name" string="Detail" widget="char" placeholder="Short description" required="at_request_need_description" readonly="not show_wt_buttons"/>
                         <label for="wt_in_time" class="text-danger" string="Request IN"/>
                         <field name="wt_in_time" widget="float_time" nolabel="1" readonly="((((at_request_auto_in_out == 'out' or not at_request_type_id) or at_request_state not in [False, 'draft', 'waiting_fman']) or at_request_code == 'early_in') or not show_wt_buttons)"/>
                         <!-- <field name="wt_in" options='{"inputmask": {"noSecond": True}, "datepicker": {"enabledDates": "at_date",

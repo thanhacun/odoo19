@@ -1,5 +1,6 @@
 # Odoo 12 xml id -> Odoo 19 xml id, for actions that were renamed in the port (the kderp_ -> kdvn_ module rename is automatic).
 kderp_hr_attendance.hr_attendance_admin_control_wizard: kdvn_hr_attendance.action_hr_attendance_admin_control_wizard
+hr_holidays.hr_leave_action_action_approve_department: kdvn_hr_attendance.hr_leave_cover_action_section
 hr_holidays_public.open_holidays_public_view: kdvn_hr_attendance.open_holidays_public_view
 # Odoo 12 gave every list button its own column (td:nth-child(N)); Odoo 19 puts consecutive buttons in one cell: click the button itself
 _selectors:
