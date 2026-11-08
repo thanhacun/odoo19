@@ -5,9 +5,9 @@
             <span t-esc="formattedDate"/>
         </t>
         <t t-else="">
-            <div class="d-flex align-items-center gap-2">
+            <div class="d-flex flex-wrap align-items-center gap-2">
                 <input type="month" class="o_input o-kdvn-MonthDate" style="min-width: 11rem;" t-att-id="props.id" t-att-value="monthValue" t-on-change="onChange"/>
-                <span t-if="value" class="text-muted small" t-esc="formattedDate"/>
+                <span t-if="value" class="text-muted small text-nowrap" t-esc="formattedDate"/>
             </div>
         </t>
     </t>
