@@ -458,6 +458,8 @@ class EntertainmentRequest(models.Model):
 
     @api.constrains('estimated_amount')
     def _check_positive_amount(self):
+        if self.env.context.get('kdvn_legacy_import'):
+            return   # Odoo 12 history from before this rule (approved requests with amount 0) is copied as it is
         for record in self:
             if record.estimated_amount <= 0:
                 raise ValidationError(_("Estimated amount must be greater 0"))
