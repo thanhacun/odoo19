@@ -5,7 +5,7 @@
 #
 # odoo19_dev is the MIRROR: the nightly import (tools/legacy_nightly.sh) overwrites imported records there, so nobody experiments in it.
 # odoo19_lab is for experiments and ideas: the nightly never touches it. A refresh DROPS the lab and copies the mirror again
-# (data, filestore, then `odoo neutralize`: crons off, outgoing mail dummy). Without --yes it only shows the plan.
+# (data, filestore, then `odoo neutralize` (crons off, outgoing mail dummy) and our own SQL: remote ERP, face server, n8n/Talk blanked). Without --yes it only shows the plan.
 # Serve it with the Odoo server on port 8069 (since 8 Nov the server on 8069 serves odoo19_lab; odoo19_dev has no server, it is only the mirror the nightly fills):
 #   docker exec -d odoo19 bash -lc 'odoo --dev all -d odoo19_lab; exec bash'   -> http://172.30.0.4:8069
 #   stop it before a refresh: docker exec odoo19 pkill -f 'bin/odoo --dev all -d odoo19_lab'
@@ -39,5 +39,12 @@ rm -rf "$HERE/odoodata/filestore/$LAB"
 [ ! -d "$HERE/odoodata/filestore/$SRC" ] || cp -a "$HERE/odoodata/filestore/$SRC" "$HERE/odoodata/filestore/$LAB"
 echo "neutralizing ..."
 docker exec "$CONTAINER" odoo neutralize -c /etc/odoo/odoo.conf -d "$LAB" 2>&1 | tail -2
-psqlx "select 'ready: $LAB, '||(select count(*) from pg_stat_activity where datname='$LAB')||' connections'" >/dev/null
+# Odoo's neutralize does not know our own outbound channels: the remote ERP (reader/writer logins, live switches), the face server,
+# n8n / Talk settings of the e-approval. Blank them as the Odoo 12 neutralize_copy.sql does, so the lab can never call or write to a real system.
+docker exec -i "$PGC" psql -U odoo -d "$LAB" -v ON_ERROR_STOP=1 -q <<'SQL'
+UPDATE ir_config_parameter SET value = '' WHERE key LIKE 'kderp\_remote.%' OR key LIKE 'kdvn\_remote.%' OR key = 'face_db.password';
+DELETE FROM ir_config_parameter WHERE key LIKE 'kderp\_remote.live.%' OR key LIKE 'kdvn\_remote.live.%';
+UPDATE ir_config_parameter SET value = '' WHERE key LIKE 'kderp\_e\_approval.%' AND (key ILIKE '%talk%' OR key ILIKE '%secret%' OR key ILIKE '%n8n%' OR key ILIKE '%webhook%' OR key ILIKE '%url%' OR key ILIKE '%nc\_%');
+UPDATE ir_config_parameter SET value = 'False' WHERE key IN ('kderp_e_approval.global_notify_email', 'kderp_e_approval.global_notify_talk');
+SQL
 docker exec "$PGC" psql -U odoo -d "$LAB" -Atc "select 'employees '||(select count(*) from hr_employee)||', attendance days '||(select count(*) from hr_attendance)||', entertainment requests '||(select count(*) from entertainment_request)"
