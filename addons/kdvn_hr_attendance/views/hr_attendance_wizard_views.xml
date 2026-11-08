@@ -524,8 +524,8 @@
                             <field name="at_year"/>
                             <field name="at_month"/>
                             <separator string="Advanced filter" colspan="4"/>
-                            <field name="employee_id"/>
-                            <field name="waiting_for" string="State"/>
+                            <field name="employee_id" placeholder="Employee (all)"/>
+                            <field name="waiting_for" string="State" placeholder="State (all)"/>
                             <group col="4">
                                 <field name="wait_for_approve" widget="boolean_toggle"/>
                                 <field name="no_sat_working" widget="boolean_toggle"/>
