@@ -20,7 +20,7 @@
             <field name="check_in" column_invisible="1"/><field name="check_out" column_invisible="1"/><field name="compute_in" widget="kdvn_time_only" string="IN" decoration-danger="late_in == True"/>
                 <field name="compute_out" widget="kdvn_time_only" string="OUT" decoration-danger="early_out == True"/>
                 <field name="status_ids" widget="many2many_tags" options="{'color_field': 'color', 'create_edit': True}" string="AT marks"/>
-                <field name="request_description" widget="html"/>
+                <field name="request_description" widget="kdvn_html_text"/>
                 <!-- <field name="ot_am" attrs="{'invisible': ['|', ('ot_am', '=', False), ('ot_am', '=', 0)]}" groups="hr_attendance.group_hr_attendance_user" /> -->
                 <!-- <field name="ot_pm" attrs="{'invisible': ['|', ('ot_pm', '=', False), ('ot_pm', '=', 0)]}" groups="hr_attendance.group_hr_attendance_user" /> -->
                 <field name="admin_manager_id" column_invisible="1"/>
@@ -197,7 +197,7 @@
                                 <field name="status_sync" column_invisible="1"/>
                             </list>
                         </field>
-                        <field name="request_description" widget="html"/>
+                        <field name="request_description" widget="kdvn_html_text"/>
                         <field name="refuse_comment" string="Refuse comment" decoration-danger="refuse_comment and state == 'refuse'" decoration-bf="refuse_comment and state == 'refuse'" decoration-muted="refuse_comment and state != 'refuse'"/>
                         <field name="allow_late_ot"/>
                         <field name="ot_warning" string="OT Warning" decoration-danger="ot_warning"/>
@@ -440,7 +440,7 @@
                                 <button name="action_ot_request" type="object" icon="fa-desktop text-success" title="Overtime Request" invisible="not can_request_ot"/>
                                 <button name="action_wt_request" type="object" icon="fa-clock-o text-success" title="Working time Request" invisible="not can_request_wt"/>
                                 <button name="action_leave_request" type="object" icon="fa-bed text-success" title="Leave Request" context="{'at_date': at_date}" invisible="not can_request_leave"/>
-                                <field name="request_description" string="Description" widget="html"/>
+                                <field name="request_description" string="Description" widget="kdvn_html_text"/>
                                 <field name="state"/>
                                 <button name="action_submit" title="Submit" icon="fa-paper-plane" type="object" invisible="((next_button_visible != 'submit' or not request_description) or request_description == '')"/>
                                 <button name="action_approve" title="Approve" icon="fa-arrow-right text-success" type="object" invisible="next_button_visible != 'approve'"/>
@@ -778,7 +778,7 @@
                 <field name="at_day_str"/>
                 <field name="at_date" column_invisible="1"/>
                 <field name="at_day" column_invisible="1"/>
-                <field name="request_description" widget="html" invisible="ot_wd == 0 and ot_hd == 0"/>
+                <field name="request_description" widget="kdvn_html_text" invisible="ot_wd == 0 and ot_hd == 0"/>
                 <field name="admin_manager_id" string="SM"/>
                 <field name="admin_gm_id" string="GM"/>
                 <!-- <field name="ot_wd_allow" attrs="{'invisible': [('ot_wd_allow', '=', 0)]}" /> -->
@@ -862,7 +862,7 @@
                         <list>
                             <field name="employee_id"/>
                             <field name="at_day_str" decoration-danger=" wd_block_no == 0"/>
-                            <field name="request_description" widget="html" invisible="ot_wd == 0 and ot_hd == 0"/>
+                            <field name="request_description" widget="kdvn_html_text" invisible="ot_wd == 0 and ot_hd == 0"/>
                             <field name="admin_manager_id" string="SM"/>
                             <field name="admin_gm_id" string="GM"/>
                             <!-- <field name="ot_wd_allow" attrs="{'invisible': [('ot_wd_allow', '=', 0)]}" /> -->
