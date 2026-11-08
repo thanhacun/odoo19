@@ -3406,6 +3406,8 @@ class KderpHrAttendanceOTHolidayLine(models.Model):
                     
     @api.constrains('at_date', 'ot_detail')
     def validate_at_date_is_holiday(self):
+        if self.env.context.get('kdvn_no_compute'):
+            return   # legacy import: days registered in Odoo 12 are copied as they are (the check cost most of the OT plan step)
         for r in self:
             ot_holidays_all_sats = r.ot_holiday_reg_id.get_ot_holidays(r.at_date, no_sat_working=True)
             if r.at_date not in ot_holidays_all_sats:
@@ -3431,6 +3433,8 @@ class KderpHrAttendanceOTHolidayLine(models.Model):
         return created_ids   # Odoo 12 returned None here (not allowed by Odoo 19 create)
 
     def write(self, values):
+        if self.env.context.get('kdvn_no_compute'):
+            return super().write(values)   # legacy import: Odoo 12 values as they are (no chatter, no plan status, no requests)
         # [TODO: ]: any changes should trigger UI to refresh
         # TODO [X]: Manually post message to hr.attendance.ot.holiday about the change for better management
         _super = super().write(values)

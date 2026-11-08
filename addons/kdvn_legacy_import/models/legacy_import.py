@@ -112,6 +112,22 @@ class KdvnLegacyImport(models.AbstractModel):
             out[name] = value
         return out
 
+    # stored computed fields that keep being computed by Odoo during a no-compute import (no Odoo 12 value to copy)
+    _KEEP_COMPUTED = {
+        'hr.attendance': ('expected_hours', 'overtime_hours', 'validated_overtime_hours', 'summary_id'),
+        'hr.leave': ('duration_display',),
+        'hr.leave.allocation': ('number_of_hours_display',),
+    }
+
+    def _drop_pending_computes(self, model, records):
+        """kdvn_no_compute: the Odoo 12 values are copied as they are, so Odoo must not recompute the stored computed fields of
+        the written records at the next flush (that recompute was most of the import time)."""
+        if not self.env.context.get('kdvn_no_compute'):
+            return
+        for field in list(self.env.fields_to_compute()):   # also the dependents on other models (a request makes its attendance day recompute)
+            if field.name not in self._KEEP_COMPUTED.get(field.model_name, ()):
+                self.env.remove_to_compute(field, self.env.records_to_compute(field))
+
     def _upsert(self, model, table, legacy_id, vals, natural=None):
         """Create, update or adopt a record for an Odoo 12 row. natural = domain finding an existing Odoo 19 record."""
         vals = self._clean(model, vals)
@@ -119,15 +135,18 @@ class KdvnLegacyImport(models.AbstractModel):
         with self.env.cr.savepoint():
             if record:
                 record.write(vals)
+                self._drop_pending_computes(model, record)
                 self._state['stats'][(table, 'updated')] += 1
                 return record
             existing = self.env[model].with_context(active_test=False).search(natural, limit=1) if natural else self.env[model]
             if existing:
                 existing.write(vals)
+                self._drop_pending_computes(model, existing)
                 self._tag(existing, table, legacy_id)
                 self._state['stats'][(table, 'adopted')] += 1
                 return existing
             record = self.env[model].create(vals)
+            self._drop_pending_computes(model, record)
             self._tag(record, table, legacy_id)
             self._state['stats'][(table, 'created')] += 1
             return record
@@ -150,7 +169,7 @@ class KdvnLegacyImport(models.AbstractModel):
         employee_codes: list of staff codes (None / empty = everybody); their managers are always added.
         working_only: skip leavers. password: set on every imported user (dev only; None = no password).
         dry_run: do everything, then roll back."""
-        self = self.sudo().with_context(tracking_disable=True, mail_notrack=True, mail_create_nolog=True, no_reset_password=True,
+        self = self.sudo().with_context(tracking_disable=True, mail_notrack=True, mail_create_nolog=True, mail_create_nosubscribe=True, no_reset_password=True,
                                  kdvn_defer_org_refresh=True, kdvn_skip_working_check=True)
         state = {'tags': {}, 'stats': Counter(), 'errors': [], 'options': {'password': password, 'date_from': date_from, 'date_to': date_to}, 'legacy_employees': {}, 'department_rows': [], 'timings': []}
         self = self.with_context(kdvn_import_state=state)

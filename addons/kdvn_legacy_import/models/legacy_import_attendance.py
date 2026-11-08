@@ -350,11 +350,11 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
             return row['employee_id'] in legacy_emp and (months is None or (int(row['at_year']), int(row['at_month'])) in months)
         self._copy_table('hr_attendance_ot_holiday', 'hr.attendance.ot.holiday', filter_row=wanted,
                          natural=lambda row, vals: [('employee_id', '=', vals.get('employee_id')), ('at_year', '=', str(row['at_year'])), ('at_month', '=', int(row['at_month']))],
-                         context={'kdvn_no_ot_plan_sync': True})
+                         context={'kdvn_no_ot_plan_sync': True, 'kdvn_no_compute': True})
         plans = {t[1] for t in self._state['tags'] if t[0] == 'hr_attendance_ot_holiday'}
         self._copy_table('hr_attendance_ot_holiday_line', 'hr.attendance.ot.holiday.line', filter_row=lambda row: row['ot_holiday_reg_id'] in plans,
                          natural=lambda row, vals: [('ot_holiday_reg_id', '=', vals.get('ot_holiday_reg_id')), ('at_date', '=', row['at_date'])],
-                         context={'kdvn_no_ot_plan_sync': True})
+                         context={'kdvn_no_ot_plan_sync': True, 'kdvn_no_compute': True})
 
     # ------------------------------------------------------------------ time off
     def _set_state(self, record, state):
@@ -380,7 +380,7 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
     def _step_lv_allocations(self):
         legacy_emp = set(self._state['legacy_employees'])
         self._copy_table('hr_leave_allocation', 'hr.leave.allocation', filter_row=lambda row: row['employee_id'] in legacy_emp,
-                         natural=lambda row, vals: None, skip=('state', 'holiday_type'), context={'no_filter_leave_type': True, 'leave_skip_state_check': True})
+                         natural=lambda row, vals: None, skip=('state', 'holiday_type'), context={'no_filter_leave_type': True, 'leave_skip_state_check': True, 'kdvn_no_compute': True})
         states = {r['id']: r['state'] for r in self._legacy_rows('hr_leave_allocation', ['id', 'state'])}
         for legacy_id, state in states.items():
             res_id = self._tags_get('hr_leave_allocation', legacy_id)
@@ -399,7 +399,7 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
         where = ' AND '.join(parts) or None
         leaves = [r for r in self._legacy_rows('hr_leave', None, where=where) if r['employee_id'] in legacy_emp]
         covers = {r['leave_cover_id'] for r in leaves if r.get('leave_cover_id')}
-        ctx = {'kdvn_legacy_import': True, 'do_not_run_at_status': True, 'leave_skip_state_check': True, 'leave_skip_date_check': True, 'do_not_update_at_leave_ids': True,
+        ctx = {'kdvn_legacy_import': True, 'kdvn_no_compute': True, 'do_not_run_at_status': True, 'leave_skip_state_check': True, 'leave_skip_date_check': True, 'do_not_update_at_leave_ids': True,
                'no_filter_leave_type': True}
         self._copy_table('hr_leave_cover', 'hr.leave.cover', filter_row=lambda row: row['id'] in covers, skip=('state', 'leave_request_ids'), context=ctx)
         leave_ids = {r['id'] for r in leaves}
