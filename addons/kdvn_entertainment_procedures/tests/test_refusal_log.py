@@ -27,6 +27,8 @@ class TestRefusalLog(TransactionCase):
             self.addCleanup(patcher.stop)
         self.Log = self.env['kderp.approval.refusal']
         # One approval rule for the procedure. Odoo 12 tests relied on the rules of the dev database; a test database has none.
+        # The shipped steps (data/entertainment_tier_definitions.xml) are off here: the test brings its own single step.
+        self.env['tier.definition'].sudo().search([('model', '=', 'entertainment.request')]).write({'active': False})
         self.env['tier.definition'].sudo().create({
             'name': 'Test step', 'frontend_name': 'Test step', 'procedure_tag': 'entertainment.request',
             'model_id': self.env['ir.model']._get('entertainment.request').id,
