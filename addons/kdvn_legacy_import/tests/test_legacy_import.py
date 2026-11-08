@@ -107,6 +107,35 @@ class TestLegacyImport(TransactionCase):
         self.assertFalse([k for k, v in second['stats'].items() if k[1] in ('created', 'adopted') and v], second['log'])
         self.assertTrue(any(k[1] == 'created' for k in first['stats']))
 
+    def test_second_run_writes_only_what_changed(self):
+        """A re-run must not write rows whose values did not change (a write can be refused, e.g. a leave type that already has leaves)."""
+        self.imp.run()
+        self.data['hr_employee'][1]['job_title'] = 'Senior'
+        writes = []
+        original = type(self.env['hr.employee']).write
+
+        def spy(records, vals):
+            writes.append((records.code if len(records) == 1 else len(records), sorted(vals)))
+            return original(records, vals)
+        with mock.patch.object(type(self.env['hr.employee']), 'write', spy):
+            second = self.imp.run()
+        self.assertEqual(second['errors'], [], second['log'])
+        self.assertEqual(self._emp('IA001').job_title, 'Senior')
+        main = [w for w in writes if w[0] in ('IA001', 'IB001', 'IL001') and 'job_title' in w[1]]
+        self.assertEqual([w[0] for w in main], ['IA001'], 'only the employee whose job title changed is written by the main step: %s' % writes)
+        self.assertTrue(any(k[1] == 'unchanged' and v for k, v in second['stats'].items()), second['log'])
+
+    def test_same_values(self):
+        staff = self.imp._same_values
+        self.imp.run()
+        emp = self._emp('IA001')
+        self.assertTrue(staff(emp, {'name': 'Staff One', 'children': 0, 'job_title': None, 'department_id': emp.department_id.id, 'birthday': None}))
+        self.assertFalse(staff(emp, {'name': 'Staff Two'}))
+        self.assertFalse(staff(emp, {'department_id': emp.department_id.id + 1}))
+        self.assertFalse(staff(emp, {'children': 3}))
+        self.assertFalse(staff(emp, {'category_ids': [(6, 0, [])]}), 'x2many always counts as different')
+        self.assertFalse(staff(emp, {'no_such_field': 1}))
+
     def test_filter_by_code_brings_the_managers(self):
         out = self.imp.run(employee_codes=['ia001'])
         self.assertTrue(self._emp('IA001'))

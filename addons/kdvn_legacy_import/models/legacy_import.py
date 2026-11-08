@@ -155,14 +155,18 @@ class KdvnLegacyImport(models.AbstractModel):
         record = self._record(model, table, legacy_id)
         with self.env.cr.savepoint():
             if record:
+                if self._same_values(record, vals):
+                    self._state['stats'][(table, 'unchanged')] += 1   # nothing to write (a write can be refused, e.g. a leave type that already has leaves)
+                    return record
                 record.write(vals)
                 self._drop_pending_computes(model, record)
                 self._state['stats'][(table, 'updated')] += 1
                 return record
             existing = self.env[model].with_context(active_test=False).search(natural, limit=1) if natural else self.env[model]
             if existing:
-                existing.write(vals)
-                self._drop_pending_computes(model, existing)
+                if not self._same_values(existing, vals):
+                    existing.write(vals)
+                    self._drop_pending_computes(model, existing)
                 self._tag(existing, table, legacy_id)
                 self._state['stats'][(table, 'adopted')] += 1
                 return existing
@@ -171,6 +175,35 @@ class KdvnLegacyImport(models.AbstractModel):
             self._tag(record, table, legacy_id)
             self._state['stats'][(table, 'created')] += 1
             return record
+
+    @staticmethod
+    def _same_values(record, vals):
+        """True when writing vals would change nothing (every value equals the current one). Only plain stored (or related) fields are compared;
+        x2many, binary, html, properties and anything that cannot be compared count as different, so the write goes ahead as before."""
+        record.ensure_one()
+        for name, value in vals.items():
+            field = record._fields.get(name)
+            if field is None or not (field.store or field.related) or field.type in ('one2many', 'many2many', 'binary', 'html', 'properties', 'json', 'image'):
+                return False
+            try:
+                current = record[name]
+                if field.type == 'many2one':
+                    same = (current.id or False) == (value.id if hasattr(value, 'id') else value or False)
+                elif field.type in ('char', 'text', 'selection'):
+                    same = (current or False) == (value or False)
+                elif field.type == 'boolean':
+                    same = bool(current) == bool(value)
+                elif field.type in ('integer', 'float', 'monetary'):
+                    same = (current or 0) == (value or 0)
+                elif field.type in ('date', 'datetime'):
+                    same = field.convert_to_cache(current, record) == field.convert_to_cache(value, record)
+                else:
+                    return False
+            except Exception:   # noqa: BLE001 - anything odd: let the write decide
+                return False
+            if not same:
+                return False
+        return True
 
     def _safe(self, table, legacy_id, label, func):
         """Run func for one legacy row; a failure is logged and rolled back, the run goes on."""
