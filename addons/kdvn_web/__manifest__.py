@@ -1,15 +1,15 @@
 {
     'name': 'KDVN Web',
-    'summary': 'KDVN web client customizations shared by all KDVN modules: chatter layout and toggle, time-only field, graph measures.',
+    'summary': 'KDVN web client customizations shared by all KDVN modules: chatter toggle, time-only field, graph measures.',
     'description': """
 Generic web client behaviour of KDVN (Odoo 12 kept it inside kderp_hr_attendance and kderp_web_theme):
-- chatter: on the right only on very wide screens (KDVN_CHATTER_ASIDE_MIN_WIDTH in static/src/chatter/chatter_layout.js), at the bottom otherwise;
+- chatter: Show/Hide Chatter toggle; collapsed beside the form it keeps only that button;
   "Show Chatter / Hide Chatter" button in its top bar, messages collapsed when a form opens;
 - field widget `kdvn_time_only`: a datetime shown as HH:mm (Odoo 12 option format HH:mm); dates and datetimes numeric by default (21/04/2024);
 - context key `graph_measures` of an action: limits, names and orders the measures of its graph views.
 One small model: kderp.notification.wizard (centred message dialog used by e-approval). Attendance-specific JS stays in kdvn_hr_attendance.
 """,
-    'version': '19.0.1.4.0',
+    'version': '19.0.1.5.0',
     'category': 'Hidden',
     'author': 'Kinden Vietnam',
     'license': 'LGPL-3',
@@ -20,7 +20,6 @@ One small model: kderp.notification.wizard (centred message dialog used by e-app
     ],
     'assets': {
         'web.assets_backend': [
-            'kdvn_web/static/src/chatter/chatter_layout.js',
             'kdvn_web/static/src/chatter/chatter_toggle.js',
             'kdvn_web/static/src/chatter/chatter_toggle.xml',
             'kdvn_web/static/src/chatter/chatter_toggle.scss',
