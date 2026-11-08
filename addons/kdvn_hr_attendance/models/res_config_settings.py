@@ -20,6 +20,7 @@ class ResConfigSettings(models.TransientModel):
     gm_late_request = fields.Boolean(related='company_id.gm_late_request', readonly=False)
     ot_comp_category_ids = fields.Many2many(related='company_id.ot_comp_category_ids', readonly=False)
     app_start_date = fields.Date(related='company_id.app_start_date', readonly=False)
+    lock_months = fields.Integer(related='company_id.lock_months', readonly=False)
     # ot_request_before = fields.Char(related='company_id.ot_request_before', readonly=False)
     ot_request_before = fields.Datetime(related='company_id.ot_request_before', readonly=False)
     wt_request_before = fields.Datetime(related='company_id.wt_request_before', readonly=False)

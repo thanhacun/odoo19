@@ -672,9 +672,20 @@ class KderpHolidayRequestCover(models.Model):
                 c.action_submit()
         return cover_ids
 
+    # fields of a leave cover that change what payroll reads
+    PERIOD_LOCK_KEYS = frozenset(['state', 'leave_request_ids', 'reason_id', 'employee_id', 'date_from', 'date_to', 'name'])
+
+    def _check_period_lock_covers(self):
+        for c in self.sudo():
+            dt_from, dt_to = c.dt_from or self._period_vn_date(c.date_from), c.dt_to or self._period_vn_date(c.date_to)
+            if dt_from:
+                self._check_period_lock(c.employee_id, dt_from, dt_to, what=_('leave'))
+
     def write(self, values):
         if self.env.context.get('kdvn_no_compute'):
             return super().write(values)   # legacy import (re-run)
+        if self.PERIOD_LOCK_KEYS & set(values):
+            self._check_period_lock_covers()
         # TODO []: Update change sub_date
         changed_sub_dates = []
         for c in self:
@@ -705,6 +716,7 @@ class KderpHolidayRequestCover(models.Model):
 
     # @profile
     def unlink(self):
+        self._check_period_lock_covers()
         allowed_cover = self.filtered(lambda c: c.state == 'draft')
         if allowed_cover < self:
             _logger.warning(_('Can delete only [Draft] leave(s)'))
@@ -1144,6 +1156,11 @@ class KderpHolidaysRequest(models.Model):
         return records
 
     def _legacy_create(self, values):
+        employee = values.get('employee_id') or self.env.context.get('default_employee_id')
+        d_from = self._period_vn_date(values.get('request_date_from')) or self._period_vn_date(values.get('date_from'))
+        d_to = self._period_vn_date(values.get('request_date_to')) or self._period_vn_date(values.get('date_to')) or d_from
+        if employee and d_from:
+            self._check_period_lock(employee, d_from, d_to, what=_('leave'))
         holiday = super().create(values)
         if self.env.context.get('kdvn_no_compute'):
             return holiday   # legacy import: Odoo 12 values as they are
@@ -1157,9 +1174,29 @@ class KderpHolidaysRequest(models.Model):
             h.leave_cover_id.related_at_ids()._compute_leave_cover_ids()
         return holiday
 
+    # fields of a leave that change what payroll reads and the balances
+    PERIOD_LOCK_KEYS = frozenset(['state', 'request_date_from', 'request_date_to', 'request_date_from_period', 'request_date_to_period',
+                                  'holiday_status_id', 'employee_id', 'date_from', 'date_to', 'number_of_days', 'substitute_for_date',
+                                  'leave_cover_id', 'request_unit_half', 'request_unit_hours'])
+
+    def _check_period_lock_leaves(self, values=None):
+        for h in self.sudo():
+            d_from = h.request_date_from or self._period_vn_date(h.date_from)
+            d_to = h.request_date_to or self._period_vn_date(h.date_to) or d_from
+            if d_from:
+                self._check_period_lock(h.employee_id, d_from, d_to, what=_('leave'))
+        if values and (values.get('request_date_from') or values.get('request_date_to')):
+            for h in self.sudo():
+                d_from = self._period_vn_date(values.get('request_date_from')) or h.request_date_from
+                d_to = self._period_vn_date(values.get('request_date_to')) or h.request_date_to or d_from
+                if d_from:
+                    self._check_period_lock(values.get('employee_id') or h.employee_id, d_from, d_to, what=_('leave'))
+
     def write(self, values):
         if self.env.context.get('kdvn_no_compute'):
             return super().write(values)   # legacy import (re-run)
+        if self.PERIOD_LOCK_KEYS & set(values):
+            self._check_period_lock_leaves(values)
         date_changed = values.get('request_date_from', None) or values.get('request_date_to', None)
         period_changed = values.get('request_date_from_period', None) or values.get('request_date_to_period', None)
         old_dt_from, old_dt_to = None, None
@@ -1187,6 +1224,7 @@ class KderpHolidaysRequest(models.Model):
 
     # @profile
     def unlink(self):
+        self._check_period_lock_leaves()
         # TODO [X]: Recompute leave_ids for related ats (calling _compute_leave_cover_ids method)
         related_at_ids = self.env['hr.attendance']
         for h in self:

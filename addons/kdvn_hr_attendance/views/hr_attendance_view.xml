@@ -94,6 +94,8 @@
                     <field name="need_director_button_visible" invisible="1"/>
                 </header>
             <sheet>
+                    <widget name="web_ribbon" title="Period locked" bg_color="text-bg-secondary" invisible="not period_locked"/>
+                    <field name="period_locked" invisible="1"/>
                     <div class="oe_button_box d-none d-md-block" name="button_box">
                         <field name="show_leaves" invisible="1"/>
                         <button name="action_leaves_form" type="object" class="oe_stat_button" icon="fa-calendar" groups="base.group_user" context="{'at_date': at_date}" help="Remaining leaves" invisible="not show_leaves">
@@ -359,6 +361,7 @@
                 <filter name="wait_for_manager" string="Manager Approve" domain="[('state', 'in', ['waiting_fman'])]" groups="hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_section_manager"/>
                 <filter name="not_submit" string="Not submit yet" domain="[('state', 'in', ['draft', 'refuse']), '|', ('at_request_ids', '!=', False), ('leave_cover_ids', '!=', False)]" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff"/>
                 <filter name="states_not_sync" string="States unsynced" domain="[('states_sync', '=', False)]" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff"/>
+                <filter name="period_locked" string="Period locked" domain="[('period_locked', '=', True)]" groups="hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_section_manager"/>
                 <separator/>
                 <filter name="show_inactive" string="Show Archive" domain="['|', ('active', '=', True), ('active', '=', False)]" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff"/>
             <group><filter name="groupby_department" string="Section" context="{'group_by':'department_id'}" groups="kdvn_hr_attendance.group_hr_attendance_section_admin,hr_attendance.group_hr_attendance_user"/>
