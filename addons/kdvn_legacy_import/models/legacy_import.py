@@ -81,9 +81,16 @@ class KdvnLegacyImport(models.AbstractModel):
         return self.env.context['kdvn_import_state']
 
     # ------------------------------------------------------------------ tagging helpers
-    def _tag_map(self):
+    # models whose tags live in per-table dicts when the bulk loader runs (a million tags would fill the common map)
+    _BULK_MODELS = ('hr.attendance', 'hr.attendance.raw', 'hr.attendance.request', 'hr.attendance.ot.holiday', 'hr.attendance.ot.holiday.line',
+                    'hr.leave', 'hr.leave.cover', 'hr.leave.allocation', 'resource.calendar.leaves')
+
+    def _tag_map(self, bulk=False):
         """{'<table>_<id>': res_id} of everything already imported (the table name in the tag tells the model)."""
-        self.env.cr.execute("SELECT name, res_id FROM ir_model_data WHERE module = %s", (TAG_MODULE,))
+        if bulk:
+            self.env.cr.execute("SELECT name, res_id FROM ir_model_data WHERE module = %s AND model NOT IN %s", (TAG_MODULE, self._BULK_MODELS))
+        else:
+            self.env.cr.execute("SELECT name, res_id FROM ir_model_data WHERE module = %s", (TAG_MODULE,))
         return dict(self.env.cr.fetchall())
 
     def _tag(self, record, table, legacy_id):
@@ -164,16 +171,16 @@ class KdvnLegacyImport(models.AbstractModel):
 
     # ------------------------------------------------------------------ run
     @api.model
-    def run(self, employee_codes=None, working_only=False, password=None, dry_run=False, steps=None, date_from=None, date_to=None):
+    def run(self, employee_codes=None, working_only=False, password=None, dry_run=False, steps=None, date_from=None, date_to=None, bulk=False):
         """Import the selected employees with everything they need. Returns {'stats': {...}, 'errors': [...], 'log': text}.
         employee_codes: list of staff codes (None / empty = everybody); their managers are always added.
         working_only: skip leavers. password: set on every imported user (dev only; None = no password).
-        dry_run: do everything, then roll back."""
+        dry_run: do everything, then roll back. bulk: load the big history tables with SQL (models/legacy_bulk.py)."""
         self = self.sudo().with_context(tracking_disable=True, mail_notrack=True, mail_create_nolog=True, mail_create_nosubscribe=True, no_reset_password=True,
                                  kdvn_defer_org_refresh=True, kdvn_skip_working_check=True)
-        state = {'tags': {}, 'stats': Counter(), 'errors': [], 'options': {'password': password, 'date_from': date_from, 'date_to': date_to}, 'legacy_employees': {}, 'department_rows': [], 'timings': []}
+        state = {'tags': {}, 'stats': Counter(), 'errors': [], 'options': {'password': password, 'date_from': date_from, 'date_to': date_to, 'bulk': bulk}, 'legacy_employees': {}, 'department_rows': [], 'timings': []}
         self = self.with_context(kdvn_import_state=state)
-        state['tags'] = {(name.rsplit('_', 1)[0], int(name.rsplit('_', 1)[1])): res_id for name, res_id in self._tag_map().items()}
+        state['tags'] = {(name.rsplit('_', 1)[0], int(name.rsplit('_', 1)[1])): res_id for name, res_id in self._tag_map(bulk).items()}
         self._select_employees(employee_codes, working_only)
         with contextlib.ExitStack() as stack:
             savepoint = stack.enter_context(self.env.cr.savepoint(flush=False)) if dry_run else None

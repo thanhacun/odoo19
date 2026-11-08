@@ -226,6 +226,8 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
         self.env['hr.attendance'].clear_at_rules_memo()
 
     def _step_at_attendance(self):
+        if self._state['options'].get('bulk'):
+            return self._bulk_hr_attendance()
         self._ensure_codes()
         legacy_emp = set(self._state['legacy_employees'])
         where = self._window_where('at_date')
@@ -260,6 +262,8 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
         self.env.invalidate_all()
 
     def _step_at_raw(self):
+        if self._state['options'].get('bulk'):
+            return self._bulk_hr_attendance_raw()
         legacy_emp = set(self._state['legacy_employees'])
         self._copy_table('hr_attendance_raw', 'hr.attendance.raw', where=self._window_where('check_date'),
                          filter_row=lambda row: row['employee_id'] in legacy_emp,
@@ -267,19 +271,19 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
 
     def _step_at_requests(self):
         self._ensure_codes()
-        ats = {t[1] for t in self._state['tags'] if t[0] == 'hr_attendance'}
+        ats = {t[1] for t in self._state['tags'] if t[0] == 'hr_attendance'} if not self._state['options'].get('bulk') else ()
         self._copy_table('hr_attendance_request_type', 'hr.attendance.request.type', natural=lambda row, vals: [('code', '=', row['code'])])
+        if self._state['options'].get('bulk'):
+            return self._bulk_hr_attendance_request()
         self._copy_table('hr_attendance_request', 'hr.attendance.request', filter_row=lambda row: row['at_id'] in ats,
                          context={'do_not_run_at_status': True, 'kdvn_no_compute': True, 'kdvn_skip_checkin_check': True},
                          skip=('state_gm', 'state_no_gm'))
 
     def _step_at_refuse(self):
         """Refusal comments of the imported requests and leave covers (a comment whose request or cover is outside the window is skipped)."""
-        tags = self._state['tags']
-
         def wanted(row):
-            return ((row['related_request_id'] and ('hr_attendance_request', row['related_request_id']) in tags)
-                    or (row['related_leave_cover_id'] and ('hr_leave_cover', row['related_leave_cover_id']) in tags))
+            return bool((row['related_request_id'] and self._tags_get('hr_attendance_request', row['related_request_id']))
+                        or (row['related_leave_cover_id'] and self._tags_get('hr_leave_cover', row['related_leave_cover_id'])))
         self._copy_table('hr_attendance_refuse', 'hr.attendance.refuse', filter_row=wanted,
                          context={'do_not_run_at_status': True, 'kdvn_no_compute': True})
 
@@ -287,6 +291,8 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
         """Who may see each imported attendance, request and leave cover (view_user_ids): the Odoo 12 lists, copied as they are.
         The record rules of the managers and GMs read them. Recomputing gives different lists (Odoo 12 also keeps past and
         functional managers), so the import never recomputes them. A user outside the imported staff is skipped (counted)."""
+        if self._state['options'].get('bulk'):
+            return self._bulk_view_users()
         users = {t[1]: v for t, v in self._state['tags'].items() if t[0] == 'res_users'}
         cr = self.env.cr
         for table, rel, column in (('hr_attendance', 'hr_attendance_res_users_rel', 'hr_attendance_id'),
@@ -318,6 +324,8 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
         While the later steps run (raw checks, requests, leaves) Odoo 19 recomputes stored fields of the imported days (absence,
         compute_out, OT hours...) before the requests they depend on exist, and the result differs from what Odoo 12 computed
         (payroll reads these). The import never recomputes: Odoo 12's values are the truth until the parity run says otherwise."""
+        if self._state['options'].get('bulk'):
+            return None   # the bulk loader copies the Odoo 12 values directly
         ats = {t[1]: v for t, v in self._state['tags'].items() if t[0] == 'hr_attendance'}
         if not ats:
             return
@@ -343,6 +351,8 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
         self._state['stats'][('hr_attendance', 'values restored')] += len(rows)
 
     def _step_at_ot_plans(self):
+        if self._state['options'].get('bulk'):
+            return self._bulk_hr_attendance_ot_plans()
         months = self._window_months()
         legacy_emp = set(self._state['legacy_employees'])
 
@@ -378,6 +388,8 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
                          context={'no_filter_leave_type': True})
 
     def _step_lv_allocations(self):
+        if self._state['options'].get('bulk'):
+            return self._bulk_hr_leave_allocation()
         legacy_emp = set(self._state['legacy_employees'])
         self._copy_table('hr_leave_allocation', 'hr.leave.allocation', filter_row=lambda row: row['employee_id'] in legacy_emp,
                          natural=lambda row, vals: None, skip=('state', 'holiday_type'), context={'no_filter_leave_type': True, 'leave_skip_state_check': True, 'kdvn_no_compute': True})
@@ -388,6 +400,8 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
                 self._set_state(self.env['hr.leave.allocation'].browse(res_id), state)
 
     def _step_lv_leaves(self):
+        if self._state['options'].get('bulk'):
+            return self._bulk_hr_leave()
         legacy_emp = set(self._state['legacy_employees'])
         where = None
         opts = self._state['options']
@@ -437,6 +451,8 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
 
     def _step_lv_links(self):
         """hr.attendance.leave_cover_ids (which covers touch an attendance day)."""
+        if self._state['options'].get('bulk'):
+            return self._bulk_links()
         ats = {t[1]: v for t, v in self._state['tags'].items() if t[0] == 'hr_attendance'}
         covers = {t[1]: v for t, v in self._state['tags'].items() if t[0] == 'hr_leave_cover'}
         links = {}
