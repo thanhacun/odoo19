@@ -517,7 +517,7 @@
                     </header>
                     <group>
                         <group string="Sections">
-                            <field name="managed_section_ids" widget="many2many_tags" string="Sections" nolabel="1" readonly="1"/>
+                            <field name="managed_section_ids" widget="many2many_tags" string="Sections" nolabel="1" readonly="1" colspan="2"/>
                         </group>
                         <group string="Filter data">
                             <field name="manager_id"/>

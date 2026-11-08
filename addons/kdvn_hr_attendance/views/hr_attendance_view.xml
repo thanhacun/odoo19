@@ -356,7 +356,7 @@
                 <separator/>
                 <filter name="wait_for_gm" string="GM Approve" domain="[('state', 'in', ['waiting_fman2']), '|', ('at_request_ids', '!=', False), ('leave_cover_ids', '!=', False)]" groups="kdvn_hr_attendance.group_hr_attendance_gm"/>
                 <filter name="wait_for_hr" string="HR Validate" domain="[('state', 'in', ['waiting_fhr']), '|', ('at_request_ids', '!=', False), ('leave_cover_ids', '!=', False)]" groups="hr_attendance.group_hr_attendance_user"/>
-                <filter name="wait_for_manager" string="Manager Approve" domain="[('state', 'in', ['waiting_fman'])]" groups="hr_attendance.group_hr_attendance_user"/>
+                <filter name="wait_for_manager" string="Manager Approve" domain="[('state', 'in', ['waiting_fman'])]" groups="hr_attendance.group_hr_attendance_user,kdvn_hr_attendance.group_hr_attendance_section_manager"/>
                 <filter name="not_submit" string="Not submit yet" domain="[('state', 'in', ['draft', 'refuse']), '|', ('at_request_ids', '!=', False), ('leave_cover_ids', '!=', False)]" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff"/>
                 <filter name="states_not_sync" string="States unsynced" domain="[('states_sync', '=', False)]" groups="kdvn_hr_attendance.group_hr_attendance_menu_staff"/>
                 <separator/>
