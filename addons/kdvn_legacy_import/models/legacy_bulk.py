@@ -352,6 +352,8 @@ class KdvnLegacyBulk(models.AbstractModel):
         where = ' AND '.join(parts) or None
         leaves = {r['id']: r for r in self._legacy_ids('hr_leave', ['employee_id', 'leave_cover_id'], where=where) if r['employee_id'] in legacy_emp}
         covers = {r['leave_cover_id'] for r in leaves.values() if r.get('leave_cover_id')}
+        # covers without any leave yet (drafts, requests waiting for approval) of the imported staff: they are pending requests, not leftovers
+        covers |= {r['id'] for r in self._legacy_ids('hr_leave_cover', ['employee_id'], where=where) if r['employee_id'] in legacy_emp}
         self._bulk_load('hr_leave_cover', 'hr.leave.cover', skip=('leave_request_ids',), keep=lambda row: row['id'] in covers)
         self.env.cr.execute('SELECT id, request_unit FROM hr_leave_type')
         unit_of = dict(self.env.cr.fetchall())
