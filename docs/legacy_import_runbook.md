@@ -46,3 +46,27 @@ Run the same command with a wider window: existing records are updated, new ones
 - Cut-over: stop Odoo 12, back up, restore into `legacy12`, run with no window limit (full history). A year takes about 2 hours, so either plan the downtime or load history earlier and run a short final delta (a narrow window re-run).
 - Business rule (payroll cannot take two leave types on one day): any such day found in a parity run must be explained before go-live.
 - Known open items: leave types 90 (Annual Leave) and 96 (AH Jul. 2026) fail to update on a re-run (only their metadata stays stale); employee photos, summaries and the refuse log are not all covered (see the module CLAUDE.md).
+
+## Bulk mode (`--bulk`, 8 Nov 2026) and the nightly delta (design)
+`tools/legacy_import.sh <db> <from> <to> --apply --bulk` loads the big history tables with streamed SQL instead of one ORM create per row
+(`addons/kdvn_legacy_import/models/legacy_bulk.py`): attendance days (+ status marks), raw checks, requests, OT plans and lines, leave covers,
+leaves, allocations, calendar leaves, and the side tables (viewer lists, attendance-cover links). Staff, organisation, rules, leave types
+and the refusal log stay on the ORM steps (small). The legacy tables are read with a server side cursor in chunks of 5,000 rows (constant memory:
+the ORM path died with MemoryError on 480k attendance days); one INSERT per chunk; a failing chunk is retried row by row and the bad rows listed.
+- Values are the Odoo 12 stored values as they are (also for leaves: the ORM path recomputed `number_of_days` and `date_to` of 63 of 316 leaves
+  of one month; bulk copies the Odoo 12 value). Stored computed fields with no Odoo 12 value get their formula: attendance `expected_hours`
+  (= worked hours), `overtime_hours` / `validated_overtime_hours` (0), `summary_id`, `date` (local date of the check in), allocation
+  `number_of_hours_display` and the allocation dates (leave type validity), leave `duration_display`, `number_of_hours`, `request_unit_half`.
+- Re-runnable: rows with the external id `legacy12.<table>_<id>` are updated in place (INSERT .. ON CONFLICT (id) DO UPDATE), new rows take the
+  next id of the sequence. create/write dates are the Odoo 12 ones.
+
+### Delta (nightly during the training weeks, and the final one at cut-over) - design, not built yet
+1. Odoo 12 stays the only place where people work; nothing is entered in Odoo 19 until cut-over (so the delta may overwrite).
+2. Changed rows: every source table has `write_date`. Keep `kdvn_legacy.last_delta` (ir.config_parameter) = the largest source `write_date`
+   seen minus 10 minutes. `_bulk_load(table, ..., where="write_date > last_delta")` already updates in place by external id. Relations of a changed
+   record are replaced (delete the record's rows, insert the legacy ones: `_bulk_relation(..., delete_ids=changed ids)`).
+3. Deleted rows: Odoo 12 hard-deletes (nothing remains in the table). Detect by comparing id lists: stream `SELECT id` of the legacy table
+   (ints only, about a second for 480k) against the external ids of the target; ids in Odoo 19 but not in Odoo 12 are deleted in Odoo 19
+   (rows, side table rows and the external id), counted in the log.
+4. Small ORM steps (staff, org, rules, leave types, refusal log) simply run again (about 90 s).
+5. Cut-over: stop Odoo 12, back up, restore the final dump into `legacy12`, run the delta (minutes), start using Odoo 19.

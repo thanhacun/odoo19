@@ -651,6 +651,8 @@ class KderpHolidayRequestCover(models.Model):
         if not values.get('leave_request_ids') and not self.env.context.get('kdvn_legacy_import'):   # the legacy import creates the cover first, its leaves after
             raise ValidationError(_('Leave cover without leaves! Please check your data!'))
         cover_ids = super(KderpHolidayRequestCover, self.with_context(mail_create_nolog=True)).create(values)
+        if self.env.context.get('kdvn_no_compute'):
+            return cover_ids   # legacy import: Odoo 12 values as they are (no sync of the days, no submit; viewers and day links copied by the importer)
         for c in cover_ids:
             # This method will create new at records if needed
             if c.state != 'draft':
@@ -671,6 +673,8 @@ class KderpHolidayRequestCover(models.Model):
         return cover_ids
 
     def write(self, values):
+        if self.env.context.get('kdvn_no_compute'):
+            return super().write(values)   # legacy import (re-run)
         # TODO []: Update change sub_date
         changed_sub_dates = []
         for c in self:
@@ -1141,6 +1145,8 @@ class KderpHolidaysRequest(models.Model):
 
     def _legacy_create(self, values):
         holiday = super().create(values)
+        if self.env.context.get('kdvn_no_compute'):
+            return holiday   # legacy import: Odoo 12 values as they are
         for h in holiday:
             if self.env.context.get('run_holiday_onchange', False):
                 h.onchange_period()
@@ -1152,6 +1158,8 @@ class KderpHolidaysRequest(models.Model):
         return holiday
 
     def write(self, values):
+        if self.env.context.get('kdvn_no_compute'):
+            return super().write(values)   # legacy import (re-run)
         date_changed = values.get('request_date_from', None) or values.get('request_date_to', None)
         period_changed = values.get('request_date_from_period', None) or values.get('request_date_to_period', None)
         old_dt_from, old_dt_to = None, None

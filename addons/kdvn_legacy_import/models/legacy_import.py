@@ -10,6 +10,7 @@ Rules
 import contextlib
 import logging
 import re
+import time
 from collections import Counter
 
 import psycopg2
@@ -80,9 +81,16 @@ class KdvnLegacyImport(models.AbstractModel):
         return self.env.context['kdvn_import_state']
 
     # ------------------------------------------------------------------ tagging helpers
-    def _tag_map(self):
+    # models whose tags live in per-table dicts when the bulk loader runs (a million tags would fill the common map)
+    _BULK_MODELS = ('hr.attendance', 'hr.attendance.raw', 'hr.attendance.request', 'hr.attendance.ot.holiday', 'hr.attendance.ot.holiday.line',
+                    'hr.leave', 'hr.leave.cover', 'hr.leave.allocation', 'resource.calendar.leaves')
+
+    def _tag_map(self, bulk=False):
         """{'<table>_<id>': res_id} of everything already imported (the table name in the tag tells the model)."""
-        self.env.cr.execute("SELECT name, res_id FROM ir_model_data WHERE module = %s", (TAG_MODULE,))
+        if bulk:
+            self.env.cr.execute("SELECT name, res_id FROM ir_model_data WHERE module = %s AND model NOT IN %s", (TAG_MODULE, self._BULK_MODELS))
+        else:
+            self.env.cr.execute("SELECT name, res_id FROM ir_model_data WHERE module = %s", (TAG_MODULE,))
         return dict(self.env.cr.fetchall())
 
     def _tag(self, record, table, legacy_id):
@@ -111,6 +119,22 @@ class KdvnLegacyImport(models.AbstractModel):
             out[name] = value
         return out
 
+    # stored computed fields that keep being computed by Odoo during a no-compute import (no Odoo 12 value to copy)
+    _KEEP_COMPUTED = {
+        'hr.attendance': ('expected_hours', 'overtime_hours', 'validated_overtime_hours', 'summary_id'),
+        'hr.leave': ('duration_display',),
+        'hr.leave.allocation': ('number_of_hours_display',),
+    }
+
+    def _drop_pending_computes(self, model, records):
+        """kdvn_no_compute: the Odoo 12 values are copied as they are, so Odoo must not recompute the stored computed fields of
+        the written records at the next flush (that recompute was most of the import time)."""
+        if not self.env.context.get('kdvn_no_compute'):
+            return
+        for field in list(self.env.fields_to_compute()):   # also the dependents on other models (a request makes its attendance day recompute)
+            if field.name not in self._KEEP_COMPUTED.get(field.model_name, ()):
+                self.env.remove_to_compute(field, self.env.records_to_compute(field))
+
     def _upsert(self, model, table, legacy_id, vals, natural=None):
         """Create, update or adopt a record for an Odoo 12 row. natural = domain finding an existing Odoo 19 record."""
         vals = self._clean(model, vals)
@@ -118,15 +142,18 @@ class KdvnLegacyImport(models.AbstractModel):
         with self.env.cr.savepoint():
             if record:
                 record.write(vals)
+                self._drop_pending_computes(model, record)
                 self._state['stats'][(table, 'updated')] += 1
                 return record
             existing = self.env[model].with_context(active_test=False).search(natural, limit=1) if natural else self.env[model]
             if existing:
                 existing.write(vals)
+                self._drop_pending_computes(model, existing)
                 self._tag(existing, table, legacy_id)
                 self._state['stats'][(table, 'adopted')] += 1
                 return existing
             record = self.env[model].create(vals)
+            self._drop_pending_computes(model, record)
             self._tag(record, table, legacy_id)
             self._state['stats'][(table, 'created')] += 1
             return record
@@ -144,24 +171,27 @@ class KdvnLegacyImport(models.AbstractModel):
 
     # ------------------------------------------------------------------ run
     @api.model
-    def run(self, employee_codes=None, working_only=False, password=None, dry_run=False, steps=None, date_from=None, date_to=None):
+    def run(self, employee_codes=None, working_only=False, password=None, dry_run=False, steps=None, date_from=None, date_to=None, bulk=False):
         """Import the selected employees with everything they need. Returns {'stats': {...}, 'errors': [...], 'log': text}.
         employee_codes: list of staff codes (None / empty = everybody); their managers are always added.
         working_only: skip leavers. password: set on every imported user (dev only; None = no password).
-        dry_run: do everything, then roll back."""
-        self = self.sudo().with_context(tracking_disable=True, mail_notrack=True, mail_create_nolog=True, no_reset_password=True,
+        dry_run: do everything, then roll back. bulk: load the big history tables with SQL (models/legacy_bulk.py)."""
+        self = self.sudo().with_context(tracking_disable=True, mail_notrack=True, mail_create_nolog=True, mail_create_nosubscribe=True, no_reset_password=True,
                                  kdvn_defer_org_refresh=True, kdvn_skip_working_check=True)
-        state = {'tags': {}, 'stats': Counter(), 'errors': [], 'options': {'password': password, 'date_from': date_from, 'date_to': date_to}, 'legacy_employees': {}, 'department_rows': []}
+        state = {'tags': {}, 'stats': Counter(), 'errors': [], 'options': {'password': password, 'date_from': date_from, 'date_to': date_to, 'bulk': bulk}, 'legacy_employees': {}, 'department_rows': [], 'timings': []}
         self = self.with_context(kdvn_import_state=state)
-        state['tags'] = {(name.rsplit('_', 1)[0], int(name.rsplit('_', 1)[1])): res_id for name, res_id in self._tag_map().items()}
+        state['tags'] = {(name.rsplit('_', 1)[0], int(name.rsplit('_', 1)[1])): res_id for name, res_id in self._tag_map(bulk).items()}
         self._select_employees(employee_codes, working_only)
         with contextlib.ExitStack() as stack:
             savepoint = stack.enter_context(self.env.cr.savepoint(flush=False)) if dry_run else None
             for name, method in self._import_steps():
                 if steps and name not in steps:
                     continue
+                started = time.time()
                 method()
                 self.env.flush_all()
+                state['timings'].append((name, time.time() - started))
+                _logger.info('legacy import step %s: %.1f s', name, time.time() - started)
                 self.env.invalidate_all()   # a year of data would otherwise fill the ORM cache (MemoryError)
                 if not dry_run and self.env.context.get('kdvn_commit_steps'):
                     self.env.cr.commit()    # every step is re-runnable: a crash resumes from the failed step
@@ -189,6 +219,8 @@ class KdvnLegacyImport(models.AbstractModel):
 
     def _format_log(self, dry_run):
         lines = ['DRY RUN (rolled back)' if dry_run else 'Import done']
+        lines += ['STEP TIME %-28s %7.1f s' % item for item in self._state['timings']]
+        lines.append('STEP TIME %-28s %7.1f s' % ('TOTAL', sum(t for _n, t in self._state['timings'])))
         for (table, what), count in sorted(self._state['stats'].items()):
             lines.append('%-40s %-8s %d' % (table, what, count))
         if self._state['errors']:

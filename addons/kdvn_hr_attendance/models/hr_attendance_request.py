@@ -245,6 +245,8 @@ class KderpHrAttendanceRequest(models.Model):
     def _legacy_create(self, values):
         self.env['hr.attendance'].clear_at_rules_memo()
         request_ids = super().create(values)
+        if self.env.context.get('kdvn_no_compute'):
+            return request_ids   # legacy import: Odoo 12 values as they are (no submit, no estimate, viewers copied by the importer)
         self.env['hr.attendance'].clear_at_rules_memo()
         # effected_at_ids = request_ids.filtered(lambda r: r.state != 'draft').mapped('at_id')
         # effected_at_ids.with_context(do_not_run_at_status=True)._compute_related_states()
@@ -269,6 +271,8 @@ class KderpHrAttendanceRequest(models.Model):
         return request_ids
 
     def write(self, values):
+        if self.env.context.get('kdvn_no_compute'):
+            return super().write(values)   # legacy import (re-run): no chatter, no recompute of the attendance days
         self.env['hr.attendance'].clear_at_rules_memo()
         result = super().write(values)
         self.env['hr.attendance'].clear_at_rules_memo()

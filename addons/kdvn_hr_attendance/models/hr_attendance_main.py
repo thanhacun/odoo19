@@ -754,6 +754,12 @@ class KderpHrAttendance(models.Model):
 
     def _legacy_create(self, values):
         new_at_ids = super(KderpHrAttendance, self.with_context(mail_create_nolog=True)).create(values)
+        if self.env.context.get('kdvn_no_compute'):
+            # legacy import: the Odoo 12 values are written as they are (step at_restore), nothing is computed here
+            for field in self._fields.values():
+                if field.store and field.compute and field.name not in ('expected_hours', 'overtime_hours', 'validated_overtime_hours', 'summary_id'):
+                    self.env.remove_to_compute(field, new_at_ids)   # (Odoo core fields and the summary link have no Odoo 12 value: they stay computed)
+            return new_at_ids
         for at in new_at_ids:
             at = at.sudo()  # need sudo to access other employee information
             at._compute_ot_allow(only_wd_block_no=True)
