@@ -159,6 +159,9 @@ class KderpHrAttendanceRaw(models.Model):
         # ats = self.env['hr.attendance'].browse(at_ids)
         # ats_raw = self.env['hr.attendance.raw'].browse(at_raw_ids)
         for staff in batch_employees:
+            if self.env['hr.attendance']._period_is_locked(staff.id, at_date):
+                _logger.info('period lock: raw sync skips %s on %s (locked day)', staff.code, at_date)
+                continue
             # further_action_at_ids = self.env['hr.attendance']
             at_code = '-'.join(['AT', at_date.strftime('%y%m%d'), staff.code])
             # at = ats.filtered(lambda a: a.code == at_code)

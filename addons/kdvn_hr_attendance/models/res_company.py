@@ -26,6 +26,7 @@ class ResCompany(models.Model):
                                             string='OT compensated by leave (tags)',
                                             help="Staff with one of these tags have no OT payment: their OT is computed and compensated by leave (OT-07). Empty = tag G8 (the value used before this setting existed).")
     app_start_date = fields.Date(default=datetime.date(2022, 2, 21), help="The date attendance app started to use officially.")
+    lock_months = fields.Integer('Period lock (months)', default=3, help="Attendance periods that ended more than this many months ago are locked: their payroll values (status, OT, absence) and the requests and leaves on those days cannot change unless an HR Admin unlocks them. 0 = no lock.")
     # ot_request_before = fields.Char(default=False, help="Duration (in hour) from 17:00 OT Request has to be submitted HH:MM dd-mm-yyyy")
     ot_request_before = fields.Datetime(default=False, help="Duration (in hour) from 17:00 OT Request has to be submitted")
     wt_request_before = fields.Datetime(default=False, help="Duration (in hour) from 17:00 WT Request has to be submitted")

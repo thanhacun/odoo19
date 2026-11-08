@@ -28,6 +28,8 @@ from odoo import models, fields, api, tools, _
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools.float_utils import float_round
 from odoo.osv import expression
+from odoo.fields import Domain
+from .period_lock import LOCK_OFF, skip_locked
 # from odoo.tools.profiler import profile
 
 from .rounding import roundPartial
@@ -57,6 +59,18 @@ def summary_key_decode(key):
     employee_id, idx = divmod(int(key), 10000)
     return employee_id, 2000 + (idx - 1) // 12, (idx - 1) % 12 + 1
 
+
+
+# Values payroll reads (and what they are made of): frozen on a locked day (see period_lock.py). Not in the list: active (archive),
+# view users, org fields (department, managers, area), approve_manager_id.
+PERIOD_LOCK_FIELDS = frozenset([
+    'absence', 'absence_count', 'check_in', 'check_out', 'check_in_manual', 'check_out_manual', 'compute_in', 'compute_out', 'convert_leave',
+    'request_leave', 'work_on_holiday', 'late_in', 'early_out', 'status_ids', 'status_codes', 'state', 'state_id', 'origin_state_id',
+    'man2_approve', 'allow_late_ot', 'e_ot_am', 'e_ot_pm', 'ot_am', 'ot_pm', 'ot_wd', 'ot_hd', 'ot_total', 'ot_warning', 'wd_ot', 'wd_st',
+    'hd_ot', 'hd_st', 'ph_ot', 'ph_st', 'ot_wd_remain', 'ot_hd_remain', 'ot_wd_ratio', 'ot_hd_ratio', 'wd_block_no', 'weekly_wd_remain',
+    'weekly_wd_ratio', 'worked_count', 'worked_hours', 'is_holiday', 'is_public_holiday', 'is_other_holiday', 'request_description',
+    'raw_request_description', 'states_sync', 'at_request_ids', 'leave_cover_ids', 'leave_ids',
+])
 
 
 class KderpHrAttendance(models.Model):
@@ -122,6 +136,8 @@ class KderpHrAttendance(models.Model):
     e_ot_pm = fields.Float('Est. Night OT')  # update by write, create method in attendance_request model
     allow_late_ot = fields.Boolean(default=False)  # set by HR Admin allowing late OT request register
     ot_warning = fields.Text('OT Warning', compute='_compute_ot_warning', store=True, default=False)
+    period_locked = fields.Boolean('Period locked', compute='_compute_period_locked', search='_search_period_locked',
+                                   help="The attendance period ended more than the lock months ago (Settings): nothing of this day can change unless an HR Admin unlocks it.")
     
     # work/absence status
     absence = fields.Selection([
@@ -377,6 +393,7 @@ class KderpHrAttendance(models.Model):
             res['hr_manager'] = self.env.user.has_group('hr_attendance.group_hr_attendance_manager')
         return res
 
+    @skip_locked
     def _compute_related_states(self):
         """
             - Compute wt_requests state
@@ -754,6 +771,10 @@ class KderpHrAttendance(models.Model):
 
     def _legacy_create(self, values):
         new_at_ids = super(KderpHrAttendance, self.with_context(mail_create_nolog=True)).create(values)
+        locked = new_at_ids._period_locked_ids()
+        if locked:   # a new day in a locked period (raw sync, request wizard...): refused, the creation is rolled back
+            raise UserError(_('The attendance period of %s is locked: an HR Admin has to unlock it first.') % ', '.join(
+                '%s %s' % (a.employee_id.code, a.at_date) for a in new_at_ids.browse(list(locked))[:5]))
         if self.env.context.get('kdvn_no_compute'):
             # legacy import: the Odoo 12 values are written as they are (step at_restore), nothing is computed here
             for field in self._fields.values():
@@ -779,6 +800,28 @@ class KderpHrAttendance(models.Model):
         return new_at_ids
 
     def write(self, values):
+        guarded = PERIOD_LOCK_FIELDS & set(values)
+        if guarded:
+            locked = self._period_locked_ids()
+            if locked:
+                derived = {f for f in guarded if self._fields[f].compute}      # computed fields: a manual `at.field = ...` of a compute method
+                if guarded - derived:
+                    at = self.browse(list(locked))[:5]
+                    raise UserError(_(
+                        'The attendance period is locked for: %(days)s.\nPayroll has already used it (older than %(months)s months). '
+                        'Ask an HR Admin to unlock it first (Attendances > Configuration > Period unlocks).',
+                        days=', '.join('%s %s' % (a.employee_id.code, a.at_date.strftime('%d/%m/%Y')) for a in at) + (' ...' if len(locked) > 5 else ''),
+                        months=self.env.user.company_id.lock_months))
+                # only derived values: locked days keep theirs, the other days are written as usual
+                locked_recs = self.browse(list(locked))
+                rest = {k: v for k, v in values.items() if k not in PERIOD_LOCK_FIELDS}
+                result = True
+                if self - locked_recs:
+                    result = (self - locked_recs).write(values)
+                if rest:
+                    result = locked_recs.write(rest)
+                locked_recs.invalidate_recordset(list(guarded))
+                return result
         result = super().write(values)
         # NOTE: in compute_at_status method there are 2 calling to _compute_ot_request method
         # so if run_compute_at_status is set to True => no need set recompute_ot to True anymore => other wise duplicate running
@@ -834,9 +877,68 @@ class KderpHrAttendance(models.Model):
         #             at._compute_ot_request()
         return result
 
-    # @api.multi
-    # def unlink(self):
-    #     return super().unlink()
+    def unlink(self):
+        locked = self._period_locked_ids()
+        if locked:
+            raise UserError(_('The attendance period is locked: a locked day cannot be deleted. Ask an HR Admin to unlock it first.'))
+        return super().unlink()
+
+    def _write_multi(self, vals_list):
+        """Low level write, also used when Odoo flushes stored computed fields: on a locked day the payroll values stay as they are
+        (a recompute of an old day must not change what payroll paid). A user's write() on a locked day is refused earlier (UserError)."""
+        if self and not self.env.context.get(LOCK_OFF) and any(PERIOD_LOCK_FIELDS & set(vals) for vals in vals_list):
+            locked = self._period_locked_ids()
+            if locked:
+                keep_ids, keep_vals, dropped = [], [], set()
+                for rec, vals in zip(self, vals_list):
+                    if rec.id in locked:
+                        kept = {k: v for k, v in vals.items() if k not in PERIOD_LOCK_FIELDS}
+                        dropped |= set(vals) & PERIOD_LOCK_FIELDS
+                        if not kept:
+                            continue
+                        vals = kept
+                    keep_ids.append(rec.id)
+                    keep_vals.append(vals)
+                if dropped:
+                    self.browse(list(locked)).invalidate_recordset(list(dropped))   # the cache must show the stored values again
+                    _logger.info('period lock: kept the stored values of %d locked day(s) (%s)', len(locked), ', '.join(sorted(dropped)[:6]))
+                if not keep_ids:
+                    return
+                return super(KderpHrAttendance, self.browse(keep_ids))._write_multi(keep_vals)
+        return super()._write_multi(vals_list)
+
+    # ===== Period lock =====
+    def _period_locked_ids(self):
+        """Ids of the days of self that are locked (older than the lock cutoff and not unlocked)."""
+        cutoff = self._period_lock_cutoff()
+        if not cutoff:
+            return set()
+        old = self.sudo().filtered(lambda a: a.id and a.at_date and a.at_date < cutoff)
+        if not old:
+            return set()
+        windows = self._period_unlock_windows()
+        return {a.id for a in old if not self._period_is_unlocked(windows, a.employee_id.id, a.at_date)}
+
+    def _compute_period_locked(self):
+        locked = self._period_locked_ids()
+        for at in self:
+            at.period_locked = at.id in locked
+
+    def _search_period_locked(self, operator, value):
+        if operator in ('in', 'not in'):
+            want = (set(value) == {True}) == (operator == 'in')
+        else:
+            want = bool(value) == (operator == '=')
+        cutoff = self._period_lock_cutoff()
+        if not cutoff:
+            return Domain.FALSE if want else Domain.TRUE
+        locked = Domain('at_date', '<', cutoff)
+        for employee_id, d_from, d_to in self._period_unlock_windows():
+            window = Domain('at_date', '>=', d_from) & Domain('at_date', '<=', d_to)
+            if employee_id:
+                window &= Domain('employee_id', '=', employee_id)
+            locked &= ~window
+        return locked if want else ~locked
 
     # ===== Other methods =====
     @api.depends("at_date", "employee_id")
@@ -981,6 +1083,7 @@ class KderpHrAttendance(models.Model):
             at.update(changed)
 
     @api.depends('ot_total')
+    @skip_locked
     def _compute_ot_allow(self, only_wd_block_no=False, delay=False):
         # return False
         # TODO: use queue_job when number of records is big enough
@@ -1559,6 +1662,7 @@ class KderpHrAttendance(models.Model):
                 check_out_location_id = at_raw.last_location_id.id if at_raw and at_raw.last_location_id else False
             at.update({'check_in_location_id': check_in_location_id, 'check_out_location_id': check_out_location_id})
     
+    @skip_locked
     def _compute_at_status(self, force_run=False, reset_status=False):
         """
         [Compute attendance marks based on actual check_in, check_out and leave status]
@@ -2122,6 +2226,7 @@ class KderpHrAttendance(models.Model):
                     pass
 
 
+    @skip_locked
     def _compute_ot_request(self):
         for at in self:
             at.update(at._compute_ot_hour())

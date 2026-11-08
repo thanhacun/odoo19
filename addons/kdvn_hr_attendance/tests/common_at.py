@@ -32,6 +32,8 @@ class ATCase(common.TransactionCase):
         self.ot_type = {t.code: t for t in self.env['hr.attendance.request.type'].search([])}
         self.AT.clear_at_rules_memo()
         self._ensure_leave_types()
+        # the tests use fixed past dates: switch the 3-month period lock off (tests/test_period_lock.py switches it on where it tests it)
+        self.env.company.lock_months = 0
         # production calendars use the Vietnam timezone: the attendance code reads working hours from the calendar in its timezone
         cal = self.env.company.resource_calendar_id
         cal.tz = 'Asia/Ho_Chi_Minh'

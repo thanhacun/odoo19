@@ -244,6 +244,9 @@ class KderpHrAttendanceRequest(models.Model):
 
     def _legacy_create(self, values):
         self.env['hr.attendance'].clear_at_rules_memo()
+        if values.get('at_id'):
+            at = self.env['hr.attendance'].sudo().browse(values['at_id'])
+            self._check_period_lock(at.employee_id, at.at_date, what=_('request'))
         request_ids = super().create(values)
         if self.env.context.get('kdvn_no_compute'):
             return request_ids   # legacy import: Odoo 12 values as they are (no submit, no estimate, viewers copied by the importer)
@@ -270,9 +273,23 @@ class KderpHrAttendanceRequest(models.Model):
             # r.view_user_ids = [(6, False, r.at_id.view_user_ids.mapped('id'))]
         return request_ids
 
+    # fields of a request that change what payroll reads (a state change approves, refuses or revises it)
+    PERIOD_LOCK_KEYS = frozenset(['state', 'request_in', 'request_out', 'sub_request_type_id', 'request_type', 'at_id', 'out_by_reg',
+                                  'include_absence_hour', 'early_offset', 'name', 'active'])
+
+    def _check_period_lock_requests(self, values=None):
+        for r in self.sudo():
+            if r.at_id:
+                self._check_period_lock(r.employee_id, r.at_id.at_date, what=_('request'))
+        if values and values.get('at_id'):
+            at = self.env['hr.attendance'].sudo().browse(values['at_id'])
+            self._check_period_lock(at.employee_id, at.at_date, what=_('request'))
+
     def write(self, values):
         if self.env.context.get('kdvn_no_compute'):
             return super().write(values)   # legacy import (re-run): no chatter, no recompute of the attendance days
+        if self.PERIOD_LOCK_KEYS & set(values):
+            self._check_period_lock_requests(values)
         self.env['hr.attendance'].clear_at_rules_memo()
         result = super().write(values)
         self.env['hr.attendance'].clear_at_rules_memo()
@@ -333,6 +350,7 @@ class KderpHrAttendanceRequest(models.Model):
         return result
 
     def unlink(self):
+        self._check_period_lock_requests()
         self.env['hr.attendance'].clear_at_rules_memo()
         allowed_ids = self.filtered(lambda r: r.state == 'draft')
         if allowed_ids < self:

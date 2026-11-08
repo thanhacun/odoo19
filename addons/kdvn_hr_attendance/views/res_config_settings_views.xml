@@ -49,6 +49,9 @@
                     <setting string="App start date" help="The date the attendance app officialy used">
                         <field name="app_start_date"/>
                     </setting>
+                    <setting string="Period lock (months)" help="Attendance periods that ended more than this many months ago are locked: status, OT, absence, requests and leaves of those days cannot change unless an HR Admin unlocks them (Configuration > Period unlocks). 0 = no lock.">
+                        <field name="lock_months"/>
+                    </setting>
                     <setting string="OT Request Before" help="Duration in hours an OT Request has to be submmitted (count from 17:00). Choose the date as day of applying rule.">
                         <field name="ot_request_before"/>
                     </setting>
