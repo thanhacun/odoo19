@@ -1,10 +1,14 @@
-// Chatter on the right side and collapsed ("Show Chatter"): hide Send message, Log note, Activity, search, attach files and followers,
-// and shrink the column to the toggle button, so it does not block the right side. At the bottom the buttons stay (like Odoo 12).
-.o-mail-Chatter-topbar.o-kdvn-asideHidden > :not(.o-kdvn-ChatterToggle) {
-    display: none !important;
-}
+// Chatter beside the form (right side: Odoo puts it in the flex row of the form renderer, in "aside" mode and also in forms without a sheet
+// such as the attendance form) and collapsed ("Show Chatter"): hide Send message, Log note, Activity, search, attach files and followers,
+// and shrink the column to the toggle button, so it does not block the right side.
+// Chatter below the form (inside a sheet, block layout): the buttons stay, like Odoo 12.
+.o_form_renderer.d-flex > .o-mail-Form-chatter {
+    &:has(.o-mail-Chatter-topbar.o-kdvn-collapsed) {
+        width: auto;
+        flex-grow: 0;
+    }
 
-.o-mail-Form-chatter.o-aside:has(.o-kdvn-asideHidden) {
-    width: auto;
-    flex-grow: 0;
+    .o-mail-Chatter-topbar.o-kdvn-collapsed > :not(.o-kdvn-ChatterToggle) {
+        display: none !important;
+    }
 }
