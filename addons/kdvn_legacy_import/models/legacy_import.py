@@ -24,6 +24,20 @@ _logger = logging.getLogger(__name__)
 TAG_MODULE = 'legacy12'
 PARAM_DB = 'kdvn_legacy.db'
 
+PARAM_FINGERPRINT = 'kdvn_legacy.fingerprint'
+# the small ORM steps: they only depend on these Odoo 12 tables (fingerprint = md5 of their content without the columns that change every day)
+SMALL_STEPS = frozenset(['lang_formats', 'department_types', 'locations', 'user_locations', 'departments', 'users', 'employees', 'employee_categories',
+                         'employee_links', 'histories', 'organisation', 'at_policy', 'at_calendars', 'at_holidays', 'at_locations', 'at_codes', 'at_rules',
+                         'lv_reasons', 'lv_types', 'at_refuse'])
+LAST_SMALL_STEP = 'at_refuse'
+FINGERPRINT_TABLES = ('res_lang', 'hr_department_type', 'kderp_employee_location_code', 'kderp_base_code', 'hr_department', 'res_partner', 'res_users',
+                      'res_groups_users_rel', 'res_groups', 'hr_employee', 'employee_category_rel', 'hr_employee_category', 'hr_employee_department_history',
+                      'hr_employee_project_history', 'hr_manager_history', 'kderp_hr_employee_location', 'res_company', 'resource_calendar',
+                      'resource_calendar_attendance', 'resource_resource', 'hr_holidays_public', 'hr_holidays_public_line', 'hr_attendance_location',
+                      'hr_attendance_rule', 'hr_attendance_rule_hr_department_rel', 'hr_attendance_rule_hr_employee_rel', 'hr_leave_cover_reason',
+                      'hr_leave_type', 'hr_attendance_refuse', 'hr_attendance_request_type')
+FINGERPRINT_VOLATILE = frozenset(['write_date', 'write_uid', 'last_attendance_id', 'login_date', 'oauth_access_token'])   # change every day without a real change
+
 # Odoo 12 employee column -> Odoo 19 field (only where the field exists and the value fits)
 EMPLOYEE_COLUMNS = {
     'name': 'name', 'code': 'code', 'working': 'working', 'active': 'active', 'birthday': 'birthday',
@@ -171,25 +185,39 @@ class KdvnLegacyImport(models.AbstractModel):
 
     # ------------------------------------------------------------------ run
     @api.model
-    def run(self, employee_codes=None, working_only=False, password=None, dry_run=False, steps=None, date_from=None, date_to=None, bulk=False):
+    def run(self, employee_codes=None, working_only=False, password=None, dry_run=False, steps=None, date_from=None, date_to=None, bulk=False, prune=False, prune_force=False, skip_unchanged=False):
         """Import the selected employees with everything they need. Returns {'stats': {...}, 'errors': [...], 'log': text}.
         employee_codes: list of staff codes (None / empty = everybody); their managers are always added.
         working_only: skip leavers. password: set on every imported user (dev only; None = no password).
-        dry_run: do everything, then roll back. bulk: load the big history tables with SQL (models/legacy_bulk.py)."""
+        dry_run: do everything, then roll back. bulk: load the big history tables with SQL (models/legacy_bulk.py).
+        prune: with bulk, after loading delete the records whose Odoo 12 row no longer exists (True = delete, 'dry' = only count and log);
+        prune_force: allow a deletion that is bigger than the safety limit.
+        skip_unchanged: with bulk, skip the small ORM steps (staff, org, rules, leave types ...: about 8 minutes of ORM work) when the Odoo 12 tables they read
+        are unchanged since the last run (fingerprint in the parameter kdvn_legacy.fingerprint); a bulk run always stores the fingerprint after these steps."""
         self = self.sudo().with_context(tracking_disable=True, mail_notrack=True, mail_create_nolog=True, mail_create_nosubscribe=True, no_reset_password=True,
                                  kdvn_defer_org_refresh=True, kdvn_skip_working_check=True, kdvn_period_lock_off=True)
-        state = {'tags': {}, 'stats': Counter(), 'errors': [], 'options': {'password': password, 'date_from': date_from, 'date_to': date_to, 'bulk': bulk}, 'legacy_employees': {}, 'department_rows': [], 'timings': []}
+        state = {'tags': {}, 'stats': Counter(), 'errors': [], 'options': {'password': password, 'date_from': date_from, 'date_to': date_to, 'bulk': bulk, 'prune': prune, 'prune_force': prune_force, 'skip_unchanged': skip_unchanged}, 'legacy_employees': {}, 'department_rows': [], 'timings': []}
         self = self.with_context(kdvn_import_state=state)
         state['tags'] = {(name.rsplit('_', 1)[0], int(name.rsplit('_', 1)[1])): res_id for name, res_id in self._tag_map(bulk).items()}
         self._select_employees(employee_codes, working_only)
+        fingerprint = skip_small = None
+        if bulk:
+            fingerprint = self._legacy_fingerprint()
+            skip_small = bool(skip_unchanged and fingerprint and fingerprint == self.env['ir.config_parameter'].sudo().get_param(PARAM_FINGERPRINT))
+            _logger.info('legacy import: small ORM steps %s (fingerprint %s)', 'SKIPPED, unchanged since the last run' if skip_small else 'run', (fingerprint or '')[:12])
         with contextlib.ExitStack() as stack:
             savepoint = stack.enter_context(self.env.cr.savepoint(flush=False)) if dry_run else None
             for name, method in self._import_steps():
                 if steps and name not in steps:
                     continue
+                if skip_small and name in SMALL_STEPS:
+                    state['timings'].append((name + ' (unchanged, skipped)', 0.0))
+                    continue
                 started = time.time()
                 method()
                 self.env.flush_all()
+                if fingerprint and name == LAST_SMALL_STEP and not dry_run:
+                    self.env['ir.config_parameter'].sudo().set_param(PARAM_FINGERPRINT, fingerprint)   # the small steps ran on exactly these Odoo 12 contents
                 state['timings'].append((name, time.time() - started))
                 _logger.info('legacy import step %s: %.1f s', name, time.time() - started)
                 self.env.invalidate_all()   # a year of data would otherwise fill the ORM cache (MemoryError)

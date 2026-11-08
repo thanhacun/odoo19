@@ -52,6 +52,7 @@ class KdvnLegacyImportAttendance(models.AbstractModel):
                 ('at_refuse', self._step_at_refuse),
                 ('at_view_users', self._step_at_view_users),
                 ('at_restore', self._step_at_restore),
+                ('prune', self._step_prune),
             ]
         return steps
 

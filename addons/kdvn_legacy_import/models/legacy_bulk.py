@@ -21,7 +21,7 @@ import psycopg2.extras
 from odoo import models, tools
 from odoo.exceptions import UserError
 
-from .legacy_import import PARAM_DB, TAG_MODULE
+from .legacy_import import FINGERPRINT_TABLES, FINGERPRINT_VOLATILE, PARAM_DB, TAG_MODULE
 from .legacy_import_attendance import SKIP_COLUMNS, _iso
 
 _logger = logging.getLogger(__name__)
@@ -84,6 +84,26 @@ class KdvnLegacyBulk(models.AbstractModel):
                     yield rows
         finally:
             conn.close()
+
+    def _legacy_fingerprint(self):
+        """md5 over the content of the Odoo 12 tables that the small ORM steps read (volatile columns left out). Same content = same result of those steps."""
+        import hashlib
+        conn = self._legacy_connect()
+        digest = hashlib.md5()
+        try:
+            with conn.cursor() as cr:
+                for table in FINGERPRINT_TABLES:
+                    cr.execute("SELECT column_name FROM information_schema.columns WHERE table_name = %s ORDER BY 1", (table,))
+                    cols = [c[0] for c in cr.fetchall() if c[0] not in FINGERPRINT_VOLATILE]
+                    if not cols:
+                        digest.update(('%s:none;' % table).encode())
+                        continue
+                    expr = " || '|' || ".join("coalesce(\"%s\"::text, '~')" % c for c in cols)
+                    cr.execute("SELECT md5(coalesce(string_agg(x, E'\\n' ORDER BY x), '')) FROM (SELECT %s AS x FROM \"%s\") t" % (expr, table))
+                    digest.update(('%s:%s;' % (table, cr.fetchone()[0])).encode())
+        finally:
+            conn.close()
+        return digest.hexdigest()
 
     def _legacy_ids(self, table, columns, where=None):
         """Small helper for id lists: fetch (id, extra columns) tuples of a filtered table (ints only)."""
@@ -218,6 +238,8 @@ class KdvnLegacyBulk(models.AbstractModel):
                         self._state['errors'].append(message)
                         _logger.warning('legacy bulk: %s', message)
             new_of = {i: rid for i, rid in new_of.items() if legacy_ids[i] not in failed}
+            loaded = self._state.setdefault('bulk_loaded', {}).setdefault(table, {})   # legacy id -> res id of every row this run wrote (the window)
+            loaded.update({lid: data[0] for lid, _n, data in items if lid not in failed})
             tags = [(TAG_MODULE, '%s_%s' % (table, legacy_ids[i]), model, rid) for i, rid in new_of.items()]
             if tags:
                 uid = int(self.env.uid)
@@ -235,10 +257,21 @@ class KdvnLegacyBulk(models.AbstractModel):
         _logger.info('legacy bulk %s -> %s: %d rows in %.1f s', table, sql_table, count, time.time() - started)
         return count
 
-    def _bulk_relation(self, rel_table, column_a, column_b, map_a, map_b, target_rel, target_a, target_b, delete_ids=None, chunk=20000):
-        """Copy a many2many side table (streamed). map_a / map_b: legacy id -> res_id dicts (or callables); rows with an unmapped side are skipped."""
+    def _bulk_window(self):
+        """True when the run is limited to a date window (nightly delta): the side tables and the requests of the window are rewritten, not all of them."""
+        return bool(self._state['options'].get('date_from'))
+
+    def _bulk_loaded(self, table):
+        """{legacy id: res id} of the rows of `table` written in this run."""
+        return self._state.get('bulk_loaded', {}).get(table, {})
+
+    def _bulk_relation(self, rel_table, column_a, column_b, map_a, map_b, target_rel, target_a, target_b, delete_ids=None, chunk=20000, limit_a=None):
+        """Copy a many2many side table (streamed). map_a / map_b: legacy id -> res_id dicts (or callables); rows with an unmapped side are skipped.
+        limit_a: set of res ids of the left side to copy (None = all); with it, delete_ids defaults to the same set."""
         cr = self.env.cr
         self.env.flush_all()
+        if limit_a is not None and delete_ids is None:
+            delete_ids = limit_a
         if delete_ids:
             ids = list(delete_ids)
             for i in range(0, len(ids), 100000):
@@ -249,8 +282,10 @@ class KdvnLegacyBulk(models.AbstractModel):
             for r in rows:
                 a = map_a(r[column_a]) if callable(map_a) else map_a.get(r[column_a])
                 b = map_b(r[column_b]) if callable(map_b) else map_b.get(r[column_b])
-                if a and b:
+                if a and b and (limit_a is None or a in limit_a):
                     data.append((a, b))
+                elif a and b:
+                    continue
                 else:
                     skipped += 1
             if data:
@@ -284,11 +319,12 @@ class KdvnLegacyBulk(models.AbstractModel):
         self._bulk_load('hr_attendance', 'hr.attendance', where=self._window_where('at_date'), raw_simple=True,
                         keep=lambda row: row['employee_id'] in legacy_emp, extra=extra)
         ats = self._bulk_map('hr_attendance', 'hr.attendance')
+        limit = set(self._bulk_loaded('hr_attendance').values()) if self._bulk_window() else None
         # status marks (many2many) straight from the legacy relation
         field = self.env['hr.attendance']._fields['status_ids']
         self._bulk_relation('hr_attendance_kderp_base_code_rel', 'hr_attendance_id', 'kderp_base_code_id', ats,
                             lambda legacy_id: self._tags_get('kderp_base_code', legacy_id), field.relation, field.column1, field.column2,
-                            delete_ids=ats.values())
+                            delete_ids=ats.values() if limit is None else None, limit_a=limit)
 
     def _bulk_hr_attendance_raw(self):
         legacy_emp = set(self._state['legacy_employees'])
@@ -297,6 +333,8 @@ class KdvnLegacyBulk(models.AbstractModel):
     def _bulk_hr_attendance_request(self):
         self._ensure_codes()
         ats = self._bulk_map('hr_attendance', 'hr.attendance')
+        if self._bulk_window():
+            ats = self._bulk_loaded('hr_attendance')   # nightly delta: the requests of the attendance days of the window
         self._bulk_load('hr_attendance_request', 'hr.attendance.request', skip=('state_gm', 'state_no_gm'), keep=lambda row: row['at_id'] in ats)
 
     def _bulk_hr_attendance_ot_plans(self):
@@ -406,14 +444,15 @@ class KdvnLegacyBulk(models.AbstractModel):
         field = self.env['hr.attendance']._fields['leave_cover_ids']
         ats = self._bulk_map('hr_attendance', 'hr.attendance')
         covers = self._bulk_map('hr_leave_cover', 'hr.leave.cover')
+        limit = set(self._bulk_loaded('hr_attendance').values()) if self._bulk_window() else None
         if field.type == 'many2many':
             self._bulk_relation('hr_attendance_hr_leave_cover_rel', 'hr_attendance_id', 'hr_leave_cover_id', ats, covers,
-                                field.relation, field.column1, field.column2, delete_ids=ats.values())
+                                field.relation, field.column1, field.column2, delete_ids=ats.values() if limit is None else None, limit_a=limit)
         # which leaves touch an attendance day (the status computation reads it; the ORM fills it when a leave is created)
         field = self.env['hr.attendance']._fields['leave_ids']
         if field.type == 'many2many':
             self._bulk_relation('hr_attendance_hr_leave_rel', 'hr_attendance_id', 'hr_leave_id', ats, self._bulk_map('hr_leave', 'hr.leave'),
-                                field.relation, field.column1, field.column2, delete_ids=ats.values())
+                                field.relation, field.column1, field.column2, delete_ids=ats.values() if limit is None else None, limit_a=limit)
 
     def _bulk_view_users(self):
         users = {t[1]: v for t, v in self._state['tags'].items() if t[0] == 'res_users'}
@@ -421,5 +460,85 @@ class KdvnLegacyBulk(models.AbstractModel):
                                           ('hr_attendance_request', 'hr.attendance.request', 'hr_attendance_request_res_users_rel', 'hr_attendance_request_id'),
                                           ('hr_leave_cover', 'hr.leave.cover', 'hr_leave_cover_res_users_rel', 'hr_leave_cover_id')):
             records = self._bulk_map(table, model)
-            if records:
-                self._bulk_relation(rel, column, 'res_users_id', records, users, rel, column, 'res_users_id', delete_ids=records.values())
+            limit = set(self._bulk_loaded(table).values()) if self._bulk_window() else None
+            if records and (limit is None or limit):
+                self._bulk_relation(rel, column, 'res_users_id', records, users, rel, column, 'res_users_id',
+                                    delete_ids=records.values() if limit is None else None, limit_a=limit)
+
+    # ------------------------------------------------------------------ prune (hard deletes of Odoo 12)
+    # children first: a request / OT line / calendar entry / leave must go before the record it points to
+    _PRUNE_TABLES = (
+        ('hr_attendance_request', 'hr.attendance.request', 'at_id IS NOT NULL'),   # a request whose day was deleted keeps its row in Odoo 12 with at_id NULL: the loader never imports those
+        ('hr_attendance_ot_holiday_line', 'hr.attendance.ot.holiday.line', None),
+        ('hr_attendance_ot_holiday', 'hr.attendance.ot.holiday', None),
+        ('resource_calendar_leaves', 'resource.calendar.leaves', 'holiday_id IS NOT NULL'),   # the same filter the loader uses
+        ('hr_leave', 'hr.leave', None),
+        ('hr_leave_cover', 'hr.leave.cover', None),
+        ('hr_leave_allocation', 'hr.leave.allocation', None),
+        ('hr_attendance_raw', 'hr.attendance.raw', None),
+        ('hr_attendance', 'hr.attendance', None),
+    )
+    PRUNE_LIMIT_RATIO = 0.02    # more than 2 % of a table (and more than PRUNE_LIMIT_MIN rows) gone from Odoo 12 looks like a bad snapshot, not real deletes
+    PRUNE_LIMIT_MIN = 200
+
+    def _step_prune(self):
+        """Delete from Odoo 19 the imported records (external id legacy12.<table>_<id>) whose Odoo 12 row no longer exists.
+        Never touches a record without that external id. Every table: count first and log it; a deletion bigger than the safety limit is NOT done
+        (an empty or truncated snapshot must not wipe the history) unless prune_force. prune='dry' only counts."""
+        mode = self._state['options'].get('prune')
+        if not mode:
+            return
+        if not self._state['options'].get('bulk'):
+            self._state['errors'].append('prune needs the bulk loader (--bulk): skipped')
+            return
+        cr = self.env.cr
+        for table, model, where in self._PRUNE_TABLES:
+            Model = self.env[model]
+            exists = set()
+            for rows in self._legacy_stream(table, where=where, columns=['id'], order=None):
+                exists.update(r['id'] for r in rows)
+            tagged = self._bulk_map(table, model)
+            gone = {lid: rid for lid, rid in tagged.items() if lid not in exists}
+            limit = max(self.PRUNE_LIMIT_MIN, int(len(tagged) * self.PRUNE_LIMIT_RATIO))
+            line = 'prune %-32s legacy rows %7d, imported %7d, gone from Odoo 12 %5d' % (table, len(exists), len(tagged), len(gone))
+            _logger.info(line)
+            self._state['stats'][(table, 'prune candidates')] += len(gone)
+            if not gone:
+                continue
+            if len(gone) > limit and not self._state['options'].get('prune_force'):
+                msg = '%s: %d records are gone from Odoo 12 (limit %d): NOT deleted, check the snapshot (prune_force overrides)' % (table, len(gone), limit)
+                self._state['errors'].append(msg)
+                _logger.warning('legacy prune: %s', msg)
+                continue
+            if mode == 'dry':
+                continue
+            self.env.flush_all()
+            deleted = failed = 0
+            items = sorted(gone.items())
+            for i in range(0, len(items), 1000):
+                chunk = items[i:i + 1000]
+                ids = [rid for _lid, rid in chunk]
+                try:
+                    with cr.savepoint():
+                        cr.execute('DELETE FROM "%s" WHERE id = ANY(%%s)' % Model._table, [ids])
+                        done = chunk
+                except Exception:   # noqa: BLE001 - a dependent row blocks it: one by one, the blocked ones stay and are listed
+                    done = []
+                    for lid, rid in chunk:
+                        try:
+                            with cr.savepoint():
+                                cr.execute('DELETE FROM "%s" WHERE id = %%s' % Model._table, [rid])
+                            done.append((lid, rid))
+                        except Exception as error:   # noqa: BLE001
+                            failed += 1
+                            message = 'prune %s %s (res id %s): %s' % (table, lid, rid, str(error).strip().splitlines()[0])
+                            self._state['errors'].append(message)
+                            _logger.warning('legacy prune: %s', message)
+                if done:
+                    cr.execute('DELETE FROM ir_model_data WHERE module = %s AND model = %s AND res_id = ANY(%s)', (TAG_MODULE, model, [rid for _l, rid in done]))
+                    for lid, _rid in done:
+                        tagged.pop(lid, None)
+                    deleted += len(done)
+            self.env.invalidate_all()
+            self._state['stats'][(table, 'pruned')] += deleted
+            _logger.info('legacy prune %s: %d deleted, %d blocked', table, deleted, failed)

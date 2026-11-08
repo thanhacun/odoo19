@@ -12,11 +12,17 @@
 #   --all-staff  include leavers too (default: working staff only)
 #   --steps      only these steps (names in addons/kdvn_legacy_import/models/*.py)
 #   --bulk       load the big history tables with streamed SQL (models/legacy_bulk.py): fast, no memory growth
+#   --window-months N   (with --bulk) nightly delta: the window is the first day of the month N months back .. 2099-12-31 (give `auto auto` as dates);
+#                the side tables and requests of the window are rewritten, the rest is untouched
+#   --skip-unchanged  (with --bulk; implied by --window-months) skip the small ORM steps (staff, org, rules, leave types: ~8 min) when the Odoo 12 tables they read
+#                are unchanged since the last run (fingerprint without the columns that change daily); a bulk run always stores the fingerprint
+#   --prune      (with --bulk) after loading, delete the imported records whose Odoo 12 row no longer exists (only records with a legacy12.* external id;
+#                a table that would lose more than 2 % is skipped as a bad snapshot); --prune-dry only counts and logs; --prune-force lifts the limit
 # Output goes to temp/legacy_import_<db>_<time>.log; the run goes on in the background (docker exec -d), follow it with tail -f.
 set -eu
-[ $# -ge 3 ] || { sed -n 2,15p "$0"; exit 1; }
+[ $# -ge 3 ] || { sed -n 2,22p "$0"; exit 1; }
 DB=$1; FROM=$2; TO=$3; shift 3
-APPLY=0; PW=""; CODES=""; ALL=0; STEPS=""; BULK=0
+APPLY=0; PW=""; CODES=""; ALL=0; STEPS=""; BULK=0; WM=""; PRUNE=""; PFORCE=0; SKIPU=0
 while [ $# -gt 0 ]; do
   case $1 in
     --apply) APPLY=1;;
@@ -25,15 +31,28 @@ while [ $# -gt 0 ]; do
     --all-staff) ALL=1;;
     --steps) STEPS=$2; shift;;
     --bulk) BULK=1;;
+    --window-months) WM=$2; shift;;
+    --prune) PRUNE=1;;
+    --prune-dry) PRUNE=dry;;
+    --prune-force) PFORCE=1;;
+    --skip-unchanged) SKIPU=1;;
     *) echo "unknown option $1"; exit 1;;
   esac
   shift
 done
+if [ -n "$WM" ]; then
+  [ "$BULK" = 1 ] || { echo "--window-months needs --bulk"; exit 1; }
+  FROM=$(date -d "$(date +%Y-%m-01) -$WM months" +%F); TO=2099-12-31; SKIPU=1
+fi
+[ "$FROM" != auto ] || { echo 'dates auto auto need --window-months N'; exit 1; }
+[ -z "$PRUNE" ] || [ "$BULK" = 1 ] || { echo "--prune needs --bulk"; exit 1; }
 CONTAINER=${CONTAINER:-odoo19}
 HERE=$(cd "$(dirname "$0")/.." && pwd)
+PROJECT_HOST=${PROJECT_HOST:-$HOME/odoo19_thcn}      # the host folder that the container sees as /home/odoo/project (a worktree sits below it)
 LOG=temp/legacy_import_${DB}_$(date +%y%m%d_%H%M).log
 mkdir -p "$HERE/temp"
-docker exec -d -e DB="$DB" -e FROM="$FROM" -e TO="$TO" -e APPLY="$APPLY" -e PW="$PW" -e CODES="$CODES" -e ALL="$ALL" -e STEPS="$STEPS" -e BULK="$BULK" "$CONTAINER" sh -c "odoo shell -c ${ODOO_CONF:-/etc/odoo/odoo.conf} -d '$DB' --no-http > /home/odoo/project/$LOG 2>&1 <<'PY'
+CLOG=/home/odoo/project${HERE#$PROJECT_HOST}/$LOG
+docker exec -d -e DB="$DB" -e FROM="$FROM" -e TO="$TO" -e APPLY="$APPLY" -e PW="$PW" -e CODES="$CODES" -e ALL="$ALL" -e STEPS="$STEPS" -e BULK="$BULK" -e PRUNE="$PRUNE" -e PFORCE="$PFORCE" -e SKIPU="$SKIPU" "$CONTAINER" sh -c "odoo shell -c ${ODOO_CONF:-/etc/odoo/odoo.conf} -d '$DB' --no-http > $CLOG 2>&1 <<'PY'
 import os, datetime
 iso = datetime.date.fromisoformat
 imp = env['kdvn.legacy.import'].with_context(kdvn_commit_steps=True)
@@ -44,6 +63,7 @@ res = imp.run(
     password=os.environ['PW'] or None,
     dry_run=not apply_,
     steps=os.environ['STEPS'].split() or None, bulk=os.environ['BULK'] == '1',
+    prune=({'1': True, 'dry': 'dry'}.get(os.environ['PRUNE'], False)), prune_force=os.environ['PFORCE'] == '1', skip_unchanged=os.environ['SKIPU'] == '1',
     date_from=iso(os.environ['FROM']), date_to=iso(os.environ['TO']),
 )
 print('=' * 20, 'RESULT', 'APPLIED' if apply_ else 'DRY RUN')
