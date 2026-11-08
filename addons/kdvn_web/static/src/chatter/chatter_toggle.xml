@@ -8,6 +8,10 @@
                 <t t-else="">Hide Chatter ▲</t>
             </button>
         </xpath>
+        <!-- right side + collapsed: only the Show Chatter button is left, so the column does not block the right side (see chatter_toggle.scss) -->
+        <xpath expr="//div[hasclass('o-mail-Chatter-topbar')]" position="attributes">
+            <attribute name="t-att-class">{ 'o-kdvn-asideHidden': props.isChatterAside and state.kdvnHidden }</attribute>
+        </xpath>
         <!-- the messages, activities, files: hidden until the button is clicked (the top bar and the composer stay) -->
         <xpath expr="//div[hasclass('o-mail-Chatter-content')]" position="attributes">
             <attribute name="t-if">!state.kdvnHidden</attribute>

@@ -1,0 +1,10 @@
+// Chatter on the right side and collapsed ("Show Chatter"): hide Send message, Log note, Activity, search, attach files and followers,
+// and shrink the column to the toggle button, so it does not block the right side. At the bottom the buttons stay (like Odoo 12).
+.o-mail-Chatter-topbar.o-kdvn-asideHidden > :not(.o-kdvn-ChatterToggle) {
+    display: none !important;
+}
+
+.o-mail-Form-chatter.o-aside:has(.o-kdvn-asideHidden) {
+    width: auto;
+    flex-grow: 0;
+}
