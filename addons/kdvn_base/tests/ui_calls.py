@@ -11,6 +11,7 @@ import time
 from dateutil import relativedelta
 from lxml import etree
 
+from odoo.tools import safe_eval as safe_eval_module
 from odoo.tools.safe_eval import safe_eval
 
 X2MANY = ('one2many', 'many2many')
@@ -19,7 +20,9 @@ X2MANY = ('one2many', 'many2many')
 def _eval_context(env, ctx):
     today = datetime.date.today()
     return {
-        'uid': env.uid, 'user': env.user, 'time': time, 'datetime': datetime, 'relativedelta': relativedelta.relativedelta,
+        # safe_eval refuses raw modules: use the wrapped ones Odoo itself uses for action contexts and domains (before this fix every context, domain
+        # and default facet fell back to empty, so the screens were never read with their real filters)
+        'uid': env.uid, 'user': env.user, 'time': safe_eval_module.time, 'datetime': safe_eval_module.datetime, 'relativedelta': relativedelta.relativedelta,
         'context_today': lambda: today, 'current_date': today.strftime('%Y-%m-%d'), 'context': ctx, 'allowed_company_ids': env.companies.ids,
         'active_id': False, 'active_ids': [], 'active_model': False, 'id': False,
     }
@@ -102,6 +105,9 @@ def run(env, prefixes=('kdvn_',), limit=80, form_records=1, login=None):
         model = env[action.res_model]
         if not model.has_access('read'):
             continue        # no access rights at all: a screen for other roles
+        menus = env['ir.ui.menu'].sudo().search([('action', '=', 'ir.actions.act_window,%d' % action.id)])
+        if menus and not any(not m.group_ids or (m.group_ids & env.user.all_group_ids) for m in menus):
+            continue        # every menu of this action is limited to other groups: the user cannot reach the screen
         ctx = _safe(action.context, env, {}, {})
         if not isinstance(ctx, dict):
             ctx = {}
