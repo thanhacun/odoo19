@@ -7,7 +7,7 @@ read-only, and writes through the ORM. Every record is tagged with its Odoo 12 i
 legacy12.<table>_<id>), so a second run updates instead of duplicating. Used for dev test data now and as the
 base of the go-live migration.
 """,
-    'version': '19.0.1.3.0',
+    'version': '19.0.1.4.0',
     'category': 'Hidden/Tools',
     'author': 'Kinden Vietnam',
     'license': 'LGPL-3',

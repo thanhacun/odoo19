@@ -22,7 +22,7 @@
 #                    of the days checked; default 1. A few days always differ (about 0.2 %: days Odoo 12 has not settled, period boundary): they are listed, not an alarm.
 #   --max-problems   problems in the import log that are still "normal" (the legacy rows that violate a constraint); default 5
 #
-# Steps: restore -> bulk import (--all-staff --prune) -> prune of hard deletes -> parity. Deletes only records that carry a legacy12.* external id and whose
+# Steps: fetch (dump + filestore archive) -> restore -> bulk import (--all-staff --prune, incl. e-approval requests, reviews, chatter, attachments) -> prune of hard deletes -> parity. Deletes only records that carry a legacy12.* external id and whose
 # Odoo 12 row is gone; a table that would lose more than 2 % is skipped (looks like a bad snapshot) and counted as a problem.
 # Exit code: 0 all fine; 1 a step failed (restore, import did not finish, safety limit); 2 the import finished with more problems than allowed or the parity differs by more than --max-parity-pct.
 # One run at a time (lock file). Log: temp/legacy_nightly_<db>_<time>.log (the import log is next to it).
@@ -102,6 +102,25 @@ if [ -n "$FETCH" ] && [ -z "$DUMP" ]; then
     docker exec -i "$PGC" pg_restore -l < "$DUMP.part" >/dev/null 2>&1 || { rm -f "$DUMP.part"; fail "the fetched dump is not a valid pg_dump -Fc file (pg_restore -l failed)"; }
     mv "$DUMP.part" "$DUMP"
   fi
+fi
+
+# ---- 0a. the Odoo 12 files (attachments of the e-approval requests): the filestore archive made together with the dump (read-only copy, like the dump)
+# kdvn_legacy_import reads them from temp/legacy_filestore (parameter kdvn_legacy.filestore). A missing or failed archive is only a warning: the
+# attachments whose file is not there are counted ('file missing') and come the night the file arrives.
+if [ -n "$DUMP" ] && [ -f "$DUMP" ]; then
+  case "$DUMP" in *-daily.dump|*-predeploy.dump)
+    FSTGZ="${DUMP%.dump}.filestore.tgz"
+    if [ -n "$FETCH" ] && [ ! -s "$FSTGZ" ] && [ "${FSTGZ##*/}" != "" ]; then
+      RFS="$RDIR/$(basename "$FSTGZ")"
+      scp -o BatchMode=yes -q "$FETCH:$RFS" "$FSTGZ.part" 2>/dev/null && mv "$FSTGZ.part" "$FSTGZ" || { rm -f "$FSTGZ.part"; say "WARNING: no filestore archive $RFS on $FETCH (attachments wait)"; }
+    fi
+    if [ -s "$FSTGZ" ]; then
+      FSDIR="$HERE/temp/legacy_filestore"
+      rm -rf "$FSDIR.new" && mkdir -p "$FSDIR.new" && tar xzf "$FSTGZ" -C "$FSDIR.new" 2>/dev/null \
+        && { rm -rf "$FSDIR.old"; [ ! -d "$FSDIR" ] || mv "$FSDIR" "$FSDIR.old"; mv "$FSDIR.new" "$FSDIR"; rm -rf "$FSDIR.old"; say "filestore: $(basename "$FSTGZ") -> $FSDIR"; } \
+        || { rm -rf "$FSDIR.new"; say "WARNING: cannot extract $FSTGZ (the previous files are kept)"; }
+    fi;;
+  esac
 fi
 
 # ---- 0b. is it a new backup?
