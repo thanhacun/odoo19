@@ -309,6 +309,13 @@ class KdvnLegacyBulk(models.AbstractModel):
         plans = self._bulk_map('hr_attendance_ot_holiday', 'hr.attendance.ot.holiday')
         self._bulk_load('hr_attendance_ot_holiday_line', 'hr.attendance.ot.holiday.line', keep=lambda row: row['ot_holiday_reg_id'] in plans)
 
+    def _bulk_employee_facts(self):
+        """{employee id: (department id, resource calendar id)} of the Odoo 19 employees: what the ORM computes for leaves and allocations."""
+        self.env.cr.execute("SELECT e.id, r.calendar_id FROM hr_employee e LEFT JOIN resource_resource r ON r.id = e.resource_id")
+        calendar = dict(self.env.cr.fetchall())
+        employees = self.env['hr.employee'].with_context(active_test=False).search([])   # department_id is not a column of hr_employee in Odoo 19
+        return {emp.id: (emp.department_id.id or None, calendar.get(emp.id)) for emp in employees}
+
     def _bulk_hours_per_day(self):
         self.env.cr.execute("""SELECT e.id, c.hours_per_day FROM hr_employee e JOIN resource_resource r ON r.id = e.resource_id
                                LEFT JOIN resource_calendar c ON c.id = r.calendar_id""")
@@ -320,9 +327,12 @@ class KdvnLegacyBulk(models.AbstractModel):
         self.env.cr.execute('SELECT id, validity_start, validity_stop FROM hr_leave_type')
         validity = {i: (start, stop) for i, start, stop in self.env.cr.fetchall()}
 
+        facts = self._bulk_employee_facts()
+
         def extra(row, vals):
             per_day = hours.get(vals.get('employee_id'))
-            out = {'number_of_hours_display': (vals.get('number_of_days') or 0.0) * (per_day if per_day is not None else 24)}
+            out = {} if vals.get('department_id') else {'department_id': facts.get(vals.get('employee_id'), (None, None))[0]}
+            out['number_of_hours_display'] = (vals.get('number_of_days') or 0.0) * (per_day if per_day is not None else 24)
             start, stop = validity.get(vals.get('holiday_status_id'), (None, None))
             if start and not vals.get('date_from'):   # create() of kdvn_hr_attendance: the validity of the leave type (Odoo 12 had no dates on allocations)
                 out['date_from'] = start
@@ -347,12 +357,15 @@ class KdvnLegacyBulk(models.AbstractModel):
         unit_of = dict(self.env.cr.fetchall())
 
         hours_of = self._bulk_hours_per_day()
+        facts = self._bulk_employee_facts()
 
         def extra(row, vals):
             unit = unit_of.get(vals.get('holiday_status_id'))
             days = vals.get('number_of_days') or 0.0
             per_day = hours_of.get(vals.get('employee_id'))
-            out_hours = {'request_unit_half': True}   # kdvn_hr_attendance: the compute of request_unit_half is True for every leave (Odoo 12 style half day periods)
+            out_hours = {'request_unit_half': True}
+            if not vals.get('resource_calendar_id'):   # computed from the employee by the ORM
+                out_hours['resource_calendar_id'] = facts.get(vals.get('employee_id'), (None, None))[1]   # kdvn_hr_attendance: the compute of request_unit_half is True for every leave (Odoo 12 style half day periods)
             if not vals.get('number_of_hours'):
                 out_hours['number_of_hours'] = days * (per_day if per_day is not None else 24)
             if unit == 'hour':
@@ -393,6 +406,11 @@ class KdvnLegacyBulk(models.AbstractModel):
         covers = self._bulk_map('hr_leave_cover', 'hr.leave.cover')
         if field.type == 'many2many':
             self._bulk_relation('hr_attendance_hr_leave_cover_rel', 'hr_attendance_id', 'hr_leave_cover_id', ats, covers,
+                                field.relation, field.column1, field.column2, delete_ids=ats.values())
+        # which leaves touch an attendance day (the status computation reads it; the ORM fills it when a leave is created)
+        field = self.env['hr.attendance']._fields['leave_ids']
+        if field.type == 'many2many':
+            self._bulk_relation('hr_attendance_hr_leave_rel', 'hr_attendance_id', 'hr_leave_id', ats, self._bulk_map('hr_leave', 'hr.leave'),
                                 field.relation, field.column1, field.column2, delete_ids=ats.values())
 
     def _bulk_view_users(self):
