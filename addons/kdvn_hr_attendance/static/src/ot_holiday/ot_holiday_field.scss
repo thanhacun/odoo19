@@ -8,3 +8,10 @@
 .o_field_otholiday {
     overflow-x: auto;   // the table is wider than the dialog: scroll inside the field, not the whole dialog
 }
+
+// The plan has one column per holiday date: the dialog that holds it uses nearly the whole window (Odoo 12 needed the web_dialog_size add-on).
+// `dialog_size: extra-large` on the actions is the fallback (Bootstrap xl, 1140px) where :has is not supported.
+.modal-dialog:has(.o_field_otholiday) {
+    max-width: 98vw;
+    width: 98vw;
+}

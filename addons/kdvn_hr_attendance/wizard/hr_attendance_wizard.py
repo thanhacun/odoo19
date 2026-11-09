@@ -2310,15 +2310,17 @@ class KderpHrAttendanceOTHolidayManager(models.TransientModel):
         line_actual_hours = {l.id: (l.ot_request_id.at_id.ot_total if l.ot_request_id else 0)
                              for l in ot_holiday_records.mapped('ot_detail_ids').sudo()}
         for o in ot_holiday_records:
+            # Odoo 19: job_title, department... of hr.employee are private (managers cannot read them); the records are already limited by the rules
+            emp = o.employee_id.sudo()
             action_refuse_url = '#'
             action_select_url = '/attendance/ot_holiday/select/' + str(o.id)
             info = {
-                'name': o.employee_id.name, 
-                'staff_no': o.employee_id.code,
-                'position': o.employee_id.job_title or '',
-                'section_code': o.employee_id.admin_dept_id.code,
-                'section': o.employee_id.admin_dept_id.name,
-                'project': o.employee_id.admin_dept_id.area_id.name or '',
+                'name': emp.name, 
+                'staff_no': emp.code,
+                'position': emp.job_title or '',
+                'section_code': emp.admin_dept_id.code,
+                'section': emp.admin_dept_id.name,
+                'project': emp.admin_dept_id.area_id.name or '',
                 'dates': [{
                     'id': d.id,
                     'at_date': d.at_date,
@@ -2328,7 +2330,7 @@ class KderpHrAttendanceOTHolidayManager(models.TransientModel):
                     'ot_refuse': d.ot_refuse,
                     'ot_state': d.state,
                     'ot_state_name': ot_holiday_line_state[d.state],
-                    'show_approve_button': show_approve_button(d.state, o.employee_id.admin_manager_id.id == self.env.user.employee_id.id, o.employee_id.admin_gm_id.id == self.env.user.employee_id.id),
+                    'show_approve_button': show_approve_button(d.state, emp.admin_manager_id.id == self.env.user.employee_id.id, emp.admin_gm_id.id == self.env.user.employee_id.id),
                     'show_delete_button': show_delete_button(d.state),
                     'show_revise_button': show_revise_button(d.state),
                     'ot_date_actual_hours': line_actual_hours[d.id]
@@ -2378,7 +2380,7 @@ class KderpHrAttendanceOTHolidayManager(models.TransientModel):
                 values['ot_holiday'][info['section_code']]['section_ot'].append(info)
             else:
                 values['ot_holiday'][info['section_code']] = {
-                    'name': info['section'], 'code': info['section_code'], 'as_GM': o.employee_id.admin_gm_id.id == self.env.user.employee_id.id,
+                    'name': info['section'], 'code': info['section_code'], 'as_GM': emp.admin_gm_id.id == self.env.user.employee_id.id,
                     'section_ot': [info],
                 }
             # Add other information for the section
