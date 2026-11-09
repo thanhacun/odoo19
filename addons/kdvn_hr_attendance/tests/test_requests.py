@@ -197,6 +197,24 @@ class TestOTHolidayPlan(ATCase):
         self.assertTrue(all(d.month in (2, 3) for d in dates))    # AT month 3 = 21 Feb - 20 Mar
         self.assertFalse(any(d.weekday() < 5 and not self.AT._is_holiday(d) for d in dates if False))
 
+    def test_section_manager_gets_the_plan_table(self):
+        """The plan screen builds its table as the manager (plain user): job title and section of hr.employee are private in Odoo 19
+        (the table came back empty with an AccessError on version_id)."""
+        sm_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'zz-ot-sm', 'login': 'zz-ot-sm', 'email': 'zz-ot-sm@example.com',
+            'group_ids': [(6, 0, [self.env.ref('base.group_user').id, self.env.ref('kdvn_hr_attendance.group_hr_attendance_section_manager').id])]})
+        sm = self.new_employee(user_id=sm_user.id)
+        emp = self.new_employee(admin_manager_id=sm.id)
+        self.new_rule(emp)
+        plan = self.plan(emp)
+        plan.ot_detail_ids.filtered(lambda l: l.at_date == SUN).write({'ot_detail': 'site work', 'ot_register': True})
+        screen = self.env['hr.attendance.ot.holiday.manager'].with_user(sm_user).new(
+            {'manager_id': sm.id, 'at_year': '2026', 'at_month': 3, 'wait_for_approve': False})
+        self.assertEqual(screen.ot_holiday_ids._origin, plan, 'the manager must see the plan of his staff')
+        values = screen.generate_ot_holiday_values(plan.ids)
+        staff_rows = [row for sec in values['ot_holiday'].values() for row in sec['section_ot']]
+        self.assertEqual([r['staff_no'] for r in staff_rows], [emp.code])
+
     def test_registered_line_waits_for_the_manager_then_creates_the_request(self):
         emp = self.new_employee()
         self.new_rule(emp)

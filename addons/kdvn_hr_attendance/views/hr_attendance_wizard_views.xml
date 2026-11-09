@@ -626,9 +626,9 @@
 
     <record id="action_hr_attendance_ot_holiday_line" model="ir.actions.act_window"><field name="name">OT Holiday Lines</field><field name="res_model">hr.attendance.ot.holiday.line</field><field name="view_mode">list,form</field></record>
 
-    <record id="action_hr_attendance_ot_holiday_manager" model="ir.actions.act_window"><field name="name">OT on holidays plan</field><field name="res_model">hr.attendance.ot.holiday.manager</field><field name="view_mode">form</field><field name="target">new</field></record>
+    <record id="action_hr_attendance_ot_holiday_manager" model="ir.actions.act_window"><field name="name">OT on holidays plan</field><field name="res_model">hr.attendance.ot.holiday.manager</field><field name="view_mode">form</field><field name="target">new</field><field name="context">{'dialog_size': 'extra-large'}</field></record>
     
-    <record id="action_hr_attendance_ot_holiday_gm" model="ir.actions.act_window"><field name="name">OT on holidays plan for GM</field><field name="res_model">hr.attendance.ot.holiday.manager</field><field name="view_mode">form</field><field name="target">new</field><field name="context">{'ot_holiday_gm': True}</field></record>
+    <record id="action_hr_attendance_ot_holiday_gm" model="ir.actions.act_window"><field name="name">OT on holidays plan for GM</field><field name="res_model">hr.attendance.ot.holiday.manager</field><field name="view_mode">form</field><field name="target">new</field><field name="context">{'ot_holiday_gm': True, 'dialog_size': 'extra-large'}</field></record>
 
     <record id="hr_attendance_ot_holiday_manager_request" model="ir.actions.act_window"><field name="name">OT Holidays Manager Requests</field><field name="res_model">hr.attendance.ot.holiday.manager.request</field><field name="view_mode">list,form</field></record>
 
