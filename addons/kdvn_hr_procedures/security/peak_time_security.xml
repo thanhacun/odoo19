@@ -35,35 +35,11 @@
             <field name="perm_unlink" eval="False"/>
         </record>
 
-        <record id="rule_kderp_project_peak_time_auditor" model="ir.rule">
-            <field name="name">Auditor: Read-Only All Records</field>
-            <!-- We apply this to the mixin model if using a shared rule, or replicate per concrete model -->
-            <field name="model_id" ref="model_kderp_project_peak_time"/> 
-            <field name="groups" eval="[(4, ref('kdvn_e_approval.group_e_approval_global_auditor'))]"/>
-            <field name="domain_force">[(1, '=', 1)]</field> <!-- 🚀 Unlocks all records in the database -->
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="False"/> <!-- 🔒 No Editing -->
-            <field name="perm_create" eval="False"/> <!-- 🔒 No Creation -->
-            <field name="perm_unlink" eval="False"/> <!-- 🔒 No Deletion -->
-        </record>
-
          <record id="rule_peak_time_functional_manager_all_access" model="ir.rule">
             <field name="name">Peak Time Manager: View and Edit All Records</field>
             <field name="model_id" ref="model_kderp_project_peak_time"/>
             <field name="groups" eval="[(4, ref('group_peak_time_functional_manager'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field> 
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="False"/>
-        </record>
-
-
-        <record id="rule_peak_time_eadmin" model="ir.rule">
-            <field name="name">Peak Time: E-Approval Administrator sees and edits all</field>
-            <field name="model_id" ref="model_kderp_project_peak_time"/>
-            <field name="groups" eval="[(4, ref('kdvn_e_approval.group_e_approval_admin'))]"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
