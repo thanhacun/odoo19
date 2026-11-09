@@ -380,7 +380,7 @@ class EntertainmentRequest(models.Model):
         # -------------------------------------------------------------------------
         # 2. SEMICOLON-SEPARATED ATTACHMENT LISTS
         # -------------------------------------------------------------------------
-        attachment_names = [att.datas_fname for att in self.attachment_ids if att.datas_fname]
+        attachment_names = [att.name for att in self.attachment_ids if att.name]
         formatted_attachments = "; ".join(attachment_names) if attachment_names else _("No files attached.")
 
         # -------------------------------------------------------------------------

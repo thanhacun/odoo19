@@ -28,4 +28,5 @@ class TestPrints(TransactionCase):
         req = self.env['entertainment.request'].create({
             'budget_code_id': budget.id, 'guest_ids': [(6, 0, [self.client.id])], 'employee_id': self.emp.id, 'place': 'Place',
             'estimated_amount': 1000000, 'total_pax': 2, 'job_id': self.job.id, 'employee_ids': [(6, 0, [self.emp.id])]})
+        self.env['ir.attachment'].create({'name': 'quote.pdf', 'res_model': 'entertainment.request', 'res_id': req.id, 'raw': b'x'})   # names are listed on the form
         self._render('kdvn_entertainment_procedures.entertainment_approved_report_py3o', req, 'prepare_detailed_entertainment_report')
