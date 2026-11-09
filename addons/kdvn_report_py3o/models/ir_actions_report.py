@@ -27,3 +27,19 @@ class IrActionsReport(models.Model):
                 super(IrActionsReport, rec)._compute_is_py3o_native_format()
             else:
                 rec.is_py3o_native_format = False
+
+    @api.model
+    def _py3o_ids_from_context(self, res_ids, data):
+        """The web client sends a report with `data` as /report/py3o/<name>?options=..&context=.. : the ids are not in
+        the URL, only in the context (active_ids). The OCA controller passes None, which crashes (len(None)).
+        Used by every print button that passes `data` (approval procedures, attendance wizards)."""
+        if res_ids is None:
+            res_ids = ((data or {}).get('context') or {}).get('active_ids') or []
+        return res_ids
+
+    @api.model
+    def _render_py3o(self, report_ref, res_ids, data=None):
+        return super()._render_py3o(report_ref, self._py3o_ids_from_context(res_ids, data), data=data)
+
+    def gen_report_download_filename(self, res_ids, data):
+        return super().gen_report_download_filename(self._py3o_ids_from_context(res_ids, data), data)
