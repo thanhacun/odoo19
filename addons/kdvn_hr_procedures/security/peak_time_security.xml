@@ -58,5 +58,16 @@
             <field name="perm_unlink" eval="False"/>
         </record>
 
+
+        <record id="rule_peak_time_eadmin" model="ir.rule">
+            <field name="name">Peak Time: E-Approval Administrator sees and edits all</field>
+            <field name="model_id" ref="model_kderp_project_peak_time"/>
+            <field name="groups" eval="[(4, ref('kdvn_e_approval.group_e_approval_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
     </data>
 </odoo>
