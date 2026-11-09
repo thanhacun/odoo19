@@ -12,3 +12,8 @@
         display: none !important;
     }
 }
+
+// Collapsed beside the form: the sheet has a core maximum width (about 1400px), so the space freed by the narrow chatter would stay empty. Let the sheet use it.
+.o_form_renderer.d-flex:has(> .o-mail-Form-chatter .o-mail-Chatter-topbar.o-kdvn-collapsed) > .o_form_sheet_bg {
+    max-width: none;
+}

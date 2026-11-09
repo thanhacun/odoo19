@@ -2,7 +2,7 @@
 <templates xml:space="preserve">
     <!-- Reviews panel table: same columns as the tier.review list view (views/tier_review_views.xml). Row colours: static/src/scss/review_colors.css -->
     <t t-name="kdvn_e_approval.ReviewsTable">
-        <div class="o_form_sheet panel-group">
+        <div class="panel-group mt-4">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
