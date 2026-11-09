@@ -52,6 +52,6 @@
 
         <!-- Appends directly to the Master Audit stack with a clean sequence priority -->
         <menuitem id="menu_action_all_transfers" name="Master Audit Tracking (Transfers)" parent="kdvn_e_approval.menu_sub_cat_master_audit" action="action_all_staff_transfers" sequence="910" 
-            groups="base.user_admin,kdvn_e_approval.group_e_approval_admin,kdvn_hr_procedures.group_staff_transfer_functional_controller"/>
+            groups="base.user_admin,kdvn_e_approval.group_e_approval_admin,kdvn_e_approval.group_e_approval_global_auditor,kdvn_hr_procedures.group_staff_transfer_functional_controller"/>
     </data>
 </odoo>
