@@ -15,7 +15,7 @@ The docs/kdvn_* files can lag the code (version numbers, old plans): the code an
 
 ## Rules
 - Never edit Odoo core or extra-addons. Odoo 19 source for checks: ~/odoo19-src (read-only).
-- Odoo 12 code in ~/odoo12/addons (kderp_*, kdvn_website_project) is reference only. Never change it.
+- Odoo 12 code in ~/odoo12/addons (kderp_*, kdvn_website_project): Claude may change it (Thanh, 9 Nov) when the port needs it (mirror rule) or when Thanh asks. Follow ~/odoo12/CLAUDE.md (commit on master, never switch branches there, never push; test on odoo12_lab, never on a production copy).
 - Menus: noupdate="1" before go-live.
 
 ## Workflow
