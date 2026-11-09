@@ -1,8 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- One dropdown "Knowledge" as in Odoo 12 (Editor < Approver < Reviewer / Manager). The OCA groups have no privilege,
+         so they would show only in debug mode under Extra Rights. -->
+    <record id="privilege_knowledge" model="res.groups.privilege">
+        <field name="name">Knowledge</field>
+        <field name="category_id" ref="base.module_category_knowledge"/>
+    </record>
+    <record id="document_page.group_document_editor" model="res.groups">
+        <field name="privilege_id" ref="privilege_knowledge"/>
+    </record>
+    <record id="document_page_approval.group_document_approver_user" model="res.groups">
+        <field name="privilege_id" ref="privilege_knowledge"/>
+    </record>
+    <record id="document_page.group_document_manager" model="res.groups">
+        <field name="privilege_id" ref="privilege_knowledge"/>
+    </record>
+
     <!-- Reviewers approve new pages and changes (OCA document_page_approval "Approver" rights). -->
     <record id="group_knowledge_reviewer" model="res.groups">
         <field name="name">Knowledge reviewer</field>
+        <field name="privilege_id" ref="privilege_knowledge"/>
         <field name="implied_ids" eval="[(4, ref('document_page_approval.group_document_approver_user'))]"/>
         <field name="user_ids" eval="[(4, ref('base.user_admin'))]"/>
         <field name="comment">Approves new knowledge pages and changes before readers see them.</field>

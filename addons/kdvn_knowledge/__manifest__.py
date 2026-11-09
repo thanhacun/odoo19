@@ -17,7 +17,7 @@ knowledge modules:
     'author': 'KDVN IT-Dev',
     'website': 'http://www.kinden.com.vn',
     'category': 'Knowledge Management',
-    'version': '19.0.0.1.0',
+    'version': '19.0.0.1.1',
     'license': 'AGPL-3',
     'depends': [
         'kdvn_base',
