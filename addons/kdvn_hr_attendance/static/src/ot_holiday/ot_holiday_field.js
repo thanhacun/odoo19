@@ -3,13 +3,14 @@
 // The table comes from hr.attendance.ot.holiday.manager.generate_ot_holiday_values; every button calls one action_click_* method and reloads.
 // Refreshes by itself when another user changes a line (bus message `ot_holiday_line_changed`) or when the server asks this user to
 // refresh / download the Excel file (bus message `kdvn_ui_event`, see models/res_users.py).
-import { Component, onMounted, onWillStart, onWillUnmount, onWillUpdateProps, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { Dialog } from "@web/core/dialog/dialog";
 import { downloadFile } from "@web/core/network/download";
 import { FormViewDialog } from "@web/views/view_dialogs/form_view_dialog";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
+import { useRecordObserver } from "@web/model/relational_model/utils";
 
 const MODEL = "hr.attendance.ot.holiday.manager";
 const BUS_CHANNEL = "ot_holiday_manager_ui_refesh";
@@ -50,10 +51,14 @@ export class OTHolidayField extends Component {
                 this.downloadExcel();
             }
         };
-        onWillStart(() => this.load());
-        onWillUpdateProps((nextProps) => {
-            if (this.idsOf(nextProps).join() !== this.ids.join()) {
-                return this.load(this.idsOf(nextProps));
+        // The record changes in place and this template never reads it, so Odoo does not render the field again after an onchange
+        // (month, manager, filters): onWillUpdateProps never fired and the table stayed on the first (often empty) result.
+        // The observer runs at the start and every time the list of plans changes.
+        this.loadedIds = null;
+        useRecordObserver((record, props) => {
+            const ids = this.idsOf({ record, name: props.name });
+            if (this.loadedIds === null || ids.join() !== this.loadedIds.join()) {
+                return this.load(ids);
             }
         });
         onMounted(() => {
@@ -77,6 +82,7 @@ export class OTHolidayField extends Component {
     }
 
     async load(ids = this.ids) {
+        this.loadedIds = ids;
         this.state.data = await this.orm.call(MODEL, "generate_ot_holiday_values", [[], ids]);
     }
 
