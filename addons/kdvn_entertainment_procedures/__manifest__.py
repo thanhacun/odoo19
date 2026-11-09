@@ -1,6 +1,6 @@
 {
     'name': 'KDERP Entertainment Fees Procedure Requests',
-    'version': "19.0.0.2.7",
+    'version': "19.0.0.2.8",
     'category': 'kderp',
     'depends': [
         'kdvn_e_approval',

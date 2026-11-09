@@ -32,3 +32,6 @@
     margin: 1px 4px 1px 0; padding: 2px 8px;
     background: #f1f3f5; border: 1px solid #dee2e6; color: #495057; font-weight: 500;
 }
+
+/* The panel sits at the end of the form sheet (like OCA base_tier_validation): the field is inline-block by default, so it must be stretched to the full width of the sheet. */
+.o_field_widget.o_field_tier_validation { display: block; width: 100%; }

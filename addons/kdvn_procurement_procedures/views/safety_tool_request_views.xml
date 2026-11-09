@@ -192,9 +192,9 @@
                             </field>
                         </page>
                     </notebook>
+                    <field name="review_ids" widget="tier_validation" invisible="not review_ids"/>
                 </sheet>
 
-                <field name="review_ids" widget="tier_validation" invisible="not review_ids"/>
                 <chatter/>
             </form>
         </field>
