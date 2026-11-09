@@ -6,7 +6,7 @@
         Safety Tool Request: request new or replacement safety tools, stock ledger of the
         safety tool store (replaces the Excel control sheet), handover and receipt.
     """,
-    'version': '19.0.0.1.0',
+    'version': '19.0.0.1.1',
     'category': 'kderp',
     'author': 'Kinden Vietnam',
     'depends': [

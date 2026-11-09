@@ -3,7 +3,7 @@
     <data>
         <record id="group_peak_time_functional_manager" model="res.groups">
             <field name="name">Peak Time: Functional Controller / HR Manager</field>
-            <field name="privilege_id" ref="kdvn_e_approval.privilege_kderp_e_approval"/>
+            <field name="privilege_id" eval="False"/>
         </record>
         
         <record id="rule_kderp_project_peak_time_employee" model="ir.rule">
