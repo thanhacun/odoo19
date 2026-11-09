@@ -77,7 +77,7 @@ Nothing else is needed to register the model: `tier.definition` finds every mode
 | `__manifest__.py` | `depends`: `kderp_e_approval` (+ modules providing your lookup models). |
 | `data/ir_sequence_data.xml` | `ir.sequence` with **`code` = model `_name`**, prefix like `ST-%(year)s-`, padding 4. |
 | `security/ir.model.access.csv` | Access for `base.group_user` (+ any functional group). |
-| `security/<model>_security.xml` | Record rules: own records `[('create_uid', '=', user.id)]`; reviewers `[('review_ids', 'in', user.review_ids.ids)]`; global auditor (`kderp_e_approval.group_e_approval_global_auditor`) read-only `[(1, '=', 1)]`; optional functional manager group in category `kderp_e_approval.module_category_kderp_e_approval`. |
+| `security/<model>_security.xml` | Record rules: own records `[('create_uid', '=', user.id)]`; reviewers `[('review_ids', 'in', user.review_ids.ids)]`; NO rule for the E-Approval Administrator / Read-Only Auditor: `kdvn_e_approval` (`models/ir_rule.py`) gives them all requests of every model on the mixin automatically (also the menus of a new module must list both groups); optional functional manager group in category `kderp_e_approval.module_category_kderp_e_approval`. |
 | `views/<model>_views.xml` | Form, tree, search (see below). |
 | `views/<model>_menu.xml` | Menus under `kderp_e_approval.menu_sub_my_requests`, `kderp_e_approval.menu_sub_my_reviews`, `kderp_e_approval.menu_sub_cat_master_audit`. |
 | `reports/…` (optional) | `ir.actions.report` with `report_type` `py3o` + `.odt` template. |

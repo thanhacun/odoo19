@@ -16,15 +16,6 @@
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
         </record>
-        <record id="rule_safety_tool_request_auditor" model="ir.rule">
-            <field name="name">Safety Tool Request: auditor reads all</field>
-            <field name="model_id" ref="model_safety_tool_request"/>
-            <field name="groups" eval="[(4, ref('kdvn_e_approval.group_e_approval_global_auditor'))]"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
-            <field name="perm_write" eval="False"/>
-            <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
-        </record>
         <record id="rule_safety_tool_request_admin" model="ir.rule">
             <field name="name">Safety Tool Request: admin staff see and edit all</field>
             <field name="model_id" ref="model_safety_tool_request"/>
@@ -63,13 +54,6 @@
             <field name="model_id" ref="model_safety_tool_request_line"/>
             <field name="groups" eval="[(4, ref('group_safety_tool_admin'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
-        </record>
-        <record id="rule_safety_tool_request_eadmin" model="ir.rule">
-            <field name="name">Safety Tool Request: E-Approval admin sees and edits all</field>
-            <field name="model_id" ref="model_safety_tool_request"/>
-            <field name="groups" eval="[(4, ref('kdvn_e_approval.group_e_approval_admin'))]"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
-            <field name="perm_unlink" eval="False"/>
         </record>
         <record id="rule_safety_tool_line_eadmin" model="ir.rule">
             <field name="name">Safety Tool Line: E-Approval admin sees all</field>

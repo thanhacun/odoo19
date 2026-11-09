@@ -12,14 +12,21 @@ class TestAdminAuditor(TestProceduresFlow):
         groups = self.env.ref('base.group_user') | self.env.ref(group)
         return self.env['res.users'].create({'name': login, 'login': login, 'email': login + '@example.test', 'group_ids': [(6, 0, groups.ids)]})
 
-    def test_every_request_model_has_admin_and_auditor_rules(self):
-        admin, auditor = self.env.ref('kdvn_e_approval.group_e_approval_admin'), self.env.ref('kdvn_e_approval.group_e_approval_global_auditor')
+    def test_central_rules_cover_every_request_model(self):
+        IrRule = self.env['ir.rule']
         for model in ('staff.transfer', 'kderp.project.peak.time', 'entertainment.request', 'safety.tool.request'):
-            if model not in self.env:
-                continue
-            rules = self.env['ir.rule'].search([('model_id.model', '=', model)])
-            self.assertTrue(rules.filtered(lambda r: admin in r.groups and r.perm_write), '%s: no write rule for E-Approval Administrator' % model)
-            self.assertTrue(rules.filtered(lambda r: auditor in r.groups and r.perm_read and not r.perm_write), '%s: no read rule for Auditor' % model)
+            if model in self.env:
+                self.assertTrue(IrRule._is_approval_model(model), model)
+        self.assertFalse(IrRule._is_approval_model('res.partner'))
+
+    def test_section_manager_sees_only_own_reviews(self):
+        today = fields.Date.context_today(self.env.user)
+        dept = self.env['hr.department'].create({'name': 'SM section'})
+        transfer = self.env['staff.transfer'].sudo().create({
+            'employee_id': self.applicant.id, 'transfer_employee_id': self.staff.id, 'transfer_department_id': dept.id,
+            'transfer_from_date': today, 'transfer_to_date': today + timedelta(days=90), 'reason': 'Test'})
+        manager = self._user('sm_user', 'kdvn_hr_attendance.group_hr_attendance_section_manager')
+        self.assertFalse(transfer.with_user(manager).search([('id', '=', transfer.id)]))
 
     def test_see_and_edit(self):
         flow = self
