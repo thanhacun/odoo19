@@ -138,7 +138,8 @@ class StaffTransfer(models.Model):
                 continue
 
             target_date = rec.transfer_from_date or fields.Date.today()
-            emp = rec.transfer_employee_id
+            # sudo: history lines and department are private to HR in Odoo 19 (managers only get the public profile)
+            emp = rec.transfer_employee_id.sudo()
 
             # History Lookups using historical log lines
             past_depts = emp.department_history_ids.filtered(lambda d: d.effective_date and d.effective_date <= target_date)
