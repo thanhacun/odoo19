@@ -127,3 +127,143 @@ class TestRemotePull(TransactionCase):
             with self.assertRaises(UserError):
                 self.pull.run_full()
         self.assertFalse(self.env['kderp.customer.cache'].search([('external_id', '=', 9510)]))
+
+
+@tagged('post_install', '-at_install')
+class TestRemotePullExtras(TransactionCase):
+    """Request numbers in the Notes of a client, the Project Location address of a job, the refresh button
+    (port of Odoo 12 kderp_remote_sync 12.0.1.6.1)."""
+
+    def test_request_refs_only_keeps_request_numbers(self):
+        from odoo.addons.kdvn_remote_sync.models.remote_pull import request_refs
+        self.assertEqual(request_refs('For EF-2026-0012 and again EF-2026-0012, also ST-2026-0001'), 'EF-2026-0012,ST-2026-0001')
+        self.assertEqual(request_refs('Manufacture of fibre cables, 2026'), '')
+        self.assertEqual(request_refs(False), '')
+
+    def test_address_without_repeated_parts(self):
+        from odoo.addons.kdvn_remote_sync.models.remote_pull import format_address
+        row = {'street': 'Plot C6 and C7', 'street2': False, 'zip': False, 'city': 'Thang Long Industrial Park II',
+               'state_id': [1, 'Hung Yen Province, Vietnam'], 'country_id': [241, 'Vietnam']}
+        self.assertEqual(format_address(row), 'Plot C6 and C7, Thang Long Industrial Park II, Hung Yen Province, Vietnam')
+
+    def test_format_address(self):
+        from odoo.addons.kdvn_remote_sync.models.remote_pull import format_address
+        row = {'street': 'Lot K1', 'street2': False, 'zip': '10000', 'city': 'Hanoi', 'state_id': False, 'country_id': [241, 'Vietnam']}
+        self.assertEqual(format_address(row), 'Lot K1, 10000 Hanoi, Vietnam')
+        self.assertEqual(format_address({'street': False}), '')
+
+    def test_pipeline_saves_refs_calls_hook_and_keeps_them_when_key_missing(self):
+        Job = self.env['kderp.job.lookup']
+        Cache = self.env['kderp.customer.cache']
+        seen = []
+        with mock.patch.object(type(Cache), '_clients_with_request_refs', lambda self, clients: seen.append(clients.mapped('name'))):
+            Job.execute_master_sync_pipeline(customers_data=[
+                {'partner_id': 9801, 'name': 'Gamma Co', 'code': 'CC9801', 'request_refs': 'EF-2026-0099'},
+                {'partner_id': 9802, 'name': 'Delta Co', 'code': 'CC9802', 'request_refs': ''}], purge=False)
+            self.assertEqual(seen, [['Gamma Co']])
+            self.assertEqual(Cache.search([('external_id', '=', 9801)]).request_refs, 'EF-2026-0099')
+            # a payload without the key (n8n) leaves the saved value alone
+            Job.execute_master_sync_pipeline(customers_data=[{'partner_id': 9801, 'name': 'Gamma Co', 'code': 'CC9801'}], purge=False)
+            self.assertEqual(Cache.search([('external_id', '=', 9801)]).request_refs, 'EF-2026-0099')
+
+    def test_hook_failure_keeps_the_customers(self):
+        Job = self.env['kderp.job.lookup']
+        Cache = self.env['kderp.customer.cache']
+
+        def boom(self, clients):
+            raise ValueError('hook broke')
+        with mock.patch.object(type(Cache), '_clients_with_request_refs', boom):
+            Job.execute_master_sync_pipeline(customers_data=[
+                {'partner_id': 9803, 'name': 'Epsilon Co', 'request_refs': 'EF-2026-0100'}], purge=False)
+        self.assertEqual(Cache.search([('external_id', '=', 9803)]).request_refs, 'EF-2026-0100')
+
+    def test_hook_runs_for_an_updated_customer(self):
+        Job = self.env['kderp.job.lookup']
+        Cache = self.env['kderp.customer.cache']
+        Job.execute_master_sync_pipeline(customers_data=[{'partner_id': 9804, 'name': 'Zeta Co'}], purge=False)
+        seen = []
+        with mock.patch.object(type(Cache), '_clients_with_request_refs', lambda self, clients: seen.append(clients.mapped('name'))):
+            Job.execute_master_sync_pipeline(customers_data=[
+                {'partner_id': 9804, 'name': 'Zeta Co', 'request_refs': 'EF-2026-0101'}], purge=False)
+        self.assertEqual(seen, [['Zeta Co']])
+
+    def test_project_address_only_overwritten_when_sent(self):
+        Job = self.env['kderp.job.lookup']
+        job = {'id': 9600, 'name': 'Addr job', 'code': 'TSTJOB-2026-77', 'role_logins': {}, 'state': 'doing', 'project_address': 'Lot K1, Hanoi'}
+        Job.execute_master_sync_pipeline(jobs_data=[job], purge=False)
+        row = Job.search([('job_no', '=', 'TSTJOB-2026-77')])
+        self.assertEqual(row.project_address, 'Lot K1, Hanoi')
+        del job['project_address']
+        Job.execute_master_sync_pipeline(jobs_data=[job], purge=False)
+        self.assertEqual(row.project_address, 'Lot K1, Hanoi')
+
+    def test_pull_reads_the_project_location_of_the_jobs(self):
+        remote = FakeRemote()
+        remote.jobs[0]['project_address_id'] = [77, 'Plant']
+        remote.partners = [{'id': 9510, 'name': 'Alpha Co', 'code': 'CC0010', 'email': 'a@x.vn', 'write_date': '2026-11-06 01:00:00',
+                            'comment': 'Asked as EF-2026-0012'}]
+        remote.jobs[0]['partner_id'] = [9510, 'Alpha Co']
+        remote.jobs[0]['owner_id'] = False
+        plain = remote.__call__
+
+        def with_address(model, method, args=None, kwargs=None, **kw):
+            if model == 'res.partner' and args[0] and args[0][0][0] == 'id':
+                remote.calls.append((model, args[0]))
+                return [{'id': 77, 'street': 'Lot K1', 'street2': False, 'zip': False, 'city': 'Hanoi',
+                         'state_id': False, 'country_id': [241, 'Vietnam']}]
+            return plain(model, method, args, kwargs, **kw)
+        pull = self.env['kderp.remote.pull']
+        self.env['ir.config_parameter'].sudo().set_param('kdvn_remote_sync.customer_since', '')
+        with mock.patch(CLIENT + '.execute', side_effect=with_address):
+            pull.run_full()
+        job = self.env['kderp.job.lookup'].search([('job_no', '=', 'TSTJOB-2026-01')])
+        self.assertEqual(job.project_address, 'Lot K1, Hanoi, Vietnam')
+        self.assertEqual(self.env['kderp.customer.cache'].search([('external_id', '=', 9510)]).request_refs, 'EF-2026-0012')
+
+
+@tagged('post_install', '-at_install')
+class TestRefreshCustomersNow(TransactionCase):
+    """The hook the entertainment form calls: `kderp.remote.pull.refresh_customers_now`."""
+
+    def setUp(self):
+        super().setUp()
+        self.remote = FakeRemote()
+        self.pull = self.env['kderp.remote.pull']
+        icp = self.env['ir.config_parameter'].sudo()
+        icp.set_param('kdvn_remote_sync.customer_since', '')
+        icp.set_param('kdvn_remote_sync.customer_refresh_last', '')
+
+    def _run(self, fn):
+        with mock.patch(CLIENT + '.execute', side_effect=self.remote):
+            return fn()
+
+    def test_returns_only_new_clients_and_does_not_purge(self):
+        self.env['kderp.customer.cache'].create({'external_id': 9510, 'name': 'Alpha Co'})
+        stay = self.env['kderp.customer.cache'].create({'external_id': 9599, 'name': 'Not in this read'})
+        result = self._run(self.pull.refresh_customers_now)
+        self.assertEqual(result, {'new': ['Beta Co'], 'skipped': False})
+        self.assertTrue(stay.exists())
+        self.assertTrue(self.env['kderp.customer.cache'].search([('external_id', '=', 9511)]))
+        self.assertEqual(self.env['ir.config_parameter'].sudo().get_param('kdvn_remote_sync.customer_since'), '2026-11-06 02:00:00')
+
+    def test_second_press_within_ten_seconds_is_skipped(self):
+        self._run(self.pull.refresh_customers_now)
+        self.remote.calls[:] = []
+        result = self._run(self.pull.refresh_customers_now)
+        self.assertEqual(result, {'new': [], 'skipped': 'recent'})
+        self.assertEqual(self.remote.calls, [])               # the remote was not asked
+
+    def test_runs_again_after_ten_seconds(self):
+        self._run(self.pull.refresh_customers_now)
+        self.env['ir.config_parameter'].sudo().set_param('kdvn_remote_sync.customer_refresh_last', '2000-01-01 00:00:00')
+        self.assertFalse(self._run(self.pull.refresh_customers_now)['skipped'])
+
+    def test_skipped_while_another_pull_runs(self):
+        with mock.patch.object(type(self.pull), '_lock', return_value=False):
+            result = self._run(self.pull.refresh_customers_now)
+        self.assertEqual(result, {'new': [], 'skipped': 'running'})
+
+    def test_remote_down_raises_user_error(self):
+        with mock.patch(CLIENT + '.execute', side_effect=UserError('Could not reach the remote server (ConnectionError).')):
+            with self.assertRaises(UserError):
+                self.pull.refresh_customers_now()

@@ -1,6 +1,6 @@
 """Pull jobs, budgets and customers from the KDERP server straight into the cache tables (alternative to the n8n push).
 
-Port of kderp_remote_sync 12.0.1.5.0 `models/remote_pull.py` (same reads, same payload).
+Port of kderp_remote_sync 12.0.1.6.1 `models/remote_pull.py` (same reads, same payload).
 
 Same reads and the same payload as the n8n workflow `n8n/oe_hanoi_active_job_list.json`; the payload goes to the unchanged
 `kderp.job.lookup.execute_master_sync_pipeline` (upsert + safe purge). Reads only, with the Reader login of `kdvn_remote_integration`,
@@ -13,6 +13,7 @@ Two runs:
     customer list follows the remote within minutes. It reads a handful of rows, so the load on the remote is negligible.
 """
 import logging
+import re
 from datetime import timedelta
 
 from odoo import api, fields, models
@@ -21,6 +22,7 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 PARAM_SINCE = 'kdvn_remote_sync.customer_since'     # newest customer write_date seen on the remote (UTC)
+PARAM_BUTTON = 'kdvn_remote_sync.customer_refresh_last'  # last "refresh the client list" button run (UTC)
 PARAM_STATUS = 'kdvn_remote_sync.pull_status'       # last result, shown on the settings page
 LOCK_KEY = 4710231                                   # advisory lock: one pull at a time
 OVERLAP = timedelta(minutes=10)                      # a long transaction on the remote can commit late with an old write_date
@@ -41,6 +43,38 @@ def _split(label):
     return parts[0].strip(), (parts[1] if len(parts) > 1 else parts[0]).strip()
 
 
+REQUEST_NO = re.compile(r'\b[A-Z]{2,4}-\d{4}-\d{3,6}\b')
+
+
+def request_refs(notes):
+    """Request numbers (EF-2026-0012 ...) written in the remote Notes of a client, comma separated, '' when none.
+    Only these few characters are kept: the Notes of a client are long business descriptions."""
+    found = []
+    for ref in REQUEST_NO.findall(notes or ''):
+        if ref not in found:
+            found.append(ref)
+    return ','.join(found)
+
+
+def clean_address(text):
+    """One line without empty or repeated parts (e.g. "Hung Yen Province, Vietnam, Vietnam" -> "Hung Yen Province, Vietnam")."""
+    seen, parts = set(), []
+    for part in (text or '').replace('\n', ',').split(','):
+        part = ' '.join(part.split())
+        if part and part.lower() not in seen:
+            seen.add(part.lower())
+            parts.append(part)
+    return ', '.join(parts)
+
+
+def format_address(row):
+    """One line from a remote res.partner row: street, street2, zip city, state, country (empty or repeated parts left out)."""
+    city = ' '.join(p for p in [row.get('zip') or '', row.get('city') or ''] if p)
+    parts = [row.get('street'), row.get('street2'), city,
+             (row.get('state_id') or [0, ''])[1], (row.get('country_id') or [0, ''])[1]]
+    return clean_address(', '.join(p.strip() for p in parts if p and p.strip()))
+
+
 class KderpRemotePull(models.AbstractModel):
     _name = 'kderp.remote.pull'
     _description = 'Pull of jobs, budgets and customers from the remote server'
@@ -57,10 +91,10 @@ class KderpRemotePull(models.AbstractModel):
         domain = [['customer', '=', True], ['active', '=', True]]
         if since:
             domain.append(['write_date', '>=', fields.Datetime.to_string(since)])
-        rows = self._read('res.partner', domain, ['id', 'name', 'code', 'email', 'write_date'])
+        rows = self._read('res.partner', domain, ['id', 'name', 'code', 'email', 'write_date', 'comment'])
         newest = max([r['write_date'] for r in rows if r.get('write_date')] or [None])
-        customers = [{'partner_id': r['id'], 'name': r['name'], 'code': r.get('code') or '', 'email': r.get('email') or ''}
-                     for r in rows]
+        customers = [{'partner_id': r['id'], 'name': r['name'], 'code': r.get('code') or '', 'email': r.get('email') or '',
+                      'request_refs': request_refs(r.get('comment'))} for r in rows]
         return customers, newest
 
     @api.model
@@ -68,12 +102,13 @@ class KderpRemotePull(models.AbstractModel):
         jobs = self._read('account.analytic.account', [['state', 'in', ['doing', 'done']]],
                           ['id', 'name', 'code', 'general_expense'] + ROLE_FIELDS +
                           ['partner_id', 'owner_id', 'date_start', 'actual_completion_date', 'kickoff_meeting_date',
-                           'est_peak_time_from', 'est_peak_time_to', 'state'],
+                           'est_peak_time_from', 'est_peak_time_to', 'state', 'project_address_id'],
                           {'import_ge_nofilter': True})
         user_ids = sorted({_m2o_id(j.get(f)) for j in jobs for f in ROLE_FIELDS if _m2o_id(j.get(f))})
         logins = {}
         if user_ids:
             logins = {u['id']: u['login'] for u in self._read('res.users', [['id', 'in', user_ids]], ['login']) if u.get('login')}
+        addresses = self.read_addresses(sorted({_m2o_id(j.get('project_address_id')) for j in jobs} - {None}))
         result = []
         for j in jobs:
             result.append({
@@ -85,8 +120,18 @@ class KderpRemotePull(models.AbstractModel):
                 'kickoff_meeting_date': j.get('kickoff_meeting_date'),
                 'kom_peak_from': j.get('est_peak_time_from'), 'kom_peak_to': j.get('est_peak_time_to'),
                 'state': j.get('state'),
+                'project_address': addresses.get(_m2o_id(j.get('project_address_id')), ''),
             })
         return result
+
+    @api.model
+    def read_addresses(self, partner_ids):
+        """{remote partner id: one-line address} for the Project Location of the jobs."""
+        if not partner_ids:
+            return {}
+        rows = self._read('res.partner', [['id', 'in', partner_ids]],
+                          ['street', 'street2', 'zip', 'city', 'state_id', 'country_id'], {'active_test': False})
+        return {r['id']: format_address(r) for r in rows}
 
     @api.model
     def read_budgets(self):
@@ -151,6 +196,29 @@ class KderpRemotePull(models.AbstractModel):
             result = self.env['kderp.job.lookup'].sudo().execute_master_sync_pipeline(customers_data=customers, purge=False)
         self._set_cursor(newest)
         return result
+
+    @api.model
+    def refresh_customers_now(self):
+        """The button of a form whose user cannot find a NEW client: read the customers changed on the remote since the last
+        run (all of them when there is no cursor yet), upsert only (no purge), without waiting for the 5-minute cron.
+        Returns {'new': [client names that were not in the cache], 'skipped': 'recent' | 'running' | False}.
+        At most one run per 10 seconds (the button must not hammer the remote); a remote that is down raises UserError."""
+        icp = self.env['ir.config_parameter'].sudo()
+        now = fields.Datetime.now()
+        last = icp.get_param(PARAM_BUTTON)
+        if last and (now - fields.Datetime.from_string(last)).total_seconds() < 10:
+            return {'new': [], 'skipped': 'recent'}
+        if not self._lock():
+            return {'new': [], 'skipped': 'running'}
+        raw = icp.get_param(PARAM_SINCE)
+        customers, newest = self.read_customers(since=fields.Datetime.from_string(raw) - OVERLAP if raw else None)
+        cache = self.env['kderp.customer.cache'].sudo()
+        known = set(cache.search([('external_id', 'in', [c['partner_id'] for c in customers])]).mapped('external_id'))
+        if customers:
+            self.env['kderp.job.lookup'].sudo().execute_master_sync_pipeline(customers_data=customers, purge=False)
+        self._set_cursor(newest)
+        icp.set_param(PARAM_BUTTON, fields.Datetime.to_string(now))
+        return {'new': sorted(c['name'] for c in customers if c['partner_id'] not in known), 'skipped': False}
 
     # ------------------------------------------------------------------ cron entry points
     @api.model

@@ -2,3 +2,4 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_special_rule_user,kderp.e.approval.special.rule.user,model_kderp_e_approval_special_rule,base.group_user,1,1,0,0
 access_special_rule_admin,kderp.e.approval.special.rule.admin,model_kderp_e_approval_special_rule,kdvn_e_approval.group_e_approval_admin,1,1,1,1
 access_approval_refusal_admin,kderp.approval.refusal.admin,model_kderp_approval_refusal,kdvn_e_approval.group_e_approval_admin,1,0,0,1
+access_ir_model_fields_ea_admin,ir.model.fields.e.approval.admin,base.model_ir_model_fields,kdvn_e_approval.group_e_approval_admin,1,0,0,0

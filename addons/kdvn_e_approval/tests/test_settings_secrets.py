@@ -45,3 +45,27 @@ class TestSettingsSecrets(TransactionCase):
         self.Settings.create({'nc_base_url': 'https://nc.example.test/', 'nc_bot_username': 'bot'}).set_values()
         self.assertEqual(self.icp.get_param('kderp_e_approval.nc_base_url'), 'https://nc.example.test')
         self.assertEqual(self.icp.get_param('kderp_e_approval.nc_bot_username'), 'bot')
+
+
+class TestRouteSettings(TransactionCase):
+    """Staff transfer distance provider and Goong key on the E-Approval settings screen (Odoo 12 kderp_hr_procedures 7b420678)."""
+
+    def test_settings_screen_saves_provider_and_keeps_the_key(self):
+        icp = self.env['ir.config_parameter'].sudo()
+        icp.set_param('kderp_hr_procedures.route_provider', False)
+        icp.set_param('kderp_hr_procedures.goong_api_key', False)
+        Settings = self.env['res.config.settings']
+        self.assertEqual(Settings.get_values()['transfer_route_provider'], 'osm')
+        Settings.create({'transfer_route_provider': 'goong', 'transfer_goong_key': ' KEY1 '}).set_values()
+        self.assertEqual(icp.get_param('kderp_hr_procedures.route_provider'), 'goong')
+        self.assertEqual(icp.get_param('kderp_hr_procedures.goong_api_key'), 'KEY1')
+        vals = Settings.get_values()
+        self.assertEqual((vals['transfer_goong_key'], vals['transfer_goong_key_saved']), ('', True))
+        self.assertNotIn('KEY1', str(vals))
+        Settings.create({'transfer_route_provider': 'osm'}).set_values()      # empty key field keeps the saved key
+        self.assertEqual(icp.get_param('kderp_hr_procedures.goong_api_key'), 'KEY1')
+        self.assertEqual(icp.get_param('kderp_hr_procedures.route_provider'), 'osm')
+
+    def test_unknown_provider_value_falls_back_to_osm(self):
+        self.env['ir.config_parameter'].sudo().set_param('kderp_hr_procedures.route_provider', 'google')
+        self.assertEqual(self.env['res.config.settings'].get_values()['transfer_route_provider'], 'osm')
