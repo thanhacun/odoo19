@@ -102,3 +102,13 @@ Spec and decisions: `../../docs/spec-safety-tool-request.md`. Platform facts: `.
 - hr.employee is private: code/name/work_location of staff are read through `.sudo()` in the receipt and in both Excel reports (store keepers are plain users).
 - `option create_history = off` used to raise KeyError 'hist_in' when writing the batch note (also in Odoo 12 `12.0.1.5.1`): counters now start at 0.
 - Tests: `-u kdvn_procurement_procedures --test-tags /kdvn_procurement_procedures` (reports, remote lookup with a fake, receipt, ACC import round trips with xlsxwriter-built files).
+
+## Export -> import round trip (11 Nov 2026, 19.0.0.2.1; same change in Odoo 12)
+- Re-importing our own accounting export changes nothing (tests `TestRoundTrip`):
+  - control sheet rows are "known" when the ledger already holds a move of the same day and quantity (OUT: and staff code), whatever its `import_key`
+    (`_row_signature`, `_move_signatures`; the opening balance counts, moves made in Odoo have no key); an Odoo opening balance blocks a second opening;
+  - a lot of the Detail sheet without any invoice data is matched to the opening balance / manual IN of the same quantity, so it is not added as accounting history;
+  - OUT rows of the same day, staff and code that the report lists once per FIFO lot are matched together to the one handover;
+  - a block of a sized item goes back to its size: text line equal to a size name (our export writes it under the item name), else the Code Mat. of the block number;
+    a block whose name does not match is mapped by its Code Mat. (`_match_block`, `_size_of_block`).
+- `safety.tool.size.code` is in the size list of the item form.

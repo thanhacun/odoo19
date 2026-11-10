@@ -178,8 +178,26 @@ class SafetyToolImportWizard(models.TransientModel):
         return resolve
 
     @api.model
-    def _match_block(self, block):
-        """(action, item, size) proposed for a block: alias, else same item name, else create."""
+    def _size_of_block(self, item, block):
+        """Size of `item` that a block stands for: the size text of the block ("Size XL", "26.0 cm (42)"), else any other text line of the block
+        that is the name of a size (our own export writes the size name under the item name), else the one size that has the number of the
+        block as its Code Mat. (34-1 = ST0034-1)."""
+        sizes = item.size_ids
+        if not sizes:
+            return sizes
+        for text in [block.get('size_text')] + list(block.get('texts') or []) + [block.get('desc')]:
+            norm = xlsx.normalize(text)
+            hit = sizes.filtered(lambda s: norm and xlsx.normalize(s.name) == norm)[:1]
+            if hit:
+                return hit
+        code = _material_code(block.get('no')) if block.get('no') else False
+        hit = sizes.filtered(lambda s: code and (s.code or '').strip().upper() == code.upper())
+        return hit if len(hit) == 1 else sizes.browse()
+
+    @api.model
+    def _match_block(self, block, targets=None):
+        """(action, item, size) proposed for a block: alias, else same item name, else the item / size that has the Code Mat. of the block
+        number, else create. `targets` = result of _code_targets()[0] (read once per file)."""
         Alias, Item = self.env['safety.tool.import.alias'], self.env['safety.tool.item']
         alias = Alias.search([('key', '=', _ident(block))], limit=1)
         if alias:
@@ -188,9 +206,14 @@ class SafetyToolImportWizard(models.TransientModel):
         item = Item.search([('active', 'in', [True, False])]).filtered(
             lambda i: xlsx.normalize(i.name) in (xlsx.normalize(label), xlsx.normalize(block['name'])))[:1]
         if not item:
+            code = _material_code(block.get('no')) if block.get('no') else False
+            if targets is None:
+                targets = self._code_targets()[0]
+            found = targets.get((code or '').upper())
+            if found:                                   # the name differs (long names are wrapped over several lines) but the number is ours
+                return 'map', found[0], found[1]
             return 'create', Item, self.env['safety.tool.size']
-        size = item.size_ids.filtered(lambda s: xlsx.normalize(s.name) == xlsx.normalize(block.get('size_text')))[:1]
-        return 'map', item, size
+        return 'map', item, self._size_of_block(item, block)
 
     def action_read(self):
         self.ensure_one()
@@ -210,6 +233,7 @@ class SafetyToolImportWizard(models.TransientModel):
             _logger.warning('Safety tool import: pictures not read (%s)', error)
             pictures = {}
         seen_idents, seen_rows = {}, {}
+        code_targets = self._code_targets()[0]
         lines = []
         for seq, block in enumerate(parsed['blocks']):
             ident = _ident(block)
@@ -220,7 +244,7 @@ class SafetyToolImportWizard(models.TransientModel):
                 base = _row_key(block['ident'], row, 0)[:-2]
                 seen_rows[base] = seen_rows.get(base, 0) + 1
                 row['key'] = '%s#%d' % (base, seen_rows[base])
-            action, item, size = self._match_block(block)
+            action, item, size = self._match_block(block, code_targets)
             if not block['rows'] and not (block['opening_qty'] or 0) and not (block['last_remain'] or 0):
                 action = 'skip'                                   # nothing to import (empty block)
             lines.append((0, 0, {
@@ -324,6 +348,7 @@ class SafetyToolImportWizard(models.TransientModel):
             'as_of_date': self.as_of_date})
         stats = {'in': 0, 'out_requests': 0, 'out_moves': 0, 'open': 0, 'adjust': 0, 'known': 0, 'no_staff': 0}
         groups = {}                     # (date, staff, project) -> {'rows': [...], 'meta': ...}
+        signatures = {}                 # (item, size) -> {row signature: number of moves already in the ledger}
         for line in self.line_ids.sorted('sequence'):
             if line.action == 'skip':
                 continue
@@ -337,15 +362,34 @@ class SafetyToolImportWizard(models.TransientModel):
             keys = [r['key'] for r in block['rows']] + [block['open_key']]
             known = set(Move.sudo().search([('import_key', 'in', keys)]).mapped('import_key'))
             base = {'item_id': item.id, 'size_id': size.id or False, 'import_batch_id': batch.id}
-            # opening balance: only the first time this item / size is imported
+            # opening balance: only the first time this item / size is imported (an opening balance made in Odoo counts too)
             already = Move.sudo().search_count([('item_id', '=', item.id), ('size_id', '=', size.id or False),
-                                                 ('import_batch_id', '!=', False), ('import_batch_id', '!=', batch.id)])
+                                                 ('import_batch_id', '!=', False), ('import_batch_id', '!=', batch.id)]) or \
+                Move.sudo().search_count([('item_id', '=', item.id), ('size_id', '=', size.id or False), ('source', '=', 'opening'),
+                                          ('accounting_only', '=', False), ('id', 'not in', Move.sudo().search(
+                                              [('import_batch_id', '=', batch.id)]).ids)])
             if block['open_key'] not in known and not already and (block['opening_qty'] or 0) > 0:
                 Move.create(dict(base, date=block['opening_date'] or self.as_of_date, qty_in=block['opening_qty'],
                                  source='opening', import_key=block['open_key'], note=_('Opening balance (Excel)')))
                 stats['open'] += 1
+            # Rows that are already in the ledger, whatever their import key: our own export writes other texts (project, remarks) than the
+            # file the moves came from, and moves made in Odoo have no key. A row counts as known when the ledger holds a move of the same
+            # day and quantity (and staff for OUT); each existing move covers one row. Rows known by their key use their move first.
+            if (item.id, size.id or False) not in signatures:
+                signatures[(item.id, size.id or False)] = self._move_signatures(item, size)
+            budget = signatures[(item.id, size.id or False)]
             for row in block['rows']:
                 if row['key'] in known:
+                    sig = self._row_signature(row, self.as_of_date)
+                    if budget.get(sig):
+                        budget[sig] -= 1
+            for row in block['rows']:
+                if row['key'] in known:
+                    stats['known'] += 1
+                    continue
+                sig = self._row_signature(row, self.as_of_date)
+                if budget.get(sig):
+                    budget[sig] -= 1
                     stats['known'] += 1
                     continue
                 date = fields.Date.to_date(row['date']) if row['date'] else self.as_of_date     # the block was stored as JSON: dates are text
@@ -426,6 +470,30 @@ class SafetyToolImportWizard(models.TransientModel):
         self.write({'state': 'done', 'batch_id': batch.id, 'summary': batch.note})
         return self._reopen()
 
+    @staticmethod
+    def _row_signature(row, default_date):
+        """What identifies a control sheet row in the ledger: IN = day + quantity, OUT = day + quantity + staff code."""
+        date = fields.Date.to_date(row['date']) if row['date'] else default_date
+        if row['qty_in']:
+            return ('in', str(date), round(row['qty_in'], 4), '')
+        return ('out', str(date), round(row['qty_out'], 4), (row['staff_code'] or '').strip().upper())
+
+    def _move_signatures(self, item, size):
+        """{signature: count} of the moves of an item / size that a control sheet row can stand for (not the accounting history; the opening
+        balance counts: a report that starts on the opening day lists it as an IN row). The staff of a plain OUT move is the code at the start of its note (as the control sheet export writes it)."""
+        counts = {}
+        moves = self.env['safety.tool.move'].sudo().search([
+            ('item_id', '=', item.id), ('size_id', '=', size.id or False), ('accounting_only', '=', False)])
+        for m in moves:
+            if m.qty_in:
+                sig = ('in', str(m.date), round(m.qty_in, 4), '')
+            else:
+                first = (m.note or '').split(' / ')[0].strip()
+                code = m.employee_id.code or (first if re.match(r'^[A-Za-z]\d+$', first) else '')
+                sig = ('out', str(m.date), round(m.qty_out, 4), (code or '').strip().upper())
+            counts[sig] = counts.get(sig, 0) + 1
+        return counts
+
     # ------------------------------------------------------------------
     # Accounting sheets (Detail check - report to Acc. Dept, Code.Mat)
     # ------------------------------------------------------------------
@@ -496,6 +564,12 @@ class SafetyToolImportWizard(models.TransientModel):
             cands = Move.search([('item_id', '=', item.id), ('size_id', '=', size.id or False), ('qty_in', '>', 0),
                                  ('source', '=', 'purchase'), ('accounting_only', '=', False), ('id', 'not in', list(claimed))]).filtered(
                 lambda m: abs(m.qty_in - lot['qty']) < 0.001 and (not ref or ref - datetime.timedelta(days=15) <= m.date <= ref + datetime.timedelta(days=150)))
+            if not cands and not (lot['invoice_no'] or lot['invoice_date'] or lot['payment_no']):
+                # a lot with no invoice data at all is the opening balance (or a stock-take adjustment) that our own export lists as a lot:
+                # it must not come back as accounting history
+                cands = Move.search([('item_id', '=', item.id), ('size_id', '=', size.id or False), ('qty_in', '>', 0),
+                                     ('source', 'in', ['opening', 'manual']), ('accounting_only', '=', False),
+                                     ('id', 'not in', list(claimed))]).filtered(lambda m: abs(m.qty_in - lot['qty']) < 0.001)
             if not cands:
                 stats['lots_none'] += 1
                 lots_none.append(lot)
@@ -531,10 +605,17 @@ class SafetyToolImportWizard(models.TransientModel):
             # staff without an employee record (left, or not in this database) are plain moves: the code is the first part of the note
             code = (m.employee_id.code or (m.note or '').split(' / ')[0]).strip().upper()
             index.setdefault(code, []).append(m)
+        by_day = {}
+        for o in acc['outs']:
+            by_day.setdefault((o['code'], o['staff'], o['date']), []).append(o)
+        siblings_done = set()
         for out in acc['outs']:
+            if out['row'] in siblings_done:
+                continue
             target = targets.get(out['code'])
             move = False
             group = []
+            siblings = [out]
             if target:
                 item, size = target
                 same = [m for m in index.get(out['staff'], []) if m.id not in claimed and m.item_id == item
@@ -544,6 +625,16 @@ class SafetyToolImportWizard(models.TransientModel):
                     group = exact[:1]
                 elif same and abs(sum(m.qty_out for m in same) - out['qty']) < 0.001:
                     group = same                              # the Excel row is one line, Odoo holds it as several moves
+            if target and not group and out['date'] and len(by_day[(out['code'], out['staff'], out['date'])]) > 1:
+                # the accounting report lists a handover once per stock-in lot it was taken from (FIFO): the rows of the same day, staff and
+                # code together are one handover
+                siblings = [o for o in by_day[(out['code'], out['staff'], out['date'])] if o['row'] not in matched_out_rows]
+                total = sum(o['qty'] for o in siblings)
+                exact = [m for m in same if abs(m.qty_out - total) < 0.001]
+                if exact:
+                    group = exact[:1]
+                elif same and abs(sum(m.qty_out for m in same) - total) < 0.001:
+                    group = same
             if group and not out['date'] and len({m.date for m in same}) > 1 and len(exact) != 1:
                 group = []                                    # a row without a date must be unambiguous
             if group:
@@ -558,7 +649,9 @@ class SafetyToolImportWizard(models.TransientModel):
                     outs_none.append(out)
                 continue
             claimed.add(move.id)
-            matched_out_rows.add(out['row'])
+            for o in siblings:
+                matched_out_rows.add(o['row'])
+                siblings_done.add(o['row'])
             vals = {}
             if out['area'] and move.work_area != out['area']:
                 vals['work_area'] = out['area']

@@ -681,3 +681,119 @@ class TestAccountingImport(Common):
         size = Image.open(io.BytesIO(base64.b64decode(item.image))).size
         self.assertLessEqual(max(size), 600)
         self.assertGreater(min(size), 100)
+
+
+class TestRoundTrip(Common):
+    """Export the accounting file and import it again (twice): nothing is added, the stock and the accounting history stay the same,
+    sized items go back to the right size."""
+
+    def _data(self):
+        boot26, boot27 = self.boot.size_ids.sorted('name')
+        self.boot26, self.boot27 = boot26, boot27
+        # item without sizes: opening, purchases (one without invoice yet), a stock-take adjustment, handovers over two lots, a plain handover
+        self._in(self.vest, 10, '2025-12-31', source='opening')
+        self._in(self.vest, 5, '2026-03-01', payment_no='EN26-0100', invoice_no='INV-1', invoice_date='2026-02-20',
+                 unit_cost=100000.0, supplier_name='ACME')
+        self._in(self.vest, 3, '2026-04-10')
+        self._in(self.vest, 10, '2026-02-15', payment_no='EN26-0101', invoice_no='INV-1B', invoice_date='2026-02-10', unit_cost=90000.0,
+                 supplier_name='ACME')
+        self._in(self.vest, 1, '2026-05-01', source='manual', note='Stock-take difference')
+        self._out(self.vest, 11, '2026-04-01', self.e_app, work_area='Tlip')
+        self._out(self.vest, 2, '2026-06-01', None, note='S1234 / Left staff / Old job')
+        self._out(self.vest, 10, '2026-07-01', self.e_app, work_area='Tlip')       # taken from two lots (FIFO): two rows in the accounting report
+        # accounting history before the opening balance: an older lot and a handover taken from it
+        hist = self.Move.with_context(safety_tool_system=True)
+        hist.create({'item_id': self.vest.id, 'accounting_only': True, 'qty_in': 20, 'date': '2025-06-01', 'source': 'purchase',
+                     'invoice_no': 'INV-OLD', 'invoice_date': '2025-06-01', 'unit_cost': 50000.0, 'payment_no': 'EN25-0001',
+                     'supplier_name': 'OLD SUPPLIER'})
+        hist.create({'item_id': self.vest.id, 'accounting_only': True, 'qty_out': 3, 'date': '2025-07-01', 'source': 'manual',
+                     'employee_id': self.e_app.id, 'note': 'TST-APP A Applicant', 'work_area': 'Tlip'})
+        # item with sizes: opening on the first day of the report (listed as an IN row), purchase, handover through a request
+        self._in(self.boot, 5, '2026-01-01', size=boot26, source='opening')
+        self._in(self.boot, 4, '2026-01-01', size=boot27, source='opening')
+        self._in(self.boot, 6, '2026-02-01', size=boot26, payment_no='EN26-0300', invoice_no='INV-B', invoice_date='2026-01-25',
+                 unit_cost=800000.0, supplier_name='SHOES')
+        self.Move.create({'item_id': self.boot.id, 'size_id': boot27.id, 'qty_out': 2, 'date': '2026-03-05', 'source': 'manual',
+                          'employee_id': self.e_app.id, 'work_area': 'Tlip'})
+
+    def _snapshot(self):
+        Move = self.Move.sudo()
+        items = self.vest | self.boot
+        moves = Move.search([('item_id', 'in', items.ids)])
+        stock = Move.stock_map(items.ids)
+        rows = sorted((m.item_id.name, m.size_id.name or '', m.date, m.qty_in, m.qty_out, m.accounting_only, m.source, m.invoice_no or '',
+                       m.unit_cost, m.payment_no or '', m.supplier_name or '', m.work_area or '') for m in moves)
+        return {'count': len(moves), 'stock': stock, 'rows': rows,
+                'requests': self.env['safety.tool.request'].sudo().search_count([]),
+                'items': self.env['safety.tool.item'].sudo().with_context(active_test=False).search_count([]),
+                'sizes': self.env['safety.tool.size'].sudo().search_count([])}
+
+    def _export(self):
+        wiz = self.env['safety.tool.report.wizard'].with_user(self.u_admin).create({
+            'date_from': '2026-01-01', 'date_to': '2026-12-31', 'accounting': True, 'refresh_remote': False})
+        wiz.action_generate()
+        return base64.b64decode(wiz.file)
+
+    def _import(self, data):
+        wiz = self.env['safety.tool.import.wizard'].with_user(self.u_admin).create({'file': base64.b64encode(data), 'filename': 'rt.xlsx'})
+        wiz.action_read()
+        self.assertFalse(wiz.line_ids.filtered(lambda l: l.action == 'create'), 'a block was not recognised: %s' % wiz.line_ids.mapped('excel_name'))
+        wiz.action_import()
+        return wiz
+
+    def test_reimport_of_the_export_changes_nothing(self):
+        self._data()
+        before = self._snapshot()
+        data = self._export()
+        wiz1 = self._import(data)
+        self.assertEqual(self._snapshot(), before, wiz1.batch_id.note)
+        wiz2 = self._import(data)
+        self.assertEqual(self._snapshot(), before, wiz2.batch_id.note)
+        # the handover of 10 is listed under two lots (4 + 6) and still found as one OUT move
+        rows = xl.read_sheet_rows(io.BytesIO(data), 'detail', strict=True)
+        parts = sorted(float(c['J']) for r, c in rows.items() if r >= 4 and c.get('F') == 'TST-APP' and c.get('I') and c.get('J') and c.get('B') == 'ST9901'
+                       and c['J'].replace('.', '').isdigit() and abs(float(c['J']) - 10) > 0.001 and float(c['J']) in (4.0, 6.0))
+        self.assertEqual(parts, [4.0, 6.0])
+        for wiz in (wiz1, wiz2):                                         # nothing is reported as missing either
+            self.assertIn('not found in Odoo 0', wiz.batch_id.note)
+            self.assertIn('not found 0', wiz.batch_id.note)
+
+    def test_sized_blocks_go_back_to_their_size(self):
+        self._data()
+        data = self._export()
+        wiz = self.env['safety.tool.import.wizard'].with_user(self.u_admin).create({'file': base64.b64encode(data), 'filename': 'rt.xlsx'})
+        wiz.action_read()
+        sized = wiz.line_ids.filtered(lambda l: l.item_id == self.boot)
+        self.assertEqual(sorted(sized.mapped('size_id.name')), ['26.0', '27.0'])
+        self.assertEqual(set(wiz.line_ids.mapped('action')), {'map'})
+
+    def test_block_found_by_its_number_when_the_name_differs(self):
+        """A block whose name is not the item's (long names are wrapped) is mapped by the Code Mat. of its number."""
+        self._data()
+        self.vest.name = 'Acc Vest renamed in Odoo'
+        data = self._export()
+        self.vest.name = 'Acc Vest'
+        wiz = self.env['safety.tool.import.wizard'].with_user(self.u_admin).create({'file': base64.b64encode(data), 'filename': 'rt.xlsx'})
+        wiz.action_read()
+        self.assertEqual(wiz.line_ids.filtered(lambda l: l.excel_name.startswith('Acc Vest')).item_id, self.vest)
+
+    def test_import_into_an_empty_ledger_rebuilds_the_same_state(self):
+        """Export, wipe the ledger, import: same stock per item and size, the lots keep their invoice data, history is back, no extra history."""
+        self._data()
+        before = self._snapshot()
+        data = self._export()
+        self.Move.sudo().with_context(safety_tool_system=True).search([('item_id', 'in', (self.vest | self.boot).ids)]).unlink()
+        self._import(data)
+        after = self._snapshot()
+        self.assertEqual(after['stock'], before['stock'])
+        history = lambda snap: [r for r in snap['rows'] if r[5]]
+        self.assertEqual(len(history(after)), len(history(before)))
+        lots = lambda snap: sorted((r[0], r[1], r[3], r[7], r[8], r[9]) for r in snap['rows'] if r[3] and r[7] and not r[5])   # lots with invoice data
+        self.assertEqual(lots(after), lots(before))                       # invoice, unit cost and payment no. came back
+        # and a second import changes nothing
+        self._import(data)
+        self.assertEqual(self._snapshot(), after)
+
+    def test_size_code_is_in_the_item_form(self):
+        arch = self.env['safety.tool.item'].with_user(self.u_admin).get_view(view_type='form')['arch']
+        self.assertIn('placeholder="same as the item"', arch)

@@ -62,6 +62,7 @@
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle"/>
                                     <field name="name"/>
+                                    <field name="code" placeholder="same as the item"/>
                                     <field name="stock_qty"/>
                                 </list>
                             </field>
