@@ -10,7 +10,7 @@ Entertainment fee requests (`entertainment.request`, prefix EF-YYYY-) on `kderp.
   Editor group `group_entertainment_request_functional_manager`.
 - Japanese GM: late requests need a reason; client + attendees are otherwise enough. So `reason` is labelled
   "Purpose", optional, required only for special cases (`_special_case_explain_field`).
-- No Duplicate on the form (`duplicate="false"`): production drafts like EF-2026-0029 were manual Duplicates.
+- Duplicate is enabled since 12.0.2.8.0 / 19.0.0.3.0 (`state`, `date_input` have copy=False: a copy is a fresh draft dated today).
 - Approved report: redesigned with signature strip (`reports/entertainment_approved.odt`, builder in `reports/tools/`).
 - Budget cache (`kderp_remote_sync`) is keyed by (job, budget_code): codes repeat across jobs.
 
@@ -46,3 +46,15 @@ Entertainment fee requests (`entertainment.request`, prefix EF-YYYY-) on `kderp.
 - Versions below 12.0.2.0.0 also run the renumber migration
   (`migrations/12.0.2.0.0/post-renumber_entertainment_requests.py`). Current version 12.0.2.5.0.
 - Skipped request numbers were fixed earlier (`ab1e2778`, `52472abd`): sequence code = model name.
+
+## Mirror of Odoo 12.0.2.8.0 (19.0.0.3.0)
+- Request Date (`date_input`) editable only until `kderp_entertainment_procedures.request_date_editable_until` (default 1 Jan 2027); `create`/`write`
+  drop it afterwards. The legacy import (context `kdvn_legacy_import`) is exempt, so imported Odoo 12 dates stay.
+- Placeholder client CC0000 "New Client": Guests required (constraint + view), registrar group `Entertainment: New Client Registrar` emailed at Submit
+  (empty group: the functional controllers), placeholder replaced by `kderp.customer.cache._clients_with_request_refs` (hook of kdvn_remote_sync
+  1.4.0, `models/customer_cache.py`) when the remote client's Notes carry the request number; also while under validation (`kderp_new_client_update`).
+- `refresh_clients` tick -> `kderp.remote.pull.refresh_customers_now()` (onchange, unticks itself).
+- Job list: Odoo 12 returned it as an onchange domain; Odoo 19 ignores onchange domains, so it is the computed `allowed_job_ids` (view domain of `job_id`):
+  any role on a job (PM, SM, JP advisor, GM, AM, acting PM, Sec. Man./Others) gives those jobs, else the general job HG00-YY-1001 of the Request Date's year.
+  Private employee fields are read with sudo (plain staff cannot read hr.employee).
+- Tests: `tests/test_new_client.py` (features), `tests/test_roles.py` (plain user, PM, GM, registrar: screens, new form, copy, submit, tick).
