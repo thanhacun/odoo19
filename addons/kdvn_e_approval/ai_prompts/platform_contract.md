@@ -8,7 +8,7 @@ Checked against the code on 14 Oct 2026. **If this file and the code disagree, t
 - OCA `base_tier_validation` 12.0 (+ `_formula`) used from `~/odoo12/extra-addons` (read-only, like every third-party module).
 - **Only change code in `~/odoo12/addons`.** Override third-party behaviour from our modules (`_inherit`, view inheritance, JS `include`, QWeb `t-extend` or new templates).
 - Py3o reports (LibreOffice `.odt` → PDF).
-- n8n "E-Approval Decision Center" serves the approve/reject links; Nextcloud Talk + email for notifications.
+- The approve/reject links open Odoo pages `/ea/<code>` (setting "Approve/Reject pages in Odoo"; legacy: n8n "E-Approval Decision Center"); Nextcloud Talk + email for notifications.
 
 ## How a procedure plugs in
 ```python

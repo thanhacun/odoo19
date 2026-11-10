@@ -11,7 +11,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 class KderpEApprovalController(http.Controller):
-    @http.route('/api/v1/sync_jobs_back', type='http', auth='none', methods=['POST'], csrf=False)
+    @http.route('/api/v1/sync_jobs_back', type='http', auth='none', methods=['POST'], csrf=False, readonly=False)
     def receive_external_jobs_back(self, **kwargs):
         """
         UNIFIED HTTP POST GATEWAY: Captures Jobs, Budgets, and Customer

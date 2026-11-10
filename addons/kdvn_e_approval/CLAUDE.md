@@ -42,6 +42,9 @@ Status and next steps: `../../docs/progress-e-approval.md`.
 ### Special cases (shared feature)
 - Model `kderp.e.approval.special.rule` (`models/special_rule.py`): procedure, code, limit `value` + unit,
   action special / block / off, `manager_group_id` = who may edit it. Menu E-Approval Portal › Special Case Rules.
+  Record rule (19.0.0.2.8, mirror of Odoo 12 2acf3120): internal users READ and write only rows whose `manager_group_id` they belong to
+  (a procedure's controllers see their own rules); E-Approval Administrator sees all; procedures read rows with sudo (`get_rule`).
+  Tests: `tests/test_special_rule_access.py`.
 - Procedure implements `_get_special_case_reasons()` → `[(action, text)]` using `self._special_rule(code)`
   (`.is_on()`, `.value`, `.action`) and `_special_case_depends()`.
 - Stored `special_case` / `special_reasons` are frozen at each submit, before `request_validation`, so approval-rule
@@ -82,3 +85,10 @@ Status and next steps: `../../docs/progress-e-approval.md`.
   a status text says whether one is saved, `set_values` writes only when a new value is typed (empty = keep). They are still stored in plain text in `ir.config_parameter`
   (System Parameters, Administrators in debug mode). Same pattern as the remote password in `kderp_remote_sync`. Tests: `tests/test_settings_secrets.py`.
   To clear one on purpose use Settings > Technical > System Parameters.
+
+## Settings added in 19.0.0.2.8 (mirror of Odoo 12 kderp_hr_procedures 7b420678)
+- Block "Staff Transfer: Distance by Car" on the E-Approval settings page: `transfer_route_provider` (osm / goong) and `transfer_goong_key`
+  (write only, badge says whether one is saved). Params keep the Odoo 12 names `kderp_hr_procedures.route_provider` and
+  `kderp_hr_procedures.goong_api_key`. Only the settings are here (in Odoo 12 they sit in kderp_hr_procedures); the distance logic is
+  staff transfer work in kdvn_hr_procedures. Tests: `tests/test_settings_secrets.py` (`TestRouteSettings`).
+- `/api/v1/sync_jobs_back` (legacy n8n route, auth none) is `readonly=False` like the other auth-none routes that write.

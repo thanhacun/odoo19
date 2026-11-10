@@ -1,5 +1,10 @@
 from odoo import models, fields, api, _
 
+# Staff transfer distance by car (Odoo 12 kderp_hr_procedures 7b420678): only the settings are here, the distance logic belongs to
+# kdvn_hr_procedures. Parameter names are the Odoo 12 ones.
+PARAM_ROUTE_PROVIDER = 'kderp_hr_procedures.route_provider'
+PARAM_GOONG_KEY = 'kderp_hr_procedures.goong_api_key'
+
 class KderpEApprovalSettingsInherit(models.TransientModel):
     _inherit = 'res.config.settings'     # Odoo 12: kderp.remote.sync.config.settings
 
@@ -42,6 +47,14 @@ class KderpEApprovalSettingsInherit(models.TransientModel):
     nc_bot_password_status = fields.Char(string='Saved bot password', readonly=True)
     nc_bot_password_saved = fields.Boolean(readonly=True)
 
+    transfer_route_provider = fields.Selection(
+        [('osm', 'OpenStreetMap (free, no key)'), ('goong', 'Goong.io (Vietnam, needs a key)')],
+        string='Distance provider', default='osm',
+        help="Map service that computes the distance by car between the staff's office and the project address.")
+    transfer_goong_key = fields.Char(
+        string='Goong API key', help="Leave empty to keep the saved key; it is never shown again.")
+    transfer_goong_key_saved = fields.Boolean(readonly=True)
+
     @api.model
     def _secret_status(self, icp, key, saved_text, missing_text):
         return saved_text if icp.get_param(key) else missing_text
@@ -69,6 +82,10 @@ class KderpEApprovalSettingsInherit(models.TransientModel):
             nc_bot_password_saved=bool(icp.get_param('kderp_e_approval.nc_bot_password')),
             nc_bot_password_status=self._secret_status(icp, 'kderp_e_approval.nc_bot_password', _('A password is saved (type a new one only to change it)'), _('No password saved yet')),
         )
+        provider = (icp.get_param(PARAM_ROUTE_PROVIDER) or 'osm').strip().lower()
+        res.update(transfer_route_provider=provider if provider in ('osm', 'goong') else 'osm',
+                   transfer_goong_key='',          # a key is never sent to the browser
+                   transfer_goong_key_saved=bool(icp.get_param(PARAM_GOONG_KEY)))
         return res
 
     # 3. EXTEND WRITE: Call super to write sync items, then save your specific keys
@@ -89,3 +106,6 @@ class KderpEApprovalSettingsInherit(models.TransientModel):
         icp.set_param('kderp_e_approval.nc_bot_username', self.nc_bot_username or '')
         if self.nc_bot_password:
             icp.set_param('kderp_e_approval.nc_bot_password', self.nc_bot_password)
+        icp.set_param(PARAM_ROUTE_PROVIDER, self.transfer_route_provider or 'osm')
+        if (self.transfer_goong_key or '').strip():      # empty = keep the saved one
+            icp.set_param(PARAM_GOONG_KEY, self.transfer_goong_key.strip())

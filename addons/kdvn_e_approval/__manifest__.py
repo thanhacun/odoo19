@@ -5,7 +5,7 @@
     'author': "Kinden Vietnam",
     'website': "https://www.kinden.com.vn",
     'category': "kderp",
-    'version': "19.0.0.2.7",
+    'version': "19.0.0.2.8",
     'depends': [
         'base',
         'base_tier_validation',

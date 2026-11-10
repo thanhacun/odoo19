@@ -67,6 +67,22 @@
                             <field name="nc_bot_password" widget="password" placeholder="New password" autocomplete="new-password"/>
                         </setting>
                     </block>
+                    <block title="Staff Transfer: Distance by Car" name="kdvn_e_approval_transfer_route">
+                        <setting id="kdvn_e_approval_route_provider" string="Distance provider"
+                                 help="Computes the distance from the staff's main office to the project address. OpenStreetMap needs no key (public servers, light use). Choose Goong if OpenStreetMap does not find the project addresses.">
+                            <field name="transfer_route_provider"/>
+                        </setting>
+                        <setting id="kdvn_e_approval_goong_key" string="Goong API key" invisible="transfer_route_provider != 'goong'"
+                                 help="Key of your Goong.io project (goong.io). Never put it in git or a ticket.">
+                            <field name="transfer_goong_key_saved" invisible="1"/>
+                            <div class="mb-2">
+                                <span class="badge text-bg-success" invisible="not transfer_goong_key_saved"><i class="fa fa-check" title="Saved"/> Saved</span>
+                                <span class="badge text-bg-warning" invisible="transfer_goong_key_saved">Not set yet</span>
+                                <span class="text-muted ms-2">Type a new key only to change it. It is never shown again.</span>
+                            </div>
+                            <field name="transfer_goong_key" widget="password" placeholder="New Goong key" autocomplete="new-password"/>
+                        </setting>
+                    </block>
                 </app>
             </xpath>
         </field>
