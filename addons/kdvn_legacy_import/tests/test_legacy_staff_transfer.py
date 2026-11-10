@@ -2,7 +2,7 @@
 from copy import deepcopy
 from unittest import mock
 
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import TransactionCase, tagged
 
 from .test_legacy_import import FIXTURE
 
@@ -15,7 +15,8 @@ TRANSFER = {'id': 1, 'name': 'ST-T-0001', 'state': 'draft', 'employee_id': 20, '
             'create_uid': 11, 'create_date': '2026-11-02 03:00:00', 'write_uid': 11, 'write_date': '2026-11-03 04:00:00'}
 
 
-class TestLegacyStaffTransfer(TransactionCase):
+@tagged('post_install', '-at_install')   # needs kdvn_hr_procedures, which loads after this module
+class LegacyProcedureCase(TransactionCase):
 
     def setUp(self):
         super().setUp()
@@ -46,6 +47,10 @@ class TestLegacyStaffTransfer(TransactionCase):
     def _employee(self, code):
         return self.env['hr.employee'].search([('code', '=', code)])
 
+
+@tagged('post_install', '-at_install')
+class TestLegacyStaffTransfer(LegacyProcedureCase):
+
     def test_old_odoo_12_one_staff_column(self):
         self.data['staff_transfer'] = [dict(TRANSFER, transfer_employee_id=21)]
         self._run()
@@ -74,3 +79,27 @@ class TestLegacyStaffTransfer(TransactionCase):
         transfer = self._transfer()
         self.assertEqual((len(transfer), transfer.reason), (1, 'Changed in Odoo 12'))
         self.assertEqual(len(transfer.transfer_employee_ids), 1)
+
+
+@tagged('post_install', '-at_install')
+class TestLegacyPeakTime(LegacyProcedureCase):
+    """Peak time: employee_ids is a relation to hr.employee.public (same table as in Odoo 12)."""
+
+    def test_peak_time_staff_list_comes_over(self):
+        if 'kderp.project.peak.time' not in self.env:
+            self.skipTest('kdvn_hr_procedures is not installed')
+        job = self.env['kderp.job.lookup'].create({'job_no': 'LPT-26-001', 'job_name': 'LPT job', 'external_id': 7701, 'is_general_expense': False})
+        client = self.env['kderp.customer.cache'].create({'external_id': 7701, 'name': 'LPT client'})
+        self.columns['kderp_peak_time_employee_rel'] = {'peak_time_id', 'employee_id'}
+        self.data['kderp_job_lookup'] = [{'id': 5, 'external_id': 7701}]
+        self.data['kderp_customer_cache'] = [{'id': 6, 'external_id': 7701}]
+        self.data['kderp_project_peak_time'] = [{
+            'id': 1, 'name': 'PT-T-0001', 'state': 'draft', 'employee_id': 20, 'job_id': 5, 'client_id': 6, 'reason': 'Test',
+            'execution_from': '2026-01-01', 'execution_to': '2026-12-31', 'actual_peak_from': '2026-11-21', 'actual_peak_to': '2026-12-20',
+            'create_uid': 11, 'create_date': '2026-11-02 03:00:00', 'write_uid': 11, 'write_date': '2026-11-03 04:00:00'}]
+        self.data['kderp_peak_time_employee_rel'] = [{'peak_time_id': 1, 'employee_id': 21}, {'peak_time_id': 1, 'employee_id': 22}]
+        self._run()
+        peak = self.env['kderp.project.peak.time'].with_context(active_test=False).search([('name', '=', 'PT-T-0001')])
+        self.assertEqual(len(peak), 1)
+        self.assertEqual((peak.job_id, sorted(peak.employee_ids.mapped('code'))), (job, ['IA001', 'IL001']))
+        self.assertTrue(client)

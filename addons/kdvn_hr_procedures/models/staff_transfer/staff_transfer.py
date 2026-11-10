@@ -142,14 +142,14 @@ class StaffTransfer(models.Model):
     @api.model
     def _office_address(self, office):
         """Head Office = address of the company. Hai Phong = the company's other address whose city (or name) is Hai Phong
-        (a contact / address under the company partner); else the system parameter kderp_hr_procedures.office_address_hp."""
+        (a contact / address under the company partner; company form, tab Office Addresses). Empty when there is none."""
         company = self.env.company.sudo().partner_id
         if office == 'hp':
             for child in company.child_ids.filtered(lambda c: c.active):
                 label = ('%s %s' % (child.city or '', child.name or '')).lower().replace(' ', '')
                 if 'haiphong' in label and self._partner_address(child):
                     return self._partner_address(child)
-            return (self.env['ir.config_parameter'].sudo().get_param('kderp_hr_procedures.office_address_hp') or '').strip()
+            return ''
         return self._partner_address(company)
 
     def _update_distances(self, force=False):
@@ -176,8 +176,17 @@ class StaffTransfer(models.Model):
                         vals['distance_%s_km' % office] = km
             vals['distance_message'] = '; '.join(problems) or False
             if any(rec[k] != v for k, v in vals.items()):
-                # system values, not an edit of the request: allowed while the request is under validation
-                rec.sudo().with_context(skip_distance=True, skip_validation_check=True).write(vals)
+                # system values: allowed while the request is under validation (see _check_allow_write_under_validation)
+                rec.sudo().with_context(skip_distance=True).write(vals)
+
+    DISTANCE_FIELDS = ('distance_ho_km', 'distance_hp_km', 'distance_message')
+
+    def _check_allow_write_under_validation(self, vals):
+        """A submitted request has open reviews and the OCA module then refuses every write but a few fields. The distance fields are
+        filled by _update_distances (context skip_distance), also by Recalculate after submit: allow exactly those fields then."""
+        if self.env.context.get('skip_distance') and set(vals) <= set(self.DISTANCE_FIELDS):
+            return True
+        return super()._check_allow_write_under_validation(vals)
 
     def action_update_distances(self):
         self._update_distances(force=True)

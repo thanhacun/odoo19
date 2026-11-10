@@ -111,7 +111,13 @@ menus, security) is not reworked yet; the allowance part is done.
 - Distance by car: `kderp.job.lookup.project_address` (kdvn_remote_sync) -> `transfer.route.distance` (cache 90 days, failures 1 hour; provider and
   Goong key are System Parameters `kderp_hr_procedures.route_provider` / `goong_api_key`, set on the E-Approval settings screen, defined in
   `kdvn_e_approval`). One distance per office: staff `work_location` containing "PHONG" -> Hai Phong office (company address with City = Hai Phong,
-  tab "Office Addresses" on the company form; else parameter `office_address_hp`), else Head Office = company address. Calculated on save of a
+  tab "Office Addresses" on the company form; no other source), else Head Office = company address. Calculated on save of a
   draft, on Submit and by "Recalculate"; never blocks. After submit a found distance never changes; Recalculate is shown only while one is missing.
-  The writes use `skip_validation_check` (OCA refuses other writes while the request is under validation). Setup: `docs/route-distance-setup.md`.
+  The distance fields may be written under validation only through `_update_distances` (override of `_check_allow_write_under_validation`, context `skip_distance`): OCA refuses other writes while the request is under validation. Same code in Odoo 12. Setup: `docs/route-distance-setup.md`.
 - Tests never touch the internet: `requests.get` / `_fetch` are mocked.
+
+### Peak time staff list (19.0.0.2.1, Thanh 10 Nov)
+- `kderp.project.peak.time.employee_ids` is a Many2many to `hr.employee.public` (same table `kderp_peak_time_employee_rel`, no migration): a plain SM / PM
+  could not write it with `hr.employee`. Odoo 12 keeps `hr.employee` (no public model there): no mirror. The popup list view is on `hr.employee.public`.
+  `hr.attendance.rule.employee_ids` (hr.employee) gets the same ids. Tests: `tests/test_peak_time_users.py`, `kdvn_legacy_import/tests/test_legacy_staff_transfer.py`.
+- Odoo 12 and 19: the Hai Phong office has no parameter any more (company child address only); matrix note says "by car (OpenStreetMap / Goong)".

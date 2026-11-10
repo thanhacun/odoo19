@@ -50,8 +50,10 @@ class KderpProjectPeakTime(models.Model):
     reason = fields.Text(string='Explanation', required=True, readonly=True)
 
     # 👥 Target Employee Impact Sub-Grid Matrix
+    # hr.employee.public, same relation table as before: a plain SM / PM cannot read hr.employee (private to HR in Odoo 19) and a
+    # Many2many write checks read access on the comodel. Odoo 12 has hr.employee here (no public model there).
     employee_ids = fields.Many2many(
-        'hr.employee', 
+        'hr.employee.public',
         'kderp_peak_time_employee_rel', 
         'peak_time_id', 
         'employee_id', 

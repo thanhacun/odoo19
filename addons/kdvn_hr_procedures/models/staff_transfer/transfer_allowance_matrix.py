@@ -333,7 +333,7 @@ class TransferAllowanceMatrix(models.Model):
             codes = ', '.join(highlight_grade.mapped('code'))
             note += ' ' + (_('Highlighted: grades %s.') if len(highlight_grade) > 1 else _('Highlighted: grade %s.')) % codes
         return [note, _('Distance: from the assigned main office (Hanoi Head Office, Hai Phong Office, '
-                        'Ho Chi Minh Branch Office) to the new project/section, by Google Maps.')]
+                        'Ho Chi Minh Branch Office) to the new project/section, by car (OpenStreetMap / Goong).')]
 
     @api.model
     def render_matrix_html(self, on_date=None, highlight_grade=None):

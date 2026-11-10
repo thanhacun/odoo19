@@ -116,9 +116,16 @@ class TestStaffTransferUsers(TransactionCase):
         req.action_submit()
         self.assertEqual(req.state, 'submitted')
         self.assertEqual(req.distance_ho_km, 31.2)
-        req.sudo().with_context(skip_validation_check=True).write({'distance_ho_km': 0, 'distance_message': 'x'})   # a distance that was never found
+        self.env.flush_all()
+        self.env.cr.execute('UPDATE staff_transfer SET distance_ho_km = 0, distance_message = %s WHERE id = %s', ('x', req.id))
+        req.invalidate_recordset()   # a distance that was never found
         req.with_user(self.req_user).action_update_distances()
         self.assertEqual(req.distance_ho_km, 31.2)
+        # only the distance fields, only through _update_distances (the context): any other write stays refused
+        with self.assertRaises(ValidationError):
+            req.sudo().write({'distance_ho_km': 1.0})
+        with self.assertRaises(ValidationError):
+            req.sudo().with_context(skip_distance=True).write({'distance_ho_km': 1.0, 'reason': 'changed under validation'})
 
     def test_section_manager_sees_the_request_in_review_and_everything_reads(self):
         req = self._request()

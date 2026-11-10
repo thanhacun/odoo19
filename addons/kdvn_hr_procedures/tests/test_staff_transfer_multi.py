@@ -19,8 +19,9 @@ class TestStaffTransferMulti(TransactionCase):
         self.job = self.env['kderp.job.lookup'].create({
             'job_no': 'TST-26-004', 'job_name': 'Test job', 'external_id': 4128, 'is_general_expense': False,
             'project_address': 'Lot K1, Thang Long Industrial Park, Hanoi City, Vietnam'})
-        self.env['ir.config_parameter'].sudo().set_param('kderp_hr_procedures.office_address_hp', '1 Le Hong Phong, Hai Phong')
         self.env.company.partner_id.write({'street': '5 Duy Tan', 'city': 'Hanoi'})
+        self.hp_office = self.env['res.partner'].create({
+            'name': 'Hai Phong Office', 'parent_id': self.env.company.partner_id.id, 'type': 'other', 'street': '1 Le Hong Phong', 'city': 'Hai Phong'})
         self.fake_calls = []
 
         def fake_fetch(model, origin, destination, key):
@@ -47,15 +48,18 @@ class TestStaffTransferMulti(TransactionCase):
         self.assertIn('23.4 km', data['matrix_note'])
 
     def test_hai_phong_office_is_the_company_address_in_that_city(self):
-        self.env['ir.config_parameter'].sudo().set_param('kderp_hr_procedures.office_address_hp', '')
-        company = self.env.company.partner_id
-        self.env['res.partner'].create({'name': 'Hai Phong Office', 'parent_id': company.id, 'type': 'other',
-                                        'street': '2 Le Loi', 'city': 'Hai Phong'})
-        self.assertEqual(self.env['staff.transfer']._office_address('hp'), '2 Le Loi, Hai Phong')
+        self.assertEqual(self.env['staff.transfer']._office_address('hp'), '1 Le Hong Phong, Hai Phong')
         self.assertTrue(self._transfer(self.hp).distance_hp_km)
+        self.hp_office.write({'street': '2 Le Loi'})
+        self.assertEqual(self.env['staff.transfer']._office_address('hp'), '2 Le Loi, Hai Phong')
+
+    def test_the_old_office_parameter_is_ignored(self):
+        self.hp_office.unlink()
+        self.env['ir.config_parameter'].sudo().set_param('kderp_hr_procedures.office_address_hp', '9 Old Street, Hai Phong')
+        self.assertEqual(self.env['staff.transfer']._office_address('hp'), '')
 
     def test_distance_is_cached_and_a_missing_office_is_reported(self):
-        self.env['ir.config_parameter'].sudo().set_param('kderp_hr_procedures.office_address_hp', '')
+        self.hp_office.unlink()      # no Hai Phong address on the company
         t = self._transfer(self.hp)
         self.assertFalse(t.distance_hp_km)
         self.assertIn('Office address not set', t.distance_message)

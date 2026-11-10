@@ -3,8 +3,8 @@
 
     <!-- 🚀 DEDICATED SEARCH POP-UP GRID: Only exposes the 3 fields requested by HR -->
     <record id="view_employee_minimal_popup_tree" model="ir.ui.view">
-        <field name="name">hr.employee.minimal.popup.list</field>
-        <field name="model">hr.employee</field>
+        <field name="name">hr.employee.public.minimal.popup.list</field>
+        <field name="model">hr.employee.public</field>
         <field name="priority">99</field> <!-- High priority to prevent it from replacing the global employee tree -->
         <field name="arch" type="xml">
             <list>
