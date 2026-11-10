@@ -12,6 +12,10 @@ class KderpCustomerCache(models.Model):
     name = fields.Char('Customer Name', required=True, index=True, readonly=True)
     code = fields.Char('Customer Code', index=True, readonly=True)
     email = fields.Char(readonly=True)
+    request_refs = fields.Char(
+        'Request numbers in the remote Notes', readonly=True,
+        help="Request numbers (e.g. EF-2026-0012) found in the Notes of the client on the remote server, "
+             "comma separated. Procedures use it to learn that the client they asked for was registered.")
 
     _external_id_unique = models.Constraint('unique(external_id)', 'A remote customer can only be cached once.')
 
@@ -19,3 +23,9 @@ class KderpCustomerCache(models.Model):
     def _compute_display_name(self):
         for record in self:
             record.display_name = f"[{record.code}] {record.name}" if record.code else record.name
+
+    @api.model
+    def _clients_with_request_refs(self, clients):
+        """Hook, called by the remote pull with the clients whose remote Notes name request numbers (request_refs).
+        Procedures extend it (inherit and call super). Nothing to do here."""
+        return True

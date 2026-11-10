@@ -69,6 +69,9 @@ class KderpJobLookup(models.Model):
     kickoff_meeting_date = fields.Date('K.O.M. Date', readonly=True)
     kom_peak_from = fields.Date('KOM Peak From', readonly=True)
     kom_peak_to = fields.Date('KOM Peak To', readonly=True)
+    project_address = fields.Text(
+        'Project Location', readonly=True,
+        help="Address of the job's Project Location on the remote server (street, city, country as typed there).")
     state = fields.Selection([
         ('doing', 'On-Going'),
         ('done', 'Completed'),
@@ -132,14 +135,27 @@ class KderpJobLookup(models.Model):
                     'code': cust.get('code') or False,
                     'email': cust.get('email') or False,
                 }
+                # Request numbers found in the remote Notes: only overwritten when the payload has the key (n8n's has not)
+                if 'request_refs' in cust:
+                    incoming[ext_id]['request_refs'] = cust.get('request_refs') or False
         existing = {c.external_id: c for c in Customer.search([('external_id', 'in', list(incoming))])}
         to_create = []
+        with_refs = Customer.browse()
         for ext_id, vals in incoming.items():
             if ext_id in existing:
                 existing[ext_id].write(vals)
+                if vals.get('request_refs'):
+                    with_refs |= existing[ext_id]
             else:
                 to_create.append(vals)
-        Customer.create(to_create)
+        created = Customer.create(to_create)
+        with_refs |= created.filtered('request_refs')
+        if with_refs:
+            try:
+                with self.env.cr.savepoint():
+                    Customer._clients_with_request_refs(with_refs)
+            except Exception:
+                _logger.exception("Customer sync: the request hook failed (customers are saved)")
         if purge:
             self._purge(Customer.search([('external_id', 'not in', list(incoming))]), 'name')
         return len(incoming)
@@ -186,6 +202,9 @@ class KderpJobLookup(models.Model):
                 vals[name] = user_by_login.get(str(login).strip(), False) if login else False
             for name in DATE_FIELDS:
                 vals[name] = _as_date(job.get(name))
+            # Project location: only overwritten when the remote server sends it (the n8n payload does not)
+            if 'project_address' in job:
+                vals['project_address'] = job.get('project_address') or False
             for name in OPTIONAL_DATE_FIELDS:
                 if name in job:
                     vals[name] = _as_date(job[name])
