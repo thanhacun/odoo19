@@ -1,4 +1,7 @@
-# n8n workflows: E-Approval Decision Center
+# n8n workflows: E-Approval Decision Center (legacy)
+
+Since 19.0.0.2.7 Odoo serves these pages itself (`/ea/<code>`, setting "Approve/Reject pages in Odoo"). Keep these files only until every site has switched and old links have expired.
+
 
 The pages behind the Approve / Reject links in e-approval emails and Talk messages.
 One workflow per site; import the file into that site's n8n (Workflows > Import from file),
