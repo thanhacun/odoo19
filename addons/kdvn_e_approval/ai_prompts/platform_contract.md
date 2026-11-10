@@ -64,7 +64,7 @@ Nothing else is needed to register the model: `tier.definition` finds every mode
   def get_approval_digest_details(self):
       self.ensure_one()
       return '<strong>Staff:</strong> %s<br/><strong>Effective:</strong> %s' % (
-          html_escape(self.transfer_employee_id.name or ''), self.transfer_from_date or '')
+          html_escape(', '.join(self.transfer_employee_ids.mapped('name'))), self.transfer_from_date or '')
   ```
   Always `html_escape` user text. Always return a string.
 - `<prepare_xxx_report_data>(self)` → flat dict of strings for the Py3o template (name it in the print button context).

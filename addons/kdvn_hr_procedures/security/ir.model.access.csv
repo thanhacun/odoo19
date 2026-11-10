@@ -13,3 +13,4 @@ access_transfer_allowance_matrix_kderp_hr_admin,transfer.allowance.matrix.kderp.
 access_kderp_peak_time_rule_user,kderp.peak.time.rule.user,model_kderp_peak_time_rule,base.group_user,1,0,0,0
 access_kderp_peak_time_rule_hr,kderp.peak.time.rule.hr,model_kderp_peak_time_rule,kdvn_hr_procedures.group_peak_time_functional_manager,1,1,0,0
 access_kderp_peak_time_rule_admin,kderp.peak.time.rule.admin,model_kderp_peak_time_rule,base.group_system,1,1,1,1
+access_transfer_route_distance_hr_manager,transfer.route.distance.hr.manager,model_transfer_route_distance,hr.group_hr_manager,1,0,0,1

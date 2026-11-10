@@ -65,7 +65,7 @@ class TestProceduresFlow(TransactionCase):
     def test_staff_transfer_submit_and_approve(self):
         dept = self.env['hr.department'].create({'name': 'HRP new section'})
         req = self.env['staff.transfer'].sudo().create({
-            'employee_id': self.applicant.id, 'transfer_employee_id': self.staff.id, 'transfer_department_id': dept.id,
+            'employee_id': self.applicant.id, 'transfer_employee_ids': [(6, 0, [self.staff.id])], 'transfer_department_id': dept.id,
             'transfer_from_date': fields.Date.context_today(self.env.user),
             'transfer_to_date': fields.Date.context_today(self.env.user) + timedelta(days=90), 'reason': 'Test'})
         req.action_submit()

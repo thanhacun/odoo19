@@ -31,6 +31,6 @@ class TestPrints(TransactionCase):
         self._render('kdvn_hr_procedures.action_report_peak_time_py3o', peak, 'prepare_peak_time_report_data')
         dept = self.env['hr.department'].create({'name': 'Print dept'})
         transfer = self.env['staff.transfer'].create({
-            'employee_id': self.emp.id, 'transfer_employee_id': self.staff.id, 'transfer_department_id': dept.id,
+            'employee_id': self.emp.id, 'transfer_employee_ids': [(6, 0, [self.staff.id])], 'transfer_department_id': dept.id,
             'transfer_from_date': self.today, 'transfer_to_date': self.today + timedelta(days=90), 'reason': 't'})
         self._render('kdvn_hr_procedures.action_report_staff_transfer_py3o', transfer, '_prepare_staff_transfer_report_data')

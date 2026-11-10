@@ -39,7 +39,7 @@ When writing code:
 ## 2. Fields specific to this procedure
 | Field | Type | Label | Required | Editable when | Details |
 |---|---|---|---|---|---|
-| `transfer_employee_id` | Many2one `hr.employee` | Transfer Employee | yes | draft only | tracked |
+| `transfer_employee_ids` | Many2many `hr.employee.public` | Staff to transfer (one or more) | yes (checked at submit) | draft only | tracked |
 | `transfer_area_id` | Many2one `hr.department` | New Area | no* | draft only | domain `[('type_id.code', '=', 'area')]` |
 | `transfer_department_id` | Many2one `hr.department` | New Section | no* | draft only | domain: not an area `[('type_id.code', '!=', 'area')]` |
 | `transfer_project_id` | Many2one `kderp.job.lookup` | New Project | no* | draft only | |
@@ -60,7 +60,7 @@ the matrix is shown (form and print) for reference only.
 - Validations:
   - At least one destination (area, section or project).
   - `transfer_to_date` ≥ `transfer_from_date` (as a constraint, not only on submit).
-- Computed values: current area/section/project of `transfer_employee_id` on `transfer_from_date`:
+- Computed values: current areas/sections/projects (`current_*_ids`, one per staff, duplicates merged) of `transfer_employee_ids` on `transfer_from_date`:
   - section: latest `department_history_ids` line with `effective_date` ≤ From date, else the employee's current department; area = that section's `area_id`;
   - project: latest `project_history_ids` line with `effective_date` ≤ From date → `project_code`, else empty.
 - Fields reviewers may still edit during review: none.
@@ -69,8 +69,8 @@ the matrix is shown (form and print) for reference only.
 | # | Frontend name | Description | Reviewer | Only when |
 |---|---|---|---|---|
 | 1 | New GM Approval | [ST] 1 New GM | python: `rec.employee_id.parent_id.user_id` (manager of the applicant SM) | always |
-| 2 | Current SM Approval | [ST] 2 Current SM | python: `rec.transfer_employee_id.department_id.manager_id.user_id` | always |
-| 3 | Current GM Approval | [ST] 3 Current GM | python: `rec.transfer_employee_id.department_id.manager_id.parent_id.user_id` | always |
+| 2 | Current SM Approval | [ST] 2 Current SM | python: `rec.transfer_employee_ids.mapped('department_id.manager_id.user_id')` | always |
+| 3 | Current GM Approval | [ST] 3 Current GM | python: `rec.transfer_employee_ids.mapped('department_id.manager_id.parent_id.user_id')` | always |
 | 4 | HR Manager Approval | [ST] 4 HR Manager | group: HR manager **(decide which group)** | always |
 | 5 | Admin GM Approval | [ST] 5 Admin GM | specific user **(decide)** | always |
 | 6 | Construction GM Approval | [ST] 6 Construction GM | specific user **(decide)** | **(decide: always, or only when a project is set?)** |

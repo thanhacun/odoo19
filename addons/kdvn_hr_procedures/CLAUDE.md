@@ -94,3 +94,30 @@ menus, security) is not reworked yet; the allowance part is done.
   Pillow's tiny default font is used.
 - T01 has two band rows with the same code: `get_rate(grade, 'T01')` raises "ambiguous", pass the record.
 
+
+
+### Several staff per request, notification, distance (ported from Odoo 12 12.0.1.7.0, here 19.0.0.2.0)
+- `transfer_employee_ids` (Many2many to `hr.employee.public`, table `staff_transfer_employee_rel`; a plain SM/PM cannot read `hr.employee` and a
+  Many2many write checks read access on the comodel) replaces `transfer_employee_id`. Private fields (department / project history, work location,
+  allowance grade, user) are read through `_staff()` (sudo, `hr.employee`). Current area / section / project are computed Many2many
+  (`current_*_ids`), the "before" project is frozen at approval in `current_project_frozen_ids` (old approved rows: their manual value).
+  Report fields `staff_code`, `staff_name`, `grade`, `src_*` are joined strings; `staff_list` is also in the data.
+- Migration `migrations/19.0.0.2.0/post-multi_staff.py`: copies the staff into the relation, freezes the project of approved rows, drops the old
+  NOT NULL column and rewrites the (noupdate) tier expressions to `rec.transfer_employee_ids.mapped(...)`. Safe to run twice.
+- The legacy import accepts both Odoo 12 shapes (column `transfer_employee_id` before 12.0.1.7.0, relation table after) and never calls the map
+  service (context `skip_distance`).
+- After approval: project history for every staff, then `_notify_transferred_staff()` (email from `work_email`, Talk if that is the user's choice;
+  follows the e-approval global switches; result in the chatter, names escaped: `Markup % value`).
+- Distance by car: `kderp.job.lookup.project_address` (kdvn_remote_sync) -> `transfer.route.distance` (cache 90 days, failures 1 hour; provider and
+  Goong key are System Parameters `kderp_hr_procedures.route_provider` / `goong_api_key`, set on the E-Approval settings screen, defined in
+  `kdvn_e_approval`). One distance per office: staff `work_location` containing "PHONG" -> Hai Phong office (company address with City = Hai Phong,
+  tab "Office Addresses" on the company form; no other source), else Head Office = company address. Calculated on save of a
+  draft, on Submit and by "Recalculate"; never blocks. After submit a found distance never changes; Recalculate is shown only while one is missing.
+  The distance fields may be written under validation only through `_update_distances` (override of `_check_allow_write_under_validation`, context `skip_distance`): OCA refuses other writes while the request is under validation. Same code in Odoo 12. Setup: `docs/route-distance-setup.md`.
+- Tests never touch the internet: `requests.get` / `_fetch` are mocked.
+
+### Peak time staff list (19.0.0.2.1, Thanh 10 Nov)
+- `kderp.project.peak.time.employee_ids` is a Many2many to `hr.employee.public` (same table `kderp_peak_time_employee_rel`, no migration): a plain SM / PM
+  could not write it with `hr.employee`. Odoo 12 keeps `hr.employee` (no public model there): no mirror. The popup list view is on `hr.employee.public`.
+  `hr.attendance.rule.employee_ids` (hr.employee) gets the same ids. Tests: `tests/test_peak_time_users.py`, `kdvn_legacy_import/tests/test_legacy_staff_transfer.py`.
+- Odoo 12 and 19: the Hai Phong office has no parameter any more (company child address only); matrix note says "by car (OpenStreetMap / Goong)".

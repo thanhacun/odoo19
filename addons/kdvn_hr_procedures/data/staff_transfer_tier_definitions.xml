@@ -20,7 +20,7 @@
             <field name="model_id" ref="model_staff_transfer"/>
             <field name="procedure_tag">staff.transfer</field>
             <field name="review_type">expression</field>
-            <field name="reviewer_expression">rec.current_department_id.manager_id.user_id</field>
+            <field name="reviewer_expression">rec.current_department_ids.mapped('manager_id.user_id')</field>
             <field name="definition_type">domain</field>
             <field name="sequence">30</field>
             <field name="approve_sequence" eval="True"/>
@@ -31,7 +31,7 @@
             <field name="model_id" ref="model_staff_transfer"/>
             <field name="procedure_tag">staff.transfer</field>
             <field name="review_type">expression</field>
-            <field name="reviewer_expression">rec.transfer_employee_id.gm_id.user_id or rec.current_area_id.manager_id.user_id</field>
+            <field name="reviewer_expression">rec.transfer_employee_ids.mapped('gm_id.user_id') or rec.current_area_ids.mapped('manager_id.user_id')</field>
             <field name="definition_type">domain</field>
             <field name="sequence">20</field>
             <field name="approve_sequence" eval="True"/>
