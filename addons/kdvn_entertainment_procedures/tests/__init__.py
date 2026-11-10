@@ -4,3 +4,5 @@ from . import test_approval_flow
 from . import test_prints
 from . import test_plain_user
 from . import test_decision_center
+from . import test_new_client
+from . import test_roles

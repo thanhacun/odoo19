@@ -25,7 +25,7 @@
         <field name="name">entertainment.request.form</field>
         <field name="model">entertainment.request</field>
         <field name="arch" type="xml">
-            <form string="Entertainment Expense Request" duplicate="false">
+            <form string="Entertainment Expense Request">
                 <header>
                     <!-- Workflow Execution and Action Sign-off Controls -->
                     <button name="action_submit" 
@@ -115,7 +115,13 @@
                     <group string="General Information">
                         <group>
                             <field name="employee_id" readonly="1" options="{'no_create': True, 'no_open': True}"/>
-                            <field name="date_input" readonly="state != 'draft'"/>
+                            <field name="date_input" string="Request Date"
+                                   readonly="state != 'draft' or not request_date_editable"/>
+                            <field name="request_date_editable" invisible="1"/>
+                            <div invisible="state != 'draft' or not request_date_editable" colspan="2"
+                                 class="alert alert-warning" role="alert" style="padding: 6px 10px; font-size: 12px;">
+                                <field name="request_date_note" nolabel="1" readonly="1"/>
+                            </div>
                         </group>
                         <group>
                             <field name="entertainment_type" readonly="state != 'draft'"/>
@@ -140,12 +146,14 @@
                         <group>
                             <!-- Dynamic dynamic drop-down selections sourced from cached n8n sync tables -->
                             <field name="job_id" readonly="state != 'draft'" options="{'no_create': True, 'no_open': True}" widget="many2one"
-                                    domain="['|', ('view_user_ids', '=', uid), ('is_general_expense', '=', True)]" />
+                                    domain="[('id', 'in', allowed_job_ids)]" />
+                            <field name="allowed_job_ids" invisible="1"/>
                             <label for="budget_code_id" string="Budget Code"/>
                             <div class="o_row">
                                 <!-- Your standard searchable budget dropdown lookup selection -->
-                                <field name="budget_code_id" options="{'no_create': True, 'no_open': True}" domain="[('job_id', '=', job_id)]" 
+                                <field name="budget_code_id" options="{'no_create': True, 'no_open': True}" domain="[('id', 'in', allowed_budget_ids)]"
                                         readonly="state != 'draft' or not job_id" />
+                                <field name="allowed_budget_ids" invisible="1"/>
                                 <!-- The On-Demand User Sync Button Trigger Link -->
                                 <button name="action_user_force_budget_refresh" 
                                         string=" Refresh Balance" 
@@ -174,7 +182,15 @@
                         </group>
                         <group>
                             <field name="guest_ids" readonly="state != 'draft'" widget="many2many_tags" options="{ 'no_create': True, 'open': False }" />
-                            <field name="guests" readonly="state != 'draft'" placeholder="Please list out full names, job titles, and respective corporate company affiliations..."/>
+                            <field name="refresh_clients" invisible="state != 'draft'"/>
+                            <field name="has_new_client" invisible="1"/>
+                            <div invisible="not has_new_client or state != 'draft'" colspan="2"
+                                 class="alert alert-info" role="alert" style="padding: 6px 10px; font-size: 12px;">
+                                <strong>New client:</strong> describe the real client in <em>Guests</em> below (company name, address, tax code if known, contact person).
+                                When you submit, the registrars are told by email to create the client; this request is then updated with it automatically.
+                            </div>
+                            <field name="guests" readonly="state != 'draft'" placeholder="Please list out full names, job titles, and respective corporate company affiliations..."
+                                   required="has_new_client and state == 'draft'"/>
                         </group>
                     </group>
 

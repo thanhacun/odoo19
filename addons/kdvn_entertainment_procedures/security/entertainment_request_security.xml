@@ -10,6 +10,17 @@
             <field name="privilege_id" ref="privilege_entertainment_request_functional_manager"/>
         </record>
 
+        <!-- Told by email when a request uses the placeholder client "New Client"; register the client on the remote server.
+             Empty group: the functional controllers are told instead. -->
+        <record id="privilege_entertainment_new_client_registrar" model="res.groups.privilege">
+            <field name="name">Entertainment New Client Registrar</field>
+            <field name="category_id" ref="kdvn_e_approval.module_category_kderp_e_approval"/>
+        </record>
+        <record id="group_entertainment_new_client_registrar" model="res.groups">
+            <field name="name">Entertainment: New Client Registrar</field>
+            <field name="privilege_id" ref="privilege_entertainment_new_client_registrar"/>
+        </record>
+
         <record id="rule_entertainment_request_employee" model="ir.rule">
             <field name="name">Employee: Own Entertainment Requests Only</field>
             <field name="model_id" ref="model_entertainment_request"/>
