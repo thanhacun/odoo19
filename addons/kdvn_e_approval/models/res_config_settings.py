@@ -17,6 +17,10 @@ class KderpEApprovalSettingsInherit(models.TransientModel):
     e_approval_short_link_path = fields.Char(
         string="Short Link Webhook Path",
         help="n8n webhook path for short approve/reject links (e.g. 'ea'). Empty = use the long links.")
+    e_approval_decision_in_odoo = fields.Boolean(
+        string="Approve/Reject pages in Odoo",
+        help="Approve and Reject links open the pages served by Odoo itself (/ea/...), not the n8n Decision Center. "
+             "Needs the public Odoo address (web.base.url) to be reachable by the approvers.")
     e_approval_email_webhook_path = fields.Char(
         string="Email Approval Webhook Path",
         help="The path to the webhook in n8n that will be used for approval/reject by email."
@@ -55,6 +59,7 @@ class KderpEApprovalSettingsInherit(models.TransientModel):
             e_approval_secret_key_status=self._secret_status(icp, 'kderp_e_approval.e_approval_secret_key', _('A key is saved (type a new one only to change it)'), _('No key saved yet')),
             e_approval_email_webhook_path=icp.get_param('kderp_e_approval.e_approval_email_webhook_path', default=''),
             e_approval_short_link_path=icp.get_param('kderp_e_approval.short_link_webhook_path', default=''),
+            e_approval_decision_in_odoo=icp.get_param('kderp_e_approval.decision_in_odoo', default='False') == 'True',
             e_approval_ribbon_style=icp.get_param('kderp_e_approval.ribbon_style', default='statusbar'),
             global_notify_email=icp.get_param('kderp_e_approval.global_notify_email', default='True') == 'True',
             global_notify_talk=icp.get_param('kderp_e_approval.global_notify_talk', default='False') == 'True',
@@ -76,6 +81,7 @@ class KderpEApprovalSettingsInherit(models.TransientModel):
             icp.set_param('kderp_e_approval.e_approval_secret_key', self.e_approval_secret_key.strip())
         icp.set_param('kderp_e_approval.e_approval_email_webhook_path', (self.e_approval_email_webhook_path or '').strip())
         icp.set_param('kderp_e_approval.short_link_webhook_path', (self.e_approval_short_link_path or '').strip().strip('/'))
+        icp.set_param('kderp_e_approval.decision_in_odoo', str(bool(self.e_approval_decision_in_odoo)))
         icp.set_param('kderp_e_approval.ribbon_style', self.e_approval_ribbon_style)
         icp.set_param('kderp_e_approval.global_notify_email', str(self.global_notify_email))
         icp.set_param('kderp_e_approval.global_notify_talk', str(self.global_notify_talk))

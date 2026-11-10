@@ -30,7 +30,13 @@ Status and next steps: `../../docs/progress-e-approval.md`.
   page). Steps whose rule has Comment need a comment (status `comment_required`); success is reported only
   when the review really changed; reject and already-decided answers carry the request summary.
   QR verification page: `/api/v1/verify_approval` (read as superuser, details hidden on a bad token).
-- n8n workflows are kept with the code: `n8n/` (dev, HN production, `README.md`). One workflow per site;
+- Since 19.0.0.2.7 (mirror of Odoo 12 12.0.2.7.0) Odoo serves the Decision Center itself: setting "Approve/Reject pages in
+  Odoo" (`kderp_e_approval.decision_in_odoo`) makes links `<web.base.url>/ea/<code>` (`controllers/main.py`
+  `decision_center`, `views/decision_templates.xml`, shared logic `_review_action`). GET shows the page, POST decides; the
+  signed code is the credential (csrf=False on purpose). Both routes are `readonly=False`: in Odoo 19 `auth='none'` routes
+  get a read-only cursor by default. Archived users are refused; unexpected errors show a generic text (detail in the log).
+  Tests: `kdvn_entertainment_procedures/tests/test_decision_center.py`.
+- n8n workflows are kept with the code (legacy while the setting is off): `n8n/` (dev, HN production, `README.md`). One workflow per site;
   its "Site settings" node holds the Odoo URL.
 
 ### Special cases (shared feature)

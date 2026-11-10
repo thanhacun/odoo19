@@ -18,6 +18,10 @@
                                  help="The webhook path in the n8n workflow that processes approve / reject links from e-mails.">
                             <field name="e_approval_email_webhook_path" placeholder="/webhook/v1/email-action"/>
                         </setting>
+                        <setting id="kdvn_e_approval_decision_in_odoo" string="Approve/Reject pages in Odoo"
+                                 help="Approve / reject links open pages served by Odoo (/ea/...) and n8n is not used for them. Links already sent through n8n keep working while n8n runs.">
+                            <field name="e_approval_decision_in_odoo"/>
+                        </setting>
                         <setting id="kdvn_e_approval_short_path" string="n8n Short Link Path"
                                  help="Webhook path for short approve / reject links (for example ea). Leave empty to keep the long links.">
                             <field name="e_approval_short_link_path" placeholder="ea"/>

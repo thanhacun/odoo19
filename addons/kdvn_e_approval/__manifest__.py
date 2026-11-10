@@ -5,7 +5,7 @@
     'author': "Kinden Vietnam",
     'website': "https://www.kinden.com.vn",
     'category': "kderp",
-    'version': "19.0.0.2.6",
+    'version': "19.0.0.2.7",
     'depends': [
         'base',
         'base_tier_validation',
@@ -23,6 +23,7 @@
         'views/tier_review_views.xml',
         'views/res_users_views.xml',
         'views/settings_views.xml',
+        'views/decision_templates.xml',
         'views/menu.xml',
         'views/approval_refusal_views.xml',
         'views/special_rule_views.xml',

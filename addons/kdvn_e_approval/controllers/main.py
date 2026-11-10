@@ -1,4 +1,5 @@
 from odoo import http, SUPERUSER_ID, _
+from odoo.exceptions import UserError, ValidationError
 from odoo.http import request
 from markupsafe import Markup
 from odoo.tools import html2plaintext, html_escape
@@ -26,11 +27,11 @@ class KderpEApprovalController(http.Controller):
             budgets_list = json.loads(raw_budgets)
             customers_list = json.loads(raw_customers)
 
-        except Exception as e:
-            _logger.error("Failed to parse incoming consolidated master payload data: %s", str(e))
+        except Exception:
+            _logger.exception("Failed to parse incoming consolidated master payload data")
             # --- FIXED: Odoo 12 HTTP 400 Error Return Format ---
             res = request.make_response(
-                json.dumps({"status": "error", "message": "Malformed JSON Payloads: %s" % str(e)}),
+                json.dumps({"status": "error", "message": "Malformed JSON payloads."}),
                 headers=[('Content-Type', 'application/json')]
             )
             res.status = '400 Bad Request' # Explicit property override assignment
@@ -44,11 +45,11 @@ class KderpEApprovalController(http.Controller):
                 budgets_data=budgets_list,
                 customers_data=customers_list
             )
-        except Exception as e:
-            _logger.error("Database tracking crash occurred during sync pipeline execution: %s", str(e))
+        except Exception:
+            _logger.exception("Database tracking crash occurred during sync pipeline execution")
             # --- FIXED: Odoo 12 HTTP 500 Error Return Format ---
             res = request.make_response(
-                json.dumps({"status": "error", "message": "Pipeline processing runtime failure: %s" % str(e)}),
+                json.dumps({"status": "error", "message": "Pipeline processing failed. See the Odoo log."}),
                 headers=[('Content-Type', 'application/json')]
             )
             res.status = '500 Internal Server Error' # Explicit property override assignment
@@ -73,14 +74,17 @@ class KderpEApprovalController(http.Controller):
         ).hexdigest()
         return hmac.compare_digest(calculated_token, incoming_token)
 
-    @http.route('/api/v1/mobile_review_action', type='jsonrpc', auth='none', methods=['POST', 'OPTIONS'], csrf=False, cors="*")
+    @http.route('/api/v1/mobile_review_action', type='jsonrpc', auth='none', methods=['POST', 'OPTIONS'], csrf=False, cors="*", readonly=False)
     def receive_mobile_review_action(self, **kwargs):
+        """JSON entry point (kept for the n8n Decision Center); the work is in _review_action."""
+        return self._review_action(dict(request.params))
+
+    def _review_action(self, params):
         """
-        CENTRAL CONTROLLER HUB: Authenticates, inspects double-clicks, 
+        CENTRAL CONTROLLER HUB: Authenticates, inspects double-clicks,
         and executes real-time sequential multi-tier workflow updates.
+        Shared by the JSON route above and the Odoo pages (/ea/<code>).
         """
-        # Odoo's type='json' parser automatically maps the incoming params dictionary
-        params = request.params
         # Short links: n8n forwards the code from ?c=...; model, record, user and action come from it
         if params.get('code'):
             parsed = request.env['kderp.e.approval.mixin'].sudo()._short_link_parse(params.get('code'))
@@ -94,7 +98,7 @@ class KderpEApprovalController(http.Controller):
         review_id = params.get('review_id')
         user_id = params.get('user_id')
         action = params.get('action')
-        comment = params.get('comment', '').strip()
+        comment = (params.get('comment') or '').strip()
         incoming_token = params.get('token')
         short_link = bool(params.get('code'))
 
@@ -110,6 +114,15 @@ class KderpEApprovalController(http.Controller):
                 return {"status": "error", "message": "E-Approval secret key is not configured."}
             if not self._verify_hmac_token(secret_key, res_model, res_id, review_id, user_id, incoming_token):
                 return {"status": "error", "message": "Security Alert: Signature token verification failed."}
+
+        # 2b. The user must still be an active user (a link must not work after someone left)
+        try:
+            user = request.env['res.users'].sudo().browse(int(user_id))
+            user_ok = user.exists() and user.active
+        except (TypeError, ValueError):
+            user_ok = False
+        if not user_ok:
+            return {"status": "error", "message": "This account is no longer active, so the link cannot be used."}
 
         # 3. Elevate execution context permissions
         env = request.env(user=int(user_id))
@@ -180,12 +193,63 @@ class KderpEApprovalController(http.Controller):
             else:
                 return {"status": "error", "message": "Unknow error"}
                 
-        except Exception as e:
-            _logger.error("Database constraint fault during validation loop update: %s", str(e))
-            return {"status": "error", "message": "Database validation transition error: %s" % str(e)}
+        except (UserError, ValidationError) as e:
+            # Written for users on purpose (e.g. "you cannot approve this"): safe to show
+            _logger.warning("Review %s (%s %s) refused: %s", review_id, res_model, res_id, e)
+            return {"status": "error", "message": str(e)}
+        except Exception:
+            # Anything else may carry internal details: log it, show a generic text
+            _logger.exception("Link action failed on review %s (%s %s)", review_id, res_model, res_id)
+            return {"status": "error", "message": "The action could not be completed. Please open the request in Odoo."}
 
         return {"status": "error", "message": "Invalid workflow routing signature instruction."}
 
+
+    # ------------------------------------------------------------------
+    # Decision Center pages served by Odoo (replaces the n8n workflow)
+    #   GET  /ea/<code>  shows the confirm / reject page, never decides.
+    #   POST /ea/<code>  decides. The signed code is the credential, so no
+    #   session or CSRF token is needed (a forged POST needs a valid code).
+    # ------------------------------------------------------------------
+    def _decision_page(self, state, out, code, error=''):
+        values = dict(out or {}, state=state, code=code, error=error,
+                      message=(out or {}).get('message', ''))
+        html = Markup('<!DOCTYPE html>') + request.env['ir.qweb'].sudo()._render('kdvn_e_approval.decision_page', values)
+        return request.make_response(html, headers=[
+            ('Content-Type', 'text/html; charset=utf-8'),
+            ('Cache-Control', 'no-store'),
+            ('X-Robots-Tag', 'noindex, nofollow'),
+            ('Referrer-Policy', 'no-referrer'),
+            ('X-Frame-Options', 'DENY'),
+            ('Content-Security-Policy', "frame-ancestors 'none'"),
+        ])
+
+    @http.route('/ea/<string:code>', type='http', auth='none', methods=['GET', 'POST'], csrf=False, readonly=False)  # auth none = read-only cursor by default in 19; deciding writes
+    def decision_center(self, code, **post):
+        mixin = request.env['kderp.e.approval.mixin'].sudo()
+        parsed = mixin._short_link_parse(code)
+        if not parsed:
+            return self._decision_page('error', {'message': 'This link is invalid or was changed.'}, code)
+        posting = request.httprequest.method == 'POST'
+        params = {'code': code, 'action': parsed['action']}
+        if posting:
+            params.update(confirmed=True, comment=post.get('comment') or '')
+        out = self._review_action(params)
+        status = out.get('status')
+        if posting:
+            if status == 'comment_required':
+                return self._decision_page('confirm', out, code, error='Please write a comment before approving.')
+            if status == 'rejecting':
+                return self._decision_page('reject', out, code, error='Please write a reason before rejecting.')
+            if status == 'approved':
+                return self._decision_page('approved', out, code)
+            if status == 'rejected':
+                return self._decision_page('rejected', out, code)
+        elif status in ('confirm', 'rejecting'):
+            return self._decision_page('confirm' if status == 'confirm' else 'reject', out, code)
+        if status == 'already_processed':
+            return self._decision_page('already', out, code)
+        return self._decision_page('error', out, code)
 
     def _review_summary(self, record, review_line):
         """Short description of the request, shown on the confirmation page."""
@@ -261,9 +325,9 @@ class KderpEApprovalController(http.Controller):
             # Success: Token matches and record state is fully approved
             return self._render_verification_card(status="success", record=record)
 
-        except Exception as e:
+        except Exception:
             _logger.exception("Approval verification failed for %s %s", model, id)
-            return "<h3>Internal Execution Error: %s</h3>" % html_escape(str(e))
+            return "<h3>Verification is not available right now.</h3>"
 
     def _render_verification_card(self, status, record):
         """ Small self-contained HTML card (no external CSS) shown when the QR code is scanned. """

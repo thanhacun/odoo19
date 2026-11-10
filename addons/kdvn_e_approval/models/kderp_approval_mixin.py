@@ -536,6 +536,7 @@ class KderpApprovalMixin(models.AbstractModel):
             'base_url': (get('web.base.url') or '').rstrip('/'),
             'n8n_domain': (get('kderp_e_approval.n8n_server_url', 'https://kinden.com.vn') or '').rstrip('/'),
             'webhook_path': get('kderp_e_approval.e_approval_email_webhook_path', '') or '',
+            'decision_in_odoo': get('kderp_e_approval.decision_in_odoo', 'False') == 'True',
             'short_path': (get('kderp_e_approval.short_link_webhook_path', '') or '').strip('/'),
             'secret': get('kderp_e_approval.e_approval_secret_key', False),
             'email_on': get('kderp_e_approval.global_notify_email', 'True') == 'True',
@@ -597,7 +598,12 @@ class KderpApprovalMixin(models.AbstractModel):
         query = "res_model=%s&res_id=%s&review_id=%s&user_id=%s&token=%s" % (
             self._name, self.id, review.id, user.id, token)
         hook = "%s/webhook/%s?" % (cfg['n8n_domain'], cfg['webhook_path'])
-        if cfg['short_path']:
+        if cfg['decision_in_odoo']:
+            # Pages served by Odoo: <base_url>/ea/<review>-<user>-<a|r>-<signature>
+            short = "%s/ea/" % cfg['base_url']
+            approve_url = short + self._short_link_code(review.id, user.id, 'approve', cfg['secret'])
+            reject_url = short + self._short_link_code(review.id, user.id, 'reject', cfg['secret'])
+        elif cfg['short_path']:
             # Short links: https://n8n/webhook/<short_path>?c=<review>-<user>-<a|r>-<signature>
             short = "%s/webhook/%s?c=" % (cfg['n8n_domain'], cfg['short_path'])
             approve_url = short + self._short_link_code(review.id, user.id, 'approve', cfg['secret'])
