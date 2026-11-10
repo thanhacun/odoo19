@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Company form: other office addresses (Hai Phong Office ...), used for the distance of the staff transfer.
+         The distance provider and Goong key are on the E-Approval settings screen (kdvn_e_approval). -->
+    <record id="view_company_form_office_addresses" model="ir.ui.view">
+        <field name="name">res.company.form.office.addresses</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Office Addresses" name="office_addresses">
+                    <div class="alert alert-info" role="alert">
+                        The company's own address (General Information) is the <b>Hanoi Head Office</b>. Add the other offices as addresses of the
+                        company, for example the <b>Hai Phong Office</b> (City = Hai Phong, street filled in). Staff transfer uses them to compute the
+                        distance by car.
+                    </div>
+                    <button name="action_open_office_addresses" type="object" class="btn btn-primary" icon="fa-building"
+                            string="Show / add office addresses" invisible="not id"/>
+                    <field name="id" invisible="1"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

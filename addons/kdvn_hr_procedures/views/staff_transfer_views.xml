@@ -8,7 +8,7 @@
             <list decoration-info="state == 'draft'" decoration-warning="state == 'submitted'" decoration-success="state == 'approved'">
                 <field name="name"/>
                 <field name="employee_id" string="Requested by"/>
-                <field name="transfer_employee_id" string="Staff to transfer"/>
+                <field name="transfer_employee_ids" string="Staff to transfer" widget="many2many_tags"/>
                 <field name="transfer_from_date"/>
                 <field name="transfer_to_date"/>
                 <field name="state"/>
@@ -62,7 +62,8 @@
                     <group>
                         <group string="Request">
                             <field name="employee_id" string="Requested by"/>
-                            <field name="transfer_employee_id" readonly="state != 'draft'" string="Staff to transfer"/>
+                            <field name="transfer_employee_ids" readonly="state != 'draft'" string="Staff to transfer" widget="many2many_tags"
+                                   options="{'no_create': True}" required="1"/>
                         </group>
                         <group string="Transfer period">
                             <field name="transfer_from_date" readonly="state != 'draft'"/>
@@ -79,19 +80,32 @@
                         <page string="Transfer details">
                             <group>
                                 <group string="Current">
-                                    <field name="current_area_id" string="Area" options="{'no_open': True, 'no_create': True}"/>
-                                    <field name="current_department_id" string="Section" options="{'no_open': True, 'no_create': True}"/>
+                                    <field name="current_area_ids" string="Area" widget="many2many_tags" options="{'no_open': True, 'no_create': True}"/>
+                                    <field name="current_department_ids" string="Section" widget="many2many_tags" options="{'no_open': True, 'no_create': True}"/>
                                     <field name="project_from_history" invisible="1"/>
-                                    <field name="current_project_id" options="{'no_open': True, 'no_create': True}"
-                                           invisible="not project_from_history"/>
+                                    <field name="no_history_employee_ids" invisible="1"/>
+                                    <field name="current_project_ids" widget="many2many_tags" options="{'no_open': True, 'no_create': True}"
+                                           invisible="not current_project_ids"/>
                                     <field name="current_project_manual_id" options="{'no_create': True}"
                                            readonly="state != 'draft'" invisible="project_from_history"
-                                           help="No Project history for this employee yet: select the current project."/>
+                                           help="No Project history yet for some of the staff: select their current project."/>
                                 </group>
                                 <group string="New">
                                     <field name="transfer_area_id" readonly="state != 'draft'" string="Area" options="{'no_create': True}"/>
                                     <field name="transfer_department_id" readonly="state != 'draft'" string="Section" options="{'no_create': True}"/>
                                     <field name="transfer_project_id" readonly="state != 'draft'" string="Project" options="{'no_create': True}"/>
+                                    <field name="transfer_project_address" string="Project location" invisible="not transfer_project_id"/>
+                                    <label for="distance_text" string="Distance by car" invisible="not transfer_project_id"/>
+                                    <div invisible="not transfer_project_id">
+                                        <field name="distance_message" invisible="1"/>
+                                        <field name="distance_ho_km" invisible="1"/>
+                                        <field name="distance_hp_km" invisible="1"/>
+                                        <field name="distance_text" class="oe_inline"/>
+                                        <button name="action_update_distances" type="object" string="Recalculate" icon="fa-refresh"
+                                                class="oe_link oe_inline"
+                                                invisible="state != 'draft' and not distance_message and (distance_ho_km != 0 or distance_hp_km != 0)"/>
+                                        <div class="text-muted" style="font-size: 11px;">By car (OpenStreetMap / Goong), from the main office of each staff (area of the administrative section; Hai Phong or else Head Office). Calculated when the request is saved.</div>
+                                    </div>
                                 </group>
                             </group>
                             <separator string="Site commute allowance (for reference)"/>

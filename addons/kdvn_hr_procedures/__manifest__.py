@@ -5,7 +5,7 @@
         Consolidates all HR approval operations built on top of the kderp_e_approval engine.
         Includes: Staff Movements/Transfers, Leave Encashments, and Performance Sign-offs.
     """,
-    'version': "19.0.0.1.6",
+    'version': "19.0.0.2.0",
     'category': 'Human Resources',
     'author': 'Corporate Engineering Team',
     'depends': [
@@ -28,6 +28,7 @@
         'data/transfer_allowance_data.xml',
         'views/transfer_allowance_matrix_views.xml',
         'views/staff_transfer_views.xml',
+        'views/staff_transfer_settings_views.xml',
         'views/employee_project_history_views.xml',
         'views/staff_transfer_menus.xml',
         'views/project_peak_time_views.xml',

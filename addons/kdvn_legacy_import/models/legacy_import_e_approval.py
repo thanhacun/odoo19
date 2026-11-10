@@ -79,7 +79,8 @@ class KdvnLegacyImportEApproval(models.AbstractModel):
     def _ea_ctx(self):
         """Context of the writes: nothing recomputed, nothing notified, the tier validation engine does not interfere."""
         return self.with_context(kdvn_no_compute=True, skip_validation_check=True, tracking_disable=True, mail_notrack=True, mail_create_nolog=True,
-                                 mail_create_nosubscribe=True, mail_auto_subscribe_no_notify=True, kdvn_legacy_import=True)
+                                 mail_create_nosubscribe=True, mail_auto_subscribe_no_notify=True, kdvn_legacy_import=True,
+                                 skip_distance=True)   # staff transfer: no map service call, the Odoo 12 distances are copied
 
     # ------------------------------------------------------------------ mapping helpers
     def _ea_user(self, legacy_id):
@@ -219,6 +220,14 @@ class KdvnLegacyImportEApproval(models.AbstractModel):
             vals[name] = value
         for name, ids in m2m.items():
             vals[name] = [(6, 0, ids)]
+        # staff.transfer: Odoo 12 before 12.0.1.7.0 has ONE staff in the column transfer_employee_id (several staff since then, relation table
+        # staff_transfer_employee_rel, read above). Both shapes must load until Odoo 12 is migrated.
+        if 'transfer_employee_ids' in Model._fields and not vals.get('transfer_employee_ids') and row.get('transfer_employee_id'):
+            staff = self._ea_map('hr.employee', row['transfer_employee_id'])
+            if staff:
+                vals['transfer_employee_ids'] = [(6, 0, [staff])]
+            else:
+                self._state['stats'][(Model._table, 'unmapped transfer_employee_id')] += 1
         record = self._upsert(model, Model._table, row['id'], vals)
         self.env.cr.execute('UPDATE "%s" SET state = %%s WHERE id = %%s' % Model._table, (row['state'], record.id))
         self._ea_stamp(Model._table, record.id, row)

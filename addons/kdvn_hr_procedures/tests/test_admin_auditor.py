@@ -23,7 +23,7 @@ class TestAdminAuditor(TestProceduresFlow):
         today = fields.Date.context_today(self.env.user)
         dept = self.env['hr.department'].create({'name': 'SM section'})
         transfer = self.env['staff.transfer'].sudo().create({
-            'employee_id': self.applicant.id, 'transfer_employee_id': self.staff.id, 'transfer_department_id': dept.id,
+            'employee_id': self.applicant.id, 'transfer_employee_ids': [(6, 0, [self.staff.id])], 'transfer_department_id': dept.id,
             'transfer_from_date': today, 'transfer_to_date': today + timedelta(days=90), 'reason': 'Test'})
         manager = self._user('sm_user', 'kdvn_hr_attendance.group_hr_attendance_section_manager')
         self.assertFalse(transfer.with_user(manager).search([('id', '=', transfer.id)]))
@@ -34,7 +34,7 @@ class TestAdminAuditor(TestProceduresFlow):
         dept = self.env['hr.department'].create({'name': 'AA section'})
         today = fields.Date.context_today(self.env.user)
         transfer = self.env['staff.transfer'].sudo().create({
-            'employee_id': flow.applicant.id, 'transfer_employee_id': flow.staff.id, 'transfer_department_id': dept.id,
+            'employee_id': flow.applicant.id, 'transfer_employee_ids': [(6, 0, [flow.staff.id])], 'transfer_department_id': dept.id,
             'transfer_from_date': today, 'transfer_to_date': today + timedelta(days=90), 'reason': 'Test'})
         admin, auditor = self._user('aa_admin', 'kdvn_e_approval.group_e_approval_admin'), self._user('aa_auditor', 'kdvn_e_approval.group_e_approval_global_auditor')
         for rec in (peak, transfer):
@@ -43,3 +43,10 @@ class TestAdminAuditor(TestProceduresFlow):
             rec.with_user(admin).check_access('write')
             with self.assertRaises(AccessError):
                 rec.with_user(auditor).check_access('write')
+
+    def test_master_audit_menu_is_for_the_auditor_too(self):
+        menu = self.env.ref('kdvn_hr_procedures.menu_action_all_transfers')
+        auditor = self._user('aa_auditor_menu', 'kdvn_e_approval.group_e_approval_global_auditor')
+        plain = self.applicant_user
+        self.assertIn(menu.id, self.env['ir.ui.menu'].with_user(auditor)._visible_menu_ids())
+        self.assertNotIn(menu.id, self.env['ir.ui.menu'].with_user(plain)._visible_menu_ids())

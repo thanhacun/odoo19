@@ -330,13 +330,14 @@ class TransferAllowanceMatrix(models.Model):
     def _matrix_notes(self, layout, highlight_grade=None):
         note = _('Unit: 1,000 VND / month. Valid on %s.') % layout['on_date'].strftime('%d/%m/%Y')
         if highlight_grade:
-            note += ' ' + _('Highlighted: grade %s.') % highlight_grade.code
+            codes = ', '.join(highlight_grade.mapped('code'))
+            note += ' ' + (_('Highlighted: grades %s.') if len(highlight_grade) > 1 else _('Highlighted: grade %s.')) % codes
         return [note, _('Distance: from the assigned main office (Hanoi Head Office, Hai Phong Office, '
                         'Ho Chi Minh Branch Office) to the new project/section, by Google Maps.')]
 
     @api.model
     def render_matrix_html(self, on_date=None, highlight_grade=None):
-        """HTML table for the form (1,000 VND / month). highlight_grade: grade record to mark."""
+        """HTML table for the form (1,000 VND / month). highlight_grade: grade record(s) to mark."""
         layout = self._matrix_layout(on_date)
         if not layout:
             return '<p class="text-muted">%s</p>' % html_escape(_('No allowance matrix configured.'))
@@ -354,7 +355,7 @@ class TransferAllowanceMatrix(models.Model):
                     'th' if h else 'td', n, head if h else cell, esc(text), 'th' if h else 'td')
                 for text, n, h in cells)))
         for label, grade_ids, values in layout['groups']:
-            marked = bool(highlight_grade) and highlight_grade.id in grade_ids
+            marked = any(g.id in grade_ids for g in (highlight_grade or ()))
             row_style = 'background:rgba(124,123,173,0.15);font-weight:bold;' if marked else ''
             first = head + ('border-left:4px solid #7C7BAD;' if marked else '')
             tds = ''.join('<td style="%s">%s</td>' % (
@@ -440,7 +441,7 @@ class TransferAllowanceMatrix(models.Model):
                 x += col_w * n
             y += row_h
         for label, grade_ids, values in layout['groups']:
-            marked = bool(highlight_grade) and highlight_grade.id in grade_ids
+            marked = any(g.id in grade_ids for g in (highlight_grade or ()))
             fill = '#e5e5ef' if marked else None
             box(0, y, first_w, label, font_bold, fill or '#f1f3f5')
             x = first_w
