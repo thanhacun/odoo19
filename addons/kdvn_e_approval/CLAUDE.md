@@ -92,3 +92,9 @@ Status and next steps: `../../docs/progress-e-approval.md`.
   `kderp_hr_procedures.goong_api_key`. Only the settings are here (in Odoo 12 they sit in kderp_hr_procedures); the distance logic is
   staff transfer work in kdvn_hr_procedures. Tests: `tests/test_settings_secrets.py` (`TestRouteSettings`).
 - `/api/v1/sync_jobs_back` (legacy n8n route, auth none) is `readonly=False` like the other auth-none routes that write.
+
+## 19.0.0.2.9: Approval Rules form for the E-Approval Administrator
+- Odoo 12 let every internal user read `ir.model` / `ir.model.fields`; Odoo 19 core does not (ACL rows with no rights). The tier.definition form reads
+  `valid_reviewer_field_ids` (ir.model.fields), so the E-Approval Administrator (no Settings right) got an AccessError. `security/ir.model.access.csv`
+  now gives that group READ on `ir.model.fields` (ir.model read was not needed). Writing definitions is still OCA's `base.group_erp_manager` (as Odoo 12: `base.group_system`).
+  Test: `tests/test_approval_rules_form.py`.
