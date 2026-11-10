@@ -151,8 +151,9 @@
                             <label for="budget_code_id" string="Budget Code"/>
                             <div class="o_row">
                                 <!-- Your standard searchable budget dropdown lookup selection -->
-                                <field name="budget_code_id" options="{'no_create': True, 'no_open': True}" domain="[('job_id', '=', job_id)]" 
+                                <field name="budget_code_id" options="{'no_create': True, 'no_open': True}" domain="[('id', 'in', allowed_budget_ids)]"
                                         readonly="state != 'draft' or not job_id" />
+                                <field name="allowed_budget_ids" invisible="1"/>
                                 <!-- The On-Demand User Sync Button Trigger Link -->
                                 <button name="action_user_force_budget_refresh" 
                                         string=" Refresh Balance" 

@@ -234,3 +234,64 @@ class TestJobList(TransactionCase):
         M = self.env['entertainment.request'].with_user(self.user)
         req = M.new({'employee_id': self.emp.id, 'date_input': '2026-06-01'})
         self.assertEqual(req.allowed_job_ids._origin, job)
+
+
+class TestBudgetList(TransactionCase):
+    """Budget lines to pick: the job's budgets; a Japanese applicant (code S9...) on the general job only gets 7000A21 (Odoo 12 rule)."""
+
+    def setUp(self):
+        super().setUp()
+        Job = self.env['kderp.job.lookup']
+        Budget = self.env['kderp.job.budget.cache']
+        self.hg = Job.create({'job_no': 'HG00-26-1001', 'job_name': 'General 26', 'external_id': 9726, 'is_general_expense': True})
+        self.other_job = Job.create({'job_no': 'TST-26-950', 'job_name': 'Other', 'external_id': 9727})
+        self.hospitality = Budget.create({'external_id': 9700, 'budget_code': '7000A21', 'name': 'Hospitality', 'job_id': self.hg.id})
+        self.other_budget = Budget.create({'external_id': 9701, 'budget_code': '7000A22', 'name': 'Other line', 'job_id': self.hg.id})
+        self.other_job_budget = Budget.create({'external_id': 9702, 'budget_code': '7000A21', 'name': 'Same code', 'job_id': self.other_job.id})
+        Users = self.env['res.users']
+        group = self.env.ref('base.group_user')
+        self.japanese = self.env['hr.employee'].create({
+            'name': 'Japanese', 'code': 'S9001', 'working': True,
+            'user_id': Users.create({'name': 'Japanese', 'login': 'tst_s9', 'group_ids': [(6, 0, group.ids)]}).id})
+        self.local = self.env['hr.employee'].create({
+            'name': 'Local', 'code': 'TST9361', 'working': True,
+            'user_id': Users.create({'name': 'Local', 'login': 'tst_local', 'group_ids': [(6, 0, group.ids)]}).id})
+
+    def _req(self, employee, **vals):
+        return self.env['entertainment.request'].with_user(employee.user_id).new(dict({'employee_id': employee.id, 'date_input': '2026-06-01'}, **vals))
+
+    def test_japanese_applicant_gets_only_the_hospitality_line(self):
+        req = self._req(self.japanese)
+        req._onchange_employee_id_routing()
+        self.assertEqual(req.job_id, self.hg)
+        self.assertEqual(req.budget_code_id, self.hospitality)                       # preselected
+        self.assertEqual(req.allowed_budget_ids._origin, self.hospitality)           # and the only one selectable
+
+    def test_other_applicant_gets_every_budget_of_the_job(self):
+        req = self._req(self.local)
+        req._onchange_employee_id_routing()
+        self.assertEqual(req.job_id, self.hg)
+        self.assertFalse(req.budget_code_id)
+        self.assertEqual(req.allowed_budget_ids._origin, self.hospitality | self.other_budget)
+
+    def test_japanese_applicant_with_a_job_role_is_not_restricted(self):
+        self.other_job.user_id = self.japanese.user_id
+        req = self._req(self.japanese, job_id=self.other_job.id)
+        req._onchange_employee_id_routing()
+        self.assertEqual(req.job_id, self.other_job)                                 # not replaced by the fallback job
+        self.assertEqual(req.allowed_budget_ids._origin, self.other_job_budget)
+
+    def test_no_job_no_budget_and_follows_the_job(self):
+        self.assertFalse(self._req(self.local).allowed_budget_ids._origin)
+        req = self._req(self.local, job_id=self.other_job.id)
+        self.assertEqual(req.allowed_budget_ids._origin, self.other_job_budget)
+        # a Japanese applicant who changes the job to one that is not the general job of the year is not restricted
+        jp = self._req(self.japanese, job_id=self.other_job.id)
+        self.assertEqual(jp.allowed_budget_ids._origin, self.other_job_budget)
+
+    def test_missing_hospitality_line_leaves_the_job_budgets(self):
+        self.hospitality.unlink()
+        req = self._req(self.japanese)
+        req._onchange_employee_id_routing()
+        self.assertFalse(req.budget_code_id)
+        self.assertEqual(req.allowed_budget_ids._origin, self.other_budget)

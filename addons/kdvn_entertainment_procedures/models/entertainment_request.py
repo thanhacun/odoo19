@@ -300,21 +300,45 @@ class EntertainmentRequest(models.Model):
         for record in self:
             record.allowed_job_ids = record._job_choice()[0]
 
+    # Budget lines the applicant may pick (domain of budget_code_id; Odoo 19 ignores onchange domains). Odoo 12: the budgets of the job; a Japanese
+    # applicant (employee code S9...) without a job role, on the general job of the year, may pick only the hospitality line 7000A21.
+    JAPANESE_CODE_PREFIX = 'S9'
+    JAPANESE_BUDGET_CODE = '7000A21'
+    allowed_budget_ids = fields.Many2many('kderp.job.budget.cache', string='Budget codes the applicant may pick', compute='_compute_allowed_budget_ids')
+
+    def _japanese_budget(self, job):
+        """The hospitality budget line of `job` when this applicant is Japanese (code S9...) and `job` is the general job of the year, else empty."""
+        self.ensure_one()
+        Budget = self.env['kderp.job.budget.cache']
+        jobs, is_fallback = self._job_choice()
+        if not (is_fallback and job and job in jobs
+                and str(self.employee_id.sudo().code or '').strip().startswith(self.JAPANESE_CODE_PREFIX)):
+            return Budget.browse()
+        return job.budget_ids.filtered(lambda b: b.budget_code == self.JAPANESE_BUDGET_CODE)[:1]
+
+    @api.depends('employee_id', 'date_input', 'date_entertainment', 'job_id')
+    def _compute_allowed_budget_ids(self):
+        Budget = self.env['kderp.job.budget.cache']
+        for record in self:
+            if not record.job_id:
+                record.allowed_budget_ids = Budget.browse()
+                continue
+            only = record._japanese_budget(record.job_id)
+            record.allowed_budget_ids = only or Budget.search([('job_id', '=', record.job_id.id)])
+
     @api.onchange('employee_id', 'date_input')
     def _onchange_employee_id_routing(self):
         """
         Identity router: a user without a job role gets the general job of the year of the Request Date (HG00-YY-1001),
-        and a Japanese applicant (code S9...) its entertainment budget line. The list of jobs a user may pick is allowed_job_ids.
+        and a Japanese applicant (code S9...) its entertainment budget line. The lists to pick from are allowed_job_ids and allowed_budget_ids.
         """
         for record in self:
             jobs, is_fallback = record._job_choice()
             if is_fallback and jobs:
                 record.job_id = jobs.id
-                if str(record.employee_id.sudo().code or '').strip().startswith('S9'):
-                    # Explicit corporate hospitality budget line of the job (S9 code, hard coded)
-                    target_budget = jobs.budget_ids.filtered(lambda b: b.budget_code == '7000A21')
-                    if target_budget:
-                        record.budget_code_id = target_budget.id
+                target_budget = record._japanese_budget(jobs)
+                if target_budget:
+                    record.budget_code_id = target_budget.id
 
     def get_approval_digest_details(self):
         if self._name == 'entertainment.request':

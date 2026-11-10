@@ -57,4 +57,6 @@ Entertainment fee requests (`entertainment.request`, prefix EF-YYYY-) on `kderp.
 - Job list: Odoo 12 returned it as an onchange domain; Odoo 19 ignores onchange domains, so it is the computed `allowed_job_ids` (view domain of `job_id`):
   any role on a job (PM, SM, JP advisor, GM, AM, acting PM, Sec. Man./Others) gives those jobs, else the general job HG00-YY-1001 of the Request Date's year.
   Private employee fields are read with sudo (plain staff cannot read hr.employee).
+- Budget list: computed `allowed_budget_ids` (domain of `budget_code_id`): the job's budgets; a Japanese applicant (code S9...) without a job role, on the
+  general job of the year, gets only 7000A21 (preselected by the onchange). 19.0.0.3.1.
 - Tests: `tests/test_new_client.py` (features), `tests/test_roles.py` (plain user, PM, GM, registrar: screens, new form, copy, submit, tick).
