@@ -4,7 +4,7 @@
         <field name="name">safety.tool.move.list</field>
         <field name="model">safety.tool.move</field>
         <field name="arch" type="xml">
-            <list decoration-success="qty_in &gt; 0" decoration-muted="source == 'reverse'">
+            <list decoration-success="qty_in &gt; 0" decoration-muted="source == 'reverse' or accounting_only">
                 <field name="date"/>
                 <field name="item_id"/>
                 <field name="size_id"/>
@@ -14,6 +14,10 @@
                 <field name="employee_id"/>
                 <field name="source"/>
                 <field name="request_id"/>
+                <field name="payment_no"/>
+                <field name="invoice_no"/>
+                <field name="unit_cost"/>
+                <field name="accounting_only" column_invisible="1"/>
                 <field name="note"/>
             </list>
         </field>
@@ -32,6 +36,7 @@
                             <field name="size_id" options="{'no_create': True}"
                                    domain="[('item_id', '=', item_id)]"/>
                             <field name="source"/>
+                            <field name="accounting_only"/>
                         </group>
                         <group>
                             <field name="qty_in"/>
@@ -40,6 +45,30 @@
                             <field name="employee_id" options="{'no_create': True}"/>
                             <field name="request_id" readonly="1" invisible="not request_id"/>
                         </group>
+                    </group>
+                    <group string="Stock in: purchase data for accounting" invisible="qty_in == 0">
+                        <group>
+                            <field name="payment_no"/>
+                            <field name="supplier_name"/>
+                            <field name="expense_no" force_save="1"/>
+                            <field name="invoice_no"/>
+                            <field name="invoice_date"/>
+                        </group>
+                        <group>
+                            <field name="unit_cost"/>
+                            <field name="remote_amount" force_save="1"/>
+                            <field name="remote_synced_on" force_save="1"/>
+                            <button name="action_fetch_remote" type="object" string="Refresh from remote server (saves)" class="btn-secondary"
+                                    invisible="not id or (not payment_no and not invoice_no)"
+                                    help="Reads the payment again for a saved move (this saves the form). Typing a payment no. already fills the form without saving."/>
+                            <p class="text-muted" colspan="2" invisible="id">
+                                Type the payment no. (EN26-xxxx): the data is read from the remote server into this form; it is saved only when you press Save.
+                            </p>
+                        </group>
+                    </group>
+                    <group string="Handover" invisible="qty_out == 0">
+                        <field name="work_area"/>
+                        <field name="receipt_no"/>
                     </group>
                     <group>
                         <field name="note"/>
@@ -60,6 +89,7 @@
                 <field name="note"/>
                 <filter string="Issued to requests" name="filter_requests" domain="[('source', '=', 'request')]"/>
                 <filter string="Stock in (opening, purchase)" name="filter_stock_in" domain="[('source', 'in', ['opening', 'purchase'])]"/>
+                <filter string="Accounting history (not in stock)" name="filter_acc_only" domain="[('accounting_only', '=', True)]"/>
                 <separator/>
                 <filter string="IN" name="filter_in" domain="[('qty_in', '&gt;', 0)]"/>
                 <filter string="OUT" name="filter_out" domain="[('qty_out', '&gt;', 0)]"/>

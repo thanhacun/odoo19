@@ -15,6 +15,9 @@
                     <field name="file" filename="filename"/>
                     <field name="filename" invisible="1"/>
                     <field name="import_pictures"/>
+                    <field name="read_accounting"/>
+                    <field name="create_history" invisible="not read_accounting"/>
+                    <field name="create_items" invisible="not read_accounting"/>
                 </group>
                 <group invisible="state == 'upload'">
                     <group>

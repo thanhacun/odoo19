@@ -2,6 +2,7 @@ import datetime
 import base64
 import io
 import logging
+import re
 
 from dateutil.relativedelta import relativedelta
 
@@ -99,6 +100,8 @@ class SafetyToolRequest(models.Model):
     fulfilment_state = fields.Selection(FULFILMENT_STATES, string='Fulfilment', readonly=True, copy=False,
                                         tracking=True, index=True)
     issued_date = fields.Date(readonly=True, copy=False)
+    receipt_no = fields.Char(string='Receipt No.', readonly=True, copy=False, index=True,
+                             help='Number of the paper "Receipt for Safety Tool" (SM-YY-####), given at the first handover.')
     issued_by_id = fields.Many2one('res.users', string='Handed over by', readonly=True, copy=False)
     issue_override_note = fields.Char(string='Reason to issue with insufficient stock', copy=False,
                                       help='Needed only when the stock is lower than the quantities requested.')
@@ -364,6 +367,17 @@ class SafetyToolRequest(models.Model):
         self._require_tool_admin()
         self.filtered(lambda r: r.fulfilment_state == 'to_purchase').write({'fulfilment_state': 'ordered'})
 
+    @api.model
+    def _next_receipt_no(self, date):
+        """SM-YY-#### : the highest number of that year + 1 (so it continues after numbers typed or imported from the paper forms)."""
+        prefix = 'SM-%s-' % str(date.year)[2:]
+        last = 0
+        for no in self.sudo().search([('receipt_no', '=like', prefix + '%')]).mapped('receipt_no'):
+            tail = no[len(prefix):]
+            if tail.isdigit():
+                last = max(last, int(tail))
+        return '%s%04d' % (prefix, last + 1)
+
     def action_issue(self):
         """Hand the tools over: post the OUT moves. Stock leaves the store at this moment."""
         self._require_tool_admin()
@@ -377,12 +391,15 @@ class SafetyToolRequest(models.Model):
                                   'in "Reason to issue with insufficient stock".') % '\n'.join(
                     '- %s%s: requested %s, in stock %s' % (item.name, size and ' (%s)' % size.name or '', need, have)
                     for item, size, need, have in shorts))
+            if not rec.receipt_no:
+                rec.write({'receipt_no': self._next_receipt_no(fields.Date.context_today(rec))})
             for line in rec.line_ids:
                 Move.create({
                     'date': fields.Date.context_today(rec),
                     'item_id': line.item_id.id, 'size_id': line.size_id.id or False,
                     'qty_out': line.qty, 'source': 'request', 'request_id': rec.id, 'line_id': line.id,
                     'job_id': rec.job_id.id, 'employee_id': rec.employee_id.id, 'note': rec.name,
+                    'work_area': rec.employee_id.sudo().work_location or False,
                 })
             rec.write({'fulfilment_state': 'issued', 'issued_date': fields.Date.context_today(rec),
                        'issued_by_id': self.env.uid, 'receipt_reminded': False, 'receipt_date': False})
@@ -523,6 +540,53 @@ class SafetyToolRequest(models.Model):
         }
         data.update(self._prepare_reviews_signatures())
         return data
+
+    def prepare_safety_tool_receipt(self):
+        """Data of the paper 'Receipt for Safety Tool': one row per catalogue item (in code order), the sizes in the remark."""
+        self.ensure_one()
+        fmt = lambda d: d.strftime('%d/%m/%Y') if d else ''
+        q = lambda v: '{:g}'.format(v) if v else '-'
+        items = self.env['safety.tool.item'].sudo().search([]).sorted(lambda i: (i.code or '~', i.sequence, i.name))
+        rows = []
+        for item in items:
+            lines = self.line_ids.filtered(lambda l: l.item_id == item)
+            if not lines and not item.active:
+                continue
+            total = sum(lines.mapped('qty'))
+            m = re.match(r'^ST0*(\d+)(-\d+)?', item.code or '')
+            rows.append({'no': ('%s%s' % (m.group(1), m.group(2) or '')) if m else (item.code or ''), 'item': item.name or '', 'uom': item.uom or '',
+                         'request': q(total), 'receive': q(total),
+                         'remark': ', '.join('%s x %s' % (l.size_id.name, '{:g}'.format(l.qty)) if l.size_id else ''
+                                             for l in lines).strip(', ')})
+        issued = self.issued_date
+        return {
+            'receipt_no': self.receipt_no or '', 'reference_no': self.name or '', 'date': fmt(issued or self.date_input),
+            'title': _('RECEIPT FOR SAFETY TOOL'), 'qr_code_base64': self.get_py3o_qr_base64(),
+            'stamp': (u'\u2713 RECEIVED' if self.receipt_date else _('HANDED OVER, WAITING FOR THE APPLICANT')),
+            'project': (self.job_id.display_name if self.job_id else (self.import_project_text or '')) or
+                       self.employee_id.sudo().work_location or '',
+            'staff_no': self.employee_id.sudo().code or '', 'applicant': self.employee_id.sudo().name or '',
+            'lines': rows, 'receipt_date': fmt(self.receipt_date),
+            'delivered_by': self.issued_by_id.name or '', 'issued_date': fmt(issued),
+            'signature_strip_png': self._receipt_signature_png(fmt),
+        }
+
+    def _receipt_signature_png(self, fmt):
+        """The signature cards of the other forms (same drawing as the approval signatures): who handed the tools over and who
+        confirmed the receipt in e-Approval."""
+        got = bool(self.receipt_date)
+        infos = [
+            {'title': 'RECEIVED BY', 'status': 'approved' if got else 'pending', 'color': '#28a745' if got else '#7C7BAD',
+             'label': u'\u2713 RECEIVED' if got else 'NOT CONFIRMED YET', 'name': self.employee_id.sudo().name or '---',
+             'date': fmt(self.receipt_date) or '---'},
+            {'title': 'DELIVERED BY', 'status': 'approved', 'color': '#28a745', 'label': u'\u2713 DELIVERED',
+             'name': self.issued_by_id.name or '---', 'date': fmt(self.issued_date) or '---'},
+        ]
+        try:
+            return self._render_signature_strip_png(infos, min_slots=2)
+        except Exception:
+            _logger.exception('Receipt signatures not drawn for %s', self.display_name)
+            return False
 
     # ------------------------------------------------------------------
     # Notification summary
