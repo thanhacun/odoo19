@@ -6,7 +6,7 @@
         Safety Tool Request: request new or replacement safety tools, stock ledger of the
         safety tool store (replaces the Excel control sheet), handover and receipt.
     """,
-    'version': '19.0.0.1.4',
+    'version': '19.0.0.2.1',
     'category': 'kderp',
     'author': 'Kinden Vietnam',
     'depends': [
@@ -14,6 +14,7 @@
         'kdvn_e_approval',
         'kdvn_hr', 'kdvn_hr_ext',
         'kdvn_remote_sync',      # kderp.job.lookup / kderp.job.budget.cache
+        'kdvn_remote_integration',   # read the purchase / payment / invoice of a stock-in from the remote server
     ],
     'data': [
         'security/groups.xml',

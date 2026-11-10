@@ -10,6 +10,7 @@ What it does with a file (the same wizard on dev and on production, any version 
 Rows already imported (import key) are skipped, so a newer file only adds what is new.
 """
 import base64
+import datetime
 import hashlib
 import io
 import json
@@ -18,7 +19,7 @@ import re
 import zipfile
 
 from odoo import models, fields, api, _, SUPERUSER_ID
-from odoo import tools
+from odoo.tools.image import image_process
 from odoo.exceptions import UserError
 
 from . import safety_tool_xlsx as xlsx
@@ -62,6 +63,12 @@ class SafetyToolImportAlias(models.Model):
     size_id = fields.Many2one('safety.tool.size', string='Size', ondelete='set null')
 
     _key_unique = models.Constraint('unique(key)', 'This Excel item is already mapped.')
+
+
+def _material_code(no):
+    """Item number of the control sheet (18, 34-1) -> material code ST0018, ST0034-1."""
+    m = re.match(r'^(\d{1,4})(-\d+)?$', (no or '').strip())
+    return ('ST%04d%s' % (int(m.group(1)), m.group(2) or '')) if m else (no or False)
 
 
 class SafetyToolImportBatch(models.Model):
@@ -115,6 +122,18 @@ class SafetyToolImportWizard(models.TransientModel):
     report_date = fields.Date(string='Date in the sheet', readonly=True)
     import_pictures = fields.Boolean(string='Import the tool pictures', default=True,
                                      help='Fills the photo of an item that has none yet; never replaces a photo.')
+    read_accounting = fields.Boolean(string='Also read the accounting sheets', default=True,
+                                     help='The original file (ACC) has the sheets "Detail check - report to Acc. Dept" and "Code.Mat". They give the invoice, '
+                                          'unit cost and payment no. of every stock-in and the working area and receipt no. of every OUT row. '
+                                          'Only moves that already exist are updated, nothing is created except the split of an opening balance per invoice. '
+                                          'Items and sizes are found by their Code Mat.')
+    create_history = fields.Boolean(string='Add the older lots (accounting history)', default=True,
+                                    help='Lots bought, and tools handed out, before the opening balance exist only in the accounting sheets. They are added as '
+                                         '"accounting history" moves: NOT part of the stock, used by the accounting report to cost the stock (FIFO). '
+                                         'Safe to repeat: a lot or row that was already added is skipped.')
+    create_items = fields.Boolean(string='Create items for unknown codes', default=False,
+                                  help='A code of the accounting sheets that has no item or size in Odoo becomes a new item, named as in the Code.Mat sheet. '
+                                       'Leave it off until the existing items have their right Code Mat. (a wrong code would create a duplicate).')
     as_of_date = fields.Date(string='Excel quantities are valid on', help='Taken from the sheet header; change it if you know better.')
     line_ids = fields.One2many('safety.tool.import.line', 'wizard_id', string='Excel items')
     summary = fields.Text(readonly=True)
@@ -159,8 +178,26 @@ class SafetyToolImportWizard(models.TransientModel):
         return resolve
 
     @api.model
-    def _match_block(self, block):
-        """(action, item, size) proposed for a block: alias, else same item name, else create."""
+    def _size_of_block(self, item, block):
+        """Size of `item` that a block stands for: the size text of the block ("Size XL", "26.0 cm (42)"), else any other text line of the block
+        that is the name of a size (our own export writes the size name under the item name), else the one size that has the number of the
+        block as its Code Mat. (34-1 = ST0034-1)."""
+        sizes = item.size_ids
+        if not sizes:
+            return sizes
+        for text in [block.get('size_text')] + list(block.get('texts') or []) + [block.get('desc')]:
+            norm = xlsx.normalize(text)
+            hit = sizes.filtered(lambda s: norm and xlsx.normalize(s.name) == norm)[:1]
+            if hit:
+                return hit
+        code = _material_code(block.get('no')) if block.get('no') else False
+        hit = sizes.filtered(lambda s: code and (s.code or '').strip().upper() == code.upper())
+        return hit if len(hit) == 1 else sizes.browse()
+
+    @api.model
+    def _match_block(self, block, targets=None):
+        """(action, item, size) proposed for a block: alias, else same item name, else the item / size that has the Code Mat. of the block
+        number, else create. `targets` = result of _code_targets()[0] (read once per file)."""
         Alias, Item = self.env['safety.tool.import.alias'], self.env['safety.tool.item']
         alias = Alias.search([('key', '=', _ident(block))], limit=1)
         if alias:
@@ -169,9 +206,14 @@ class SafetyToolImportWizard(models.TransientModel):
         item = Item.search([('active', 'in', [True, False])]).filtered(
             lambda i: xlsx.normalize(i.name) in (xlsx.normalize(label), xlsx.normalize(block['name'])))[:1]
         if not item:
+            code = _material_code(block.get('no')) if block.get('no') else False
+            if targets is None:
+                targets = self._code_targets()[0]
+            found = targets.get((code or '').upper())
+            if found:                                   # the name differs (long names are wrapped over several lines) but the number is ours
+                return 'map', found[0], found[1]
             return 'create', Item, self.env['safety.tool.size']
-        size = item.size_ids.filtered(lambda s: xlsx.normalize(s.name) == xlsx.normalize(block.get('size_text')))[:1]
-        return 'map', item, size
+        return 'map', item, self._size_of_block(item, block)
 
     def action_read(self):
         self.ensure_one()
@@ -191,6 +233,7 @@ class SafetyToolImportWizard(models.TransientModel):
             _logger.warning('Safety tool import: pictures not read (%s)', error)
             pictures = {}
         seen_idents, seen_rows = {}, {}
+        code_targets = self._code_targets()[0]
         lines = []
         for seq, block in enumerate(parsed['blocks']):
             ident = _ident(block)
@@ -201,7 +244,7 @@ class SafetyToolImportWizard(models.TransientModel):
                 base = _row_key(block['ident'], row, 0)[:-2]
                 seen_rows[base] = seen_rows.get(base, 0) + 1
                 row['key'] = '%s#%d' % (base, seen_rows[base])
-            action, item, size = self._match_block(block)
+            action, item, size = self._match_block(block, code_targets)
             if not block['rows'] and not (block['opening_qty'] or 0) and not (block['last_remain'] or 0):
                 action = 'skip'                                   # nothing to import (empty block)
             lines.append((0, 0, {
@@ -269,7 +312,7 @@ class SafetyToolImportWizard(models.TransientModel):
             label = xlsx.normalize(line.excel_name or block['name'])
             item = Item.search([('active', 'in', [True, False])]).filtered(lambda i: xlsx.normalize(i.name) == label)[:1]
         if line.action == 'create' and not item:
-            item = Item.create({'name': line.excel_name or block['name'], 'code': block['no'] or False,
+            item = Item.create({'name': line.excel_name or block['name'], 'code': _material_code(block['no']),
                                 'item_type': _guess_type(block['name']), 'uom': 'pcs',
                                 'note': block.get('dims') or False})
         size = line.size_id
@@ -305,6 +348,7 @@ class SafetyToolImportWizard(models.TransientModel):
             'as_of_date': self.as_of_date})
         stats = {'in': 0, 'out_requests': 0, 'out_moves': 0, 'open': 0, 'adjust': 0, 'known': 0, 'no_staff': 0}
         groups = {}                     # (date, staff, project) -> {'rows': [...], 'meta': ...}
+        signatures = {}                 # (item, size) -> {row signature: number of moves already in the ledger}
         for line in self.line_ids.sorted('sequence'):
             if line.action == 'skip':
                 continue
@@ -318,18 +362,37 @@ class SafetyToolImportWizard(models.TransientModel):
             keys = [r['key'] for r in block['rows']] + [block['open_key']]
             known = set(Move.sudo().search([('import_key', 'in', keys)]).mapped('import_key'))
             base = {'item_id': item.id, 'size_id': size.id or False, 'import_batch_id': batch.id}
-            # opening balance: only the first time this item / size is imported
+            # opening balance: only the first time this item / size is imported (an opening balance made in Odoo counts too)
             already = Move.sudo().search_count([('item_id', '=', item.id), ('size_id', '=', size.id or False),
-                                                 ('import_batch_id', '!=', False), ('import_batch_id', '!=', batch.id)])
+                                                 ('import_batch_id', '!=', False), ('import_batch_id', '!=', batch.id)]) or \
+                Move.sudo().search_count([('item_id', '=', item.id), ('size_id', '=', size.id or False), ('source', '=', 'opening'),
+                                          ('accounting_only', '=', False), ('id', 'not in', Move.sudo().search(
+                                              [('import_batch_id', '=', batch.id)]).ids)])
             if block['open_key'] not in known and not already and (block['opening_qty'] or 0) > 0:
                 Move.create(dict(base, date=block['opening_date'] or self.as_of_date, qty_in=block['opening_qty'],
                                  source='opening', import_key=block['open_key'], note=_('Opening balance (Excel)')))
                 stats['open'] += 1
+            # Rows that are already in the ledger, whatever their import key: our own export writes other texts (project, remarks) than the
+            # file the moves came from, and moves made in Odoo have no key. A row counts as known when the ledger holds a move of the same
+            # day and quantity (and staff for OUT); each existing move covers one row. Rows known by their key use their move first.
+            if (item.id, size.id or False) not in signatures:
+                signatures[(item.id, size.id or False)] = self._move_signatures(item, size)
+            budget = signatures[(item.id, size.id or False)]
+            for row in block['rows']:
+                if row['key'] in known:
+                    sig = self._row_signature(row, self.as_of_date)
+                    if budget.get(sig):
+                        budget[sig] -= 1
             for row in block['rows']:
                 if row['key'] in known:
                     stats['known'] += 1
                     continue
-                date = row['date'] or self.as_of_date
+                sig = self._row_signature(row, self.as_of_date)
+                if budget.get(sig):
+                    budget[sig] -= 1
+                    stats['known'] += 1
+                    continue
+                date = fields.Date.to_date(row['date']) if row['date'] else self.as_of_date     # the block was stored as JSON: dates are text
                 note = ' / '.join([x for x in (row['project'], row['remarks']) if x])[:200]
                 if row['qty_in']:
                     Move.create(dict(base, date=date, qty_in=row['qty_in'], source='purchase', import_key=row['key'], note=note))
@@ -349,7 +412,18 @@ class SafetyToolImportWizard(models.TransientModel):
         # OUT rows: one approved + handed over request per day / staff / project
         for gkey in sorted(groups):
             group = groups[gkey]
+            receipt_no = False
+            for b, r in group['rows']:
+                rem = (r.get('remarks') or '').strip().replace(' ', '')
+                m = re.match(r'^(?:SM-)?(\d{2})-(\d{1,4})$', rem)
+                if m:
+                    receipt_no = 'SM-%s-%04d' % (m.group(1), int(m.group(2)))
+                elif rem.isdigit():
+                    receipt_no = 'SM-%s-%04d' % (str(group['date'].year)[2:], int(rem))
+                if receipt_no:
+                    break
             request = Request.create({
+                'receipt_no': receipt_no,
                 'name': env['ir.sequence'].next_by_code('safety.tool.request.import') or _('New'),
                 'reason': _('Imported from the Excel control sheet %s') % (self.report_no or ''),
                 'request_type': 'new', 'date_input': group['date'], 'employee_id': group['emp'],
@@ -362,7 +436,8 @@ class SafetyToolImportWizard(models.TransientModel):
             for line_rec, (b, r) in zip(request.line_ids, group['rows']):
                 Move.create(dict(b, date=group['date'], qty_out=r['qty_out'], source='request', request_id=request.id,
                                  line_id=line_rec.id, employee_id=group['emp'], job_id=request.job_id.id or False,
-                                 import_key=r['key'], note=request.name))
+                                 import_key=r['key'], note=request.name,
+                                 work_area=env['hr.employee'].sudo().browse(group['emp']).work_location or False))
                 stats['out_moves'] += 1
             stats['out_requests'] += 1
         # pictures: only items that have none yet
@@ -385,12 +460,314 @@ class SafetyToolImportWizard(models.TransientModel):
                              'source': 'manual', 'import_key': 'adj|%s|%s|%s' % (item_id, size_id, batch.id),
                              'note': _('Excel stock-take difference (%s)') % (self.report_no or '')})
                 stats['adjust'] += 1
-        batch.note = _('Pictures added %(pics)s. ') % {'pics': stats.get('pictures', 0)} + _('Opening balances %(open)s, stock-in rows %(in)s, requests %(req)s (%(out_moves)s tools), '
+        acc_text = ''
+        if self.read_accounting:
+            acc_text = self._apply_accounting(batch)
+        batch.note = acc_text + _('Pictures added %(pics)s. ') % {'pics': stats.get('pictures', 0)} + _('Opening balances %(open)s, stock-in rows %(in)s, requests %(req)s (%(out_moves)s tools), '
                        'OUT rows without a staff match %(no_staff)s, rows already imported %(known)s, adjustments %(adjust)s.') % {
             'open': stats['open'], 'in': stats['in'], 'req': stats['out_requests'], 'out_moves': stats['out_moves'],
             'no_staff': stats['no_staff'], 'known': stats['known'], 'adjust': stats['adjust']}
         self.write({'state': 'done', 'batch_id': batch.id, 'summary': batch.note})
         return self._reopen()
+
+    @staticmethod
+    def _row_signature(row, default_date):
+        """What identifies a control sheet row in the ledger: IN = day + quantity, OUT = day + quantity + staff code."""
+        date = fields.Date.to_date(row['date']) if row['date'] else default_date
+        if row['qty_in']:
+            return ('in', str(date), round(row['qty_in'], 4), '')
+        return ('out', str(date), round(row['qty_out'], 4), (row['staff_code'] or '').strip().upper())
+
+    def _move_signatures(self, item, size):
+        """{signature: count} of the moves of an item / size that a control sheet row can stand for (not the accounting history; the opening
+        balance counts: a report that starts on the opening day lists it as an IN row). The staff of a plain OUT move is the code at the start of its note (as the control sheet export writes it)."""
+        counts = {}
+        moves = self.env['safety.tool.move'].sudo().search([
+            ('item_id', '=', item.id), ('size_id', '=', size.id or False), ('accounting_only', '=', False)])
+        for m in moves:
+            if m.qty_in:
+                sig = ('in', str(m.date), round(m.qty_in, 4), '')
+            else:
+                first = (m.note or '').split(' / ')[0].strip()
+                code = m.employee_id.code or (first if re.match(r'^[A-Za-z]\d+$', first) else '')
+                sig = ('out', str(m.date), round(m.qty_out, 4), (code or '').strip().upper())
+            counts[sig] = counts.get(sig, 0) + 1
+        return counts
+
+    # ------------------------------------------------------------------
+    # Accounting sheets (Detail check - report to Acc. Dept, Code.Mat)
+    # ------------------------------------------------------------------
+    def _code_targets(self):
+        """({CODE: (item, size)}, [codes used by several items / sizes]). An item with several sizes and no size code is ambiguous too."""
+        env = self.env
+        found = {}
+        for size in env['safety.tool.size'].sudo().search([('code', '!=', False)]):
+            found.setdefault(size.code.strip().upper(), []).append((size.item_id, size))
+        for item in env['safety.tool.item'].sudo().with_context(active_test=False).search([('code', '!=', False)]):
+            if len(item.size_ids) <= 1:
+                found.setdefault(item.code.strip().upper(), []).append((item, item.size_ids[:1]))
+        targets = {c: v[0] for c, v in found.items() if len(v) == 1}
+        return targets, sorted(c for c, v in found.items() if len(v) > 1)
+
+    def _apply_accounting(self, batch):
+        """Fill invoice, unit cost, payment no., supplier of the stock-ins and working area, receipt no. of the OUT moves from the
+        accounting sheets of the file. Returns a text for the batch note. Only empty fields are filled (what the store keeper typed or
+        the remote server gave stays), except the working area, which the Excel knows per row."""
+        env = self.env
+        acc = xlsx.parse_accounting_sheets(io.BytesIO(base64.b64decode(self.file)))
+        if not acc['lots'] and not acc['outs']:
+            return _('Accounting sheets: not found in this file. ')
+        Move = env['safety.tool.move'].sudo().with_context(safety_tool_system=True)
+        # The item number of each control sheet block (18, 34-1) is the number inside the Code Mat. (ST0018, ST0034-1):
+        # an item / size of this file that has no code yet gets it (nothing is overwritten).
+        for line in self.line_ids:
+            if line.action == 'skip' or not line.item_id:
+                continue
+            code = _material_code(json.loads(line.block_json).get('no'))
+            if not code or not code.startswith('ST'):
+                continue
+            holder = line.size_id if line.size_id else line.item_id
+            # a size may take the code its own item already has (item ST0020 with sizes XL, L, M: the XL block is ST0020 too)
+            taken = env['safety.tool.size'].sudo().search_count([('code', '=', code)]) or \
+                env['safety.tool.item'].sudo().search_count([('code', '=', code), ('id', '!=', line.item_id.id)]) or \
+                (not line.size_id and env['safety.tool.item'].sudo().search_count([('code', '=', code)]))
+            if not holder.sudo().code and not taken:
+                holder.sudo().write({'code': code})
+        targets, ambiguous = self._code_targets()
+        created_items = []
+        if self.create_items:
+            for code in sorted({x['code'] for x in acc['lots'] + acc['outs']} - set(targets) - set(ambiguous)):
+                name = acc['codes'].get(code)
+                if name:
+                    env['safety.tool.item'].sudo().create({'name': name, 'code': code, 'item_type': _guess_type(name), 'uom': 'pcs'})
+                    created_items.append(code)
+            if created_items:
+                targets, ambiguous = self._code_targets()
+        unknown_codes = sorted({x['code'] for x in acc['lots'] + acc['outs'] if x['code'] not in targets and x['code'] not in ambiguous})
+        claimed, stats = set(), {'lots': 0, 'lots_none': 0, 'outs': 0, 'outs_none': 0, 'split': 0, 'split_bad': 0, 'receipts': 0,
+                             'hist_in': 0, 'hist_out': 0}     # hist_*: also read in the note when the history option is off (Odoo 12 raised KeyError)
+        lots_none, outs_none = [], []
+        hist_lots = hist_outs = set()
+        matched_lot_rows, matched_out_rows = set(), set()
+        # --- start clean: what an earlier run filled in is redone (a wrong earlier match must not stay). Moves read from the remote server are kept (a payment no. typed by hand on an imported move, without reading the remote, is cleared too: press the remote button).
+        Move.search([('source', '=', 'purchase'), ('qty_in', '>', 0), ('accounting_only', '=', False), ('import_batch_id', '!=', False),
+                     ('remote_synced_on', '=', False)]).write({'invoice_no': False, 'invoice_date': False, 'unit_cost': 0.0, 'supplier_name': False,
+                                                                                                 'payment_no': False})
+        # --- stock-in lots -> stock-in moves (same item/size/quantity, date near the invoice)
+        for lot in acc['lots']:
+            target = targets.get(lot['code'])
+            if not target:
+                continue
+            item, size = target
+            ref = lot['invoice_date']
+            # the stock-in row is dated when the goods came: shortly before to a few months after the invoice
+            cands = Move.search([('item_id', '=', item.id), ('size_id', '=', size.id or False), ('qty_in', '>', 0),
+                                 ('source', '=', 'purchase'), ('accounting_only', '=', False), ('id', 'not in', list(claimed))]).filtered(
+                lambda m: abs(m.qty_in - lot['qty']) < 0.001 and (not ref or ref - datetime.timedelta(days=15) <= m.date <= ref + datetime.timedelta(days=150)))
+            if not cands and not (lot['invoice_no'] or lot['invoice_date'] or lot['payment_no']):
+                # a lot with no invoice data at all is the opening balance (or a stock-take adjustment) that our own export lists as a lot:
+                # it must not come back as accounting history
+                cands = Move.search([('item_id', '=', item.id), ('size_id', '=', size.id or False), ('qty_in', '>', 0),
+                                     ('source', 'in', ['opening', 'manual']), ('accounting_only', '=', False),
+                                     ('id', 'not in', list(claimed))]).filtered(lambda m: abs(m.qty_in - lot['qty']) < 0.001)
+            if not cands:
+                stats['lots_none'] += 1
+                lots_none.append(lot)
+                continue
+            cands = cands.sorted(lambda m: (m.invoice_no != lot['invoice_no'], abs((m.date - ref).days) if ref else 0, m.id))
+            move = cands[0]
+            claimed.add(move.id)
+            matched_lot_rows.add(lot['row'])
+            self._fill_stock_in(move, lot)
+            stats['lots'] += 1
+        # --- without history: opening balances split per invoice (FIFO of the Excel lots that are still in stock on the opening date)
+        for (code, (item, size)) in sorted(targets.items() if not self.create_history else []):
+            for opening in Move.search([('item_id', '=', item.id), ('size_id', '=', size.id or False), ('source', '=', 'opening'),
+                                        ('unit_cost', '=', 0)]):
+                parts = self._fifo_remaining(code, opening.date, acc, matched_lot_rows)
+                total = sum(q for q, lot in parts)
+                if not parts:
+                    continue
+                if abs(total - opening.qty_in) > 0.001:
+                    stats['split_bad'] += 1
+                    continue
+                first = True
+                for q, lot in parts:
+                    move = opening if first else opening.copy({'import_key': (opening.import_key or 'open') + '|acc%s' % lot['row'],
+                                                                'import_batch_id': batch.id})
+                    move.write({'qty_in': q})
+                    self._fill_stock_in(move, lot)
+                    first = False
+                stats['split'] += 1 if len(parts) > 1 else 0
+        # --- OUT rows -> OUT moves (same staff code, date, item/size, quantity): working area and receipt no.
+        index = {}
+        for m in Move.search([('qty_out', '>', 0), ('accounting_only', '=', False)]):
+            # staff without an employee record (left, or not in this database) are plain moves: the code is the first part of the note
+            code = (m.employee_id.code or (m.note or '').split(' / ')[0]).strip().upper()
+            index.setdefault(code, []).append(m)
+        by_day = {}
+        for o in acc['outs']:
+            by_day.setdefault((o['code'], o['staff'], o['date']), []).append(o)
+        siblings_done = set()
+        for out in acc['outs']:
+            if out['row'] in siblings_done:
+                continue
+            target = targets.get(out['code'])
+            move = False
+            group = []
+            siblings = [out]
+            if target:
+                item, size = target
+                same = [m for m in index.get(out['staff'], []) if m.id not in claimed and m.item_id == item
+                        and (m.size_id or env['safety.tool.size']) == size and (not out['date'] or m.date == out['date'])]
+                exact = [m for m in same if abs(m.qty_out - out['qty']) < 0.001]
+                if exact:
+                    group = exact[:1]
+                elif same and abs(sum(m.qty_out for m in same) - out['qty']) < 0.001:
+                    group = same                              # the Excel row is one line, Odoo holds it as several moves
+            if target and not group and out['date'] and len(by_day[(out['code'], out['staff'], out['date'])]) > 1:
+                # the accounting report lists a handover once per stock-in lot it was taken from (FIFO): the rows of the same day, staff and
+                # code together are one handover
+                siblings = [o for o in by_day[(out['code'], out['staff'], out['date'])] if o['row'] not in matched_out_rows]
+                total = sum(o['qty'] for o in siblings)
+                exact = [m for m in same if abs(m.qty_out - total) < 0.001]
+                if exact:
+                    group = exact[:1]
+                elif same and abs(sum(m.qty_out for m in same) - total) < 0.001:
+                    group = same
+            if group and not out['date'] and len({m.date for m in same}) > 1 and len(exact) != 1:
+                group = []                                    # a row without a date must be unambiguous
+            if group:
+                move = group[0]
+                for extra in group[1:]:
+                    claimed.add(extra.id)
+                    if out['area'] and extra.work_area != out['area']:
+                        extra.write({'work_area': out['area']})
+            if not move:
+                if target:
+                    stats['outs_none'] += 1
+                    outs_none.append(out)
+                continue
+            claimed.add(move.id)
+            for o in siblings:
+                matched_out_rows.add(o['row'])
+                siblings_done.add(o['row'])
+            vals = {}
+            if out['area'] and move.work_area != out['area']:
+                vals['work_area'] = out['area']
+            if vals:
+                move.write(vals)
+            receipt = self._receipt_from_remark(out['remark'], out['date'])
+            if receipt and move.request_id and not move.request_id.receipt_no:
+                move.request_id.sudo().write({'receipt_no': receipt})
+                stats['receipts'] += 1
+            stats['outs'] += 1
+        # --- the rest (before the opening balance) is accounting history; this must come AFTER both matching passes
+        if self.create_history:
+            stats['hist_in'], stats['hist_out'], hist_lots, hist_outs = self._add_history(acc, targets, matched_lot_rows, matched_out_rows, batch)
+            lots_none = [l for l in lots_none if l['row'] not in hist_lots]
+            outs_none = [o for o in outs_none if o['row'] not in hist_outs]
+            stats['lots_none'], stats['outs_none'] = len(lots_none), len(outs_none)
+        lines = [_('Accounting sheets: stock-in lots matched %(lots)s, not found in Odoo %(lots_none)s; opening balances split per invoice %(split)s '
+                   '(not equal to the Excel %(split_bad)s); accounting history added: %(hist_in)s lots, %(hist_out)s OUT rows; OUT rows matched %(outs)s, not found %(outs_none)s; receipt numbers set %(receipts)s.') % stats]
+        if unknown_codes:
+            lines.append(_('Codes with no item/size in Odoo (fill the Code Mat. of the item or size, or tick "Create items for unknown codes", then import again): %s.') %
+                         ', '.join('%s (%s)' % (c, acc['codes'].get(c, '?')) for c in unknown_codes))
+        if created_items:
+            lines.append(_('Items created from the Code.Mat sheet: %s.') % ', '.join(created_items))
+        if ambiguous:
+            lines.append(_('Codes used by SEVERAL items or sizes (left out: give each its own Code Mat., then import again): %s.') % ', '.join(ambiguous))
+        if lots_none:
+            lines.append(_('Lots not found as stock-in (code qty invoice): %s.') % '; '.join(
+                '%s x%g inv %s' % (l['code'], l['qty'], l['invoice_no'] or '-') for l in lots_none[:25]))
+        if outs_none:
+            lines.append(_('OUT rows not found (code staff date qty): %s.') % '; '.join(
+                '%s %s %s x%g' % (o['code'], o['staff'], o['date'], o['qty']) for o in outs_none[:25]))
+        return '\n'.join(lines) + '\n'
+
+    def _add_history(self, acc, targets, matched_lot_rows, matched_out_rows, batch):
+        """Older lots and OUT rows (up to the opening date of the item/size) that Odoo does not hold: added as accounting_only moves."""
+        env = self.env
+        Move = env['safety.tool.move'].sudo().with_context(safety_tool_system=True)
+        staff = self._employee_map()
+        counts = {}
+        # history is rebuilt from the file every time (it is not stock and nothing refers to it): no duplicates, no leftovers of an earlier run
+        Move.search([('accounting_only', '=', True)]).unlink()
+
+        def key(*parts):
+            base = '|'.join(str(p) for p in parts)
+            counts[base] = counts.get(base, 0) + 1
+            return '%s#%d' % (base, counts[base])
+        n_in = n_out = 0
+        seen_lots, seen_outs = set(), set()
+        for code, (item, size) in sorted(targets.items()):
+            openings = Move.search([('item_id', '=', item.id), ('size_id', '=', size.id or False), ('source', '=', 'opening'),
+                                    ('accounting_only', '=', False)])
+            if openings:
+                cutoff = min(openings.mapped('date'))
+            else:                                    # no opening balance: everything before the first real move is history
+                real = Move.search([('item_id', '=', item.id), ('size_id', '=', size.id or False), ('accounting_only', '=', False)], order='date', limit=1)
+                cutoff = (real.date - datetime.timedelta(days=1)) if real else self.as_of_date
+            base = {'item_id': item.id, 'size_id': size.id or False, 'accounting_only': True, 'import_batch_id': batch.id}
+            for lot in acc['lots']:
+                if lot['code'] != code or lot['row'] in matched_lot_rows or (lot['invoice_date'] and lot['invoice_date'] > cutoff):
+                    continue
+                k = key('accin', code, lot['invoice_no'], lot['invoice_date'], lot['qty'], lot['unit_cost'])
+                if Move.search_count([('import_key', '=', k)]):
+                    seen_lots.add(lot['row'])
+                    continue
+                Move.create(dict(base, date=lot['invoice_date'] or cutoff, qty_in=lot['qty'], source='purchase', import_key=k,
+                                 invoice_no=lot['invoice_no'] or False, invoice_date=lot['invoice_date'], unit_cost=lot['unit_cost'],
+                                 payment_no=lot['payment_no'] or False, supplier_name=lot['supplier'] or False,
+                                 note=_('Accounting history (Excel)')))
+                n_in += 1
+                seen_lots.add(lot['row'])
+            for out in acc['outs']:
+                if out['code'] != code or out['row'] in matched_out_rows or not out['date'] or out['date'] > cutoff:
+                    continue
+                k = key('accout', code, out['staff'], out['date'], out['qty'])
+                if Move.search_count([('import_key', '=', k)]):
+                    seen_outs.add(out['row'])
+                    continue
+                Move.create(dict(base, date=out['date'], qty_out=out['qty'], source='manual', import_key=k,
+                                 employee_id=staff.get(out['staff']) or False, work_area=out['area'] or False,
+                                 note=('%s %s' % (out['staff'], out['staff_name'])).strip()))
+                n_out += 1
+                seen_outs.add(out['row'])
+        return n_in, n_out, seen_lots, seen_outs
+
+    @staticmethod
+    def _fill_stock_in(move, lot):
+        vals = {}
+        for field, value in (('invoice_no', lot['invoice_no']), ('invoice_date', lot['invoice_date']), ('unit_cost', lot['unit_cost']),
+                             ('payment_no', lot['payment_no']), ('supplier_name', lot['supplier'])):
+            if value and not move[field]:
+                vals[field] = value
+        if vals:
+            move.write(vals)
+
+    @staticmethod
+    def _fifo_remaining(code, upto, acc, matched_rows):
+        """[(quantity, lot)] of the Excel lots of this code (not matched to a later stock-in) that are still in stock on `upto`:
+        the OUT rows up to that date use the oldest lots first."""
+        lots = [dict(l, left=l['qty']) for l in acc['lots'] if l['code'] == code and l['row'] not in matched_rows]
+        for out in sorted((o for o in acc['outs'] if o['code'] == code and o['date'] and o['date'] <= upto), key=lambda o: o['date']):
+            need = out['qty']
+            for lot in lots:
+                take = min(lot['left'], need)
+                lot['left'] -= take
+                need -= take
+                if need <= 0:
+                    break
+        return [(l['left'], l) for l in lots if l['left'] > 0.001]
+
+    @staticmethod
+    def _receipt_from_remark(remark, date):
+        rem = (remark or '').strip().replace(' ', '')
+        m = re.match(r'^(?:SM-)?(\d{2})-(\d{1,4})$', rem)
+        if m:
+            return 'SM-%s-%04d' % (m.group(1), int(m.group(2)))
+        return False
 
     def _import_pictures(self):
         """Give the picture of each Excel block to its item (when the item has no photo). Returns the count."""
@@ -407,7 +784,7 @@ class SafetyToolImportWizard(models.TransientModel):
             if line.action == 'skip' or not line.item_id or line.item_id.image:
                 continue
             try:
-                line.item_id.image = tools.image_resize_image(base64.b64encode(image['data']), size=(600, 600), avoid_if_small=True)
+                line.item_id.image = base64.b64encode(image_process(image['data'], size=(600, 600)))
                 done += 1
             except Exception as error:
                 _logger.warning('Safety tool import: picture %s not usable (%s)', image['media'], error)

@@ -12,6 +12,8 @@
                     </group>
                     <group>
                         <field name="item_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                        <field name="accounting"/>
+                        <field name="refresh_remote" invisible="not accounting"/>
                     </group>
                 </group>
                 <group invisible="not file">

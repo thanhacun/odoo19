@@ -15,6 +15,7 @@
                 <field name="approval_progress"/>
                 <field name="state"/>
                 <field name="fulfilment_state"/>
+                <field name="receipt_no"/>
             </list>
         </field>
     </record>
@@ -57,6 +58,11 @@
                             context="{'target_report_xml_id': 'kdvn_procurement_procedures.safety_tool_request_report_py3o',
                                       'report_format_method': 'prepare_safety_tool_report'}"
                             invisible="state != 'approved'"/>
+                    <button name="action_print_secure_authenticated_report" string=" Print Receipt" type="object"
+                            class="btn btn-secondary" icon="fa-print"
+                            context="{'target_report_xml_id': 'kdvn_procurement_procedures.safety_tool_receipt_report_py3o',
+                                      'report_format_method': 'prepare_safety_tool_receipt'}"
+                            invisible="state != 'approved' or fulfilment_state not in ['issued', 'received', 'not_received']"/>
                     <button name="action_reset_to_draft" string="Unblock / Reset to Draft" type="object" class="btn-warning"
                             groups="kdvn_procurement_procedures.group_safety_tool_admin,kdvn_e_approval.group_e_approval_admin"
                             invisible="state not in ('submitted', 'approved', 'rejected')"/>
@@ -160,6 +166,7 @@
                     <group string="Store" invisible="state != 'approved'">
                         <group>
                             <field name="fulfilment_state" readonly="1"/>
+                            <field name="receipt_no"/>
                             <field name="issued_date"/>
                             <field name="issued_by_id"/>
                             <field name="receipt_date"/>
@@ -208,6 +215,7 @@
                 <field name="name"/>
                 <field name="employee_id" string="Applicant"/>
                 <field name="job_id"/>
+                <field name="receipt_no"/>
                 <filter string="To Approve" name="filter_to_approve" domain="[('can_review', '=', True), ('state', '=', 'submitted')]"/>
                 <filter string="My Approval History" name="filter_my_history" domain="[('reviewer_ids', 'in', uid), ('state', 'in', ['approved', 'rejected'])]"/>
                 <separator/>

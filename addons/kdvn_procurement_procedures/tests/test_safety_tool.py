@@ -278,7 +278,7 @@ class TestSafetyTool(TransactionCase):
         rows = xl.read_sheet_rows(io.BytesIO(base64.b64decode(wiz.file)), 'control')
         flat = [v for r in rows.values() for v in r.values()]
         self.assertIn('T Helmet', flat)
-        remains = [r['J'] for r in rows.values() if 'J' in r and r.get('H') or r.get('I')]
+        remains = [r['K'] for r in rows.values() if 'K' in r and (r.get('I') or r.get('J'))]   # Remain is column K in the original layout
         self.assertIn('3', [str(x).rstrip('0').rstrip('.') for x in remains])      # 5 in - 2 out
         with self.assertRaises(UserError):
             self.env['safety.tool.report.wizard'].with_user(self.u_app).create({}).action_generate()

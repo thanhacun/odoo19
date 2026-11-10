@@ -51,7 +51,7 @@
             <field name="name">To Hand Over / To Purchase</field>
             <field name="res_model">safety.tool.request</field>
             <field name="view_mode">list,form</field>
-            <field name="domain">[('fulfilment_state', 'in', ['to_issue', 'to_purchase', 'ordered', 'not_received'])]</field>
+            <field name="domain">[('fulfilment_state', 'in', ['to_issue', 'to_purchase', 'ordered', 'issued', 'not_received'])]</field>
         </record>
 
         <menuitem id="menu_safety_tool_store" name="Safety Tool Store" parent="kdvn_e_approval.menu_e_approval_root" sequence="70"

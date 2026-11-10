@@ -10,6 +10,7 @@ Layout (checked on 'Safety Tool Control Sheet 2026-T8', report No. 142):
 - a block without a number can start at a row with a Remain value, no IN/OUT and 'Periodical check' as remark.
 """
 import datetime
+import io
 import re
 import zipfile
 from xml.etree import ElementTree as ET
@@ -58,7 +59,7 @@ def _to_float(value):
         return None
 
 
-def read_sheet_rows(data, sheet_hint='control'):
+def read_sheet_rows(data, sheet_hint='control', strict=False):
     """{row number: {column letter: value}} of the sheet whose name contains `sheet_hint`
     (else the last sheet). Values are strings (numbers keep their text form)."""
     archive = zipfile.ZipFile(data)
@@ -70,7 +71,10 @@ def read_sheet_rows(data, sheet_hint='control'):
     rels = ET.fromstring(archive.read('xl/_rels/workbook.xml.rels'))
     targets = {rel.get('Id'): rel.get('Target') for rel in rels}
     sheets = [(s.get('name'), targets[s.get('{%s}id' % NS['r'])]) for s in workbook.find('m:sheets', NS)]
-    chosen = next((t for n, t in sheets if sheet_hint in (n or '').lower()), sheets[-1][1])
+    found = next((t for n, t in sheets if sheet_hint in (n or '').lower()), None)
+    if found is None and strict:
+        return {}
+    chosen = found or sheets[-1][1]
     path = chosen.lstrip('/') if chosen.startswith('/') else 'xl/' + chosen
     root = ET.fromstring(archive.read(path))
     rows = {}
@@ -192,7 +196,10 @@ def read_images(data, sheet_hint='control'):
     rels = ET.fromstring(archive.read('xl/_rels/workbook.xml.rels'))
     targets = {rel.get('Id'): rel.get('Target') for rel in rels}
     sheets = [(s.get('name'), targets[s.get('{%s}id' % NS['r'])]) for s in workbook.find('m:sheets', NS)]
-    chosen = next((t for n, t in sheets if sheet_hint in (n or '').lower()), sheets[-1][1])
+    found = next((t for n, t in sheets if sheet_hint in (n or '').lower()), None)
+    if found is None and strict:
+        return {}
+    chosen = found or sheets[-1][1]
     sheet_path = chosen.lstrip('/') if chosen.startswith('/') else 'xl/' + chosen
     folder, name = sheet_path.rsplit('/', 1)
     rels_path = '%s/_rels/%s.rels' % (folder, name)
@@ -249,3 +256,42 @@ def pictures_by_block(blocks, images, max_col=4, min_bytes=2000):
         if owner is not None and owner not in result:
             result[owner] = image
     return result
+
+
+def parse_accounting_sheets(data):
+    """The two sheets the accounting department uses (original file 'Safety Tool control sheet ... ACC'):
+    'Detail check - report to Acc. D' and 'Code.Mat'. Returns {'codes': {code: name}, 'lots': [...], 'outs': [...]} (empty when absent).
+    Detail layout: A ref / payment no. (header row of a supplier invoice: A 'EN26-0635', C supplier, D invoice, E invoice date),
+    B Code Mat., D invoice no., E invoice date, F staff code, G staff name, H IN, I date out, J OUT, K unit cost, N working area, O remark.
+    A lot = a row with IN (H) and a code; an OUT row = a row with OUT (J) and a staff code; the cached formula values are read."""
+    data = io.BytesIO(data.read()) if hasattr(data, 'read') else data
+    detail = read_sheet_rows(data, 'detail', strict=True)
+    codes = {}
+    for r, c in sorted(read_sheet_rows(data, 'code.mat', strict=True).items()):
+        code = _clean(c.get('A'))
+        if re.match(r'^ST\d', code) and r >= 8:
+            codes.setdefault(code, _clean(c.get('B')))
+    lots, outs = [], []
+    head = {'payment_no': False, 'supplier': False, 'invoice_no': False, 'invoice_date': None}
+    for r, c in sorted(detail.items()):
+        if r < 4:
+            continue
+        code = _clean(c.get('B')).upper()
+        a = _clean(c.get('A'))
+        if a.upper().startswith('EN') and not code:             # header row of a supplier invoice
+            number = re.sub(r'\s+', '', a)
+            head = {'payment_no': number if re.match(r'^EN\d{2}-\d+$', number, re.I) else False, 'supplier': _clean(c.get('C')),
+                    'invoice_no': _clean(c.get('D')) or False, 'invoice_date': _to_date(c.get('E'))}
+            continue
+        if not code:
+            continue
+        qty_in, qty_out = _to_float(c.get('H')), _to_float(c.get('J'))
+        staff = _clean(c.get('F')).upper()
+        if qty_in and not staff:
+            lots.append({'row': r, 'code': code, 'qty': qty_in, 'unit_cost': _to_float(c.get('K')) or 0.0,
+                         'invoice_no': _clean(c.get('D')) or head['invoice_no'], 'invoice_date': _to_date(c.get('E')) or head['invoice_date'],
+                         'payment_no': head['payment_no'], 'supplier': head['supplier']})
+        elif staff and qty_out:
+            outs.append({'row': r, 'code': code, 'staff': staff, 'staff_name': _clean(c.get('G')), 'date': _to_date(c.get('I')), 'qty': qty_out,
+                         'unit_cost': _to_float(c.get('K')) or 0.0, 'area': _clean(c.get('N')), 'remark': _clean(c.get('O'))})
+    return {'codes': codes, 'lots': lots, 'outs': outs}

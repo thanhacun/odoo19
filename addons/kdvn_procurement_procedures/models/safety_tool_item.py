@@ -22,7 +22,10 @@ class SafetyToolItem(models.Model):
     _order = 'sequence, code, name'
 
     sequence = fields.Integer(default=10)
-    code = fields.Char(string='No.', index=True, help='Item number of the control sheet.')
+    code = fields.Char(string='Code Mat.', index=True,
+                       help='Material code (ST0018 ...), the same code in the store, the receipt and the accounting report. '
+                            'The number in it is the item number of the receipt form. Used when the item has no sizes, '
+                            'or for a size that has no code of its own.')
     name = fields.Char(string='Item', required=True)
     item_type = fields.Selection(ITEM_TYPES, string='Type', required=True, default='other')
     uom = fields.Char(string='Unit', required=True, default='pcs')
@@ -96,6 +99,7 @@ class SafetyToolSize(models.Model):
 
     item_id = fields.Many2one('safety.tool.item', required=True, ondelete='cascade', index=True)
     name = fields.Char(string='Size', required=True, help='e.g. 26.0 cm (42) or XL')
+    code = fields.Char(string='Code Mat.', help='Material code of this size (ST0036-1 ...). Empty = the code of the item.')
     sequence = fields.Integer(default=10)
     stock_qty = fields.Float(string='In stock', compute='_compute_stock', digits=(16, 2))
 
@@ -110,3 +114,8 @@ class SafetyToolSize(models.Model):
     def _compute_display_name(self):
         for size in self:
             size.display_name = size.name
+
+    @api.model
+    def code_of(self, item, size=None):
+        """Material code of an item (and size)."""
+        return (size and size.code) or item.code or ''
