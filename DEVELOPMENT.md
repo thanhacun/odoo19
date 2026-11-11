@@ -227,7 +227,7 @@ in Odoo 12 must be ported (the "mirror rule"). Read `docs/porting_from_odoo12.md
 `kdvn_remote_integration` is the only place that talks to KDERP directly. Settings > Remote Server Connection holds the server, the Reader and Writer logins, one
 "live" switch per write task (all off = dry run) and an optional **Relay**. A server that can reach KDERP calls it directly; a server that cannot (beta, the
 public website) sets a Relay URL and token, and every call goes through ONE plain n8n webhook (`design/kdvn_remote_integration/n8n/kderp_relay.json`) that only
-forwards the body. No logic lives in n8n. The Test button says which connection is used. Never switch on a "live" write on dev or on a database copy.
+forwards the body. No logic lives in n8n. The workflow is secured by the token, a caller IP filter at Cloudflare and HAProxy, an allow-list of KDERP URLs and only the JSON-RPC services `common`/`object` (see its note). The Test button says which connection is used. Never switch on a "live" write on dev or on a database copy.
 
 ### 4.7 Website builder caveat
 

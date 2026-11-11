@@ -46,10 +46,29 @@ docker compose restart odoo19
 
 ### Past Prominent Projects data (from KDERP)
 Beta cannot reach the KDERP server, so it reads through the **relay**:
-1. n8n: import `design/kdvn_remote_integration/n8n/kderp_relay.json`, create the Header Auth credential (`X-Relay-Token`), set it on the Webhook node, activate. One workflow serves every Odoo; it has no logic.
+1. n8n: import `design/kdvn_remote_integration/n8n/kderp_relay.json`, create the Header Auth credential (`X-Relay-Token`) and set it on the Webhook node, then **secure it** (below): node *Allowed target?* = your KDERP URL(s) (anything else, and any JSON-RPC service other than `common`/`object`, gets 403), and filter the callers at Cloudflare and HAProxy. Activate. One workflow serves every Odoo; it has no logic.
 2. Odoo: Settings > Remote Server Connection: Server (KDERP URL and database), a Reader login, Relay URL (the Production URL of the webhook) and Relay token. Press **Test connection**: the dialog says "through the relay" and the KDERP version.
 3. Settings > Website Projects: **Import now** (reads about 400 jobs, 160 KB). A cron then reads every night at 02:00. New projects start unpublished; edit and publish them in the backend.
 Only one KDERP server is supported. A server that reaches KDERP itself leaves the Relay URL empty (direct). The older push `POST /api/v1/website_projects` (API key) still works but is no longer needed.
+
+### Securing the relay
+Layers: (1) the token header; (2) the caller IP filter at the proxies; (3) the *Allowed target?* node (KDERP URL allow-list, services `common`/`object` only); (4) KDERP's own login check; (5) HTTPS only (the KDERP password is in the body).
+
+n8n sits behind Cloudflare (calls from outside, e.g. beta or DigitalOcean) and HAProxy (calls from inside, and everything after Cloudflare). n8n therefore sees the proxy's address, not the caller's, and its *Webhook > IP(s) Whitelist* would need `N8N_PROXY_HOPS` to match the number of proxies on every path (2 outside, 1 inside), which it cannot. Leave that option empty and filter at the proxies. The webhook path is `/webhook/kderp-relay`. Only IPs can be filtered, not domain names: use the Odoo servers' public IPs (resolve a name to its IP, and re-check when it changes).
+
+**Cloudflare** (Security > WAF > Custom rules, action Block):
+```
+(http.host eq "<n8n host>" and starts_with(http.request.uri.path, "/webhook/kderp-relay") and not ip.src in {<beta IP> <DigitalOcean IP>})
+```
+**HAProxy** (frontend of the n8n host; trust `CF-Connecting-IP` only when the request really comes from Cloudflare, otherwise a caller could forge it):
+```
+acl from_cloudflare src -f /etc/haproxy/cloudflare_ips.lst     # Cloudflare's published ranges
+http-request set-src req.hdr(CF-Connecting-IP) if from_cloudflare
+acl relay_path path_beg /webhook/kderp-relay
+acl relay_allowed src -f /etc/haproxy/relay_allowed_ips.lst    # Odoo servers: beta, DigitalOcean, internal ones
+http-request deny deny_status 403 if relay_path !relay_allowed
+```
+`set-src` must come before the ACL that uses `src`. Check Cloudflare's current IP list (https://www.cloudflare.com/ips/) and keep the file up to date. These two snippets are written from the HAProxy and Cloudflare documentation and have not been run here: test them from an allowed and a non-allowed address before relying on them.
 
 ## 4. Deploy to the dev databases (ERP)
 Upgrade every module whose version changed, on each database that should have it (server stopped, other ports):
