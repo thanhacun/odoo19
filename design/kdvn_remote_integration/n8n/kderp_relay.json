@@ -1,0 +1,101 @@
+{
+  "name": "KDERP relay (Odoo -> KDERP JSON-RPC)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "kderp-relay",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "kderp-relay",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "CHANGE_ME",
+          "name": "KDERP relay token (header X-Relay-Token)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.headers['x-target-url'] }}/jsonrpc",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.body) }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "name": "Forward to KDERP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "firstIncomingItem",
+        "options": {}
+      },
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## KDERP relay\nThe ONLY n8n workflow Odoo needs. It forwards the JSON-RPC body that Odoo sends to `<X-Target-URL>/jsonrpc` and returns KDERP's answer. No logic: which jobs, fields and rates are decided in Odoo, so this never changes.\n\n1. Create a *Header Auth* credential: name `X-Relay-Token`, value = a long random token, and select it on **Webhook**.\n2. Activate the workflow.\n3. In Odoo: Settings > Remote Server Connection > Relay: URL = the *Production URL* of **Webhook**, token = the same value; Server = the KDERP URL (sent as X-Target-URL).\n\nNote: the target is taken from the header, so anyone with the token can make n8n call any URL it can reach. Keep the token secret; for a stricter relay, add an IF node that only allows your KDERP host.",
+        "height": 330,
+        "width": 520
+      },
+      "name": "Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -380
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Forward to KDERP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Forward to KDERP": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

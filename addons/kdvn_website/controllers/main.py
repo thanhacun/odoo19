@@ -29,6 +29,25 @@ class KdvnWebsiteMediaController(http.Controller):
         return stream.get_response(immutable=False)
 
 
+class KdvnHeroSlideController(http.Controller):
+
+    @http.route('/kdvn/hero/<int:slide_id>/image', type='http', auth='public', website=True,
+                sitemap=False, readonly=True)
+    def kdvn_hero_image(self, slide_id, width=0, **kwargs):
+        """Image of an active slide (optionally resized: ?width=1600)."""
+        try:
+            width = int(width or 0)
+        except ValueError:
+            width = 0
+        slide = request.env['kdvn.website.hero.slide'].sudo().browse(slide_id).exists()
+        if slide and slide.active and slide.image:
+            stream = request.env['ir.binary']._get_image_stream_from(slide, 'image', width=width)
+        else:
+            stream = request.env['ir.binary']._get_placeholder_stream('web/static/img/placeholder.png')
+        stream.max_age = 300
+        return stream.get_response(immutable=False)
+
+
 class KdvnInquiryController(http.Controller):
     """Website inquiry form (/contactus): store the message, email the
     recipients, then show the 'Got it!' popup (/contactus?sent=1)."""

@@ -67,16 +67,29 @@ class KderpRemoteClient(models.AbstractModel):
 
     # ------------------------------------------------------------------ transport
     @api.model
+    def _transport(self, cfg):
+        """(url, headers) of the HTTP call. Direct: the server's own /jsonrpc. Relay (a server that cannot reach KDERP, e.g.
+        beta or the public website): the relay URL, the access token and the target server in headers. The relay (one plain
+        n8n workflow, design/kdvn_remote_integration/n8n/) only forwards the body to <X-Target-URL>/jsonrpc and returns the answer."""
+        icp = self.env['ir.config_parameter'].sudo()
+        relay_url = (icp.get_param(PARAM + 'relay_url') or '').strip()
+        if not relay_url:
+            return cfg['url'] + '/jsonrpc', {}
+        return relay_url, {'X-Relay-Token': (icp.get_param(PARAM + 'relay_token') or '').strip(), 'X-Target-URL': cfg['url']}
+
+    @api.model
     def _rpc(self, cfg, service, method, args):
         payload = {'jsonrpc': '2.0', 'method': 'call', 'id': 1,
                    'params': {'service': service, 'method': method, 'args': args}}
+        url, headers = self._transport(cfg)
         try:
-            resp = requests.post(cfg['url'] + '/jsonrpc', json=payload, timeout=TIMEOUT)
+            resp = requests.post(url, json=payload, headers=headers, timeout=TIMEOUT)
             resp.raise_for_status()
             data = resp.json()
         except (requests.exceptions.RequestException, ValueError) as e:
             # Never log the payload: it contains the password.
-            _logger.warning("Remote server %s unreachable: %s", cfg['url'], e.__class__.__name__)
+            _logger.warning("Remote server %s unreachable (%s): %s", cfg['url'],
+                            'relay' if headers else 'direct', e.__class__.__name__)
             raise UserError(_("Could not reach the remote server (%s).", e.__class__.__name__)) from e
         if data.get('error'):
             err = data['error'].get('data') or {}

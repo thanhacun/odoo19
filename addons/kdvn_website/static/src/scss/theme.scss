@@ -1409,7 +1409,7 @@ $kdvn-hero-height: 900px;
     // CSS (.s_carousel_wrapper:not([data-vcss]) …) makes them absolute, 8%
     // wide and hides them on mobile, which put the arrows in the wrong place
     // and order.
-    .s_carousel .kdvn-hero-arrow {
+    .kdvn-hero .kdvn-hero-arrow {
         position: static !important;
         width: 56px !important;
         opacity: 1;

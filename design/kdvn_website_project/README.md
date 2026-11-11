@@ -3,6 +3,8 @@
 Odoo 19 successor of the Odoo 12 module `kdvn_website_project` (`kdvn.publish.project`, reference only).
 
 ## Where the projects come from
+**Since 19.0.3.9.0 Odoo reads the jobs itself** (`models/project_pull.py`, cron 02:00 / button Import now) through `kdvn_remote_integration`; on a server that cannot reach KDERP the call goes through the relay workflow `design/kdvn_remote_integration/n8n/kderp_relay.json` (a plain forward, no logic). The text below describes the older n8n push, which still works.
+
 - Odoo 12 read finished big jobs over XML-RPC from the KDERP/OpenERP servers (`website.servers_json`):
   `state in (done, closed)`, `job_scale = '00-big_job'`, grouped by job name, kept from 1,000,000 USD
   (`contracted_amount_usd`). KDERP now runs on Odoo 12: `job_type = '00-big_job'`, `job_amount` + `currency_id`.

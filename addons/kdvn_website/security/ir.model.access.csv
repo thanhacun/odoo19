@@ -6,3 +6,5 @@ access_kdvn_website_inquiry_type_user,kdvn.website.inquiry.type.user,model_kdvn_
 access_kdvn_website_inquiry_type_designer,kdvn.website.inquiry.type.designer,model_kdvn_website_inquiry_type,website.group_website_designer,1,1,1,1
 access_kdvn_website_certificate_user,kdvn.website.certificate.user,model_kdvn_website_certificate,base.group_user,1,0,0,0
 access_kdvn_website_certificate_designer,kdvn.website.certificate.designer,model_kdvn_website_certificate,website.group_website_designer,1,1,1,1
+access_kdvn_website_hero_slide_user,kdvn.website.hero.slide.user,model_kdvn_website_hero_slide,base.group_user,1,0,0,0
+access_kdvn_website_hero_slide_designer,kdvn.website.hero.slide.designer,model_kdvn_website_hero_slide,website.group_website_designer,1,1,1,1

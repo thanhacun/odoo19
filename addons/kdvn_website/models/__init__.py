@@ -1,4 +1,5 @@
 from . import kdvn_website_media
+from . import kdvn_website_hero_slide
 from . import res_company
 from . import res_partner
 from . import hr_job

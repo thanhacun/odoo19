@@ -9,8 +9,9 @@ The one place that knows how Odoo talks to the KDERP server directly (JSON-RPC /
 Two logins: the Writer is the only one that writes (and reads what needs wide visibility), the Reader does plain reads.
 A write needs a task name and is refused unless that task's live switch is on (dry run is the default).
 Settings: Settings > Remote Server Connection.
+Transport: direct, or through a relay (one plain n8n webhook that forwards the JSON-RPC body) for a server that cannot reach KDERP.
 """,
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Hidden',
     'author': 'Kinden Vietnam',
     'license': 'LGPL-3',
