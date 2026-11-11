@@ -15,6 +15,11 @@ class ResConfigSettings(models.TransientModel):
     kderp_remote_writer_login = fields.Char('Writer login')
     kderp_remote_writer_password = fields.Char('Writer password', help="Leave empty to keep the saved password. It is never shown again.")
     kderp_remote_writer_password_saved = fields.Boolean()
+    kderp_remote_relay_url = fields.Char(
+        'Relay URL', help="Only for a server that cannot reach the KDERP server itself (beta, the public website): the n8n "
+                          "webhook that forwards the calls. Empty: this server calls KDERP directly.")
+    kderp_remote_relay_token = fields.Char('Relay token', help="Leave empty to keep the saved token. It is never shown again.")
+    kderp_remote_relay_token_saved = fields.Boolean()
     kderp_remote_live_advance = fields.Boolean('Advance requests: write for real (production only)')
     kderp_remote_live_staff_location = fields.Boolean('Staff locations: write for real (production only)')
 
@@ -31,6 +36,9 @@ class ResConfigSettings(models.TransientModel):
             kderp_remote_writer_login=icp.get_param(PARAM + 'writer_login', default=''),
             kderp_remote_writer_password='',
             kderp_remote_writer_password_saved=bool(icp.get_param(PARAM + 'writer_password')),
+            kderp_remote_relay_url=icp.get_param(PARAM + 'relay_url', default=''),
+            kderp_remote_relay_token='',
+            kderp_remote_relay_token_saved=bool(icp.get_param(PARAM + 'relay_token')),
             kderp_remote_live_advance=icp.get_param(PARAM + 'live.advance') == 'True',
             kderp_remote_live_staff_location=icp.get_param(PARAM + 'live.staff_location') == 'True',
         )
@@ -47,6 +55,9 @@ class ResConfigSettings(models.TransientModel):
             icp.set_param(PARAM + 'reader_password', self.kderp_remote_reader_password)
         if self.kderp_remote_writer_password:
             icp.set_param(PARAM + 'writer_password', self.kderp_remote_writer_password)
+        icp.set_param(PARAM + 'relay_url', (self.kderp_remote_relay_url or '').strip())
+        if self.kderp_remote_relay_token:
+            icp.set_param(PARAM + 'relay_token', self.kderp_remote_relay_token.strip())
         icp.set_param(PARAM + 'live.advance', 'True' if self.kderp_remote_live_advance else 'False')
         icp.set_param(PARAM + 'live.staff_location', 'True' if self.kderp_remote_live_staff_location else 'False')
 
@@ -57,7 +68,9 @@ class ResConfigSettings(models.TransientModel):
             'url': self.kderp_remote_url, 'db': self.kderp_remote_db,
             'reader_login': self.kderp_remote_reader_login, 'reader_password': self.kderp_remote_reader_password,
             'writer_login': self.kderp_remote_writer_login, 'writer_password': self.kderp_remote_writer_password})
-        lines = [_("Connected to the remote server (version %s).", info['version']), '']
+        relay = (self.env['ir.config_parameter'].sudo().get_param(PARAM + 'relay_url') or '').strip()
+        lines = [_("Connected to the remote server (version %s).", info['version']),
+                 _("Connection: through the relay %s", relay) if relay else _("Connection: direct (no relay set)."), '']
         for account, title in (('writer', _('Writer')), ('reader', _('Reader'))):
             f = info['accounts'].get(account)
             if f is None:

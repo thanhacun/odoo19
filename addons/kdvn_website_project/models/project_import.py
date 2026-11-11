@@ -179,6 +179,14 @@ class ResConfigSettings(models.TransientModel):
         'VND per USD', config_parameter=PARAM_VND_RATE, default=DEFAULT_VND_RATE,
         help="Fallback for VND jobs sent without their KDERP exchange rates.")
 
+    def action_kdvn_pull_projects_now(self):
+        """Settings button: read the finished big jobs from KDERP now (Settings > Remote Server Connection)."""
+        result = self.env['kdvn.website.project']._kdvn_pull_from_kderp()
+        return {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {
+            'title': _("Import from KDERP"), 'type': 'success', 'sticky': False,
+            'message': _("%(jobs)s jobs read: %(created)s created, %(updated)s updated, %(skipped)s below the minimum amount.",
+                         **result)}}
+
     def action_kdvn_generate_project_api_key(self):
         self.ensure_one()
         self.env['ir.config_parameter'].sudo().set_param(PARAM_API_KEY, secrets.token_urlsafe(32))

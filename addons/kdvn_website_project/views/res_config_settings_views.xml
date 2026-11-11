@@ -8,9 +8,18 @@
         <field name="arch" type="xml">
             <xpath expr="//form" position="inside">
                 <app data-string="Website Projects" string="Website Projects" name="kdvn_website_project" groups="base.group_system">
-                    <block title="Import from KDERP (n8n)" name="kdvn_project_import">
-                        <setting id="kdvn_project_api_key" string="Project Import API Key"
-                                 help="n8n sends this key in the X-API-Key header when it posts finished big jobs to /api/v1/website_projects. Without a key, all data is refused.">
+                    <block title="Import from KDERP" name="kdvn_project_pull">
+                        <setting id="kdvn_project_pull" string="Read from KDERP"
+                                 help="Every night the finished big jobs are read from KDERP with the connection in Settings > Remote Server Connection (direct, or through the relay). Use the button to read them now.">
+                            <div class="mt8">
+                                <button name="action_kdvn_pull_projects_now" type="object" string="Import now"
+                                        icon="fa-download" class="btn-secondary"/>
+                            </div>
+                        </setting>
+                    </block>
+                    <block title="Settings of the import" name="kdvn_project_import">
+                        <setting id="kdvn_project_api_key" string="Push API Key (older way)"
+                                 help="Not needed for the nightly read. Only for something that still posts finished big jobs to /api/v1/website_projects: it sends this key in the X-API-Key header. Without a key, all pushed data is refused.">
                             <field name="kdvn_project_api_key" widget="CopyClipboardChar" readonly="1"
                                    placeholder="No key yet: click Generate new key"/>
                             <div class="mt8">

@@ -160,5 +160,44 @@ class TestRemoteClient(TransactionCase):
         self.assertEqual(action['res_model'], 'kderp.remote.test.result')
         text = self.env['kderp.remote.test.result'].browse(action['res_id']).message
         self.assertIn('Connected to the remote server (version 12.0)', text)
+        self.assertIn('Connection: direct (no relay set).', text)
         self.assertIn('Writer: wr', text)
         self.assertIn('Real writes: Advance requests dry run', text)
+
+    # ------------------------------------------------------------------ transport: direct or relay
+    def _post(self, relay_url=''):
+        self.icp.set_param('kderp_remote.relay_url', relay_url)
+        self.icp.set_param('kderp_remote.relay_token', 'tok-1')
+        response = mock.Mock()
+        response.json.return_value = {'result': 7}
+        with mock.patch('odoo.addons.kdvn_remote_integration.models.remote_client.requests.post', return_value=response) as post:
+            cfg = self.client._get_config('reader')
+            self.assertEqual(self.client._rpc(cfg, 'common', 'version', []), 7)
+        return post
+
+    def test_direct_calls_the_server_itself(self):
+        post = self._post()
+        self.assertEqual(post.call_args.args[0], 'http://remote.test:8169/jsonrpc')
+        self.assertEqual(post.call_args.kwargs['headers'], {})
+
+    def test_relay_sends_the_same_body_to_the_relay_with_token_and_target(self):
+        post = self._post('https://n8n.test/webhook/kderp-relay')
+        self.assertEqual(post.call_args.args[0], 'https://n8n.test/webhook/kderp-relay')
+        self.assertEqual(post.call_args.kwargs['headers'],
+                         {'X-Relay-Token': 'tok-1', 'X-Target-URL': 'http://remote.test:8169'})
+        self.assertEqual(post.call_args.kwargs['json']['params']['service'], 'common')
+
+    def test_relay_token_is_never_sent_to_the_browser_and_empty_keeps_it(self):
+        self.icp.set_param('kderp_remote.relay_token', 'tok-1')
+        vals = self.env['res.config.settings'].get_values()
+        self.assertEqual(vals['kderp_remote_relay_token'], '')
+        self.assertTrue(vals['kderp_remote_relay_token_saved'])
+        self.env['res.config.settings'].create({'kderp_remote_relay_url': 'https://r.test/x'}).set_values()
+        self.assertEqual(self.icp.get_param('kderp_remote.relay_token'), 'tok-1')
+        self.assertEqual(self.icp.get_param('kderp_remote.relay_url'), 'https://r.test/x')
+
+    def test_test_button_says_when_the_relay_is_used(self):
+        self.icp.set_param('kderp_remote.relay_url', 'https://n8n.test/webhook/kderp-relay')
+        action = self._run(self.env['res.config.settings'].create({}).action_kderp_remote_test_connection)
+        text = self.env['kderp.remote.test.result'].browse(action['res_id']).message
+        self.assertIn('Connection: through the relay https://n8n.test/webhook/kderp-relay', text)

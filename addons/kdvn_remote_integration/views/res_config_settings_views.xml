@@ -20,6 +20,25 @@
                             </div>
                         </setting>
                     </block>
+                    <block title="Relay (only if this server cannot reach the server above)" name="kderp_remote_relay">
+                        <setting id="kderp_remote_relay" string="Relay via n8n"
+                                 help="Beta and the public website cannot reach KDERP. Enter the webhook of the n8n relay workflow and its token; every call then goes through it. Leave empty on a server that reaches KDERP itself (direct).">
+                            <div class="mb8">
+                                <label for="kderp_remote_relay_url" class="o_form_label"/>
+                                <field name="kderp_remote_relay_url" placeholder="https://n8n.example.com/webhook/kderp-relay"/>
+                            </div>
+                            <field name="kderp_remote_relay_token_saved" invisible="1"/>
+                            <div class="mb8">
+                                <label for="kderp_remote_relay_token" class="o_form_label"/>
+                                <field name="kderp_remote_relay_token" password="True" placeholder="New token" autocomplete="new-password"/>
+                                <div class="mt4">
+                                    <span class="badge text-bg-success" invisible="not kderp_remote_relay_token_saved"><i class="fa fa-check" role="img" title="Saved"/> Saved</span>
+                                    <span class="badge text-bg-warning" invisible="kderp_remote_relay_token_saved">Not set yet</span>
+                                    <span class="text-muted ms-1">Type a new one only to change it.</span>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
                     <block title="Logins" name="kderp_remote_logins">
                         <setting id="kderp_remote_writer" string="Writer"
                                  help="The only login that writes (advance requests, staff locations) and that reads what needs wide visibility. It needs create rights on advance requests and on staff location lines.">
