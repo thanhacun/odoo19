@@ -1,5 +1,5 @@
 # KDVN Odoo 19 (Kinden Vietnam)
-At the start of every session read HANDOFF.md first (state, open items, tools, lessons). Before ending a session or when I say "handoff", update it.
+At the start of every session read HANDOFF.md first (state, open items, tools, lessons). For porting, import or deploy work also read ~/odoo12/HANDOFF.md (the Odoo 12 side: production facts, deploy steps, open items): the port needs both folders, ~/odoo12 and this one. Before ending a session or when I say "handoff", update each HANDOFF.md you changed.
 Repo ~/odoo19_thcn, Odoo 19 Community. Each addon has its own CLAUDE.md, loaded when you work in it.
 
 | Addon | Purpose | Docs (read only when the task needs them) |

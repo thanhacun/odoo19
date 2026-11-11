@@ -78,11 +78,14 @@ docker exec odoo19 odoo -c /etc/odoo/odoo.conf -d <db> -u <modules> --stop-after
 Then rebuild the template (`tools/make_empty_template.sh`) and refresh the lab if needed (`tools/make_lab.sh --yes`). `odoo19_dev` is the mirror the nightly import writes to: upgrade it, but do not experiment in it.
 After the upgrade the server that serves the database must run the same code (same addons path); a database upgraded from a worktree needs that worktree's addons path until the branch is merged.
 
-## 5. Odoo 12 side (KDERP)
-- Odoo 12 changes are committed on `master` in `~/odoo12` and deployed by Thanh. Say in the handoff which modules need `-u` and in what order (`kderp_remote_sync` first when others depend on it; n8n before Odoo when both change; migrations only run when a module is upgraded TO the new version).
-- Rehearse a production deploy on a copy of the production database first, and test on `odoo12_lab`.
+## 5. Odoo 12 side (KDERP, `~/odoo12`)
+Odoo 12 is the master until the cut-over and is deployed separately. The facts and steps live in `~/odoo12/HANDOFF.md`; in short:
+- Production runs OUR `master`: HN database `AT_211101` (`att@attserver`), HCMC `odoo12_101221` (`sadmin@atthcm`). Thanh deploys and pushes; Claude commits on `master` in `~/odoo12` (never switches branches there) and never pushes.
+- Upgrade: stop the Odoo 12 container, `~/backup_odoo.sh predeploy`, `git pull`, start it, run `odoo -d <db> --stop-after-init -u <modules> --workers=0 ...` (full command in the Odoo 12 HANDOFF), check for 0 tracebacks, start Odoo by hand.
+- Order: `kderp_remote_sync` before the modules that depend on it; n8n before Odoo when both change; migrations run only when a module is upgraded TO the new version. Rehearse on a copy of the production database (neutralized) first; test on `odoo12_lab`.
+- Rules: type the database name by hand after `psql -l` (Odoo creates a missing database); never `git clean` on the servers; neutralize any restored copy; connection tests (Talk, n8n, remote ERP) never on a non-neutralized copy.
+- A behaviour change in one repo that differs in the other must be mirrored (mirror rule). What is built and not yet deployed is listed in `~/odoo12/HANDOFF.md`.
 - Production OCA modules are outside git: copy them by hand.
-- What is built and not yet deployed is listed in `~/odoo12/HANDOFF.md`.
 
 ## 6. Which modules to upgrade
 Compare the installed version with the repo for each database:

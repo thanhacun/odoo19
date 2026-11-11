@@ -7,7 +7,9 @@ It has two parts:
 2. **The ERP port from KDERP (Odoo 12)**: attendance, HR, e-approval procedures, remote sync, legacy import, guides.
    Odoo 12 stays the master until the cut-over; Odoo 19 follows it with a nightly import.
 
-Where to read next: `CLAUDE.md` (rules for Claude Code), `HANDOFF.md` (current state, open items; git-ignored, kept per developer),
+**The port needs two folders:** this one (`~/odoo19_thcn`, Odoo 19) and `~/odoo12` (Odoo 12 = KDERP, the master and the reference). Each has its own `HANDOFF.md`: read both before porting, importing or deploying.
+
+Where to read next: `CLAUDE.md` (rules for Claude Code), `HANDOFF.md` (current state, open items; git-ignored, kept per developer; the Odoo 12 one is `~/odoo12/HANDOFF.md`),
 [docs/deploy.md](docs/deploy.md) (release and deploy of every module), [docs/progress.md](docs/progress.md) (status).
 
 ## Repository layout
@@ -199,8 +201,8 @@ docker exec odoo19 odoo -c /etc/odoo/odoo.conf -d kdvn_test -u <module> --test-t
   `--addons-path=/home/odoo/project/.worktrees/<name>/addons,/home/odoo/project/extra-addons`. A database upgraded that way must be served
   with the same addons path until the branch is merged.
 - `kdvn_test` is a plain website database: the website inquiry and search tests may fail there for reasons that have nothing to do with a change. Compare with the `dev` code before chasing them.
-- Odoo 12 side: `docker exec odoo12.dev odoo -c /etc/odoo/odoo.conf -d odoo12_lab -u <module> --test-enable --stop-after-init --xmlrpc-port=8179 --longpolling-port=8182`
-  (test on `odoo12_lab`, never on a production copy).
+- Odoo 12 side (container `odoo12.dev`, Postgres `kdvn.odoo12.db.dev`; test on `odoo12_lab`, never on a production copy; see `~/odoo12/HANDOFF.md`):
+  `docker exec -w /home/odoo/project odoo12.dev odoo -d odoo12_lab -u <mod> --stop-after-init --xmlrpc-port=12099 --test-file=/home/odoo/project/addons/<mod>/tests/<file>.py --log-level=test`
 
 ### 4.4 Tools (`tools/`)
 
