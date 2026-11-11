@@ -7,7 +7,9 @@
         "path": "kderp-relay",
         "authentication": "headerAuth",
         "responseMode": "responseNode",
-        "options": {}
+        "options": {
+          "ipWhitelist": "CHANGE_ME: comma-separated IPs or CIDR of the Odoo servers that may call, e.g. 203.0.113.10,198.51.100.0/24"
+        }
       },
       "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
@@ -26,6 +28,39 @@
     },
     {
       "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "allowed-target",
+              "leftValue": "={{ ['http://172.16.10.192:8169'].includes(String($json.headers['x-target-url'] || '').replace(/\\/+$/, '')) && ['common', 'object'].includes($json.body?.params?.service) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Allowed target?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
         "method": "POST",
         "url": "={{ $json.headers['x-target-url'] }}/jsonrpc",
         "sendBody": true,
@@ -39,8 +74,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        260,
-        0
+        500,
+        -80
       ]
     },
     {
@@ -52,22 +87,38 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        520,
-        0
+        760,
+        -80
       ]
     },
     {
       "parameters": {
-        "content": "## KDERP relay\nThe ONLY n8n workflow Odoo needs. It forwards the JSON-RPC body that Odoo sends to `<X-Target-URL>/jsonrpc` and returns KDERP's answer. No logic: which jobs, fields and rates are decided in Odoo, so this never changes.\n\n1. Create a *Header Auth* credential: name `X-Relay-Token`, value = a long random token, and select it on **Webhook**.\n2. Activate the workflow.\n3. In Odoo: Settings > Remote Server Connection > Relay: URL = the *Production URL* of **Webhook**, token = the same value; Server = the KDERP URL (sent as X-Target-URL).\n\nNote: the target is taken from the header, so anyone with the token can make n8n call any URL it can reach. Keep the token secret; for a stricter relay, add an IF node that only allows your KDERP host.",
-        "height": 330,
-        "width": 520
+        "respondWith": "json",
+        "responseBody": "={{ { \"error\": { \"message\": \"Target server or service not allowed by the relay\" } } }}",
+        "options": {
+          "responseCode": 403
+        }
+      },
+      "name": "Refuse",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        500,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## KDERP relay\nThe ONLY n8n workflow Odoo needs. It forwards the JSON-RPC body that Odoo sends to `<X-Target-URL>/jsonrpc` and returns KDERP's answer. No business logic: which jobs, fields and rates are decided in Odoo, so this never changes.\n\n### Setup\n1. Create a *Header Auth* credential: name `X-Relay-Token`, value = a long random token. Select it on **Webhook**.\n2. **Webhook > Options > IP(s) Whitelist**: the public IPs (or CIDR) of the Odoo servers that call it (beta, the DigitalOcean site, the dev machine). Domain names are not accepted there: use their IPs. Behind a reverse proxy, n8n must see the real caller IP (set `N8N_PROXY_HOPS=1`), or the whitelist would see the proxy.\n3. **Allowed target?**: replace the list with your KDERP URL(s), exactly as in Odoo's Server field without a trailing slash (e.g. `http://172.16.10.192:8169`). Anything else, and any call whose JSON-RPC service is not `common` or `object`, gets 403 and is never forwarded.\n4. Activate. In Odoo: Settings > Remote Server Connection: Relay URL = the Production URL of **Webhook**, token = the same value.\n\n### What protects it\nToken (header) + caller IP whitelist + allowed KDERP URL list + only JSON-RPC services `common` / `object`. The KDERP login and password are still checked by KDERP itself. Use HTTPS for the webhook, because the password travels in the body.\n\nAdding a second KDERP server (e.g. HCMC) means adding its URL to the list in **Allowed target?**.",
+        "height": 520,
+        "width": 560
       },
       "name": "Note",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
         0,
-        -380
+        -620
       ]
     }
   ],
@@ -76,7 +127,25 @@
       "main": [
         [
           {
+            "node": "Allowed target?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Allowed target?": {
+      "main": [
+        [
+          {
             "node": "Forward to KDERP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Refuse",
             "type": "main",
             "index": 0
           }

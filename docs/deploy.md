@@ -46,7 +46,7 @@ docker compose restart odoo19
 
 ### Past Prominent Projects data (from KDERP)
 Beta cannot reach the KDERP server, so it reads through the **relay**:
-1. n8n: import `design/kdvn_remote_integration/n8n/kderp_relay.json`, create the Header Auth credential (`X-Relay-Token`), set it on the Webhook node, activate. One workflow serves every Odoo; it has no logic.
+1. n8n: import `design/kdvn_remote_integration/n8n/kderp_relay.json`, create the Header Auth credential (`X-Relay-Token`) and set it on the Webhook node, then **secure it** (the note in the workflow has the steps): Webhook > Options > IP(s) Whitelist = the IPs of the Odoo servers that call it; node *Allowed target?* = your KDERP URL(s) (anything else, and any JSON-RPC service other than `common`/`object`, gets 403); n8n behind a reverse proxy needs `N8N_PROXY_HOPS=1` so it sees the real caller IP. Activate. One workflow serves every Odoo; it has no logic.
 2. Odoo: Settings > Remote Server Connection: Server (KDERP URL and database), a Reader login, Relay URL (the Production URL of the webhook) and Relay token. Press **Test connection**: the dialog says "through the relay" and the KDERP version.
 3. Settings > Website Projects: **Import now** (reads about 400 jobs, 160 KB). A cron then reads every night at 02:00. New projects start unpublished; edit and publish them in the backend.
 Only one KDERP server is supported. A server that reaches KDERP itself leaves the Relay URL empty (direct). The older push `POST /api/v1/website_projects` (API key) still works but is no longer needed.
