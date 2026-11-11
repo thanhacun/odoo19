@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Starting slides. Edited in Website > Site > Content > Hero Slides; noupdate keeps the edits on -u. -->
+    <record id="hero_slide_1" model="kdvn.website.hero.slide">
+        <field name="name">Heart to be the connected in the future</field>
+        <field name="link_url">/company-profile</field>
+        <field name="sequence">10</field>
+        <field name="image" type="base64" file="kdvn_website/static/src/img/content/home-hero-1.jpg"/>
+    </record>
+    <record id="hero_slide_2" model="kdvn.website.hero.slide">
+        <field name="name">Heart to be the connected in the future</field>
+        <field name="link_url">/company-profile</field>
+        <field name="sequence">20</field>
+        <field name="image" type="base64" file="kdvn_website/static/src/img/content/home-hero-2.jpg"/>
+    </record>
+</odoo>

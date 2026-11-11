@@ -2,7 +2,7 @@
 <odoo>
     <!--
         Homepage (Figma: frames/home-*.png; spec: design/kdvn_website/specs/home.md).
-        Editable areas (oe_structure) for text and the hero slider; data blocks (t-call)
+        Editable areas (oe_structure) for text; the hero slider is data (Hero Slides); data blocks (t-call)
         stay outside them so saving in the builder never freezes them.
         When an editor saves the homepage, Odoo stores each edited oe_structure (by id) as
         a small website-specific view, and keeps a website copy of this outline with that
@@ -17,9 +17,7 @@
                 <h1 class="visually-hidden">Kinden Vietnam</h1>
 
                 <!-- 1. Hero slider -->
-                <div id="oe_structure_kdvn_home_hero" class="oe_structure">
-                    <t t-call="kdvn_website.s_kdvn_hero"/>
-                </div>
+                <t t-call="kdvn_website.s_kdvn_hero"/>
 
                 <!-- 2. Business Information -->
                 <section class="kdvn-home-business">
