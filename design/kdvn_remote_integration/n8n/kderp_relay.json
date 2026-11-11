@@ -7,9 +7,7 @@
         "path": "kderp-relay",
         "authentication": "headerAuth",
         "responseMode": "responseNode",
-        "options": {
-          "ipWhitelist": "CHANGE_ME: comma-separated IPs or CIDR of the Odoo servers that may call, e.g. 203.0.113.10,198.51.100.0/24"
-        }
+        "options": {}
       },
       "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
@@ -109,7 +107,7 @@
     },
     {
       "parameters": {
-        "content": "## KDERP relay\nThe ONLY n8n workflow Odoo needs. It forwards the JSON-RPC body that Odoo sends to `<X-Target-URL>/jsonrpc` and returns KDERP's answer. No business logic: which jobs, fields and rates are decided in Odoo, so this never changes.\n\n### Setup\n1. Create a *Header Auth* credential: name `X-Relay-Token`, value = a long random token. Select it on **Webhook**.\n2. **Webhook > Options > IP(s) Whitelist**: the public IPs (or CIDR) of the Odoo servers that call it (beta, the DigitalOcean site, the dev machine). Domain names are not accepted there: use their IPs. Behind a reverse proxy, n8n must see the real caller IP (set `N8N_PROXY_HOPS=1`), or the whitelist would see the proxy.\n3. **Allowed target?**: replace the list with your KDERP URL(s), exactly as in Odoo's Server field without a trailing slash (e.g. `http://172.16.10.192:8169`). Anything else, and any call whose JSON-RPC service is not `common` or `object`, gets 403 and is never forwarded.\n4. Activate. In Odoo: Settings > Remote Server Connection: Relay URL = the Production URL of **Webhook**, token = the same value.\n\n### What protects it\nToken (header) + caller IP whitelist + allowed KDERP URL list + only JSON-RPC services `common` / `object`. The KDERP login and password are still checked by KDERP itself. Use HTTPS for the webhook, because the password travels in the body.\n\nAdding a second KDERP server (e.g. HCMC) means adding its URL to the list in **Allowed target?**.",
+        "content": "## KDERP relay\nThe ONLY n8n workflow Odoo needs. It forwards the JSON-RPC body that Odoo sends to `<X-Target-URL>/jsonrpc` and returns KDERP's answer. No business logic: which jobs, fields and rates are decided in Odoo, so this never changes.\n\n### Setup\n1. Create a *Header Auth* credential: name `X-Relay-Token`, value = a long random token. Select it on **Webhook**.\n2. **Allowed target?**: replace the list with your KDERP URL(s), exactly as in Odoo's Server field without a trailing slash (e.g. `http://172.16.10.192:8169`). Anything else, and any call whose JSON-RPC service is not `common` or `object`, gets 403 and is never forwarded.\n3. **Filter the callers at the proxies, not here** (n8n is behind Cloudflare and HAProxy, so n8n sees the proxy's address, not the caller's): Cloudflare WAF rule and HAProxy ACL on `/webhook/kderp-relay`, only the Odoo servers' IPs (docs/deploy.md, 'Securing the relay'). n8n's own *Webhook > Options > IP(s) Whitelist* only works if `N8N_PROXY_HOPS` matches the number of proxies on EVERY path, which differs between outside (Cloudflare + HAProxy) and inside (HAProxy), so leave it empty.\n4. Activate. In Odoo: Settings > Remote Server Connection: Relay URL = the Production URL of **Webhook**, token = the same value.\n\n### What protects it\nToken (header) + caller IP filter at the proxies + allowed KDERP URL list + only JSON-RPC services `common` / `object`. The KDERP login and password are still checked by KDERP itself. HTTPS only, because the password travels in the body.\n\nAdding a second KDERP server (e.g. HCMC) means adding its URL to the list in **Allowed target?**.",
         "height": 520,
         "width": 560
       },
