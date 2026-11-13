@@ -10,11 +10,17 @@ class TestKdvnHomepage(HttpCase):
         html = res.text
         self.assertIn('s_kdvn_hero', html)
         self.assertEqual(html.count('kdvn-hero-arrow'), 2, "one pair of arrows for the whole slider")
-        self.assertEqual(html.count('class="carousel-item'), 2)
+        self.assertEqual(html.count('class="carousel-item'), self.env['kdvn.website.hero.slide'].search_count([]))
         # autoplay on load ("true" would wait for the first click) and loop
         self.assertIn('data-bs-ride="carousel"', html)
         self.assertIn('data-bs-wrap="true"', html)
         self.assertIn('href="/company-profile"', html)
+
+    def test_hero_interval_setting(self):
+        """Seconds from Settings > Website > Hero Slides drive data-bs-interval (default 10 s)."""
+        self.assertIn('data-bs-interval="10000"', self.url_open('/').text)
+        self.env['ir.config_parameter'].sudo().set_param('kdvn_website.hero_interval', '4')
+        self.assertIn('data-bs-interval="4000"', self.url_open('/').text)
 
     def test_hero_slides_are_data(self):
         """Link and order come from Hero Slides; editing never creates a homepage view copy."""

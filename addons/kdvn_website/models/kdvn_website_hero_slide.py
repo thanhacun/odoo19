@@ -1,5 +1,8 @@
 from odoo import api, fields, models
 
+INTERVAL_PARAM = 'kdvn_website.hero_interval'
+DEFAULT_INTERVAL_MS = 10000
+
 
 class KdvnWebsiteHeroSlide(models.Model):
     """A slide of the homepage slideshow.
@@ -24,6 +27,23 @@ class KdvnWebsiteHeroSlide(models.Model):
     active = fields.Boolean(default=True)
 
     @api.model
+    def _kdvn_interval_ms(self):
+        """Time each slide stays, in milliseconds (Settings > Website > Hero Slides; default 10 s)."""
+        try:
+            seconds = float(self.env['ir.config_parameter'].sudo().get_param(INTERVAL_PARAM) or 0)
+        except ValueError:
+            seconds = 0
+        return int(max(seconds, 1) * 1000) if seconds > 0 else DEFAULT_INTERVAL_MS
+
+    @api.model
     def _kdvn_slides(self):
         """Active slides in order, for the homepage (read with sudo: visitors cannot read the model)."""
         return self.sudo().search([])
+
+
+class ResConfigSettings(models.TransientModel):
+    _inherit = 'res.config.settings'
+
+    kdvn_hero_interval = fields.Integer(
+        'Hero Slide Time (seconds)', config_parameter=INTERVAL_PARAM, default=10,
+        help="How long each homepage slide stays before the next one. Minimum 1.")
