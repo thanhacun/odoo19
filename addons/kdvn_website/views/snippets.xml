@@ -10,13 +10,14 @@
         makes the website keep a copy of the homepage view. Arrows and indicators sit once,
         outside the slides; the indicators are hidden, built by static/src/js/hero_indicators.js.
         Autoplay: data-bs-ride="carousel" starts on load ("true" waits for the first click).
-        Loops: data-bs-wrap="true".
+        Loops: data-bs-wrap="true". Time per slide: Settings > Website > Hero Slides (seconds).
     -->
     <template id="s_kdvn_hero" name="KDVN Hero Slider">
         <t t-set="slides" t-value="request.env['kdvn.website.hero.slide']._kdvn_slides()"/>
+        <t t-set="interval" t-value="request.env['kdvn.website.hero.slide']._kdvn_interval_ms()"/>
         <section t-if="slides" class="s_kdvn_hero p-0">
             <div id="kdvnHero" class="carousel slide kdvn-hero"
-                 data-bs-ride="carousel" data-bs-interval="10000" data-bs-wrap="true">
+                 data-bs-ride="carousel" t-att-data-bs-interval="interval" data-bs-wrap="true">
                 <div class="carousel-inner">
                     <t t-foreach="slides" t-as="slide">
                         <div t-attf-class="carousel-item #{'active' if slide_first else ''}">
